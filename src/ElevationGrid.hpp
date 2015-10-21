@@ -1,13 +1,13 @@
 #ifndef __ENVIRE_MAPS_ELEVATION_GRID_HPP__
 #define __ENVIRE_MAPS_ELEVATION_GRID_HPP__
 
-#include "Map.hpp"
+#include "GridMap.hpp"
 
 namespace envire 
 {
 	namespace maps 
 	{
-		class ElevationGrid : public Map
+		class ElevationGrid : public GridMap
 		{
 		public:
 

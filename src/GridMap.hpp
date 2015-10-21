@@ -1,5 +1,5 @@
-#ifndef __ENVIRE_MAPS_MAP_HPP__
-#define __ENVIRE_MAPS_MAP_HPP__
+#ifndef __ENVIRE_MAPS_GRIDMAP_HPP__
+#define __ENVIRE_MAPS_GRIDMAP_HPP__
 
 #include <map>
 #include <iostream>
@@ -13,9 +13,9 @@ namespace envire
 {
 	namespace maps
 	{
-		class Map : public GridBase {
+		class GridMap : public GridBase {
 		public:
-			Map() : GridBase() {}
+			GridMap() : GridBase() {}
 
 			/**
 			 * @brief creat an empty grid of specific size and resolution
@@ -28,10 +28,10 @@ namespace envire
 			// initialize the structure of grid
 			// no layers will be created
 			// call createLayer to add some layers to grid
-			Map(GridConfig config) 
+			GridMap(GridConfig config) 
 			    : GridBase(config){}
 
-			~Map() 
+			~GridMap() 
 			{
 				removeAllGrids();
 			}
@@ -51,10 +51,9 @@ namespace envire
 			template <typename T>
 			Grid<T>& addGrid(const std::string &key, const T &default_value)
 			{
-				std::cout << "Map::addGrid" << std::endl;
 				if (hasGrid(key) == true)
 				{
-					throw std::out_of_range("Map::addGrid: The grid with the key '" + key + "' exists already.");
+					throw std::out_of_range("GridMap::addGrid: The grid with the key '" + key + "' exists already.");
 				}
 
 				Grid<T> *new_grid = new Grid<T>(default_value, getGridConfig());
@@ -72,7 +71,6 @@ namespace envire
 			 */
 			bool hasGrid(const std::string &key) const
 			{ 
-				std::cout << "Map::hasGrid" << std::endl;
 				typename MapType::const_iterator it = grids.find(key);
                 if (it == grids.end())
                     return false;
@@ -82,7 +80,6 @@ namespace envire
 
 			bool removeGrid(const std::string &key)
 			{
-				std::cout << "Map::removeGrid" << std::endl;
                 if(hasGrid(key) == false)
                 {
                     return false;
@@ -96,7 +93,6 @@ namespace envire
 
 			void removeAllGrids() 
 			{
-				std::cout << "Map::removeAllGrids" << std::endl;
 				// TODO: check if the 
 				typename MapType::iterator it;
 				for (it = grids.begin(); it != grids.end(); ++it)
@@ -144,7 +140,7 @@ namespace envire
 				std::cout << "not implemented: " << __PRETTY_FUNCTION__ << std::endl;
 			}
 
-			void copy(const Map &src_grid)
+			void copy(const GridMap &src_grid)
 			{
 				std::cout << "not implemented: " << __PRETTY_FUNCTION__ << std::endl;
 			}
@@ -161,7 +157,6 @@ namespace envire
 			template <typename T>
 			Grid<T>* getGridPtr(const std::string &key) const
 			{
-				std::cout << "Map::getGridPtr"<< std::endl;
 				Grid<T>* grid = NULL;
 				try {
 					grid = dynamic_cast<Grid<T>*>(grids.at(key));	
@@ -182,4 +177,4 @@ namespace envire
 	}
 }
 
-#endif // __ENVIRE_MAPS_LAYER_GRID_HPP__
+#endif // __ENVIRE_MAPS_GRIDMAP_HPP__

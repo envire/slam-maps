@@ -13,11 +13,11 @@ const double ElevationGrid::ELEVATION_MIN_DEFAULT = std::numeric_limits<double>:
 const double ElevationGrid::ELEVATION_MAX_DEFAULT = -std::numeric_limits<double>::infinity();
 
 ElevationGrid::ElevationGrid() 
-    : Map() 
+    : GridMap() 
 {}
 
 ElevationGrid::ElevationGrid(GridConfig config)
-    : Map(config) 
+    : GridMap(config) 
 {
     // add all layers to the grid without memory allocation and default value initialization
     addGrid<double>(ELEVATION_MAX, ELEVATION_MAX_DEFAULT);

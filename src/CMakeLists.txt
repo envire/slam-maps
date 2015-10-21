@@ -7,9 +7,10 @@ rock_library(envire_maps
         GridConfig.hpp
         GridBase.hpp    
         Grid.hpp
-        Map.hpp
+        GridMap.hpp
         ElevationGrid.hpp
-        List.hpp      
+        List.hpp
+        ListGrid.hpp        
         MLSConfig.hpp
         SurfacePatch.hpp        
         SPList.hpp
