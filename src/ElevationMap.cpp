@@ -1,22 +1,22 @@
-#include "ElevationGrid.hpp"
+#include "ElevationMap.hpp"
 
 namespace envire 
 {
 namespace maps 
 {
 
-const std::string ElevationGrid::ELEVATION = "elevation_max"; // this will reference the max band
-const std::string ElevationGrid::ELEVATION_MIN = "elevation_min";
-const std::string ElevationGrid::ELEVATION_MAX = "elevation_max";
+const std::string ElevationMap::ELEVATION = "elevation_max"; // this will reference the max band
+const std::string ElevationMap::ELEVATION_MIN = "elevation_min";
+const std::string ElevationMap::ELEVATION_MAX = "elevation_max";
 
-const double ElevationGrid::ELEVATION_MIN_DEFAULT = std::numeric_limits<double>::infinity();
-const double ElevationGrid::ELEVATION_MAX_DEFAULT = -std::numeric_limits<double>::infinity();
+const double ElevationMap::ELEVATION_MIN_DEFAULT = std::numeric_limits<double>::infinity();
+const double ElevationMap::ELEVATION_MAX_DEFAULT = -std::numeric_limits<double>::infinity();
 
-ElevationGrid::ElevationGrid() 
+ElevationMap::ElevationMap() 
     : GridMap() 
 {}
 
-ElevationGrid::ElevationGrid(GridConfig config)
+ElevationMap::ElevationMap(GridConfig config)
     : GridMap(config) 
 {
     // add all layers to the grid without memory allocation and default value initialization
@@ -24,12 +24,12 @@ ElevationGrid::ElevationGrid(GridConfig config)
     addGrid<double>(ELEVATION_MIN, ELEVATION_MIN_DEFAULT); 
 }
 
-ElevationGrid::~ElevationGrid()
+ElevationMap::~ElevationMap()
 {
 
 }
 
-Eigen::Vector3d ElevationGrid::getNormal(const Index& idx) const
+Eigen::Vector3d ElevationMap::getNormal(const Index& idx) const
 {
     if (!inGrid(idx))
         throw std::runtime_error("Provided index is out of grid.");
@@ -48,7 +48,7 @@ Eigen::Vector3d ElevationGrid::getNormal(const Index& idx) const
     return Eigen::Vector3d( slope_x, slope_y, 1.0 ).normalized();
 }
 
-Eigen::Vector3d ElevationGrid::getNormal(const Eigen::Vector2d& pos) const
+Eigen::Vector3d ElevationMap::getNormal(const Eigen::Vector2d& pos) const
 {
     Index idx;
     if (!toGrid(pos, idx))
@@ -57,7 +57,7 @@ Eigen::Vector3d ElevationGrid::getNormal(const Eigen::Vector2d& pos) const
     return getNormal(idx);
 }
 
-double ElevationGrid::getMeanElevation(const Eigen::Vector2d& pos) const
+double ElevationMap::getMeanElevation(const Eigen::Vector2d& pos) const
 {
     Index idx;
     if (!toGrid(pos, idx))

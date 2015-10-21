@@ -1,5 +1,5 @@
-#ifndef __ENVIRE_MAPS_ELEVATION_GRID_HPP__
-#define __ENVIRE_MAPS_ELEVATION_GRID_HPP__
+#ifndef __ENVIRE_MAPS_ELEVATION_MAP_HPP__
+#define __ENVIRE_MAPS_ELEVATION_MAP_HPP__
 
 #include "GridMap.hpp"
 
@@ -7,7 +7,7 @@ namespace envire
 {
 	namespace maps 
 	{
-		class ElevationGrid : public GridMap
+		class ElevationMap : public GridMap
 		{
 		public:
 
@@ -18,11 +18,11 @@ namespace envire
                   static const double ELEVATION_MAX_DEFAULT;
                   static const double ELEVATION_MIN_DEFAULT;
 
-                  ElevationGrid();
+                  ElevationMap();
 
-                  ElevationGrid(GridConfig config);
+                  ElevationMap(GridConfig config);
 
-                  ~ElevationGrid();
+                  ~ElevationMap();
 
                   Eigen::Vector3d getNormal( const Index& pos ) const;
 
@@ -44,4 +44,4 @@ namespace envire
 }
 
 
-#endif // __ENVIRE_MAPS_ELEVATION_GRID_HPP__
+#endif // __ENVIRE_MAPS_ELEVATION_MAP_HPP__

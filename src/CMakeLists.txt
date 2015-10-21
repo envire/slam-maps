@@ -1,14 +1,14 @@
 rock_library(envire_maps
     SOURCES 
     	GridBase.cpp
-    	ElevationGrid.cpp
+    	ElevationMap.cpp
         SurfacePatch.cpp              
     HEADERS 
         GridConfig.hpp
         GridBase.hpp    
         Grid.hpp
         GridMap.hpp
-        ElevationGrid.hpp
+        ElevationMap.hpp
         List.hpp
         ListGrid.hpp        
         MLSConfig.hpp
