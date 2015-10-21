@@ -48,7 +48,7 @@ bool GridBase::toGrid(const Eigen::Vector2d& pos, Index &idx, Eigen::Vector2d& p
 }
 
 bool GridBase::fromGrid(size_t xi, size_t yi, double& x, double& y) const
-{
+{  
     if (inGrid(xi, yi))
     {        
         x = (xi + 0.5) * config.scaleX + config.offsetX;
