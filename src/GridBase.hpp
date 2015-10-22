@@ -151,14 +151,14 @@ namespace envire
 
 				bool toGrid(const Eigen::Vector2d& pos, Index &idx, Eigen::Vector2d& posDiff) const;	
 
-				bool toGrid(const Eigen::Vector3d& pos_in_frame, Index& idx, const Eigen::Affine3d &frame_in_map) const;
+				bool toGrid(const Eigen::Vector3d& pos_in_frame, Index& idx, const Eigen::Affine3d &frame_in_grid) const;
 
 				bool fromGrid(const Index& idx, Eigen::Vector2d& pos) const;
 
 				/** Converts coordinates from the map-local grid coordinates to
          		* the coordinates in the specified \c frame
          		*/
-				bool fromGrid(const Index& idx, Eigen::Vector3d& pos_in_frame, const Eigen::Affine3d &frame_in_map) const;
+				bool fromGrid(const Index& idx, Eigen::Vector3d& pos_in_frame, const Eigen::Affine3d &frame_in_grid) const;
 
 				bool inGrid(const Index& idx) const;
 

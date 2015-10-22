@@ -47,9 +47,9 @@ bool GridBase::toGrid(const Eigen::Vector2d& pos, Index &idx, Eigen::Vector2d& p
     return toGrid(pos.x(), pos.y(), idx.x, idx.y, posDiff.x(), posDiff.y());
 }
 
-bool GridBase::toGrid(const Eigen::Vector3d& pos_in_frame, Index& idx, const Eigen::Affine3d &frame_in_map) const
+bool GridBase::toGrid(const Eigen::Vector3d& pos_in_frame, Index& idx, const Eigen::Affine3d &frame_in_grid) const
 {
-    Eigen::Vector3d pos_in_map = frame_in_map * pos_in_frame;
+    Eigen::Vector3d pos_in_map = frame_in_grid * pos_in_frame;
     Eigen::Vector2d posDiff;
     return toGrid(pos_in_map.x(), pos_in_map.y(), idx.x, idx.y, posDiff.x(), posDiff.y());
 }
@@ -72,7 +72,7 @@ bool GridBase::fromGrid(const Index& idx, Eigen::Vector2d& pos) const
     return fromGrid(idx.x, idx.y, pos.x(), pos.y());
 }
 
-bool GridBase::fromGrid(const Index& idx, Eigen::Vector3d& pos_in_frame, const Eigen::Affine3d &frame_in_map) const
+bool GridBase::fromGrid(const Index& idx, Eigen::Vector3d& pos_in_frame, const Eigen::Affine3d &frame_in_grid) const
 {
     Eigen::Vector2d pos_in_map;
     bool result = fromGrid(idx.x, idx.y, pos_in_map.x(), pos_in_map.y());
@@ -80,7 +80,7 @@ bool GridBase::fromGrid(const Index& idx, Eigen::Vector3d& pos_in_frame, const E
     if (result == false)
         return false;
 
-    pos_in_frame = frame_in_map.inverse() * Eigen::Vector3d(pos_in_map.x(), pos_in_map.y(), 0.);
+    pos_in_frame = frame_in_grid.inverse() * Eigen::Vector3d(pos_in_map.x(), pos_in_map.y(), 0.);
 
     return true;
 }
