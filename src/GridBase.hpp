@@ -2,6 +2,7 @@
 #define __ENVIRE_MAPS_GRIDBASE_HPP__
 
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 
 #include <boost/intrusive_ptr.hpp>
 #include <boost/function.hpp>
