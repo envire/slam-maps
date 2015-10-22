@@ -23,7 +23,6 @@ namespace envire
 				holder(new ArrayType()),
 				default_value(default_value)
 			{
-				//std::cout << "Grid::constructor" << std::endl;
 			}
 
 			Grid(const Grid& other) :
@@ -31,12 +30,10 @@ namespace envire
 				default_value(other.default_value),
 				holder(new ArrayType(*(other.holder)))
 			{
-				//std::cout << "Grid::copy constructor" << std::endl;
 			} 
 
 			~Grid() 
 			{
-				//std::cout << "Grid::destructor" << std::endl;
 				delete holder;
 			}
 
