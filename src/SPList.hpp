@@ -18,7 +18,7 @@ namespace envire
 			typedef typename List<SurfacePatch>::Cell::iterator CellItr;
 			typedef typename List<SurfacePatch>::Cell::const_iterator CellItrConst;
 
-			SPList(MLSConfiguration config = MLSConfiguration()) 
+			SPList(MLSConfig config = MLSConfig()) 
 				: List<SurfacePatch>(),
 				config(config)
 			{}
@@ -112,7 +112,7 @@ namespace envire
 
 		protected:
 
-			MLSConfiguration config;
+			MLSConfig config;
 
 			bool merge(SurfacePatch& p, SurfacePatch& o)
 			{

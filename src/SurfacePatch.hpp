@@ -168,13 +168,13 @@ template <class T> inline void kalman_update( T& mean, T& stdev, T m_mean, T m_s
 				return Eigen::Vector3f( -plane.getCoeffs().x(), -plane.getCoeffs().y(), 1.0 ).normalized();
 		    }
 
-		    bool mergeSum( SurfacePatch& o, const MLSConfiguration& config );
+		    bool mergeSum( SurfacePatch& o, const MLSConfig& config );
 
-	    	bool mergePlane( SurfacePatch& o, const MLSConfiguration& config );
+	    	bool mergePlane( SurfacePatch& o, const MLSConfig& config );
 
-	    	bool mergeMLS( SurfacePatch& o, const MLSConfiguration& config );
+	    	bool mergeMLS( SurfacePatch& o, const MLSConfig& config );
 
-			bool merge( SurfacePatch& o,const MLSConfiguration& config );	    	
+			bool merge( SurfacePatch& o,const MLSConfig& config );	    	
 
 	    	/** 
 		     * @brief get the weighting for the patch

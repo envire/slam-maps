@@ -14,15 +14,18 @@ namespace envire
 			typedef typename SPList::Cell::iterator CellItr;
 			typedef typename SPList::Cell::const_iterator CellItrConst;
 
-			MLSGrid(GridConfig grid_config, MLSConfiguration mls_config = MLSConfiguration()) 
+			MLSGrid(GridConfig grid_config, MLSConfig mls_config = MLSConfig()) 
 				: Grid<SPList>(SPList(mls_config), grid_config),
 				mls_config(mls_config)
-				{}
+			{}
 
-			
+			const MLSConfig& getConfig() const 
+			{ 
+				return mls_config; 
+			}
 
 		private:
-			MLSConfiguration mls_config;
+			MLSConfig mls_config;
 
 
 		};

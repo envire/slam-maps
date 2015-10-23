@@ -10,9 +10,9 @@ namespace envire
          * Configuration struct which hold information on the different 
          * options and parameters of the MLS. 
          */
-        struct MLSConfiguration
+        struct MLSConfig
         {
-            MLSConfiguration()
+            MLSConfig()
         	: gapSize( 1.0 ), 
         	thickness( 0.05 ),
         	useColor( false ),

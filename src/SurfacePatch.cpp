@@ -88,7 +88,7 @@ double SurfacePatch::getMaxZ(double sigma_threshold) const
 	return mean + stdev * sigma_threshold;
 }
 
-bool SurfacePatch::mergeSum( SurfacePatch& o, const MLSConfiguration& config  )
+bool SurfacePatch::mergeSum( SurfacePatch& o, const MLSConfig& config  )
 {
 	SurfacePatch &p(*this);
 
@@ -114,7 +114,7 @@ bool SurfacePatch::mergeSum( SurfacePatch& o, const MLSConfiguration& config  )
 	return false;
 }
 
-bool SurfacePatch::mergePlane( SurfacePatch& o, const MLSConfiguration& config )
+bool SurfacePatch::mergePlane( SurfacePatch& o, const MLSConfig& config )
 {
 	SurfacePatch &p(*this);
 
@@ -135,7 +135,7 @@ bool SurfacePatch::mergePlane( SurfacePatch& o, const MLSConfiguration& config )
 	return false;
 }
 
-bool SurfacePatch::mergeMLS( SurfacePatch& o, const MLSConfiguration& config )
+bool SurfacePatch::mergeMLS( SurfacePatch& o, const MLSConfig& config )
 {
 	SurfacePatch &p(*this);
 	const double delta_dev = sqrt( p.stdev * p.stdev + o.stdev * o.stdev );
@@ -231,21 +231,21 @@ bool SurfacePatch::mergeMLS( SurfacePatch& o, const MLSConfiguration& config )
 	return false;
 }
 
-bool SurfacePatch::merge( SurfacePatch& o, const MLSConfiguration& config )
+bool SurfacePatch::merge( SurfacePatch& o, const MLSConfig& config )
 {
 	bool merge = false;
 
 	switch( config.updateModel )
 	{
-	    case MLSConfiguration::KALMAN:
+	    case MLSConfig::KALMAN:
 		merge = mergeMLS( o, config );
 		break;
 
-	    case MLSConfiguration::SUM:
+	    case MLSConfig::SUM:
 		merge = mergeSum( o, config );
 		break;
 
-	    case MLSConfiguration::SLOPE:
+	    case MLSConfig::SLOPE:
 		merge = mergePlane( o, config );
 		break;
 
