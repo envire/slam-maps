@@ -219,7 +219,8 @@ template <class T> inline void kalman_update( T& mean, T& stdev, T m_mean, T m_s
 		    {
 		        return n;
 		    }
-		public:
+		    
+		protected:
 		    /** The mean Z value. This always represents the top of the patch,
 		     * regardless whether the patch is horizontal or vertical
 		     */
@@ -237,7 +238,6 @@ template <class T> inline void kalman_update( T& mean, T& stdev, T m_mean, T m_s
 		    size_t update_idx;
 		    uint8_t color[3];
 
-		protected:
 		    /** Horizontal patches are just a mean and standard deviation.
 		     * Vertical patches also have a height, i.e. the patch is a vertical
 		     * block between z=(mean-height) and z
