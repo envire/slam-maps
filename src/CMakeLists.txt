@@ -10,7 +10,6 @@ rock_library(envire_maps
         GridMap.hpp
         ElevationMap.hpp
         List.hpp
-        ListGrid.hpp        
         MLSConfig.hpp
         SurfacePatch.hpp        
         SPList.hpp
