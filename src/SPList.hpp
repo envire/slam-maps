@@ -15,8 +15,8 @@ namespace envire
 		class SPList : public List<SurfacePatch> 
 		{
 		public:
-			typedef typename List<SurfacePatch>::Cell::iterator iterator;
-			typedef typename List<SurfacePatch>::Cell::const_iterator const_iterator;
+			typedef typename List<SurfacePatch>::Holder::iterator iterator;
+			typedef typename List<SurfacePatch>::Holder::const_iterator const_iterator;
 
 			SPList(MLSConfig config = MLSConfig()) 
 				: List<SurfacePatch>(),
@@ -78,7 +78,7 @@ namespace envire
 
 			iterator getPatchByZ(const SurfacePatch& patch, double sigma_threshold = 3.0, bool ignore_negative = true)
 			{
-				CellItr it = begin();
+				iterator it = begin();
 				for (;it != end(); ++it)
 				{					
 					SurfacePatch &p(*it);
