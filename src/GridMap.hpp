@@ -116,8 +116,13 @@ namespace envire
 
 			std::vector<std::string> getAllGridKeys() const
 			{
-				std::cout << "not implemented: " << __PRETTY_FUNCTION__ << std::endl;
-				return std::vector<std::string>();
+				std::vector<std::string> keys;
+				typename MapType::const_iterator it;
+				for (it = grids.begin(); it != grids.end(); ++it)
+				{
+					keys.push_back(it->first);
+				}
+				return keys;
 			}
 
 			void write(const std::string &key, const std::string &path) const
