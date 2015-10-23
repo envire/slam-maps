@@ -18,6 +18,12 @@ namespace envire
 		public:
 			typedef boost::multi_array<T,2> ArrayType;
 
+			Grid()
+				:GridBase(config),
+				holder(new ArrayType())
+			{
+			}
+
 			Grid(const T& default_value, GridConfig config)
 				: GridBase(config),
 				holder(new ArrayType()),
@@ -42,7 +48,7 @@ namespace envire
 				return default_value;
 			}
 
-			T at(const Eigen::Vector2d& pos) const
+			const T& at(const Eigen::Vector2d& pos) const
 			{
 				Index idx;
 				if (!toGrid(pos, idx))
@@ -58,7 +64,7 @@ namespace envire
 				return get(idx);
 			}					
 
-			T at(Index idx) const
+			const T& at(Index idx) const
 			{
 				if (!inGrid(idx))
 					throw std::runtime_error("Provided index is out of the grid");				
@@ -72,7 +78,7 @@ namespace envire
 				return get(idx);
 			}
 
-			T at(size_t x, size_t y) const
+			const T& at(size_t x, size_t y) const
 			{
 				Index idx(x, y);
 				if (!inGrid(idx))
@@ -88,14 +94,14 @@ namespace envire
 				return get(idx);				
 			}				
 
-			T getMax() const
+			const T& getMax() const
 			{
 				const ArrayType &array = getArray();
 				// TODO: if max_element return end iterator
 				return *(std::max_element(array.origin(), array.origin() + array.num_elements()));
 			}
 
-			T getMin() const
+			const T& getMin() const
 			{
 				const ArrayType &array = getArray();
 				// TODO: if min_element return end iterator
@@ -153,7 +159,7 @@ namespace envire
 				// return getArray()[idx.y][idx.x];			
 			}
 
-			T get(Index idx) const
+			const T& get(Index idx) const
 			{
 				return *(getArray().data() + idx.y * getCellSizeX() + idx.x);	
 				// return getArray()[idx.y][idx.x];			
