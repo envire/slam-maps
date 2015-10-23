@@ -15,8 +15,8 @@ namespace envire
 		class SPList : public List<SurfacePatch> 
 		{
 		public:
-			typedef typename List<SurfacePatch>::Cell::iterator CellItr;
-			typedef typename List<SurfacePatch>::Cell::const_iterator CellItrConst;
+			typedef typename List<SurfacePatch>::Cell::iterator iterator;
+			typedef typename List<SurfacePatch>::Cell::const_iterator const_iterator;
 
 			SPList(MLSConfig config = MLSConfig()) 
 				: List<SurfacePatch>(),
@@ -25,13 +25,13 @@ namespace envire
 
 			void update(const SurfacePatch& co)
 			{
-				typedef std::list<CellItr> iterator_list;
+				typedef std::list<iterator> iterator_list;
 			    iterator_list merged;
 
 			    // make a copy of the surfacepatch as it may get updated in the merge
 			    SurfacePatch o( co );
 
-			    for (CellItr it = begin(); it != end(); it++)
+			    for (iterator it = begin(); it != end(); it++)
 			    {
 					// merge the patches and remember the ones which where merged 
 					if (merge(*it, o))
@@ -70,19 +70,19 @@ namespace envire
 	         * The mean Z of the returned patch has to be within \c sigma_threshold
 	         * patch.sigma of sigma.mean
 	         */
-			CellItr getPatchByZ(double zpos, double zstdev, double sigma_threshold = 3.0, bool ignore_negative = true)
+			iterator getPatchByZ(double zpos, double zstdev, double sigma_threshold = 3.0, bool ignore_negative = true)
 			{
 			    SurfacePatch tmp(zpos, zstdev);
 			    return getPatchByZ(tmp, sigma_threshold, ignore_negative);
 			}
 
-			CellItr getPatchByZ(const SurfacePatch& patch, double sigma_threshold = 3.0, bool ignore_negative = true)
+			iterator getPatchByZ(const SurfacePatch& patch, double sigma_threshold = 3.0, bool ignore_negative = true)
 			{
 				CellItr it = begin();
 				for (;it != end(); ++it)
 				{					
 					SurfacePatch &p(*it);
-					const double interval = sqrt(sq(patch.stdev) + sq(p.stdev)) * sigma_threshold;
+					const double interval = sqrt(sq(patch.getStdev()) + sq(p.getStdev())) * sigma_threshold;
 					if( p.distance( patch ) < interval && (!ignore_negative || !p.isNegative()) )
 					{
 					    return it;
@@ -91,13 +91,13 @@ namespace envire
 			    return it;
 			}
 
-			std::pair<CellItr, double> getNearestPatch(const SurfacePatch& p)
+			std::pair<iterator, double> getNearestPatch(const SurfacePatch& p)
 			{
-				CellItr it_min = end();
+				iterator it_min = end();
 				double dist = std::numeric_limits<double>::infinity();
 
 				// find the cell with the smallest z-diff
-				for (CellItr it = begin(); it != end(); ++it)
+				for (iterator it = begin(); it != end(); ++it)
 				{					
 					double d;
 					if( (d = p.distance(*it)) < dist )

@@ -11,8 +11,6 @@ namespace envire
 		class MLSGrid : public Grid<SPList> 
 		{
 		public:
-			typedef typename SPList::Cell::iterator CellItr;
-			typedef typename SPList::Cell::const_iterator CellItrConst;
 
 			MLSGrid()
 				: Grid<SPList>()

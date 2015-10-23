@@ -15,111 +15,86 @@ namespace envire
 		public:
 			typedef boost::intrusive::constant_time_size<false> constant_time_size;
 
-			typedef boost::intrusive::list<T, constant_time_size> Cell;
-			typedef typename Cell::iterator CellItr;
-			typedef typename Cell::const_iterator CellItrConst;
-
-		protected:
-			/*//The disposer object function
-			struct delete_disposer
-			{
-			   void operator()(T *delete_this)
-			   {  
-			   	//std::cout << "delete: " << delete_this << std::endl;
-			   	delete delete_this;  
-			   }			   }
-
-			};	
-
-			struct cloner 
-			{
-				T* operator()(const T &clone_this)
-				{	return new T(clone_this); }
-			};*/
+			typedef boost::intrusive::list<T, constant_time_size> Holder;
+			typedef typename Holder::iterator iterator;
+			typedef typename Holder::const_iterator const_iterator;
 
 		public:
 			List() 
-				: cell(new Cell()),
+				: holder(new Holder()),
 				mem_pool(new boost::object_pool<T>())
 			{
-				//std::cout << "List: constructor " << cell << std::endl;
 			}
 
 			List(const List<T>& other) 
 			{
-				cell = new Cell();	
+				holder = new Holder();	
 				mem_pool = new boost::object_pool<T>();		
 				// use the assignment operator				
 				this->operator=( other );				
 			}
 
 			~List()
-			{
-				//std::cout << "List: desctructor " << cell << std::endl;			
+			{		
 				if (mem_pool)
 					delete mem_pool;
-				if (cell)				
-					delete cell;				
+				if (holder)				
+					delete holder;				
 			}
 
 			List& operator=( const List<T>& other )
 			{
 				clear();
 
-				for (CellItrConst it = other.begin(); it != other.end(); ++it)
+				for (const_iterator it = other.begin(); it != other.end(); ++it)
 				{
 					insertTail(*it);
 				}			
 				return *this;				
 			}
 
-			Cell* getPtr() const
-			{
-				return cell;
-			}
-
 			// Q: what is head and what is tail?
 			void insertTail(const T& value)
 			{
 				T* value_t = mem_pool->construct(value);			
-				cell->push_back(*value_t);
+				holder->push_back(*value_t);
 			}
 
 			void insertHead(const T& value)
 			{
 				T* value_t = mem_pool->construct(value);
-				cell->insert(cell->begin(), *value_t);		
+				holder->insert(holder->begin(), *value_t);		
 			}
 
-			CellItr begin()
+			iterator begin()
 			{
-				return cell->begin();
+				return holder->begin();
 			} 
 
-		    CellItrConst begin() const
+		    const_iterator begin() const
 		    {
-				return cell->begin();
+				return holder->begin();
 		    }	
 
-			CellItr end()
+			iterator end()
 			{
-				return cell->end();
+				return holder->end();
 			}
 
-		    CellItrConst end() const
+		    const_iterator end() const
 		    {
-				return cell->end();
+				return holder->end();
 		    }	
 
-		    CellItr erase(CellItr iterator)
+		    iterator erase(iterator it)
 		    {
-		    	T* value = &*iterator;
+		    	T* value = &*it;
 		    	if (mem_pool->is_from(value) == false) 
 		    		throw std::runtime_error("Wrong iterator.");
 
 		    	mem_pool->destroy(value);
 
-		    	return iterator++;
+		    	return it++;
 		    }
 
 			void clear()
@@ -135,11 +110,11 @@ namespace envire
 
 			size_t size() 
 			{
-				return cell->size();
+				return holder->size();
 			}
 
 		protected:
-		    Cell* cell;
+		    Holder* holder;
 
 		    boost::object_pool<T>* mem_pool;
 			
