@@ -32,6 +32,7 @@ namespace envire
                 /** Internal structure used to represent a position on the grid itself,
                  * as a cell index
                  */
+                // TODO: probably replace the Index with Vector2i or extend it
                 struct Index
                 {
                     /** The cell position along the X axis */
@@ -71,6 +72,7 @@ namespace envire
                         return Index(x + second.x, y + second.y);
                     }
 
+                    // TODO: what should we do if the second index are bigger than the first one?
                     Index operator-(const Index& second) const
                     {
                         return Index(x - second.x, y - second.y);
