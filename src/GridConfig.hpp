@@ -5,7 +5,7 @@ namespace envire
 {
 	namespace maps 
 	{
-		class GridConfig
+		struct GridConfig
 		{
 		public:
 			GridConfig() :

@@ -163,18 +163,14 @@ namespace envire
 			Grid<T>* getGridPtr(const std::string &key) const
 			{
 				Grid<T>* grid = NULL;
-				try {
-					grid = dynamic_cast<Grid<T>*>(grids.at(key));	
-					
-					if (grid == NULL)
-						throw std::runtime_error("The grid with the key '" + key + "' is not of required type.");
-				} catch (const std::out_of_range &e) 
-				{
+
+				if (hasGrid(key) == false)
 					throw std::out_of_range("The map does not contain the grid with the key '" + key + "'.");
-				} catch (const std::bad_cast &e)
-				{
+
+				grid = dynamic_cast<Grid<T>*>(grids.at(key));	
+					
+				if (grid == NULL)
 					throw std::runtime_error("The grid with the key '" + key + "' is not of required type.");
-				}
 
 				return grid;
 			}
