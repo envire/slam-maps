@@ -39,7 +39,7 @@ namespace envire
                     /** The cell position along the Y axis */
                     size_t y;
 
-                    Index() {}
+                    Index() : x(0), y(0) {}
                     Index( size_t x, size_t y ) : x(x), y(y) {}
                     explicit Index( const Eigen::Vector2i &index ) : x(index.x()), y(index.y()) {}
 
