@@ -14,6 +14,8 @@ namespace envire
 				offsetX(0), offsetY(0)
 			{};
 
+			// TODO: the scaleX und scaleY can not be negative
+			// it should be check
 			GridConfig(size_t cellSizeX, size_t cellSizeY,
 						double scaleX, double scaleY,
 						double offsetX = 0, double offsetY = 0)
