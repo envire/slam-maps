@@ -173,14 +173,6 @@ namespace envire
 							default_value);  	
 			}		
 
-			bool hasData() 
-			{
-				if (holder->num_elements() == 0)
-					return false;
-				else
-					return true;
-			}
-
 			ArrayType& getArray()
 			{
 				if (holder->num_elements() == 0)
