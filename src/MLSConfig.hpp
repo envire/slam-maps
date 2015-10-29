@@ -13,16 +13,16 @@ namespace envire
         struct MLSConfig
         {
             MLSConfig()
-        	: gapSize( 1.0 ), 
-        	thickness( 0.05 ),
-        	useColor( false ),
-        	updateModel( KALMAN ) {}
+            : gapSize( 1.0 ), 
+            thickness( 0.05 ),
+            useColor( false ),
+            updateModel( KALMAN ) {}
 
             enum update_model
             {
-        	KALMAN,
-        	SUM,
-        	SLOPE
+                KALMAN,
+                SUM,
+                SLOPE
             };
 
             float gapSize;

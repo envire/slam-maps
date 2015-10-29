@@ -6,7 +6,7 @@ namespace maps
 {
 
 GridBase::GridBase()
-{}	
+{}  
 
 GridBase::GridBase(GridConfig config)
     : config(config) 
@@ -25,14 +25,14 @@ bool GridBase::toGrid(double x, double y, size_t& xi, size_t& yi, double& xmod, 
 
     if(inGrid(xi_t, yi_t))
     {
-		xi = xi_t;
-		yi = yi_t;
-		xmod = x - (xi * config.scaleX + config.offsetX);
-		ymod = y - (yi * config.scaleY + config.offsetY);
-		return true;
+        xi = xi_t;
+        yi = yi_t;
+        xmod = x - (xi * config.scaleX + config.offsetX);
+        ymod = y - (yi * config.scaleY + config.offsetY);
+        return true;
     }
     else {
-		return false;
+        return false;
     }
 }
 

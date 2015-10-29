@@ -5,13 +5,13 @@
 
 namespace envire 
 {
-	namespace maps 
-	{
-		class ElevationMap : public GridMap
-		{
-		public:
+      namespace maps 
+      {
+            class ElevationMap : public GridMap
+            {
+            public:
 
-			static const std::string ELEVATION;
+                  static const std::string ELEVATION;
                   static const std::string ELEVATION_MIN;
                   static const std::string ELEVATION_MAX;
 
@@ -39,8 +39,8 @@ namespace envire
                   */
                   double getMeanElevation( const Eigen::Vector2d& pos ) const;
 
-		};
-	}
+            };
+      }
 }
 
 
