@@ -165,10 +165,13 @@ namespace envire
 
             void init() const
             {           
+                if (getCellSizeX() == 0 || getCellSizeY() == 0)
+                    throw std::runtime_error("The grid size is zero! (therefore the array to hold the cells could be not allocated properly)"); 
+
                 holder->resize(boost::extents[getCellSizeY()][getCellSizeX()]);
                 std::fill(holder->data(), 
                             holder->data() + holder->num_elements(), 
-                            default_value);     
+                            default_value);                             
             }       
 
             ArrayType& getArray()
