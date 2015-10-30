@@ -97,14 +97,12 @@ namespace envire
             const T& getMax() const
             {
                 const ArrayType &array = getArray();
-                // TODO: if max_element return end iterator
                 return *(std::max_element(array.origin(), array.origin() + array.num_elements()));
             }
 
             const T& getMin() const
             {
                 const ArrayType &array = getArray();
-                // TODO: if min_element return end iterator
                 return *(std::min_element(array.origin(), array.origin() + array.num_elements()));
             }           
 
