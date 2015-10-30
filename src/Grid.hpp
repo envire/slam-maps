@@ -19,7 +19,7 @@ namespace envire
             typedef boost::multi_array<T,2> ArrayType;
 
             Grid()
-                :GridBase(config),
+                :GridBase(),
                 holder(new ArrayType())
             {
             }
