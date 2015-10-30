@@ -7,34 +7,41 @@ using namespace envire::maps;
 
 BOOST_AUTO_TEST_CASE(test_grid_index)
 {
+    // check default constructor
     GridBase::Index index;
     BOOST_CHECK_EQUAL(index.x, 0);
     BOOST_CHECK_EQUAL(index.y, 0);
 
+    // check constructor with parameter
     GridBase::Index index2(2, 4);
     BOOST_CHECK_EQUAL(index2.x, 2);
     BOOST_CHECK_EQUAL(index2.y, 4);         
 
-    BOOST_CHECK_EQUAL((index2 < GridBase::Index(3, 5)), true);  
-    BOOST_CHECK_EQUAL((index2 < GridBase::Index(2, 5)), true);  
-    BOOST_CHECK_EQUAL((index2 < GridBase::Index(2, 4)), false);     
-    BOOST_CHECK_EQUAL((index2 < GridBase::Index(2, 3)), false); 
-    BOOST_CHECK_EQUAL((index2 < GridBase::Index(1, 5)), false);     
-    BOOST_CHECK_EQUAL((index2 < GridBase::Index(1, 3)), false);     
+    // check the "<" operator
+    BOOST_CHECK_EQUAL((index2 < GridBase::Index(index2.x + 1, index2.y + 1)), true);  
+    BOOST_CHECK_EQUAL((index2 < GridBase::Index(index2.x, index2.y)), false);       
+    BOOST_CHECK_EQUAL((index2 < GridBase::Index(index2.x, index2.y + 1)), true);    
+    BOOST_CHECK_EQUAL((index2 < GridBase::Index(index2.x, index2.y - 1)), false); 
+    BOOST_CHECK_EQUAL((index2 < GridBase::Index(index2.x - 1, index2.y + 1)), false);     
+    BOOST_CHECK_EQUAL((index2 < GridBase::Index(index2.x - 1, index2.y - 1)), false);     
 
-    BOOST_CHECK_EQUAL((index2 == GridBase::Index(2, 4)), true);
-    BOOST_CHECK_EQUAL((index2 == GridBase::Index(3, 4)), false);    
-    BOOST_CHECK_EQUAL((index2 == GridBase::Index(2, 5)), false);    
-    BOOST_CHECK_EQUAL((index2 == GridBase::Index(3, 5)), false);    
+    // check the "==" operator
+    BOOST_CHECK_EQUAL((index2 == GridBase::Index(index2.x, index2.y)), true);
+    BOOST_CHECK_EQUAL((index2 == GridBase::Index(index2.x, index2.y + 1)), false);        
+    BOOST_CHECK_EQUAL((index2 == GridBase::Index(index2.x + 1, index2.y)), false);    
+    BOOST_CHECK_EQUAL((index2 == GridBase::Index(index2.x + 1, index2.y + 1)), false);    
 
-    BOOST_CHECK_EQUAL((index2 != GridBase::Index(2, 4)), false);
-    BOOST_CHECK_EQUAL((index2 != GridBase::Index(3, 4)), true); 
-    BOOST_CHECK_EQUAL((index2 != GridBase::Index(2, 5)), true); 
-    BOOST_CHECK_EQUAL((index2 != GridBase::Index(3, 5)), true);     
+    // check the "!=" operator
+    BOOST_CHECK_EQUAL((index2 != GridBase::Index(index2.x, index2.y)), false);
+    BOOST_CHECK_EQUAL((index2 != GridBase::Index(index2.x, index2.y + 1)), true);     
+    BOOST_CHECK_EQUAL((index2 != GridBase::Index(index2.x + 1, index2.y)), true); 
+    BOOST_CHECK_EQUAL((index2 != GridBase::Index(index2.x + 1, index2.y + 1)), true);     
 
+    // check the sum operator
     BOOST_CHECK((index2 + GridBase::Index(3, 5)) == GridBase::Index(5, 9));     
 
     // TODO: check otherwise => it will not be 3,5
+    // check the diff operator
     BOOST_CHECK((GridBase::Index(5, 9) - index2) == GridBase::Index(3, 5));     
 }
 
@@ -50,18 +57,30 @@ double scaleY = 0.5;
 double offsetX = -5;
 double offsetY = -50;
 
-BOOST_AUTO_TEST_CASE(test_gridbase_constructor)
+BOOST_AUTO_TEST_CASE(test_gridbase_default_constructor)
 {
-    GridBase grid_base_empty;
-    BOOST_CHECK_EQUAL(grid_base_empty.getCellSizeX(), 0);
-    BOOST_CHECK_EQUAL(grid_base_empty.getCellSizeY(), 0);
-    BOOST_CHECK_EQUAL(grid_base_empty.getScaleX(), 0);
-    BOOST_CHECK_EQUAL(grid_base_empty.getScaleY(), 0);
-    BOOST_CHECK_EQUAL(grid_base_empty.getOffsetX(), 0);
-    BOOST_CHECK_EQUAL(grid_base_empty.getOffsetY(), 0); 
-    BOOST_CHECK_EQUAL(grid_base_empty.getSizeX(), 0);
-    BOOST_CHECK_EQUAL(grid_base_empty.getSizeY(), 0);    
+    GridBase grid_base;
+    BOOST_CHECK_EQUAL(grid_base.getCellSizeX(), 0);
+    BOOST_CHECK_EQUAL(grid_base.getCellSizeY(), 0);
+    BOOST_CHECK_EQUAL(grid_base.getScaleX(), 0);
+    BOOST_CHECK_EQUAL(grid_base.getScaleY(), 0);
+    BOOST_CHECK_EQUAL(grid_base.getOffsetX(), 0);
+    BOOST_CHECK_EQUAL(grid_base.getOffsetY(), 0); 
+    BOOST_CHECK_EQUAL(grid_base.getSizeX(), 0);
+    BOOST_CHECK_EQUAL(grid_base.getSizeY(), 0); 
 
+    BOOST_CHECK_EQUAL(grid_base.inGrid(GridBase::Index(0, 0)), false);   
+
+    Eigen::Vector2d pos;    
+    BOOST_CHECK_EQUAL(grid_base.fromGrid(GridBase::Index(0, 0), pos), false);       
+
+    GridBase::Index idx;    
+    BOOST_CHECK_EQUAL(grid_base.toGrid(Eigen::Vector2d(0, 0), idx), false);           
+
+}
+
+BOOST_AUTO_TEST_CASE(test_gridbase_default_param_constructor)
+{
     GridConfig config(cellSizeX, cellSizeY, scaleX, scaleY, offsetX, offsetY);  
     GridBase grid_base(config);
 
@@ -80,7 +99,7 @@ BOOST_AUTO_TEST_CASE(test_gridbase_constructor)
     BOOST_CHECK_EQUAL(config.scaleX, config_t.scaleX);
     BOOST_CHECK_EQUAL(config.scaleY, config_t.scaleY);
     BOOST_CHECK_EQUAL(config.offsetX, config_t.offsetX);
-    BOOST_CHECK_EQUAL(config.offsetY, config_t.offsetY);   
+    BOOST_CHECK_EQUAL(config.offsetY, config_t.offsetY); 
 }
 
 BOOST_AUTO_TEST_CASE(test_gridbase_in_grid)
