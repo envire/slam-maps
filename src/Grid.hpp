@@ -33,8 +33,8 @@ namespace envire
 
             Grid(const Grid& other) :
                 GridBase(other.config),
-                default_value(other.default_value),
-                holder(new ArrayType(*(other.holder)))
+                holder(new ArrayType(*(other.holder))),
+                default_value(other.default_value)                
             {
             } 
 
