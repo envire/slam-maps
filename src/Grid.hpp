@@ -155,14 +155,12 @@ namespace envire
 
             T& get(Index idx)
             {
-                return *(getArray().data() + idx.y * getCellSizeX() + idx.x);   
-                // return getArray()[idx.y][idx.x];         
+                return *(getArray().data() + idx.y * getCellSizeX() + idx.x);         
             }
 
             const T& get(Index idx) const
             {
-                return *(getArray().data() + idx.y * getCellSizeX() + idx.x);   
-                // return getArray()[idx.y][idx.x];         
+                return *(getArray().data() + idx.y * getCellSizeX() + idx.x);      
             }           
 
             void init() const
