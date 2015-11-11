@@ -80,7 +80,8 @@ BOOST_AUTO_TEST_CASE(test_list_memleak)
         for(size_t i=0; i<25; ++i )
         {
             BOOST_CHECK_EQUAL(LeakTest::count, 50-i);
-            list.erase(list.begin());
+            LeakList::iterator it = list.erase(list.begin());
+            BOOST_CHECK(it == list.begin());
         }
         list.clear();
         BOOST_CHECK_EQUAL(LeakTest::count, 0);

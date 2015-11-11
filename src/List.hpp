@@ -89,12 +89,13 @@ namespace envire
             iterator erase(iterator it)
             {
                 T* value = &*it;
+                ++it;
                 if (mem_pool->is_from(value) == false) 
                     throw std::runtime_error("Wrong iterator.");
 
                 mem_pool->destroy(value);
 
-                return it++;
+                return it;
             }
 
             void clear()
