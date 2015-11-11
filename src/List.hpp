@@ -63,7 +63,7 @@ namespace envire
             void insertHead(const T& value)
             {
                 T* value_t = mem_pool->construct(value);
-                holder->insert(holder->begin(), *value_t);      
+                holder->push_front(*value_t);
             }
 
             iterator begin()
