@@ -53,7 +53,7 @@ template <class T> inline void kalman_update( T& mean, T& stdev, T m_mean, T m_s
         {
         public:
             /** a surface patch can be three different types,
-             * each changing how the cell values are interpreded
+             * each changing how the cell values are interpreted
              *
              * HORIZONTAL - is a horizontal patch, which does not have a height value
              * VERTICAL - used to represent walls and other vertical structures, has a height
@@ -160,7 +160,7 @@ template <class T> inline void kalman_update( T& mean, T& stdev, T m_mean, T m_s
 
             double getSlope() const
             {
-                return acos(getNormal().dot(Eigen::Vector3f::UnitZ()));
+                return atan(plane.getCoeffs().head<2>().cast<double>().norm());
             }
     
             Eigen::Vector3f getNormal() const
@@ -168,10 +168,21 @@ template <class T> inline void kalman_update( T& mean, T& stdev, T m_mean, T m_s
                 return Eigen::Vector3f( -plane.getCoeffs().x(), -plane.getCoeffs().y(), 1.0 ).normalized();
             }
 
+            /**
+             * @brief Accumulates 0th to 2nd powers of z values (weighted) which are used to calculate mean and variance
+             * @deprecated this may not be supported in future versions
+             */
             bool mergeSum( SurfacePatch& o, const MLSConfig& config );
 
+            /**
+             * @brief Accumulates moments of (x,y,z) to estimate surface normals
+             */
             bool mergePlane( SurfacePatch& o, const MLSConfig& config );
 
+            /**
+             * @brief Classical mergeMLS implementation.
+             * This distinguishes HORIZONTAL, VERTICAL and NEGATIVE SurfacePatches.
+             */
             bool mergeMLS( SurfacePatch& o, const MLSConfig& config );
 
             bool merge( SurfacePatch& o,const MLSConfig& config );          
