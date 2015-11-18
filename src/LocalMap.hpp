@@ -1,5 +1,10 @@
-#ifndef __ENVIRE_MAPS_LOCALMAP_HPP__
-#define __ENVIRE_MAPS_LOCALMAP_HPP__
+#ifndef __ENVIRE_MAPS_LOCAL_MAP_HPP__
+#define __ENVIRE_MAPS_LOCAL_MAP_HPP__
+
+
+#include <base/TransformWithCovariance.hpp>
+
+#include <boost/shared_ptr.hpp>
 
 #include <string>
 
@@ -16,12 +21,32 @@ namespace envire { namespace maps
         TOPOLOGICAL_MAP = 3
      };
 
+    /**@brief LocalMap
+     * Local map with respect to a given reference frame
+     * A local map is the basic element to form a global
+     * map (set of local maps structured in a tree).
+     */
     class LocalMap
     {
         public:
-            std::string id; // string id of this local map
-            LocalMapType map_type; // map_type of this local map
-            std::string EPSG_code; // EPSG_code that provides the geo-localized coordinate system
+            typedef boost::shared_ptr<LocalMap> Ptr;
+
+        public:
+            /**  string id of this local map **/
+            std::string id;
+
+            /** Offset of this local map with respect to the reference frame
+             * This reference frame could be local or global. For example: in
+             * case you are using this map with the envire_core, it will be
+             * the offset with respect to the frame specified in the graph node. **/
+            base::TransformWithCovariance offset;
+
+            /** map_type of this local map **/
+            LocalMapType map_type;
+
+            /** EPSG_code that provides the geo-localized coordinate system **/
+            std::string EPSG_code;
+
             /** The EPSG code depends in the coordinate system used for the
              * local map "NONE" in case of not geo-referenced map.
              * Example: "EPSG::4978" for the World Geodetic System 1984 (WGS-84)
@@ -32,7 +57,6 @@ namespace envire { namespace maps
              * Example: "EPSG::5243" ETRS89 / LCC Germany (E-N) Bremen area with
              * WGS084 CRS
              * Reference: https://www.epsg-registry.org **/
-
     };
 }}
 #endif // __ENVIRE_MAPS_LOCALMAP_HPP__
