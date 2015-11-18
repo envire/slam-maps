@@ -1,181 +1,380 @@
-#ifndef __ENVIRE_MAPS_GRIDMAP_HPP__
-#define __ENVIRE_MAPS_GRIDMAP_HPP__
+#ifndef __ENVIRE_MAPS_GRID_MAP_HPP__
+#define __ENVIRE_MAPS_GRID_MAP_HPP__
 
-#include <map>
+#include "LocalMap.hpp"
+
+/** std **/
 #include <iostream>
-#include <string>
 
+/** Eigen **/
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+
+/** Boost **/
+#include <boost/shared_ptr.hpp>
 #include <boost/multi_array.hpp>
 
-#include "Grid.hpp"
-
-namespace envire
+namespace envire {namespace maps
 {
-    namespace maps
+
+    /**@brief Internal structure used to represent a position on the grid
+     * itself, as a cell index
+     */
+    typedef Eigen::Vector2i Index;
+
+    /**@brief GridMap class IEEE 1873 standard
+     * This map is a Grid structure for a raster metric (Cartesian) map
+     * This map offers a template class for all maps that are regular grids
+     */
+    template <typename T>
+    class GridMap : public LocalMap
     {
-        class GridMap : public GridBase {
-        public:
-            GridMap() : GridBase() {}
 
-            /**
-             * @brief creat an empty grid of specific size and resolution
-             * @details Create an empty grid of specific size and resolution. 
-             * No layer will be created in this case. Call <createLayer>"()"
-             * to add layers to the grid.
-             * 
-             * @param config [description]
-             */
-            // initialize the structure of grid
-            // no layers will be created
-            // call createLayer to add some layers to grid
-            GridMap(GridConfig config) 
-                : GridBase(config){}
+    public:
+        typedef boost::multi_array<T, 2> ArrayType;
 
-            ~GridMap() 
+    private:
+
+        /** Resolution in X-axis and Y-axis **/
+        Eigen::Vector2d resolution;
+
+        /** Number of cells in X-axis **/
+        Eigen::Vector2ui num_cells;
+
+        /** default value type **/
+        T default_value;
+
+        /** Store the actual content of the cells of the grid **/
+        ArrayType* cells;
+
+    public:
+
+        GridMap() :cells(new ArrayType())
+        {
+        }
+
+        /** @brief Constructor of the abstract GridMap class
+         *
+         * Defines the extends and positioning of the grid. The grid is assumed
+         * to be on the x-y plane of the reference frame. The number of grid
+         * cells is given by the num_cell_x and num_cell_y params. Each dimension
+         * also has an scaling and offset parameter, such that the origin of the
+         * grid can be moved around and the grid scaled.
+         *
+         * The relation between the grid cell index and position is:
+         *
+         * @verbatim
+         *
+         * v_position = v_index * resolution + offset
+         *
+         * where:
+         * v_position is a 2x1 vector [x, y] wrt the local coordinate frame
+         * v_index is a 2x1 vector [x, y] defining the index in the grid
+         * resolution is a 2x1 vector defining the resolution of each grid cell
+         * offset as it is defined in LocalMap class
+         *
+         * @endverbatim
+         *
+         * @param resolution - resolution of the x and y axis
+         * @param num_cell - number of cells in x and y direction
+         * @param default_value - default value
+         */
+        GridMap(
+                const Eigen::Vector2d &_resolution,
+                const Eigen::Vector2ui &_num_cells,
+                const T& _default_value):
+                resolution(_resolution),
+                num_cells(_num_cells),
+                default_value(_default_value),
+                cells(new ArrayType())
+        {
+        }
+
+        GridMap(const GridMap& other):
+            default_value(other.default_value)
+        {
+            /** Get the attribute values **/
+            this->resolution = other.resolution;
+            this->num_cells = other.num_cells;
+            this->default_value = other.default_value;
+
+            /** Get the cells **/
+            this->cells = new ArrayType(*(other.cells));
+        }
+
+        /** @brief default destructor
+         */
+        ~GridMap()
+        {
+            delete cells;
+        }
+
+    public:
+        /******************************************/
+        /** Base method to access the grid cells **/
+        /******************************************/
+
+        /** @brief get the number of cells
+         */
+        Eigen::Vector2ui &getNumCells(return this->num_cells);
+
+        Eigen::Vector2d &getResolution() const { return this->resolution; }
+
+        Eigen::Vector2d getSize() const { return this->num_cells * this->resolution; }
+
+        /** @brief toGrid
+         */
+        bool GridBase::toGrid(const Eigen::Vector2d& pos, Index& idx) const
+        {
+            Eigen::Vector2d pos_diff;
+            return toGrid(pos.x(), pos.y(), idx.x(), idx.y(), pos_diff.x(), pos_diff.y());
+        }
+
+        /** @brief toGrid
+         */
+        bool GridBase::toGrid(const Eigen::Vector2d& pos, Index &idx, Eigen::Vector2d& pos_diff) const
+        {
+            return toGrid(pos.x(), pos.y(), idx.x(), idx.y(), pos_diff.x(), pos_diff.y());
+        }
+
+        /** @brief toGrid
+         */
+        bool GridBase::toGrid(const Eigen::Vector3d& pos_in_frame, Index& idx, const Eigen::Affine3d &frame_in_grid) const
+        {
+            Eigen::Vector3d pos_in_map = frame_in_grid * pos_in_frame;
+            Eigen::Vector2d pos_diff;
+            return toGrid(pos_in_map.x(), pos_in_map.y(), idx.x(), idx.y(), pos_diff.x(), pos_diff.y());
+        }
+
+        /** @brief fromGrid
+         */
+        bool GridBase::fromGrid(const Index& idx, Eigen::Vector2d& pos) const
+        {
+            return fromGrid(idx.x(), idx.y(), pos.x(), pos.y());
+        }
+
+        /** @brief fromGrid
+         */
+        bool GridBase::fromGrid(const Index& idx, Eigen::Vector3d& pos_in_frame, const Eigen::Affine3d &frame_in_grid) const
+        {
+            Eigen::Vector2d pos_in_map;
+            bool result = fromGrid(idx.x(), idx.y(), pos_in_map.x(), pos_in_map.y());
+
+            if (result == false)
+                return false;
+
+            pos_in_frame = frame_in_grid.inverse() * Eigen::Vector3d(pos_in_map.x(), pos_in_map.y(), 0.);
+
+            return true;
+        }
+
+        /** @brief inGrid
+         */
+        bool GridBase::inGrid(const Index& idx) const
+        {
+            return inGrid(idx.x, idx.y);
+        }
+
+    protected:
+
+        /******************************************/
+        /** Base method to access the grid cells **/
+        /******************************************/
+
+        /** @brief toGrid
+         * Converts coordinates in the map-local frame to grid coordinates
+         * @return true if (x, y) is within the grid and false otherwise
+         */
+        bool GridBase::toGrid(double &x, double &y, size_t& xi, size_t& yi, double& xmod, double& ymod) const
+        {
+            /** TO-DO: this method should use vectors **/
+            size_t xi_t = floor((x - offset.translation.x()) / resolution.x());
+            size_t yi_t = floor((y - offset.translation.y()) / resolution.y());
+
+            if(inGrid(xi_t, yi_t))
             {
-                removeAllGrids();
-            }
-
-            /**
-             * @brief create the layer with the specific key and default value
-             * @details create new layer with the specific key and initialize 
-             * the grid of this layer with the default value. this function can be failed
-             * in case if the layer with the same key already exists
-             * 
-             * The first layer will be set as basis layer
-             * 
-             * @param key the unique identification key of the layer
-             * @param default_value the default initialisation value for the layer
-             * @return true if the layer could be created successfully, otherwise false
-             */
-            template <typename T>
-            Grid<T>& addGrid(const std::string &key, const T &default_value)
-            {
-                if (hasGrid(key) == true)
-                {
-                    throw std::out_of_range("GridMap::addGrid: The grid with the key '" + key + "' exists already.");
-                }
-
-                Grid<T> *new_grid = new Grid<T>(default_value, getGridConfig());
-                grids[key] = new_grid;
-
-                return *new_grid;
-            }
-
-            /**
-             * @brief [brief description]
-             * @details [long description]
-             * 
-             * @param key [description]
-             * @return [description]
-             */
-            bool hasGrid(const std::string &key) const
-            { 
-                typename MapType::const_iterator it = grids.find(key);
-                if (it == grids.end())
-                    return false;
-                else 
-                    return true;
-            }
-
-            bool removeGrid(const std::string &key)
-            {
-                if(hasGrid(key) == false)
-                {
-                    return false;
-                }
-
-                delete grids[key];
-                grids.erase(key);
-
+                xi = xi_t;
+                yi = yi_t;
+                /** TO-DO: use the offset propertly as a transformation **/
+                xmod = x - (xi * this->resolution.x() + this->offset.translation.x());
+                ymod = y - (yi * this->resolution.y() + this->offset.translation.y());
                 return true;
             }
-
-            void removeAllGrids() 
+            else
             {
-                // TODO: check if the 
-                typename MapType::iterator it;
-                for (it = grids.begin(); it != grids.end(); ++it)
+                return false;
+            }
+        }
+
+        /** @brief fromGrid
+        * Converts coordinates from the map-local grid coordinates to
+        * the coordinates in the specified \c frame
+        */
+        bool GridBase::fromGrid(size_t xi, size_t yi, double& x, double& y) const
+        {
+            /** TO-DO: use vectors **/
+            if (inGrid(xi, yi))
+            {
+                x = (xi + 0.5) * this->resolution.x() + this->offset.translation.x();
+                y = (yi + 0.5) * this->resolution.y() + this->offset.translation.y();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /** @brief check whether the cell is in grid
+         */
+        bool GridBase::inGrid(size_t xi, size_t yi) const
+        {
+            return (0 <= xi && xi < this->num_cells.x() && 0 <= yi && yi < this->num_cells.y());
+        }
+
+ public:
+        /********************************************/
+        /** GridMap method to operate with the map **/
+        /********************************************/
+
+        T& get(Index idx)
+        {
+            return *(getArray().data() + idx.y * this->num_cells.x() + idx.x);
+        }
+
+        const T& get(Index idx) const
+        {
+            return *(getArray().data() + idx.y * this->num_cells.x() + idx.x);
+        }
+
+        void init() const
+        {
+            if (this->num_cells == Eigen::Vector2ui::Zero())
+                throw std::runtime_error("The grid size is zero! (therefore the
+                    array to hold the cells could be not allocated properly)");
+
+            cells->resize(boost::extents[this->num_cells.x()][this->num_cells.y()]);
+            std::fill(cells->data(), cells->data() + cells->num_elements(),
+                    default_value);
+        }
+
+        ArrayType& getCells()
+        {
+            if (cells->num_elements() == 0)
+                init();
+
+            return *cells;
+        }
+
+        const ArrayType& getCells() const
+        {
+            if (cells->num_elements() == 0)
+                init();
+
+            return *cells;
+        }
+
+        const T& getDefaultValue() const
+        {
+            return default_value;
+        }
+
+        const T& at(const Eigen::Vector2d& pos) const
+        {
+            Index idx;
+            if (!toGrid(pos, idx))
+                throw std::runtime_error("Provided position is out of the grid.");
+            return get(idx);
+        }
+
+        T& at(const Eigen::Vector2d& pos)
+        {
+            Index idx;
+            if (!toGrid(pos, idx))
+                throw std::runtime_error("Provided position is out of the grid");
+            return get(idx);
+        }
+
+        const T& at(Index idx) const
+        {
+            if (!inGrid(idx))
+                throw std::runtime_error("Provided index is out of the grid");
+            return get(idx);
+        }
+
+        T& at(Index idx)
+        {
+            if (!inGrid(idx))
+                throw std::runtime_error("Provided index is out of the grid");
+            return get(idx);
+        }
+
+        const T& at(size_t x, size_t y) const
+        {
+            Index idx(x, y);
+            if (!inGrid(idx))
+                throw std::runtime_error("Provided index is out of the grid");
+            return get(idx);
+        }
+
+        T& at(size_t x, size_t y)
+        {
+            Index idx(x, y);
+            if (!inGrid(idx))
+                throw std::runtime_error("Provided index is out of the grid");
+            return get(idx);
+        }
+
+        const T& getMax() const
+        {
+            const ArrayType &array = getArray();
+            return *(std::max_element(array.origin(), array.origin() + array.num_elements()));
+        }
+
+        const T& getMin() const
+        {
+            const ArrayType &array = getArray();
+            return *(std::min_element(array.origin(), array.origin() + array.num_elements()));
+        }
+
+        void moveBy(Index idx)
+        {
+            // if all grid values should be moved outside
+            if (abs(idx.x()) >= this->num_cells.x()
+                || abs(idx.y()) >= this->num_cells.y())
+            {
+                init();
+                return;
+            }
+
+            ArrayType &src = getArray();
+
+            ArrayType tmp;
+            tmp.resize(boost::extents[this->num_cells.x()][this->num_cells.y()]);
+            std::fill(tmp.data(), tmp.data() + tmp.num_elements(), default_value);
+
+            boost::swap(tmp, src);
+
+            for (int x = 0; x < this->num_cells.x(); ++x)
+            {
+                for (int y = 0; y < this->num_cells.y(); ++y)
                 {
-                    delete it->second;
+                    int x_new = x + idx.x;
+                    int y_new = y + idx.y;
+
+                    if ((x_new >= 0 && x_new < this->num_cells.x())
+                        && (y_new >= 0 && y_new < this->num_cells.y()))
+                    {
+                        get(Index(x_new, y_new)) = *(tmp.data() + x * this->num_cells.x() + y);
+                    }
                 }
-                grids.clear();
             }
+        }
 
-            template <typename T>
-            const Grid<T>& getGrid(const std::string &key) const
-            {
-                return *getGridPtr<T>(key);
-            }           
-
-            template <typename T>
-            Grid<T>& getGrid(const std::string &key)
-            {
-                return *getGridPtr<T>(key);
-            }
-
-            std::vector<std::string> getAllGridKeys() const
-            {
-                std::vector<std::string> keys;
-                typename MapType::const_iterator it;
-                for (it = grids.begin(); it != grids.end(); ++it)
-                {
-                    keys.push_back(it->first);
-                }
-                return keys;
-            }
-
-            void write(const std::string &key, const std::string &path) const
-            {
-                std::cout << "not implemented: " << __PRETTY_FUNCTION__ << std::endl;
-            }
-
-            void write(const std::string &key, std::ostream &os)
-            {
-                std::cout << "not implemented: " << __PRETTY_FUNCTION__ << std::endl;
-            }
-
-            void read(const std::string &key, const std::string &path)
-            {
-                std::cout << "not implemented: " << __PRETTY_FUNCTION__ << std::endl;
-            }
-
-            void read(const std::string &key, std::istream &is)
-            {
-                std::cout << "not implemented: " << __PRETTY_FUNCTION__ << std::endl;
-            }
-
-            void copy(const GridMap &src_grid)
-            {
-                std::cout << "not implemented: " << __PRETTY_FUNCTION__ << std::endl;
-            }
-
-            void cloneTo()
-            {
-                std::cout << "not implemented: " << __PRETTY_FUNCTION__ << std::endl;
-            }
-
-        protected:
-            typedef std::map<std::string, GridBase*> MapType;
-            MapType grids;
-
-            template <typename T>
-            Grid<T>* getGridPtr(const std::string &key) const
-            {
-                Grid<T>* grid = NULL;
-
-                if (hasGrid(key) == false)
-                    throw std::out_of_range("The map does not contain the grid with the key '" + key + "'.");
-
-                grid = dynamic_cast<Grid<T>*>(grids.at(key));   
-                    
-                if (grid == NULL)
-                    throw std::runtime_error("The grid with the key '" + key + "' is not of required type.");
-
-                return grid;
-            }
-        };
-    }
-}
-
-#endif // __ENVIRE_MAPS_GRIDMAP_HPP__
+        void clear()
+        {
+            init();
+        }
+    };
+}}
+#endif // __ENVIRE_MAPS_GRID_MAP_HPP__
