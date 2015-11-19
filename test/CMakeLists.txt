@@ -22,3 +22,7 @@ rock_testsuite(test_gridmap suite.cpp
 rock_testsuite(test_surfacepatch suite.cpp
    test_SurfacePatch.cpp
    DEPS envire_maps)
+
+ rock_testsuite(test_sp_list suite.cpp
+   test_SPList.cpp
+   DEPS envire_maps)
