@@ -73,13 +73,27 @@ BOOST_AUTO_TEST_CASE(test_sp_list_update)
         }
         for(int i=0; i<2; ++i)
         {
+            // check that lists are orderd
             SPList & list = i == 0? list1 : list2;
+            float prev = -1e30;
             for(SPList::iterator it = list.begin(); it != list.end(); ++it)
             {
-                std::cout  << it->getMean() << " ";
+                float mean = it->getMean();
+                BOOST_CHECK_LE(prev, mean);
+                prev = mean;
+                std::cout  << mean << " ";
             }
             std::cout << std::endl;
         }
+
+        // Insert measurements every 0.5 meters. This will cause adjacent planes to get joined
+        // TODO Actually, this is not desired behavior!
+        for(float z = 0; z< num_layers*2.0; z+=0.5)
+        {
+            Eigen::Vector3f pt(0,0,z);
+            list1.update(SurfacePatch(pt, 1e-3));
+        }
+        BOOST_CHECK(list1.size()==1);
 
     }
 }

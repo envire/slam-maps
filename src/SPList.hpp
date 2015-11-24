@@ -25,42 +25,56 @@ namespace envire
 
             void update(const SurfacePatch& co)
             {
-                typedef std::list<iterator> iterator_list;
-                iterator_list merged;
-
                 // make a copy of the surfacepatch as it may get updated in the merge
+                // TODO: This can only happen if negative patches are involved, otherwise this copy could be avoided
                 SurfacePatch o( co );
 
-                for (iterator it = begin(); it != end(); it++)
+                iterator it = begin(), it_prev=end();
+                if(it==end())
                 {
-                    // merge the patches and remember the ones which where merged 
-                    if (merge(*it, o))
-                        merged.push_back(it);
+                    // insert into empty list
+                    insertTail(o);
+                    return;
+                }
+                // Find iterators so that *it_prev < o < *it
+                while(it != end() && *it < o)
+                {
+                    it_prev=it;
+                    ++it;
+                }
+                if(it_prev == end())
+                {
+                    // new patch is smaller than first patch
+                    if(!merge(*it, o))
+                        insertHead(o);
+                }
+                else if(it==end())
+                {
+                    // new patch is larger than last patch
+                    if(!merge(*it_prev, o))
+                        insertTail(o);
+                }
+                else
+                {
+                    // new patch lies between it_prev and it
+                    // try to merge with previous patch:
+                    if(merge(*it_prev, o))
+                    {
+                        // this might make this patch merge-able with the next patch
+                        if(merge(*it_prev, *it))
+                        {
+                            // erase the second patch, since it was merged with the first
+                            erase(it);
+                        }
+                    }
+                    // otherwise, try to merge with the next patch
+                    else if(!merge(*it, o))
+                    {
+                        // if it is not merge-able, insert as a new patch between existing patches
+                        insert(it, o);
+                    }
                 }
 
-                if (merged.empty())
-                {
-                    // insert the patch since we didn't merge it with any other
-                    insertHead(o);
-                } else {
-                    // if there is more than one affected patch, merge them until 
-                    // there is only one left
-                    while (!merged.empty())
-                    {
-                        iterator_list::iterator it = ++merged.begin();
-                        while( it != merged.end() ) 
-                        {
-                            if(merge(**merged.begin(), **it))
-                            {
-                                erase(*it);
-                                it = merged.erase(it);
-                            }
-                            else
-                                it++;
-                        }
-                        merged.pop_front();
-                    }
-                }               
             }   
 
             /** Finds a surface patch at \c (position.x, position.y) that matches
