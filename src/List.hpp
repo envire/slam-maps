@@ -21,14 +21,12 @@ namespace envire
 
         public:
             List() 
-                : holder(new Holder()),
-                mem_pool(new boost::object_pool<T>())
+                : mem_pool(new boost::object_pool<T>())
             {
             }
 
             List(const List<T>& other) 
             {
-                holder = new Holder();  
                 mem_pool = new boost::object_pool<T>();     
                 // use the assignment operator              
                 this->operator=( other );               
@@ -38,8 +36,6 @@ namespace envire
             {       
                 if (mem_pool)
                     delete mem_pool;
-                if (holder)             
-                    delete holder;              
             }
 
             List& operator=( const List<T>& other )
@@ -57,33 +53,40 @@ namespace envire
             void insertTail(const T& value)
             {
                 T* value_t = mem_pool->construct(value);            
-                holder->push_back(*value_t);
+                holder.push_back(*value_t);
             }
 
             void insertHead(const T& value)
             {
                 T* value_t = mem_pool->construct(value);
-                holder->push_front(*value_t);
+                holder.push_front(*value_t);
+            }
+
+            //! inserts \c value before position \c it
+            iterator insert(iterator it, const T& value)
+            {
+                T* value_t = mem_pool->construct(value);
+                return holder.insert(it, *value_t);
             }
 
             iterator begin()
             {
-                return holder->begin();
+                return holder.begin();
             } 
 
             const_iterator begin() const
             {
-                return holder->begin();
+                return holder.begin();
             }   
 
             iterator end()
             {
-                return holder->end();
+                return holder.end();
             }
 
             const_iterator end() const
             {
-                return holder->end();
+                return holder.end();
             }   
 
             iterator erase(iterator it)
@@ -102,20 +105,20 @@ namespace envire
             {
                 // since the we use auto_unlink_mode hook,
                 // by deleting mem_pool all object will be deleted
-                // therefore all object will be automaticly unlinked from the 
+                // therefore all object will be automatically unlinked from the
                 // intrusive list
                 if (mem_pool)
                     delete mem_pool;
-                mem_pool = new boost::object_pool<T>(); 
+                mem_pool = new boost::object_pool<T>();
             }
 
             size_t size() 
             {
-                return holder->size();
+                return holder.size();
             }
 
         protected:
-            Holder* holder;
+            Holder holder;
 
             boost::object_pool<T>* mem_pool;
             
