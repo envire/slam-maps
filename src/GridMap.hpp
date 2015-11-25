@@ -242,42 +242,6 @@ namespace envire {namespace maps
         /** GridMap method to operate with the map **/
         /********************************************/
 
-        T& get(Index idx)
-        {
-            return *(getCells().data() + idx.y() * this->num_cells.x() + idx.x());
-        }
-
-        const T& get(Index idx) const
-        {
-            return *(getCells().data() + idx.y() * this->num_cells.x() + idx.x());
-        }
-
-        void init() const
-        {
-            if (this->num_cells == Vector2ui::Zero())
-                throw std::runtime_error("The grid size is zero! (therefore the array to hold the cells could be not allocated properly)");
-
-            cells->resize(boost::extents[this->num_cells.x()][this->num_cells.y()]);
-            std::fill(cells->data(), cells->data() + cells->num_elements(),
-                    default_value);
-        }
-
-        ArrayType& getCells()
-        {
-            if (cells->num_elements() == 0)
-                init();
-
-            return *cells;
-        }
-
-        const ArrayType& getCells() const
-        {
-            if (cells->num_elements() == 0)
-                init();
-
-            return *cells;
-        }
-
         const T& getDefaultValue() const
         {
             return default_value;
@@ -378,6 +342,43 @@ namespace envire {namespace maps
         void clear()
         {
             init();
+        }
+
+    private:
+        T& get(Index idx)
+        {
+            return *(getCells().data() + idx.y() * this->num_cells.x() + idx.x());
+        }
+
+        const T& get(Index idx) const
+        {
+            return *(getCells().data() + idx.y() * this->num_cells.x() + idx.x());
+        }
+
+        void init() const
+        {
+            if (this->num_cells == Vector2ui::Zero())
+                throw std::runtime_error("The grid size is zero! (therefore the array to hold the cells could be not allocated properly)");
+
+            cells->resize(boost::extents[this->num_cells.x()][this->num_cells.y()]);
+            std::fill(cells->data(), cells->data() + cells->num_elements(),
+                    default_value);
+        }
+
+        ArrayType& getCells()
+        {
+            if (cells->num_elements() == 0)
+                init();
+
+            return *cells;
+        }
+
+        const ArrayType& getCells() const
+        {
+            if (cells->num_elements() == 0)
+                init();
+
+            return *cells;
         }
     };
 }}
