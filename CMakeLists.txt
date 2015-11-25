@@ -24,8 +24,13 @@ if(COVERAGE)
     endif()
 endif()
 
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+    add_definitions(-O1) # without any optimization, code is extreamly slow
+endif()
+
 rock_init(envire_maps 0.1)
 rock_standard_layout()
+
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
