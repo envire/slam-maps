@@ -90,6 +90,12 @@ namespace envire
                 return getPatchByZ(tmp, sigma_threshold, ignore_negative);
             }
 
+            const_iterator getPatchByZ(double zpos, double zstdev, double sigma_threshold = 3.0, bool ignore_negative = true) const
+            {
+                SurfacePatch tmp(zpos, zstdev);
+                return getPatchByZ(tmp, sigma_threshold, ignore_negative);
+            }            
+
             iterator getPatchByZ(const SurfacePatch& patch, double sigma_threshold = 3.0, bool ignore_negative = true)
             {
                 iterator it = begin();
@@ -104,6 +110,21 @@ namespace envire
                 }
                 return it;
             }
+
+            const_iterator getPatchByZ(const SurfacePatch& patch, double sigma_threshold = 3.0, bool ignore_negative = true) const
+            {
+                const_iterator it = begin();
+                for (;it != end(); ++it)
+                {                   
+                    SurfacePatch const &p(*it);
+                    const double interval = sqrt(sq(patch.getStdev()) + sq(p.getStdev())) * sigma_threshold;
+                    if( p.distance( patch ) < interval && (!ignore_negative || !p.isNegative()) )
+                    {
+                        return it;
+                    }
+                }
+                return it;
+            }            
 
             std::pair<iterator, double> getNearestPatch(const SurfacePatch& p)
             {

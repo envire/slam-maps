@@ -177,7 +177,7 @@ void MLSGridVisualization::updateDataIntern(envire::maps::MLSGrid const& value)
 
 osg::Vec3 MLSGridVisualization::estimateNormal(const MLSGrid &grid, const SurfacePatch &patch, const GridBase::Index &patch_idx) const 
 {
-   /* Eigen::Vector2d patch_pos;
+    Eigen::Vector2d patch_pos;
     grid.fromGrid(patch_idx, patch_pos);
 
     Eigen::Vector3d patch_center(patch_pos.x(), patch_pos.y(), patch.getMean());
@@ -191,7 +191,8 @@ osg::Vec3 MLSGridVisualization::estimateNormal(const MLSGrid &grid, const Surfac
             GridBase::Index idx( idx.x + n * i, idx.y + (n - 1) * i );
             if (grid.inGrid(idx))
             {
-                SPList::iterator it = grid.at(idx).getPatchByZ(patch.getMean(), grid.getScaleX() * 2);
+                // instead stddeviation of the patch use (grid.getScaleX() * 2)
+                SPList::const_iterator it = grid.at(idx).getPatchByZ(patch.getMean(), grid.getScaleX() * 2);
                 if( it != grid.at(idx).end() )
                 {
                     Eigen::Vector2d pos;
@@ -210,7 +211,7 @@ osg::Vec3 MLSGridVisualization::estimateNormal(const MLSGrid &grid, const Surfac
         n.normalize();
         return osg::Vec3(n.x(), n.y(), n.z());
     }
-    else*/
+    else
         return osg::Vec3(0,0,1.0);
 }
 
