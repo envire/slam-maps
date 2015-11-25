@@ -2,7 +2,7 @@
 #define __ENVIRE_MAPS_LOCAL_MAP_HPP__
 
 
-#include <base/TransformWithCovariance.hpp>
+#include <base/Eigen.hpp>
 
 #include <boost/shared_ptr.hpp>
 
@@ -35,11 +35,11 @@ namespace envire { namespace maps
             /**  string id of this local map **/
             std::string id;
 
-            /** Offset of this local map with respect to the reference frame
-             * This reference frame could be local or global. For example: in
-             * case you are using this map with the envire_core, it will be
-             * the offset with respect to the frame specified in the graph node. **/
-            base::TransformWithCovariance offset;
+            /** Offset within the grid. It will be the offset with respect
+             * to the bottom left corner (origin) of the map.
+             * For the time being we use 3D transformation.
+             * **/
+            base::Transform3d offset;
 
             /** map_type of this local map **/
             LocalMapType map_type;

@@ -193,16 +193,16 @@ namespace envire {namespace maps
         bool toGrid(double &x, double &y, size_t& xi, size_t& yi, double& xmod, double& ymod) const
         {
             /** TO-DO: this method should use vectors **/
-            size_t xi_t = floor((x - offset.translation.x()) / resolution.x());
-            size_t yi_t = floor((y - offset.translation.y()) / resolution.y());
+            size_t xi_t = floor((x - offset.translation().x()) / resolution.x());
+            size_t yi_t = floor((y - offset.translation().y()) / resolution.y());
 
             if(inGrid(xi_t, yi_t))
             {
                 xi = xi_t;
                 yi = yi_t;
                 /** TO-DO: use the offset propertly as a transformation **/
-                xmod = x - (xi * this->resolution.x() + this->offset.translation.x());
-                ymod = y - (yi * this->resolution.y() + this->offset.translation.y());
+                xmod = x - (xi * this->resolution.x() + this->offset.translation().x());
+                ymod = y - (yi * this->resolution.y() + this->offset.translation().y());
                 return true;
             }
             else
@@ -220,8 +220,8 @@ namespace envire {namespace maps
             /** TO-DO: use vectors **/
             if (inGrid(xi, yi))
             {
-                x = (xi + 0.5) * this->resolution.x() + this->offset.translation.x();
-                y = (yi + 0.5) * this->resolution.y() + this->offset.translation.y();
+                x = (xi + 0.5) * this->resolution.x() + this->offset.translation().x();
+                y = (yi + 0.5) * this->resolution.y() + this->offset.translation().y();
                 return true;
             }
             else
