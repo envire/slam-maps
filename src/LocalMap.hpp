@@ -1,7 +1,6 @@
 #ifndef __ENVIRE_MAPS_LOCAL_MAP_HPP__
 #define __ENVIRE_MAPS_LOCAL_MAP_HPP__
 
-
 #include <base/Eigen.hpp>
 
 #include <boost/shared_ptr.hpp>
@@ -59,4 +58,4 @@ namespace envire { namespace maps
              * Reference: https://www.epsg-registry.org **/
     };
 }}
-#endif // __ENVIRE_MAPS_LOCALMAP_HPP__
+#endif // __ENVIRE_MAPS_LOCAL_MAP_HPP__
