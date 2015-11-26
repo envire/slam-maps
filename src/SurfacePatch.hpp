@@ -29,7 +29,7 @@ template <class T> inline void kalman_update( T& mean, T& stdev, T m_mean, T m_s
     const double m_var = sq( m_stdev );
     double gain = var / (var + m_var);
     if( gain != gain )
-    gain = 0.5; // this happens when both stdevs are 0. 
+        gain = 0.5; // this happens when both stdevs are 0.
     mean = mean + gain * (m_mean - mean);
     stdev = sqrt((1.0-gain)*var);
 }
@@ -101,6 +101,11 @@ template <class T> inline void kalman_update( T& mean, T& stdev, T m_mean, T m_s
              */
             double getMaxZ(double sigma_threshold = 2.0) const;
 
+            void getRange(float& minZ, float& maxZ) const
+            {
+                minZ = min; maxZ = max;
+            }
+
             /** flag the patch as horizontal
             */
             void setHorizontal()
@@ -165,7 +170,9 @@ template <class T> inline void kalman_update( T& mean, T& stdev, T m_mean, T m_s
     
             Eigen::Vector3f getNormal() const
             {
-                return Eigen::Vector3f( -plane.getCoeffs().x(), -plane.getCoeffs().y(), 1.0 ).normalized();
+                Eigen::Vector3f normal = -plane.getCoeffs();
+                normal.z() = 1.0;
+                return normal.normalized();
             }
 
             /**

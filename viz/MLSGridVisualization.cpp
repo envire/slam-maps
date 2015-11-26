@@ -8,6 +8,8 @@
 #include <osg/ShapeDrawable>
 #include <osg/Material>
 
+#include <base/TimeMark.hpp>
+
 using namespace vizkit3d;
 using namespace envire::maps;
 
@@ -85,6 +87,7 @@ void MLSGridVisualization::updateMainNode ( osg::Node* node )
     const double yo = mls.getOffsetY();
 
     osg::ref_ptr<osg::Vec3Array> var_vertices = new osg::Vec3Array;
+    base::TimeMark timer("MLS_VIZ::updateMainNode");
 
     for (size_t x = 0; x < mls.getCellSizeX(); x++)
     {
@@ -131,13 +134,27 @@ void MLSGridVisualization::updateMainNode ( osg::Node* node )
                         heights[2] = p.getHeight( Eigen::Vector2f( xs, ys ) );
                         heights[3] = p.getHeight( Eigen::Vector2f( 0, ys ) );
 
+                        osg::Vec3 center(xp, yp, p.getMean());
+                        osg::Vec3  normal = Vec3(p.getNormal());
+                        float minZ, maxZ;
+                        p.getRange(minZ, maxZ);
                         geode->drawPlane(  
-                                osg::Vec3( xp, yp, p.getMean() ), 
+                                center, 
                                 heights, 
                                 osg::Vec3( xs, ys, 0.0 ), 
-                                Vec3( p.getNormal() ),
-                                p.getMinZ(), p.getMaxZ() 
+                                normal,
+                                minZ-0.1, maxZ+0.1  // FIXME extending the range of the cell should not be necessary!
                         );
+                        if(showNormals)
+                        {
+                            var_vertices->push_back(center);
+                            var_vertices->push_back(center+normal*0.1);
+                        }
+                        if(showExtents)
+                        {
+                            var_vertices->push_back(osg::Vec3(xp, yp, minZ));
+                            var_vertices->push_back(osg::Vec3(xp, yp, maxZ));
+                        }
                     }
                 }
                 else
@@ -164,9 +181,26 @@ void MLSGridVisualization::updateMainNode ( osg::Node* node )
                         }
                     }
                 }
-            }
-        }
-    } 
+            } // for(SPList ...)
+        } // for(y ...)
+    } // for(x ...)
+
+    if( showUncertainty || showNormals || showExtents)
+    {
+        osg::ref_ptr<osg::Geometry> var_geom = new osg::Geometry;
+        var_geom->setVertexArray( var_vertices );
+        osg::ref_ptr<osg::DrawArrays> drawArrays = new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, var_vertices->size() );
+        var_geom->addPrimitiveSet(drawArrays.get());
+
+        osg::ref_ptr<osg::Vec4Array> var_color = new osg::Vec4Array;
+        var_color->push_back( osg::Vec4( 0.5, 0.1, 0.8, 1.0 ) );
+        var_geom->setColorArray( var_color.get() );
+        var_geom->setColorBinding( osg::Geometry::BIND_OVERALL );
+
+        geode->addDrawable( var_geom.get() );
+    }
+
+    std::cout << timer << std::endl;
 }
 
 
@@ -248,6 +282,18 @@ void MLSGridVisualization::setEstimateNormals(bool enabled)
 {
     estimateNormals = enabled;
     emit propertyChanged("estimate_normals");
+    setDirty();
+}
+
+bool MLSGridVisualization::areNormalsShown() const
+{
+    return showNormals;
+}
+
+void MLSGridVisualization::setShowNormals(bool enabled)
+{
+    showNormals = enabled;
+    emit propertyChanged("show_normals");
     setDirty();
 }
 
