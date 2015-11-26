@@ -1,3 +1,7 @@
+rock_testsuite(test_grid suite.cpp
+   test_Grid.cpp
+   DEPS envire_maps)
+
 #rock_testsuite(test_gridmap suite.cpp
 #   test_GridMap.cpp
 #   DEPS envire_maps)
