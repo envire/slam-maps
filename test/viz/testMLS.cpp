@@ -53,5 +53,60 @@ BOOST_AUTO_TEST_CASE( mlsviz_test )
     while (app.isRunning())
     {
         usleep(1000);
-    }}
+    }
+}
+
+BOOST_AUTO_TEST_CASE(mls_loop)
+{
+    GridConfig conf(300, 300, 0.05, 0.05, -7.5, -7.5);
+
+    MLSConfig mls_config;
+    mls_config.updateModel = MLSConfig::SLOPE;
+    mls_config.gapSize = 0.05f;
+    float R = 5.0f, r=1.0f;
+    MLSGrid *mls = new MLSGrid(conf, mls_config);
+
+    for (float alpha = 0; alpha < 2*M_PI; alpha += M_PI/1024)
+    {
+        float cs = std::cos(alpha);
+        float sn = std::sin(alpha);
+        for (float beta = 0; beta <= 2*M_PI; beta+=M_PI/256)
+        {
+            // Points of a torus:
+            float x = (R+r*std::cos(beta)) * cs;
+            float y = (R+r*std::cos(beta)) * sn;
+            float z = r*std::sin(beta);
+
+            // Project points into MLS grid:
+            GridBase::Index idx;
+            Eigen::Vector2d rem;
+            mls->toGrid(Eigen::Vector2d(x,y), idx, rem);
+
+            mls->at(idx).update(SurfacePatch(Eigen::Vector3f(rem.x(),rem.y(),z), 0.1));
+        }
+    }
+
+    std::cout << "update finish" << std::endl;
+
+    // set up test environment
+     QtThreadedWidget<vizkit3d::Vizkit3DWidget> app;
+     app.start();
+
+    //create vizkit3d plugin for showing envire
+    vizkit3d::MLSGridVisualization *mls_viz = new vizkit3d::MLSGridVisualization();
+    mls_viz->updateData(*mls);
+
+        //create vizkit3d widget
+    vizkit3d::Vizkit3DWidget *widget = app.getWidget();
+    // grid plugin
+        vizkit3d::GridVisualization *grid_viz = new vizkit3d::GridVisualization();
+    widget->addPlugin(grid_viz);
+    // add envire plugin
+    widget->addPlugin(mls_viz);
+
+    while (app.isRunning())
+    {
+        usleep(1000);
+    }
+}
 
