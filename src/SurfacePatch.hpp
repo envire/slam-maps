@@ -4,8 +4,8 @@
 #include <numeric/PlaneFitting.hpp>
 #include <boost/intrusive/list.hpp>
 
-#include <Eigen/Core>
 #include <base/Eigen.hpp>
+#include <Eigen/Eigenvalues>
 
 #include "MLSConfig.hpp"
 
@@ -167,8 +167,30 @@ template <class T> inline void kalman_update( T& mean, T& stdev, T m_mean, T m_s
             {
                 return atan(plane.getCoeffs().head<2>().cast<double>().norm());
             }
+
+            Eigen::Vector3f getCenter() const
+            {
+                Eigen::Vector3f center(plane.x, plane.y, plane.z);
+                return center * (1.0f/plane.n);
+            }
     
             Eigen::Vector3f getNormal() const
+            {
+                typedef base::PlaneFitting<float>::Matrix3 Mat3;
+                Mat3 moments;
+                moments << plane.xx, plane.xy, plane.xz,
+                           plane.xy, plane.yy, plane.yz,
+                           plane.xz, plane.yz, plane.zz;
+                moments *= 1.0/plane.n;
+                Eigen::Vector3f mu = getCenter();
+
+                moments -= mu * mu.transpose();
+                Eigen::SelfAdjointEigenSolver<Mat3> eig;
+                eig.computeDirect(moments, Eigen::ComputeEigenvectors);
+                return eig.eigenvectors().col(0);
+            }
+
+            Eigen::Vector3f getNormal_old() const
             {
                 Eigen::Vector3f normal = -plane.getCoeffs();
                 normal.z() = 1.0;

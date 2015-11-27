@@ -134,7 +134,9 @@ void MLSGridVisualization::updateMainNode ( osg::Node* node )
                         heights[2] = p.getHeight( Eigen::Vector2f( xs, ys ) );
                         heights[3] = p.getHeight( Eigen::Vector2f( 0, ys ) );
 
-                        osg::Vec3 center(xp, yp, p.getMean());
+                        osg::Vec3 center = Vec3(p.getCenter());
+                        center.x() += x*xs + xo;
+                        center.y() += y*ys + yo;
                         osg::Vec3  normal = Vec3(p.getNormal());
                         float minZ, maxZ;
                         p.getRange(minZ, maxZ);
