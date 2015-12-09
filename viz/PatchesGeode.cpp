@@ -27,6 +27,81 @@ namespace vizkit3d
     }
     void PatchesGeode::drawPlane(
             const osg::Vec3& position,
+            const osg::Vec3& extents,
+            const osg::Vec3& mean,
+            const osg::Vec3& normal)
+    {
+        // Sanity check (TODO should be disabled in release mode)
+        for(int i=0; i<3; ++i)
+            if(! (0.0f <= mean[i] && mean[i] <= extents[i]) )
+            {
+                std::cerr << "Mean of SurfacePatch is outside of its extents! {";
+                for(int j=0; j<3; ++j) std::cerr << mean[j] << (j==2? "}   {" : ", ");
+                for(int j=0; j<3; ++j) std::cerr << extents[j] << (j==2? "}\n" : ", ");
+            }
+        // first calculate the intersections of the plane with the borders of the box
+        // Here, `extents` and `mean` are relative to the origin of the box
+        float dist = mean*normal; // scalar product gives the signed distance from the origin
+
+        // find the max coefficient of the normal:
+        int i=0, j=1, k=2;
+        if(std::abs(normal[i]) < std::abs(normal[j])) std::swap(i,j);
+        if(std::abs(normal[i]) < std::abs(normal[k])) std::swap(i,k);
+
+        osg::Vec3 prev_p;
+        enum { NONE, LOW, BOX, HIGH } prev_pos = NONE, pos;
+        // calculate intersections in direction k:
+        for(int n=0; n<5; ++n)
+        {
+            osg::Vec3 p(0,0,0);
+            float dotp = 0.0f;
+            switch(n)
+            {
+            case 0: case 4: break;
+            case 1: p[j] = extents[j]; dotp += extents[j] * normal[j]; break;
+            case 2: p[j] = extents[j]; dotp += extents[j] * normal[j];
+                // fall through
+            case 3: p[k] = extents[k]; dotp += extents[k] * normal[k]; break;
+            }
+            p[i] = (dist - dotp) / normal[i];
+
+            if( p[i] < 0.0f )
+                pos = LOW;
+            else if( p[i] > extents[i] )
+                pos = HIGH;
+            else
+                pos = BOX;
+
+            if( (prev_pos == LOW || prev_pos == HIGH) && pos != prev_pos )
+            {
+                // clipping in
+                float h = prev_pos == LOW ? 0 : extents[i];
+                float s = (h - prev_p[i]) / (p[i] - prev_p[i]);
+                osg::Vec3 cp = prev_p + (p - prev_p) * s;
+                addVertex( position + cp, normal );
+            }
+            if( pos == BOX )
+            {
+                addVertex( position + p, normal );
+            }
+            else if( pos != prev_pos && prev_pos != NONE )
+            {
+                // clipping out
+                float h = pos == LOW ? 0 : extents[i];
+                float s = (h - prev_p[i]) / (p[i] - prev_p[i]);
+                osg::Vec3 cp = prev_p + (p - prev_p) * s;
+                addVertex( position + cp, normal );
+            }
+
+            prev_pos = pos;
+            prev_p = p;
+        }
+
+        closePolygon();
+    }
+
+    void PatchesGeode::drawPlane(
+            const osg::Vec3& position,
             const osg::Vec4& heights,
             const osg::Vec3& extents,
             const osg::Vec3& normal,

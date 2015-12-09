@@ -13,6 +13,15 @@ namespace vizkit3d {
     public:
         PatchesGeode();
 
+        /** Draws a plane inside the box given by \c position and \c extends,
+         *  using \c normal and \c mean (relative to the origin of the box)
+         */
+        void drawPlane(
+            const osg::Vec3& position,
+            const osg::Vec3& extends,
+            const osg::Vec3& mean,
+            const osg::Vec3& normal);
+
         void drawPlane(
             const osg::Vec3& position, 
             const osg::Vec4& heights,

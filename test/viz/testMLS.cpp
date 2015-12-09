@@ -58,19 +58,19 @@ BOOST_AUTO_TEST_CASE( mlsviz_test )
 
 BOOST_AUTO_TEST_CASE(mls_loop)
 {
-    GridConfig conf(300, 300, 0.05, 0.05, -7.5, -7.5);
+    GridConfig conf(150, 150, 0.1, 0.1, -7.5, -7.5);
 
     MLSConfig mls_config;
     mls_config.updateModel = MLSConfig::SLOPE;
     mls_config.gapSize = 0.05f;
-    float R = 5.0f, r=1.0f;
+    float R = 5.0f, r=2.05f;
     MLSGrid *mls = new MLSGrid(conf, mls_config);
 
-    for (float alpha = 0; alpha < 2*M_PI; alpha += M_PI/1024)
+    for (float alpha = 0; alpha < M_PI; alpha += M_PI/1024/4)
     {
         float cs = std::cos(alpha);
         float sn = std::sin(alpha);
-        for (float beta = 0; beta <= 2*M_PI; beta+=M_PI/256)
+        for (float beta = 0; beta <= 2*M_PI; beta+=M_PI/256/4)
         {
             // Points of a torus:
             float x = (R+r*std::cos(beta)) * cs;

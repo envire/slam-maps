@@ -128,25 +128,17 @@ void MLSGridVisualization::updateMainNode ( osg::Node* node )
                 {
                     if( !p.isNegative() )
                     {
-                        osg::Vec4 heights(0,0,0,0);
-                        heights[0] = p.getHeight( Eigen::Vector2f( 0, 0 ) );
-                        heights[1] = p.getHeight( Eigen::Vector2f( xs, 0 ) );
-                        heights[2] = p.getHeight( Eigen::Vector2f( xs, ys ) );
-                        heights[3] = p.getHeight( Eigen::Vector2f( 0, ys ) );
-
-                        osg::Vec3 center = Vec3(p.getCenter());
-                        center.x() += x*xs + xo;
-                        center.y() += y*ys + yo;
-                        osg::Vec3  normal = Vec3(p.getNormal());
                         float minZ, maxZ;
                         p.getRange(minZ, maxZ);
-                        geode->drawPlane(  
-                                center, 
-                                heights, 
-                                osg::Vec3( xs, ys, 0.0 ), 
-                                normal,
-                                minZ-0.1, maxZ+0.1  // FIXME extending the range of the cell should not be necessary!
-                        );
+//                        float stdev = p.getStdev() + 1e-4f;
+                        osg::Vec3 position(x*xs+xo, y*ys+yo, minZ - 1e-4f);
+                        osg::Vec3 extents(xs, ys, (maxZ - minZ) + 2e-4f);
+                        osg::Vec3 mean = Vec3(p.getCenter());
+                        mean.z() -= position.z();
+                        osg::Vec3 normal = Vec3(p.getNormal());
+                        geode->drawPlane(position, extents, mean, normal);
+                        osg::Vec3 center = position + mean;
+
                         if(showNormals)
                         {
                             var_vertices->push_back(center);
