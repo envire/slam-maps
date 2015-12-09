@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE(test_surface_patch_normals)
         // Even though all points should be perfectly on a plane this gets quite high
         // TODO Try to improve accuracies then reduce test tolerances
         BOOST_CHECK_SMALL(pat.getStdev(), 0.1f);
-        BOOST_CHECK(pat.getNormal().isApprox(normal, 1e-4));
+        BOOST_CHECK(pat.getNormal().isApprox(normal, 1e-2));
         BOOST_CHECK_CLOSE(std::cos(pat.getSlope()), double(normal.z()), 5e-3);
     }
 }
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(test_surface_patch_dont_merge)
 
     BOOST_CHECK_SMALL(pt1.getMean(), 1.0f);
     BOOST_CHECK_CLOSE(pt2.getMean(), 10.0f, 1.0f);
-    BOOST_CHECK(pt1.getNormal().isApprox(pt2.getNormal()));
+    BOOST_CHECK(pt1.getNormal().isApprox(pt2.getNormal(), 1e-3));
     BOOST_CHECK_CLOSE(pt1.getSlope(), pt2.getSlope(), 1e-3);
     for(int i=0; i<50; ++i)
     {

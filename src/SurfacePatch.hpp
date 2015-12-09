@@ -176,6 +176,7 @@ template <class T> inline void kalman_update( T& mean, T& stdev, T m_mean, T m_s
     
             Eigen::Vector3f getNormal() const
             {
+                if(n<=1.0f) return Eigen::Vector3f::UnitZ();
                 typedef base::PlaneFitting<float>::Matrix3 Mat3;
                 Mat3 moments;
                 moments << plane.xx, plane.xy, plane.xz,
