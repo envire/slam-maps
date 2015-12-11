@@ -13,21 +13,24 @@
 using namespace envire::maps;
 BOOST_AUTO_TEST_CASE( mlsviz_test ) 
 {
-    GridConfig conf(300, 300, 0.05, 0.05, -7.5, -7.5);
+//    GridConfig conf(300, 300, 0.05, 0.05, -7.5, -7.5);
+    Eigen::Vector2d res(0.05, 0.05);
+    Vector2ui cellSize(300, 300);
 
     MLSConfig mls_config;
     mls_config.updateModel = MLSConfig::SLOPE;
-    MLSGrid *mls = new MLSGrid(conf, mls_config);
-    for (unsigned int x = 0; x < mls->getCellSizeX(); ++x) for(float dx = 0.; dx <0.99f; dx+=0.125)
+    MLSGrid *mls = new MLSGrid(res, cellSize, mls_config);
+    mls->offset.translation() << -0.5*mls->getSize(), 0;
+    for (unsigned int x = 0; x < cellSize.x(); ++x) for(float dx = 0.; dx <0.99f; dx+=0.125)
     {
         float xx = x+dx;
         float cs = std::cos(xx * M_PI/50);
-        for (unsigned int y = 0; y < mls->getCellSizeY(); ++y) for (float dy = 0.; dy<0.99; dy+=0.125)
+        for (unsigned int y = 0; y < cellSize.y(); ++y) for (float dy = 0.; dy<0.99; dy+=0.125)
         {
             float yy = y+dy;
             float sn = std::sin(yy* M_PI/50);
 
-            mls->at(x, y).update(SurfacePatch(Eigen::Vector3f(dx*conf.scaleX,dy*conf.scaleY,cs*sn), 0.1));
+            mls->at(x, y).update(SurfacePatch(Eigen::Vector3f(dx*res.x(),dy*res.y(),cs*sn), 0.1));
 //            mls->at(x, y).update(SurfacePatch(height, 0.1));
         }
     }
@@ -58,13 +61,16 @@ BOOST_AUTO_TEST_CASE( mlsviz_test )
 
 BOOST_AUTO_TEST_CASE(mls_loop)
 {
-    GridConfig conf(150, 150, 0.1, 0.1, -7.5, -7.5);
+//    GridConfig conf(150, 150, 0.1, 0.1, -7.5, -7.5);
+    Eigen::Vector2d res(0.1, 0.1);
+    Vector2ui numCells(150, 150);
 
     MLSConfig mls_config;
     mls_config.updateModel = MLSConfig::SLOPE;
     mls_config.gapSize = 0.05f;
     float R = 5.0f, r=2.05f;
-    MLSGrid *mls = new MLSGrid(conf, mls_config);
+    MLSGrid *mls = new MLSGrid(res, numCells, mls_config);
+    mls->offset.translation() << -0.5*mls->getSize(), 0;
 
     for (float alpha = 0; alpha < M_PI; alpha += M_PI/1024/4)
     {
@@ -78,9 +84,9 @@ BOOST_AUTO_TEST_CASE(mls_loop)
             float z = r*std::sin(beta);
 
             // Project points into MLS grid:
-            GridBase::Index idx;
+            Index idx;
             Eigen::Vector2d rem;
-            mls->toGrid(Eigen::Vector2d(x,y), idx, rem);
+            if(!mls->toGrid(Eigen::Vector2d(x,y), idx, rem)) continue;
 
             mls->at(idx).update(SurfacePatch(Eigen::Vector3f(rem.x(),rem.y(),z), 0.1));
         }

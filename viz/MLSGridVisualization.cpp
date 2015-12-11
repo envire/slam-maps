@@ -80,18 +80,20 @@ void MLSGridVisualization::updateMainNode ( osg::Node* node )
             new ExtentsRectangle( mls->getExtents(), col ) );
     }    */
 
-    const double xs = mls.getScaleX();
-    const double ys = mls.getScaleY();
+    Eigen::Vector2d res = mls.getResolution();
+    Vector2ui cellSize = mls.getCellSize();
+    const double xs = res.x();
+    const double ys = res.y();
 
-    const double xo = mls.getOffsetX();
-    const double yo = mls.getOffsetY();
+//    const double xo = mls.getOffsetX();
+//    const double yo = mls.getOffsetY();
 
     osg::ref_ptr<osg::Vec3Array> var_vertices = new osg::Vec3Array;
     base::TimeMark timer("MLS_VIZ::updateMainNode");
 
-    for (size_t x = 0; x < mls.getCellSizeX(); x++)
+    for (size_t x = 0; x < cellSize.x(); x++)
     {
-        for (size_t y = 0; y < mls.getCellSizeY(); y++)
+        for (size_t y = 0; y < cellSize.y(); y++)
         {
             const SPList &list = mls.at(x, y);
 
@@ -99,8 +101,10 @@ void MLSGridVisualization::updateMainNode ( osg::Node* node )
             {
 
                 const SurfacePatch &p(*it);
-                double xp = (x+0.5) * xs + xo;
-                double yp = (y+0.5) * ys + yo; 
+                Eigen::Vector2d pos;
+                mls.fromGrid(Index(x,y), pos);
+                double xp = pos.x();
+                double yp = pos.y();
 
                 // setup the color for the next geometry
                 if(mls.getConfig().useColor == true)
@@ -131,7 +135,7 @@ void MLSGridVisualization::updateMainNode ( osg::Node* node )
                         float minZ, maxZ;
                         p.getRange(minZ, maxZ);
 //                        float stdev = p.getStdev() + 1e-4f;
-                        osg::Vec3 position(x*xs+xo, y*ys+yo, minZ - 1e-4f);
+                        osg::Vec3 position(xp, yp, minZ - 1e-4f);
                         osg::Vec3 extents(xs, ys, (maxZ - minZ) + 2e-4f);
                         osg::Vec3 mean = Vec3(p.getCenter());
                         mean.z() -= position.z();
@@ -159,7 +163,7 @@ void MLSGridVisualization::updateMainNode ( osg::Node* node )
                                 osg::Vec3( xp, yp, p.getMean() ), 
                                 osg::Vec3( xs, ys, 0.0 ), 
                                 estimateNormals ? 
-                                    estimateNormal(mls, p, GridBase::Index(x,y)) :
+                                    estimateNormal(mls, p, Index(x,y)) :
                                     osg::Vec3( 0, 0, 1.0 ) );
                     }
                     else
@@ -203,10 +207,11 @@ void MLSGridVisualization::updateDataIntern(envire::maps::MLSGrid const& value)
     p->data = value;
 }
 
-osg::Vec3 MLSGridVisualization::estimateNormal(const MLSGrid &grid, const SurfacePatch &patch, const GridBase::Index &patch_idx) const 
+osg::Vec3 MLSGridVisualization::estimateNormal(const MLSGrid &grid, const SurfacePatch &patch, const Index &patch_idx) const
 {
     Eigen::Vector2d patch_pos;
-    grid.fromGrid(patch_idx, patch_pos);
+    if(!grid.fromGrid(patch_idx, patch_pos))
+        return osg::Vec3(0,0,0);
 
     Eigen::Vector3d patch_center(patch_pos.x(), patch_pos.y(), patch.getMean());
 
@@ -216,14 +221,14 @@ osg::Vec3 MLSGridVisualization::estimateNormal(const MLSGrid &grid, const Surfac
     {
         for( int i = -1; i < 2; i += 2 )
         {
-            GridBase::Index idx( idx.x + n * i, idx.y + (n - 1) * i );
+            Index idx = patch_idx + Index(n * i, (n - 1) * i );
             if (grid.inGrid(idx))
             {
                 // instead stddeviation of the patch use (grid.getScaleX() * 2)
-                SPList::const_iterator it = grid.at(idx).getPatchByZ(patch.getMean(), grid.getScaleX() * 2);
+                SPList::const_iterator it = grid.at(idx).getPatchByZ(patch.getMean(), grid.getResolution().sum());
                 if( it != grid.at(idx).end() )
                 {
-                    Eigen::Vector2d pos;
+                    Eigen::Vector2d pos(-1, -1);
                     grid.fromGrid(idx, pos);
 
                     Eigen::Vector3d v(pos.x(), pos.y(), it->getMean());

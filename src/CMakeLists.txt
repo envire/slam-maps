@@ -1,20 +1,14 @@
-rock_library(envire_maps
-    SOURCES 
-    	GridBase.cpp
-    	ElevationMap.cpp
-        SurfacePatch.cpp              
-    HEADERS 
-        GridConfig.hpp
-        GridBase.hpp    
-        Grid.hpp
-        GridMap.hpp
-        ElevationMap.hpp
-        List.hpp
-        MLSConfig.hpp
-        SurfacePatch.hpp        
-        SPList.hpp
-        MLSGrid.hpp
-    DEPS_PKGCONFIG base-types)
+set(deps_pkg_config base-types)
 
-target_link_libraries(envire_maps
-    ${Boost_SYSTEM_LIBRARY})       
+rock_library(envire_maps
+    SOURCES
+        Grid.cpp
+        SurfacePatch.cpp
+    HEADERS
+        LocalMap.hpp
+        Grid.hpp
+        SurfacePatch.hpp
+    DEPS_CMAKE 
+        Boost
+    DEPS_PKGCONFIG 
+        ${deps_pkg_config})

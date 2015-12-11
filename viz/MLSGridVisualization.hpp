@@ -99,7 +99,7 @@ namespace vizkit3d
             osg::Vec3 estimateNormal(
                 const envire::maps::MLSGrid &grid, 
                 const envire::maps::SurfacePatch &patch, 
-                const envire::maps::GridBase::Index &patch_idx) const;
+                const envire::maps::Index &patch_idx) const;
     };
 }
 #endif

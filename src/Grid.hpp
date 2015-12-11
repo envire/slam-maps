@@ -1,194 +1,78 @@
 #ifndef __ENVIRE_MAPS_GRID_HPP__
 #define __ENVIRE_MAPS_GRID_HPP__
 
-#include <iostream>
+#include <Eigen/Core>
+#include <Eigen/Geometry>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/multi_array.hpp>
+#include <boost/intrusive_ptr.hpp>
+#include <boost/function.hpp>
 
-#include "GridBase.hpp"
+#include "LocalMap.hpp"
 
-namespace envire 
+namespace envire { namespace maps 
 {
-    namespace maps 
+
+    /**@brief type for the number of cells
+     */
+    typedef Eigen::Matrix<unsigned int, 2, 1> Vector2ui;  
+
+    typedef Eigen::Vector2d Vector2d;  
+
+    /**@brief Internal structure used to represent a position on the grid
+     * itself, as a cell index
+     */
+    class Index : public Eigen::Matrix<unsigned int, 2, 1>
     {
-        template <typename T>
-        class Grid : public GridBase {
-
         public:
-            typedef boost::multi_array<T,2> ArrayType;
+            Index() 
+                : Eigen::Matrix<unsigned int, 2, 1>(0, 0)
+            {}
 
-            Grid()
-                :GridBase(),
-                holder(new ArrayType())
-            {
-            }
+            Index(unsigned int x, unsigned int y) 
+                : Eigen::Matrix<unsigned int, 2, 1>(x, y)
+            {}
 
-            Grid(const T& default_value, GridConfig config)
-                : GridBase(config),
-                holder(new ArrayType()),
-                default_value(default_value)
+            bool operator<(const Index& other) const
             {
-            }
-
-            Grid(const Grid& other) :
-                GridBase(other.config),
-                holder(new ArrayType(*(other.holder))),
-                default_value(other.default_value)                
-            {
-            } 
-
-            ~Grid() 
-            {
-                delete holder;
-            }
-
-            const T& getDefaultValue() const 
-            {
-                return default_value;
-            }
-
-            const T& at(const Eigen::Vector2d& pos) const
-            {
-                Index idx;
-                if (!toGrid(pos, idx))
-                    throw std::runtime_error("Provided position is out of the grid.");
-                return get(idx);
-            }       
-
-            T& at(const Eigen::Vector2d& pos)
-            {
-                Index idx;
-                if (!toGrid(pos, idx))
-                    throw std::runtime_error("Provided position is out of the grid");
-                return get(idx);
-            }                   
-
-            const T& at(Index idx) const
-            {
-                if (!inGrid(idx))
-                    throw std::runtime_error("Provided index is out of the grid");              
-                return get(idx);
-            }   
-
-            T& at(Index idx)
-            {
-                if (!inGrid(idx))
-                    throw std::runtime_error("Provided index is out of the grid");              
-                return get(idx);
-            }
-
-            const T& at(size_t x, size_t y) const
-            {
-                Index idx(x, y);
-                if (!inGrid(idx))
-                    throw std::runtime_error("Provided index is out of the grid");              
-                return get(idx);                
-            }               
-
-            T& at(size_t x, size_t y)
-            {
-                Index idx(x, y);
-                if (!inGrid(idx))
-                    throw std::runtime_error("Provided index is out of the grid");              
-                return get(idx);                
-            }               
-
-            const T& getMax() const
-            {
-                const ArrayType &array = getArray();
-                return *(std::max_element(array.origin(), array.origin() + array.num_elements()));
-            }
-
-            const T& getMin() const
-            {
-                const ArrayType &array = getArray();
-                return *(std::min_element(array.origin(), array.origin() + array.num_elements()));
+                return (x() < other.x() 
+                    || (x() == other.x() && y() < other.y()));
             }           
 
-            void moveBy(Index idx) 
+            bool operator>(const Index& other) const
             {
-                // if all grid values should be moved outside
-                if (abs(idx.x) >= getCellSizeX()
-                    || abs(idx.y) >= getCellSizeY())
-                {
-                    init();
-                    return;
-                }
+                return (x() > other.x() 
+                    || (x() == other.x() && y() > other.y()));
+            }         
 
-                ArrayType &src = getArray();
+            // TODO: add exception if the other is bigger
+            // than this. due to uint
+            //Index operator-(const Index& other) const
+            //{
+            //}          
+    };
 
-                ArrayType tmp;
-                tmp.resize(boost::extents[getCellSizeY()][getCellSizeX()]);
-                std::fill(tmp.data(), 
-                            tmp.data() + tmp.num_elements(), 
-                            default_value);         
-
-                boost::swap(tmp, src);
-                
-                for (int x = 0; x < getCellSizeX(); ++x)
-                {
-                    for (int y = 0; y < getCellSizeY(); ++y)
-                    {
-                        int x_new = x + idx.x;
-                        int y_new = y + idx.y;
-
-                        if (x_new >= 0 && x_new < getCellSizeX() 
-                            && y_new >= 0 && y_new < getCellSizeY())
-                        {
-                            get(Index(x_new, y_new)) = *(tmp.data() + y * getCellSizeX() + x); 
-                        }
-                    }
-                }
-            }
-
-            void clear() 
-            {
-                init();
-            }
+    /** Base class for all 2D gridbased maps.
+     * - desribes the grid structure: resolution and number of cells in x- and y- axes.
+     * - converts positon -> index and index -> position
+     * - checks if the position or index is inside the grid
+     */
+    class Grid : public LocalMap
+    {
+        public:
+            typedef boost::intrusive_ptr<Grid> Ptr;
 
         private:
-            ArrayType* holder;  
-            T default_value;
+            /** Resolution in X-axis and Y-axis **/
+            Vector2d resolution;
 
-            T& get(Index idx)
-            {
-                return *(getArray().data() + idx.y * getCellSizeX() + idx.x);         
-            }
+            /** Number of cells in X-axis **/
+            Vector2ui num_cells;
 
-            const T& get(Index idx) const
-            {
-                return *(getArray().data() + idx.y * getCellSizeX() + idx.x);      
-            }           
+        public:            
+            Grid(const Vector2d &resolution, const Vector2ui &num_cells);
 
-            void init() const
-            {           
-                if (getCellSizeX() == 0 || getCellSizeY() == 0)
-                    throw std::runtime_error("The grid size is zero! (therefore the array to hold the cells could be not allocated properly)"); 
+            ~Grid();
+    };
+}}
 
-                holder->resize(boost::extents[getCellSizeY()][getCellSizeX()]);
-                std::fill(holder->data(), 
-                            holder->data() + holder->num_elements(), 
-                            default_value);                             
-            }       
-
-            ArrayType& getArray()
-            {
-                if (holder->num_elements() == 0)
-                    init();
-
-                return *holder;
-            }
-
-            const ArrayType& getArray() const
-            {       
-                if (holder->num_elements() == 0)
-                    init();             
-
-                return *holder;
-            }               
-        };
-    }
-}
-
-#endif // __ENVIRE_MAPS_GRID_HPP__
+#endif // __ENVIRE_MAPS_GRIDBASE_HPP__

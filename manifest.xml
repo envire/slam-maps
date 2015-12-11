@@ -1,21 +1,14 @@
 <package>
-  <description brief="Envire Maps">
-  
-  </description>
-  <author>Anna Born/anna.born@dfki.de</author>
-  <license></license>
-  <url>http://</url>
-  <logo>http://</logo>
-  <depend package="base/cmake" />
-  <depend package="base/types" />
-  <depend package="boost" />
-  <depend package="gui/vizkit3d" optional="1"/>
-  <depend package="slam/pcl" />
-  <!--
-   To add any dependencies use the depend tag
-  <depend package="dummy-dependency-0" />
-	...
-  <depend package="dummy-dependency-n-1" />
-  <depend package="dummy-dependency-n" />
-  -->
+    <description brief="Envire Maps library">
+    Envire Maps library following the IEEE 1873 standard for mapa data representation
+    </description>
+    <author> Envire Team/ric-team8@dfki.de</author>
+    <maintainer>Anna Born/anna.born@dfki.de</maintainer>
+    <license>BSD</license>
+    <url>http://rock-robotics.org/</url>
+    <depend package="base/cmake" />
+    <depend package="base/types" />
+    <depend package="boost" />
+    <depend package="gui/vizkit3d" optional="1"/>
+    <depend package="slam/pcl" />
 </package>
