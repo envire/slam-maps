@@ -52,8 +52,8 @@ namespace envire { namespace maps
     };
 
     /** Base class for all 2D gridbased maps.
-     * - desribes the grid structure: resolution and number of cells in x- and y- axes.
-     * - converts positon -> index and index -> position
+     * - describes the grid structure: resolution and number of cells in x- and y- axes.
+     * - converts position -> index and index -> position
      * - checks if the position or index is inside the grid
      */
     class Grid : public LocalMap

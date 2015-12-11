@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE(test_sp_list_update)
         }
         for(int i=0; i<2; ++i)
         {
-            // check that lists are orderd
+            // check that lists are ordered
             SPList & list = i == 0? list1 : list2;
             float prev = -1e30;
             for(SPList::iterator it = list.begin(); it != list.end(); ++it)
