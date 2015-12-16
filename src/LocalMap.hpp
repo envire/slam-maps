@@ -12,6 +12,8 @@ namespace envire { namespace maps
     /**@brief LocalMapType
      * The type of the LocalMap
      */
+
+     // TODO: do we need unknown type?
     enum LocalMapType
     {
         GRID_MAP = 0,
@@ -30,14 +32,37 @@ namespace envire { namespace maps
         public:
             typedef boost::shared_ptr<LocalMap> Ptr;
 
-        public:
+            // TODO: which map_type should be set by default
+            LocalMap()
+                : offset(base::Transform3d::Identity())
+            {}
+
+            const base::Transform3d& getOffset() const
+            {
+                return offset;
+            }
+
+            base::Transform3d& getOffset()
+            {
+                return offset;
+            }
+
+            void setOffset(const base::Transform3d& offset)
+            {
+                this->offset = offset;
+            }
+
+        private:
             /**  string id of this local map **/
             std::string id;
 
-            /** Offset within the grid. It will be the offset with respect
+            /** Offset within the grid. The description of the local map frame.
+             * It will be the offset with respect
              * to the bottom left corner (origin) of the map.
              * For the time being we use 3D transformation.
-             * **/
+             * 
+             * 
+             **/
             base::Transform3d offset;
 
             /** map_type of this local map **/
