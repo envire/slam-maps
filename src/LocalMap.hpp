@@ -52,7 +52,7 @@ namespace envire { namespace maps
                 this->offset = offset;
             }
 
-        private:
+        protected:
             /**  string id of this local map **/
             std::string id;
 
