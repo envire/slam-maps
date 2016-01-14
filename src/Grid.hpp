@@ -18,12 +18,16 @@ namespace envire { namespace maps
 
     typedef Eigen::Vector2d Vector2d;  
 
+    typedef Eigen::Vector3d Vector3d;
+
     /**@brief Internal structure used to represent a position on the grid
      * itself, as a cell index
      */
     class Index : public Eigen::Matrix<unsigned int, 2, 1>
     {
         public:
+            typedef Eigen::Matrix<unsigned int, 2, 1> Base;
+
             Index() 
                 : Eigen::Matrix<unsigned int, 2, 1>(0, 0)
             {}
@@ -31,6 +35,12 @@ namespace envire { namespace maps
             Index(unsigned int x, unsigned int y) 
                 : Eigen::Matrix<unsigned int, 2, 1>(x, y)
             {}
+
+            // This constructor allows you to construct Index from Eigen expressions
+            template<typename OtherDerived>
+            Index(const Eigen::MatrixBase<OtherDerived>& other)
+                : Eigen::Matrix<unsigned int, 2, 1>(other)
+            {}            
 
             bool operator<(const Index& other) const
             {
