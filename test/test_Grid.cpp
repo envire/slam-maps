@@ -23,7 +23,7 @@ BOOST_AUTO_TEST_CASE(test_grid_index)
     BOOST_CHECK_EQUAL((index2 < Index(index2.x() - 1, index2.y() + 1)), false);     
     BOOST_CHECK_EQUAL((index2 < Index(index2.x() - 1, index2.y() - 1)), false);   
 
-    // check the "<" operator
+    // check the ">" operator
     BOOST_CHECK_EQUAL((index2 > Index(index2.x() - 1, index2.y() - 1)), true);  
     BOOST_CHECK_EQUAL((index2 > Index(index2.x(), index2.y())), false);       
     BOOST_CHECK_EQUAL((index2 > Index(index2.x(), index2.y() - 1)), true);    
@@ -49,7 +49,11 @@ BOOST_AUTO_TEST_CASE(test_grid_index)
     BOOST_CHECK((Index(5, 9) - index2) == Index(3, 5));  
 
     // Implement!
-    //BOOST_CHECK((index2 - Index(5, 9)) == Index(3, 5));  
+    //BOOST_CHECK((index2 - Index(5, 9)) == Index(3, 5)); 
+
+    Index index3(Eigen::Matrix<unsigned int, 2, 1>(3, 4));
+    BOOST_CHECK_EQUAL(index3.x(), 3);
+    BOOST_CHECK_EQUAL(index3.y(), 4);
 }
 
 BOOST_AUTO_TEST_CASE(test_grid_empty)
