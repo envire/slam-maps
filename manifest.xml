@@ -8,6 +8,7 @@
     <url>http://rock-robotics.org/</url>
     <depend package="base/cmake" />
     <depend package="base/types" />
+    <depend package="base/numeric" />
     <depend package="boost" />
     <depend package="gui/vizkit3d" optional="1"/>
     <depend package="slam/pcl" />
