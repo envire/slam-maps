@@ -72,16 +72,59 @@ namespace envire { namespace maps
             typedef boost::intrusive_ptr<Grid> Ptr;
 
         private:
-            /** Resolution in X-axis and Y-axis **/
-            Vector2d resolution;
-
-            /** Number of cells in X-axis **/
+            /** Number of cells in X-axis and Y-axis **/
             Vector2ui num_cells;
 
+            /** 
+             * Resolution in local X-axis and Y-axis
+             * (Size of the cell in local X-axis and Y-axis in world unit)
+             */
+            Vector2d resolution;
+
         public:            
-            Grid(const Vector2d &resolution, const Vector2ui &num_cells);
+            Grid();
+
+            Grid(const Vector2ui &num_cells, const Vector2d &resolution);
 
             ~Grid();
+
+            /** @brief get the number of cells
+             */
+            const Vector2ui& getNumCells() const; 
+
+            /** 
+             * @brief get the resolution of the grid
+             * @return cell size in local X-axis and Y-axis in world unit
+             */
+            const Vector2d& getResolution() const;
+
+            /**
+             * @brief get the size of the grid in world unit
+             * @return size of the grid in local X-axis and Y-axis in wold unit
+             */
+            Vector2d getSize() const;
+
+            bool inGrid(const Index& idx) const;  
+
+            /**
+             * @brief convert the index (the grid position) into position in local frame
+             * by taking the offset (base::Transform3d) into account as description
+             * of local grid frame
+             * 
+             */
+            bool fromGrid(const Index& idx, Vector3d& pos) const; 
+
+            /** 
+             * @brief Converts coordinates from the map-local grid coordinates to
+             * the coordinates in the specified \c frame
+             */
+            bool fromGrid(const Index& idx, Vector3d& pos_in_frame, const base::Transform3d &frame_in_grid) const;
+
+            bool toGrid(const Vector3d& pos, Index& idx) const;    
+
+            bool toGrid(const Vector3d& pos, Index& idx, Vector3d &pos_diff) const;
+
+            bool toGrid(const Vector3d& pos_in_frame, Index& idx, const base::Transform3d &frame_in_grid) const;                    
     };
 }}
 
