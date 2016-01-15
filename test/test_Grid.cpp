@@ -248,9 +248,12 @@ BOOST_AUTO_TEST_CASE(test_grid_pos2index_with_offset)
     BOOST_CHECK_EQUAL(idx, Index(0,0));
     BOOST_CHECK_EQUAL(pos_diff.norm() <= 1e-6, true); 
 
+    // the position on the corner of the cell
     BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(-4.90, -49.50, 0.), idx, pos_diff), true);
-    BOOST_CHECK_EQUAL(idx, Index(1,1));
-    BOOST_CHECK_EQUAL(pos_diff.isApprox(Vector3d(-0.05, -0.25, 0.0), 0.0001), true);     
+    // not defined: various values are posible (0,0), (1,0), (0,1), (1,1)
+    //BOOST_CHECK_EQUAL(idx, Index(1,1)); 
+    //BOOST_CHECK_EQUAL(pos_diff.isApprox(Vector3d(-0.05, -0.25, 0.0), 0.0001), true);     
+    BOOST_REQUIRE_CLOSE(pos_diff.norm(), 0.25, 2); 
 
     // top left: pos is center of the cell
     BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(4.95, 49.75, 0.), idx, pos_diff), true);

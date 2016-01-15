@@ -71,7 +71,7 @@ namespace envire { namespace maps
         public:
             typedef boost::intrusive_ptr<Grid> Ptr;
 
-        private:
+        protected:
             /** Number of cells in X-axis and Y-axis **/
             Vector2ui num_cells;
 
@@ -120,6 +120,15 @@ namespace envire { namespace maps
              */
             bool fromGrid(const Index& idx, Vector3d& pos_in_frame, const base::Transform3d &frame_in_grid) const;
 
+            /**
+             * @brief [brief description]
+             * @details for the corner and border cases no definite solution 
+             * 
+             * @param pos [description]
+             * @param idx [description]
+             * 
+             * @return [description]
+             */
             bool toGrid(const Vector3d& pos, Index& idx) const;    
 
             bool toGrid(const Vector3d& pos, Index& idx, Vector3d &pos_diff) const;

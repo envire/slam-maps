@@ -71,16 +71,11 @@ bool Grid::fromGrid(const Index& idx, Vector3d& pos_in_frame, const base::Transf
 
 bool Grid::toGrid(const Vector3d& pos, Index& idx, Vector3d &pos_diff) const
 {
-    if (resolution.isApprox(Vector2d(0.0, 0.0), 0.0001))
-    {
-        return false; 
-    }
-
     // position without offset
     Vector2d pos_temp = (getOffset().inverse() * pos).head<2>();  
 
     // cast to float due to position which lies on the border between two cells
-    Index idx_temp = Eigen::Vector2f(pos_temp.array().cast<float>() / resolution.array().cast<float>()).cast<unsigned int>();
+    Index idx_temp = Eigen::Vector2d(pos_temp.array() / resolution.array()).cast<unsigned int>();
 
     Vector3d center;
     if(inGrid(idx_temp) && fromGrid(idx_temp, center))
