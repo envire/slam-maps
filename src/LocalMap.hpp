@@ -13,7 +13,7 @@ namespace envire { namespace maps
      * The type of the LocalMap
      */
 
-     // TODO: do we need unknown type?
+    // TODO: do we need unknown type?
     enum LocalMapType
     {
         GRID_MAP = 0,
@@ -35,6 +35,13 @@ namespace envire { namespace maps
             // TODO: which map_type should be set by default
             LocalMap()
                 : offset(base::Transform3d::Identity())
+            {}
+
+            LocalMap(const LocalMap& other)
+                : id(other.id),
+                  offset(other.offset),
+                  map_type(other.map_type),
+                  EPSG_code(other.EPSG_code)
             {}
 
             const base::Transform3d& getOffset() const

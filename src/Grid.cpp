@@ -17,6 +17,12 @@ Grid::Grid(const Vector2ui &num_cells, const Eigen::Vector2d &resolution)
       resolution(resolution)
 {}
 
+Grid::Grid(const Grid& other)
+    : LocalMap(other),
+      num_cells(other.num_cells),
+      resolution(other.resolution)
+{}
+
 Grid::~Grid()
 {}
 

@@ -86,6 +86,8 @@ namespace envire { namespace maps
 
             Grid(const Vector2ui &num_cells, const Vector2d &resolution);
 
+            Grid(const Grid& other);
+
             ~Grid();
 
             /** @brief get the number of cells
