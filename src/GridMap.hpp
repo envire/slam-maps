@@ -1,7 +1,7 @@
 #ifndef __ENVIRE_MAPS_GRID_MAP_HPP__
 #define __ENVIRE_MAPS_GRID_MAP_HPP__
 
-#include "LocalMap.hpp"
+#include "Grid.hpp"
 
 /** std **/
 #include <iostream>
@@ -18,34 +18,18 @@
 namespace envire {namespace maps
 {
 
-    /**@brief Internal structure used to represent a position on the grid
-     * itself, as a cell index
-     */
-    typedef Eigen::Vector2i Index;
-
-    /**@brief type for the number of cells
-     */
-    typedef Eigen::Matrix<unsigned int, 2, 1> Vector2ui;
-
     /**@brief GridMap class IEEE 1873 standard
      * This map is a Grid structure for a raster metric (Cartesian) map
      * This map offers a template class for all maps that are regular grids
      */
     template <typename T>
-    class GridMap: public LocalMap
+    class GridMap: public Grid
     {
 
     public:
         typedef boost::multi_array<T, 2> ArrayType;
 
     private:
-
-        /** Resolution in X-axis and Y-axis **/
-        Eigen::Vector2d resolution;
-
-        /** Number of cells in X-axis **/
-        Vector2ui num_cells;
-
         /** default value type **/
         T default_value;
 
@@ -54,7 +38,9 @@ namespace envire {namespace maps
 
     public:
 
-        GridMap() :cells(new ArrayType())
+        GridMap() 
+            : Grid(), 
+              cells(new ArrayType())
         {
         }
 
@@ -84,25 +70,19 @@ namespace envire {namespace maps
          * @param num_cell - number of cells in x and y direction
          * @param default_value - default value
          */
-        GridMap(
-                const Eigen::Vector2d &_resolution,
-                const Vector2ui &_num_cells,
-                const T& _default_value):
-                resolution(_resolution),
-                num_cells(_num_cells),
-                default_value(_default_value),
-                cells(new ArrayType())
+        GridMap(const Vector2ui &num_cells,
+                const Eigen::Vector2d &resolution,
+                const T& default_value)
+            : Grid(num_cells, resolution),
+              default_value(default_value),
+              cells(new ArrayType())
         {
         }
 
-        GridMap(const GridMap& other):
-            default_value(other.default_value)
+        GridMap(const GridMap& other)
+            : Grid(other),
+              default_value(other.default_value)
         {
-            /** Get the attribute values **/
-            this->resolution = other.resolution;
-            this->num_cells = other.num_cells;
-            this->default_value = other.default_value;
-
             /** Get the cells **/
             this->cells = new ArrayType(*(other.cells));
         }
@@ -115,130 +95,6 @@ namespace envire {namespace maps
         }
 
     public:
-        /******************************************/
-        /** Base method to access the grid cells **/
-        /******************************************/
-
-        /** @brief get the number of cells
-         */
-        //Vector2ui &getNumCells const {return this->num_cells; }
-
-        const Eigen::Vector2d &getResolution() const { return this->resolution; }
-
-        Eigen::Vector2d getSize() const { return num_cells.cast<double>().cwiseProduct(resolution); }
-        const Vector2ui& getCellSize() const {return num_cells; }
-
-        /** @brief toGrid
-         */
-        bool toGrid(const Eigen::Vector2d& pos, Index& idx) const
-        {
-            Eigen::Vector2d pos_diff;
-            return toGrid(pos.x(), pos.y(), idx.x(), idx.y(), pos_diff.x(), pos_diff.y());
-        }
-
-        /** @brief toGrid
-         */
-        bool toGrid(const Eigen::Vector2d& pos, Index &idx, Eigen::Vector2d& pos_diff) const
-        {
-            return toGrid(pos.x(), pos.y(), idx.x(), idx.y(), pos_diff.x(), pos_diff.y());
-        }
-
-        /** @brief toGrid
-         */
-        bool toGrid(const Eigen::Vector3d& pos_in_frame, Index& idx, const Eigen::Affine3d &frame_in_grid) const
-        {
-            Eigen::Vector3d pos_in_map = frame_in_grid * pos_in_frame;
-            Eigen::Vector2d pos_diff;
-            return toGrid(pos_in_map.x(), pos_in_map.y(), idx.x(), idx.y(), pos_diff.x(), pos_diff.y());
-        }
-
-        /** @brief fromGrid
-         */
-        bool fromGrid(const Index& idx, Eigen::Vector2d& pos) const
-        {
-            return fromGrid(idx.x(), idx.y(), pos.x(), pos.y());
-        }
-
-        /** @brief fromGrid
-         */
-        bool fromGrid(const Index& idx, Eigen::Vector3d& pos_in_frame, const Eigen::Affine3d &frame_in_grid) const
-        {
-            Eigen::Vector2d pos_in_map;
-            bool result = fromGrid(idx.x(), idx.y(), pos_in_map.x(), pos_in_map.y());
-
-            if (result == false)
-                return false;
-
-            pos_in_frame = frame_in_grid.inverse() * Eigen::Vector3d(pos_in_map.x(), pos_in_map.y(), 0.);
-
-            return true;
-        }
-
-        /** @brief inGrid
-         */
-        bool inGrid(const Index& idx) const
-        {
-            return inGrid(idx.x(), idx.y());
-        }
-
-    protected:
-
-        /******************************************/
-        /** Base method to access the grid cells **/
-        /******************************************/
-
-        /** @brief toGrid
-         * Converts coordinates in the map-local frame to grid coordinates
-         * @return true if (x, y) is within the grid and false otherwise
-         */
-        bool toGrid(const double &x, const double &y, Index::Scalar& xi, Index::Scalar& yi, double& xmod, double& ymod) const
-        {
-            /** TO-DO: this method should use vectors **/
-            size_t xi_t = floor((x - offset.translation().x()) / resolution.x());
-            size_t yi_t = floor((y - offset.translation().y()) / resolution.y());
-
-            if(inGrid(xi_t, yi_t))
-            {
-                xi = xi_t;
-                yi = yi_t;
-                /** TO-DO: use the offset propertly as a transformation **/
-                xmod = x - (xi * this->resolution.x() + this->offset.translation().x());
-                ymod = y - (yi * this->resolution.y() + this->offset.translation().y());
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        /** @brief fromGrid
-        * Converts coordinates from the map-local grid coordinates to
-        * the coordinates in the specified \c frame
-        */
-        bool fromGrid(size_t xi, size_t yi, double& x, double& y) const
-        {
-            /** TO-DO: use vectors **/
-            if (inGrid(xi, yi))
-            {
-                x = (xi + 0.5) * this->resolution.x() + this->offset.translation().x();
-                y = (yi + 0.5) * this->resolution.y() + this->offset.translation().y();
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        /** @brief check whether the cell is in grid
-         */
-        bool inGrid(size_t xi, size_t yi) const
-        {
-            return (0 <= xi && xi < this->num_cells.x() && 0 <= yi && yi < this->num_cells.y());
-        }
-
- public:
         /********************************************/
         /** GridMap method to operate with the map **/
         /********************************************/
@@ -248,7 +104,7 @@ namespace envire {namespace maps
             return default_value;
         }
 
-        const T& at(const Eigen::Vector2d& pos) const
+        const T& at(const Vector3d& pos) const
         {
             Index idx;
             if (!toGrid(pos, idx))
@@ -256,7 +112,7 @@ namespace envire {namespace maps
             return get(idx);
         }
 
-        T& at(const Eigen::Vector2d& pos)
+        T& at(const Vector3d& pos)
         {
             Index idx;
             if (!toGrid(pos, idx))
@@ -324,9 +180,9 @@ namespace envire {namespace maps
 
             boost::swap(tmp, src);
 
-            for (int x = 0; x < this->num_cells.x(); ++x)
+            for (int y = 0; y < this->num_cells.y(); ++y)
             {
-                for (int y = 0; y < this->num_cells.y(); ++y)
+                for (int x = 0; x < this->num_cells.x(); ++x)
                 {
                     int x_new = x + idx.x();
                     int y_new = y + idx.y();
@@ -334,7 +190,7 @@ namespace envire {namespace maps
                     if ((x_new >= 0 && x_new < this->num_cells.x())
                         && (y_new >= 0 && y_new < this->num_cells.y()))
                     {
-                        get(Index(x_new, y_new)) = *(tmp.data() + x * this->num_cells.x() + y);
+                        get(Index(x_new, y_new)) = *(tmp.data() + y * this->num_cells.x() + x);
                     }
                 }
             }
