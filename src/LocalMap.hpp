@@ -24,6 +24,7 @@ namespace envire { namespace maps
 
     struct LocalMapData
     {
+        // TODO: which map_type should be set by default
         LocalMapData()
             : offset(base::Transform3d::Identity()) {};
 
@@ -72,12 +73,23 @@ namespace envire { namespace maps
             {        
             }
 
-            // TODO: which map_type should be set by default
+            /**
+             * @brief [brief description]
+             * @details to share same content (LocalMapData) between various instance of LocalMap
+             * 
+             * @param data [description]
+             */
             LocalMap(const boost::shared_ptr<LocalMapData> &data)
                 : data_ptr(data)
             {
             }
 
+            /**
+             * @brief make copy without sharing the content
+             * @details the copy instance owns a new content (LocalMapData)
+             * 
+             * @param other [description]
+             */
             LocalMap(const LocalMap& other)
                 : data_ptr(new LocalMapData(*(other.data_ptr.get())))
             {
