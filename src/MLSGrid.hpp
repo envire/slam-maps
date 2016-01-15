@@ -16,10 +16,11 @@ namespace envire
                 : GridMap<SPList>()
             {};
 
-            MLSGrid( const Eigen::Vector2d &resolution_,
-                    const Vector2ui &num_cells_ , MLSConfig mls_config = MLSConfig())
-                : GridMap<SPList>(resolution_, num_cells_, SPList(mls_config)),
-                mls_config(mls_config)
+            MLSGrid(const Vector2ui &num_cells, 
+                    const Vector2d &resolution,
+                    MLSConfig mls_config = MLSConfig())
+                : GridMap<SPList>(num_cells, resolution, SPList(mls_config)),
+                  mls_config(mls_config)
             {}
 
             const MLSConfig& getConfig() const 

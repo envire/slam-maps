@@ -81,7 +81,7 @@ void MLSGridVisualization::updateMainNode ( osg::Node* node )
     }    */
 
     Eigen::Vector2d res = mls.getResolution();
-    Vector2ui cellSize = mls.getCellSize();
+    Vector2ui num_cell = mls.getNumCells();
     const double xs = res.x();
     const double ys = res.y();
 
@@ -91,9 +91,9 @@ void MLSGridVisualization::updateMainNode ( osg::Node* node )
     osg::ref_ptr<osg::Vec3Array> var_vertices = new osg::Vec3Array;
     base::TimeMark timer("MLS_VIZ::updateMainNode");
 
-    for (size_t x = 0; x < cellSize.x(); x++)
+    for (size_t x = 0; x < num_cell.x(); x++)
     {
-        for (size_t y = 0; y < cellSize.y(); y++)
+        for (size_t y = 0; y < num_cell.y(); y++)
         {
             const SPList &list = mls.at(x, y);
 
@@ -101,7 +101,7 @@ void MLSGridVisualization::updateMainNode ( osg::Node* node )
             {
 
                 const SurfacePatch &p(*it);
-                Eigen::Vector2d pos;
+                Vector3d pos;
                 mls.fromGrid(Index(x,y), pos);
                 double xp = pos.x();
                 double yp = pos.y();
@@ -209,13 +209,13 @@ void MLSGridVisualization::updateDataIntern(envire::maps::MLSGrid const& value)
 
 osg::Vec3 MLSGridVisualization::estimateNormal(const MLSGrid &grid, const SurfacePatch &patch, const Index &patch_idx) const
 {
-    Eigen::Vector2d patch_pos;
+    Vector3d patch_pos;
     if(!grid.fromGrid(patch_idx, patch_pos))
         return osg::Vec3(0,0,0);
 
-    Eigen::Vector3d patch_center(patch_pos.x(), patch_pos.y(), patch.getMean());
+    Vector3d patch_center(patch_pos.x(), patch_pos.y(), patch.getMean());
 
-    Eigen::Vector3d d[2] = { Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero() };
+    Vector3d d[2] = { Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero() };
 
     for( int n = 0; n < 2; n++ )
     {
@@ -228,7 +228,7 @@ osg::Vec3 MLSGridVisualization::estimateNormal(const MLSGrid &grid, const Surfac
                 SPList::const_iterator it = grid.at(idx).getPatchByZ(patch.getMean(), grid.getResolution().sum());
                 if( it != grid.at(idx).end() )
                 {
-                    Eigen::Vector2d pos(-1, -1);
+                    Vector3d pos(-1, -1, 0);
                     grid.fromGrid(idx, pos);
 
                     Eigen::Vector3d v(pos.x(), pos.y(), it->getMean());
