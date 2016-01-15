@@ -8,6 +8,7 @@ rock_library(envire_maps
         LocalMap.hpp
         Grid.hpp
         GridMap.hpp
+        MultilayerGridMap.hpp
         SurfacePatch.hpp
         List.hpp
         SPList.hpp
