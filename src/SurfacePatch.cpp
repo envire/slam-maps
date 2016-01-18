@@ -117,19 +117,58 @@ bool SurfacePatch::mergeSum( SurfacePatch& o, const MLSConfig& config  )
 bool SurfacePatch::mergePlane( SurfacePatch& o, const MLSConfig& config )
 {
     SurfacePatch &p(*this);
+    const float gapSize = config.gapSize;
 
-    if( overlap( min-config.gapSize, max+config.gapSize, o.min, o.max ) )
+    if( !p.isNegative() && !o.isNegative()
+         && overlap( p.min-gapSize, p.max+gapSize, o.min, o.max ) )
     {
         p.n += o.n;
         p.normsq += o.normsq;
         p.min = std::min( p.min, o.min );
         p.max = std::max( p.max, o.max );
+        p.height = p.max - p.min;
 
         // sum the plane between the two
         p.plane.update( o.plane );
         p.updatePlane();
         
         return true;
+    }
+    else if( p.isNegative() && o.isNegative() )
+    {
+        // the new patch fully encloses the old one,
+        // so will overwrite it
+        const float o_min = o.mean - o.height;
+        const float p_min = p.mean - p.height;
+        //if( o.update_idx >= p.update_idx && o.mean >= p.mean && o_min <= p_min )
+        if( overlap( p_min-gapSize, p.mean+gapSize, o_min, o.mean ) )
+        //if( o.mean >= p.mean && o_min <= p_min )
+        {
+            p = o;
+            return true;
+        }
+        const float delta_dev = sqrt( p.stdev * p.stdev + o.stdev * o.stdev );
+        if( overlap( p_min-delta_dev, p.mean+delta_dev, o_min, o.mean ) )
+        {
+            // TODO take update_idx into account
+            if( true || p.update_idx == o.update_idx )
+            {
+                if( o.mean > p.mean )
+                {
+                    p.height += ( o.mean - p.mean );
+                    p.mean = o.mean;
+                    p.max = p.mean;
+                    p.min = p.mean;
+                    p.stdev = o.stdev;
+                }
+                else if( o_min < p_min )
+                {
+                    p.height = p.mean - o_min;
+                }
+
+                return true;
+            }
+        }
     }
     
     return false;

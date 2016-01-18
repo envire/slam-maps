@@ -3,11 +3,18 @@
 
 #include "GridMap.hpp"
 #include "SPList.hpp"
+#include "MLSConfig.hpp"
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+#include <Eigen/Geometry>
 
-namespace envire 
+namespace envire
 {
     namespace maps 
     {
+        // TODO move this typedef somewhere more globally
+        typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
+
         class MLSGrid : public GridMap<SPList>
         {
         public:
@@ -27,6 +34,16 @@ namespace envire
             { 
                 return mls_config; 
             }
+
+            /**
+             * Merges another MLSGrid into this. Both maps should have the same size and use the same configuration.
+             */
+            void merge(const MLSGrid& other);
+
+            /**
+             * Merges a pointcloud into this MLSGrid. The pointcloud contains the pose of its origin relative to the MLSGrid
+             */
+            void mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& pc2grid, bool withUncertainty = true);
 
         private:
             MLSConfig mls_config;

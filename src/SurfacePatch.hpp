@@ -261,6 +261,13 @@ template <class T> inline void kalman_update( T& mean, T& stdev, T m_mean, T m_s
                 return n;
             }
             
+            bool isCovered( const SurfacePatch& o ) const
+            {
+                const SurfacePatch &p(*this);
+                return (p.isNegative() && !o.isNegative()
+                   && (p.mean-p.height) <= o.min && p.mean >= o.max
+                   && p.update_idx > o.update_idx );
+            }
         protected:
             /** The mean Z value. This always represents the top of the patch,
              * regardless whether the patch is horizontal or vertical
