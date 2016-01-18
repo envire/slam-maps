@@ -1,11 +1,14 @@
 rock_vizkit_plugin(envire_maps-viz
+        ElevationMapVisualization.cpp
         MLSGridVisualization.cpp
         PatchesGeode.cpp
     DEPS 
     	envire_maps
     MOC 
+        ElevationMapVisualization.hpp
         MLSGridVisualization.hpp
     HEADERS 
+        ElevationMapVisualization.hpp
         MLSGridVisualization.hpp
         PatchesGeode.hpp
 )
