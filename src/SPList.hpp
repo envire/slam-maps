@@ -96,35 +96,41 @@ namespace envire
                 return getPatchByZ(tmp, sigma_threshold, ignore_negative);
             }            
 
-            iterator getPatchByZ(const SurfacePatch& patch, double sigma_threshold = 3.0, bool ignore_negative = true)
+            bool isCovered(double zPos, double zStdev) const
             {
-                iterator it = begin();
-                for (;it != end(); ++it)
+                const SurfacePatch tmp(zPos, zStdev);
+                return getPatchByZ(tmp)->isCovered(tmp);
+            }
+        private:
+            template<class It>
+            It getPatchByZ(It it, It end, const SurfacePatch& patch, double sigma_threshold = 3.0, bool ignore_negative = true) const
+            {
+                It found_patch = end;
+                float nearest_distance = std::numeric_limits<float>::max();
+                // TODO take advantage of the fact that patches are sorted
+                for (;it != end; ++it)
                 {                   
-                    SurfacePatch &p(*it);
+                    const SurfacePatch &p(*it);
                     const double interval = sqrt(sq(patch.getStdev()) + sq(p.getStdev())) * sigma_threshold;
-                    if( p.distance( patch ) < interval && (!ignore_negative || !p.isNegative()) )
+                    const float distance = p.distance( patch );
+                    if( distance < interval && distance < nearest_distance && (!ignore_negative || !p.isNegative()) )
                     {
-                        return it;
+                        nearest_distance = distance;
+                        found_patch = it;
                     }
                 }
-                return it;
+                return found_patch;
+            }
+        public:
+            iterator getPatchByZ(const SurfacePatch& patch, double sigma_threshold = 3.0, bool ignore_negative = true)
+            {
+                return getPatchByZ(begin(), end(), patch, sigma_threshold, ignore_negative);
             }
 
             const_iterator getPatchByZ(const SurfacePatch& patch, double sigma_threshold = 3.0, bool ignore_negative = true) const
             {
-                const_iterator it = begin();
-                for (;it != end(); ++it)
-                {                   
-                    SurfacePatch const &p(*it);
-                    const double interval = sqrt(sq(patch.getStdev()) + sq(p.getStdev())) * sigma_threshold;
-                    if( p.distance( patch ) < interval && (!ignore_negative || !p.isNegative()) )
-                    {
-                        return it;
-                    }
-                }
-                return it;
-            }            
+                return getPatchByZ(begin(), end(), patch, sigma_threshold, ignore_negative);
+            }
 
             std::pair<iterator, double> getNearestPatch(const SurfacePatch& p)
             {

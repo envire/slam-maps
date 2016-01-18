@@ -13,10 +13,12 @@ namespace envire
         struct MLSConfig
         {
             MLSConfig()
-            : gapSize( 1.0 ), 
-            thickness( 0.05 ),
-            useColor( false ),
-            updateModel( KALMAN ) {}
+            : gapSize( 1.0 )
+            , thickness( 0.05 )
+            , useColor( false )
+            , updateModel( KALMAN )
+            , useNegativeInformation( false )
+            {}
 
             enum update_model
             {
@@ -29,6 +31,7 @@ namespace envire
             float thickness;
             bool useColor;
             update_model updateModel;
+            bool useNegativeInformation;
         };
 
     }
