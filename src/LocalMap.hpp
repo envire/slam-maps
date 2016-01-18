@@ -117,6 +117,11 @@ namespace envire { namespace maps
                 return data_ptr->offset;
             }
 
+            const boost::shared_ptr<LocalMapData>& getLocalMap() const
+            {
+                return data_ptr;
+            }
+
         protected:
             boost::shared_ptr<LocalMapData> data_ptr;
     };

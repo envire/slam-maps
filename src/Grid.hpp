@@ -86,9 +86,19 @@ namespace envire { namespace maps
 
             Grid(const Vector2ui &num_cells, const Vector2d &resolution);
 
-            Grid(const Grid& other);
+            /**
+             * @brief [brief description]
+             * @details share the LocalMapData
+             * 
+             * @param num_cells [description]
+             * @param resolution [description]
+             * @param data [description]
+             */
+            Grid(const Vector2ui &num_cells, 
+                const Vector2d &resolution, 
+                const boost::shared_ptr<LocalMapData> &data);
 
-            ~Grid();
+            virtual ~Grid();
 
             /** @brief get the number of cells
              */

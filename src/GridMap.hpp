@@ -79,6 +79,15 @@ namespace envire {namespace maps
         {
         }
 
+        GridMap(const Vector2ui &num_cells,
+                const Eigen::Vector2d &resolution,
+                const T& default_value,
+                const boost::shared_ptr<LocalMapData> &data)
+            : Grid(num_cells, resolution, data),
+              default_value(default_value),
+              cells(new ArrayType())
+        {}
+
         GridMap(const GridMap& other)
             : Grid(other),
               default_value(other.default_value)
