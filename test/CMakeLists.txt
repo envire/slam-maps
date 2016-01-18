@@ -10,6 +10,10 @@ rock_testsuite(test_gridmap suite.cpp
    test_GridMap.cpp
    DEPS envire_maps)   
 
+rock_testsuite(test_multilayergridmap suite.cpp
+   test_MultilayerGridMap.cpp
+   DEPS envire_maps)     
+
 rock_testsuite(test_surfacepatch suite.cpp
    test_SurfacePatch.cpp
    DEPS envire_maps)
