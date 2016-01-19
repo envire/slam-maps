@@ -135,12 +135,12 @@ void MLSGridVisualization::updateMainNode ( osg::Node* node )
                         float minZ, maxZ;
                         p.getRange(minZ, maxZ);
 //                        float stdev = p.getStdev() + 1e-4f;
-                        osg::Vec3 position(xp, yp, minZ - 1e-4f);
+                        osg::Vec3 position(xp, yp, (maxZ+minZ)*0.5f - 1e-4f);
                         osg::Vec3 extents(xs, ys, (maxZ - minZ) + 2e-4f);
                         osg::Vec3 mean = Vec3(p.getCenter());
                         mean.z() -= position.z();
                         osg::Vec3 normal = Vec3(p.getNormal());
-                        geode->drawPlane(position, extents, mean, normal);
+                        geode->drawPlane(position, extents * 0.5f, mean, normal);
                         osg::Vec3 center = position + mean;
 
                         if(showNormals)

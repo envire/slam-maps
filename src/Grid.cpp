@@ -83,7 +83,8 @@ bool Grid::toGrid(const Vector3d& pos, Index& idx, Vector3d &pos_diff) const
     Vector2d pos_temp = (getOffset().inverse() * pos).head<2>();  
 
     // cast to float due to position which lies on the border between two cells
-    Index idx_temp = Eigen::Vector2d(pos_temp.array() / resolution.array()).cast<unsigned int>();
+    Eigen::Vector2d idx_double = pos_temp.array() / resolution.array();
+    Index idx_temp(std::floor(idx_double.x()), std::floor(idx_double.y()));
 
     Vector3d center;
     if(inGrid(idx_temp) && fromGrid(idx_temp, center))

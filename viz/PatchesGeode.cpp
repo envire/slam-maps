@@ -33,11 +33,12 @@ namespace vizkit3d
     {
         // Sanity check (TODO should be disabled in release mode)
         for(int i=0; i<3; ++i)
-            if(! (0.0f <= mean[i] && mean[i] <= extents[i]) )
+            if( std::abs(mean[i]) > extents[i])
             {
                 std::cerr << "Mean of SurfacePatch is outside of its extents! {";
                 for(int j=0; j<3; ++j) std::cerr << mean[j] << (j==2? "}   {" : ", ");
                 for(int j=0; j<3; ++j) std::cerr << extents[j] << (j==2? "}\n" : ", ");
+                break;
             }
         // first calculate the intersections of the plane with the borders of the box
         // Here, `extents` and `mean` are relative to the origin of the box
@@ -48,6 +49,9 @@ namespace vizkit3d
         if(std::abs(normal[i]) < std::abs(normal[j])) std::swap(i,j);
         if(std::abs(normal[i]) < std::abs(normal[k])) std::swap(i,k);
 
+        float dotj = extents[j]*normal[j];
+        float dotk = extents[k]*normal[k];
+
         osg::Vec3 prev_p;
         enum { NONE, LOW, BOX, HIGH } prev_pos = NONE, pos;
         // calculate intersections in direction k:
@@ -55,19 +59,20 @@ namespace vizkit3d
         {
             osg::Vec3 p(0,0,0);
             float dotp = 0.0f;
-            switch(n)
-            {
-            case 0: case 4: break;
-            case 1: p[j] = extents[j]; dotp += extents[j] * normal[j]; break;
-            case 2: p[j] = extents[j]; dotp += extents[j] * normal[j];
-                // fall through
-            case 3: p[k] = extents[k]; dotp += extents[k] * normal[k]; break;
-            }
+            if((n+1)&2)
+                dotp += dotj, p[j] = extents[j];
+            else
+                dotp -= dotj, p[j] = -extents[j];
+            if(n&2)
+                dotp += dotk, p[k] = extents[k];
+            else
+                dotp -= dotk, p[k] = -extents[k];
+
             p[i] = (dist - dotp) / normal[i];
 
-            if( p[i] < 0.0f )
+            if( p[i] < -extents[i])
                 pos = LOW;
-            else if( p[i] > extents[i] )
+            else if( p[i] > extents[i])
                 pos = HIGH;
             else
                 pos = BOX;
@@ -75,7 +80,7 @@ namespace vizkit3d
             if( (prev_pos == LOW || prev_pos == HIGH) && pos != prev_pos )
             {
                 // clipping in
-                float h = prev_pos == LOW ? 0 : extents[i];
+                float h = prev_pos == LOW ? -extents[i] : extents[i];
                 float s = (h - prev_p[i]) / (p[i] - prev_p[i]);
                 osg::Vec3 cp = prev_p + (p - prev_p) * s;
                 addVertex( position + cp, normal );
@@ -87,7 +92,7 @@ namespace vizkit3d
             else if( pos != prev_pos && prev_pos != NONE )
             {
                 // clipping out
-                float h = pos == LOW ? 0 : extents[i];
+                float h = pos == LOW ? -extents[i] : extents[i];
                 float s = (h - prev_p[i]) / (p[i] - prev_p[i]);
                 osg::Vec3 cp = prev_p + (p - prev_p) * s;
                 addVertex( position + cp, normal );

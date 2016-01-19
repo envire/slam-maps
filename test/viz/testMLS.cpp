@@ -21,11 +21,11 @@ BOOST_AUTO_TEST_CASE( mlsviz_test )
     mls_config.updateModel = MLSConfig::SLOPE;
     MLSGrid *mls = new MLSGrid(numCells, res, mls_config);
     mls->getOffset().translation() << -0.5*mls->getSize(), 0;
-    for (unsigned int x = 0; x < numCells.x(); ++x) for(float dx = 0.; dx <0.99f; dx+=0.125)
+    for (unsigned int x = 0; x < numCells.x(); ++x) for(float dx = -.5f; dx <0.49f; dx+=0.125)
     {
         float xx = x+dx;
         float cs = std::cos(xx * M_PI/50);
-        for (unsigned int y = 0; y < numCells.y(); ++y) for (float dy = 0.; dy<0.99; dy+=0.125)
+        for (unsigned int y = 0; y < numCells.y(); ++y) for (float dy = -0.5f; dy<0.49; dy+=0.125)
         {
             float yy = y+dy;
             float sn = std::sin(yy* M_PI/50);
@@ -86,9 +86,9 @@ BOOST_AUTO_TEST_CASE(mls_loop)
             // Project points into MLS grid:
             Index idx;
             Vector3d rem;
-            if(!mls->toGrid(Vector3d(x, y, 0), idx, rem)) continue;
+            if(!mls->toGrid(Vector3d(x, y, z), idx, rem)) continue;
 
-            mls->at(idx).update(SurfacePatch(Eigen::Vector3f(rem.x(),rem.y(),z), 0.1));
+            mls->at(idx).update(SurfacePatch(rem.cast<float>(), 0.1));
         }
     }
 
