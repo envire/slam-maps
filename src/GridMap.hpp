@@ -5,6 +5,7 @@
 
 /** std **/
 #include <iostream>
+#include <type_traits>
 
 /** Eigen **/
 #include <Eigen/Core>
@@ -159,13 +160,29 @@ namespace envire {namespace maps
             return get(idx);
         }
 
-        const T& getMax() const
+        /**
+         * @brief [brief description]
+         * @details enable this function only for arithmetic types (intergral and floating types)
+         * hide this function e.g. for class types
+         * @return [description]
+         */
+        template<class Q = T>
+        const typename std::enable_if<std::is_arithmetic<Q>::value, Q>::type&
+        getMax() const
         {
             const ArrayType &array = getCells();
             return *(std::max_element(array.origin(), array.origin() + array.num_elements()));
         }
 
-        const T& getMin() const
+        /**
+         * @brief [brief description]
+         * @details enable this function only for arithmetic types (intergral and floating types)
+         * hide this function e.g. for class types
+         * @return [description]
+         */
+        template<class Q = T>
+        const typename std::enable_if<std::is_arithmetic<Q>::value, Q>::type&
+        getMin() const
         {
             const ArrayType &array = getCells();
             return *(std::min_element(array.origin(), array.origin() + array.num_elements()));
