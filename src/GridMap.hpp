@@ -206,9 +206,9 @@ namespace envire {namespace maps
 
             boost::swap(tmp, src);
 
-            for (int y = 0; y < this->num_cells.y(); ++y)
+            for (unsigned int y = 0; y < this->num_cells.y(); ++y)
             {
-                for (int x = 0; x < this->num_cells.x(); ++x)
+                for (unsigned int x = 0; x < this->num_cells.x(); ++x)
                 {
                     int x_new = x + idx.x();
                     int y_new = y + idx.y();
