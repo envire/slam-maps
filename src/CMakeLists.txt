@@ -1,4 +1,7 @@
-set(deps_pkg_config base-types)
+find_package(Boost REQUIRED COMPONENTS system filesystem)
+
+find_package(CGAL REQUIRED COMPONENTS Core)
+include(${CGAL_USE_FILE})
 
 rock_library(envire_maps
     SOURCES
@@ -19,8 +22,11 @@ rock_library(envire_maps
         MLSConfig.hpp
         MLSGrid.hpp
         tools/BresenhamLine.hpp
-    DEPS_CMAKE 
+        operations/GridInterpolation.hpp
+    DEPS_CMAKE
         Boost
-        PCL
     DEPS_PKGCONFIG 
-        ${deps_pkg_config})
+        base-types 
+        pcl_registration-1.7
+    DEPS_PLAIN
+        CGAL)
