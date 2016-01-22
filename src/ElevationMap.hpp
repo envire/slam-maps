@@ -50,10 +50,6 @@ namespace envire {namespace maps
         std::pair<double, double> getElevationRange() const;   
 
         std::pair<double, double> getElevationMinRange() const; 
-
-        private:
-            virtual const ElevationData& getMax() const  {};
-            virtual const ElevationData& getMin() const  {};
     };
 }}
 
