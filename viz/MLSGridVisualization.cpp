@@ -135,8 +135,8 @@ void MLSGridVisualization::updateMainNode ( osg::Node* node )
                         float minZ, maxZ;
                         p.getRange(minZ, maxZ);
 //                        float stdev = p.getStdev() + 1e-4f;
-                        osg::Vec3 position(xp, yp, (maxZ+minZ)*0.5f - 1e-4f);
-                        osg::Vec3 extents(xs, ys, (maxZ - minZ) + 2e-4f);
+                        osg::Vec3 position(xp, yp, (maxZ+minZ)*0.5f);
+                        osg::Vec3 extents(xs, ys, (maxZ - minZ) + 1e-3f);
                         osg::Vec3 mean = Vec3(p.getCenter());
                         mean.z() -= position.z();
                         osg::Vec3 normal = Vec3(p.getNormal());
@@ -153,6 +153,14 @@ void MLSGridVisualization::updateMainNode ( osg::Node* node )
                             var_vertices->push_back(osg::Vec3(xp, yp, minZ));
                             var_vertices->push_back(osg::Vec3(xp, yp, maxZ));
                         }
+                    }
+                    else if (showNegative)
+                    {
+                        geode->setColor( negativeCellColor );
+                        geode->drawBox(
+                                osg::Vec3( xp, yp, p.getMean()-p.getHeight()*.5 ),
+                                osg::Vec3( xs, ys, p.getHeight() ),
+                                osg::Vec3(0, 0, 1.0) );
                     }
                 }
                 else
