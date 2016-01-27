@@ -21,9 +21,12 @@ BOOST_AUTO_TEST_CASE(test_generate_PC)
     PointCloud pointcloud;
     Eigen::Affine3d trafo;
     trafo.setIdentity();
-    for(int k=0; k<1; ++k)
+    for(int k=0; k<5; ++k)
     {
-//        trafo.translation().setRandom();
+        trafo.translation().setRandom();
+        Eigen::Quaterniond q; q.coeffs().setRandom(); q.normalize();
+        trafo.linear() = q.toRotationMatrix();
+//        std::cout << trafo.matrix() << std::endl;
 
         lidar.getRanges(ranges, scene, trafo, &pointcloud);
 

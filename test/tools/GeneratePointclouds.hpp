@@ -33,6 +33,10 @@ public:
         assert(longitudeRange.size() >= 1 && longitudeRange.abs().maxCoeff() <= M_PI+0.001);
     }
 
+    /**
+     * getRanges computes ranges to the nearest plane of the scene, given a pose of the LIDAR relative to the scene.
+     * Optionally, it also computes the corresponding pointcloud (in the coordinate system of the LIDAR).
+     */
     void getRanges(Eigen::Ref<Eigen::ArrayXXd> ranges, const std::vector<Eigen::Hyperplane<double, 3> >& scene, const Eigen::Affine3d & pose, PointCloud *pc = 0)
     {
         Eigen::DenseIndex height = latitudeRange.size();
@@ -63,7 +67,7 @@ public:
 //                std::cout << std::endl;
                 ranges(i, j) = minDist;
                 if(pc) // PCL first wants the column, then the row:
-                    pc->at(j, i).getVector3fMap() = line.pointAt(minDist).cast<float>();
+                    pc->at(j, i).getVector3fMap() = (dir*minDist).cast<float>();
             }
         }
     }
