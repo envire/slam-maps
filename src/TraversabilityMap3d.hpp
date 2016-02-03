@@ -43,6 +43,36 @@ public:
     void addConnection(TraversabilityNode *node);
 };
     
+template <class T>
+class TraversabilityNode2
+{
+    enum TYPE
+    {
+        OBSTACLE,
+        TRAVERSABLE,
+        UNKNOWN,
+        HOLE,
+    };
+    std::vector<NodeConnection *> connections;
+    const T *userData;
+    envire::maps::Index idx;
+    
+    double height;
+    
+public:
+    TraversabilityNode();
+    TraversabilityNode(const T *userData);
+
+    /**
+     * Returns the index of this cell
+     * */
+    const Index &getIndex() const;
+    
+    const T &getUserData() const;
+    
+    void addConnection(TraversabilityNode *node);
+};
+    
 class TraversabilityNodeList
 {
     std::list<TraversabilityNode> nodeList;
