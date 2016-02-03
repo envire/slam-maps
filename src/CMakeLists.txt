@@ -21,6 +21,7 @@ rock_library(envire_maps
         SPList.hpp
         MLSConfig.hpp
         MLSGrid.hpp
+        TraversabilityMap3d.hpp
         tools/BresenhamLine.hpp
         operations/GridInterpolation.hpp
     DEPS_CMAKE

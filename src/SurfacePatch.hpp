@@ -75,6 +75,16 @@ template <class T> inline void kalman_update( T& mean, T& stdev, T m_mean, T m_s
 
             void updatePlane();
 
+            /**
+             * Returns the height of the top of the surface patch
+             * */
+            float getTop() const;
+
+            /**
+             * Returns the height of the bottom of the surface patch
+             * */
+            float getBottom() const;
+            
             /** Experimental code. Don't use it unless you know what you are
              * doing */
             float distance( const SurfacePatch& other ) const;
