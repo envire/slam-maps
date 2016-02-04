@@ -115,7 +115,7 @@ namespace vizkit3d
     {
         const double xp = position.x();
         const double yp = position.y();
-        const double zp = position.z();
+        //const double zp = position.z();
 
         const double xs = extents.x();
         const double ys = extents.y();
