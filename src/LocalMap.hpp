@@ -13,7 +13,6 @@ namespace envire { namespace maps
      * The type of the LocalMap
      */
 
-    // TODO: do we need unknown type?
     enum LocalMapType
     {
         GRID_MAP = 0,
@@ -22,11 +21,21 @@ namespace envire { namespace maps
         TOPOLOGICAL_MAP = 3
     };
 
+    const std::string DEFAULT_GRID_MAP_ID = "DEFAULT_GRID_MAP";
+    const std::string DEFAULT_EPSG_CODE = "NONE";
+
     struct LocalMapData
     {
-        // TODO: which map_type should be set by default
+        /** Grid map is the map by default **/
         LocalMapData()
-            : offset(base::Transform3d::Identity()) {};
+            :id(DEFAULT_GRID_MAP_ID),
+            offset(base::Transform3d::Identity()),
+            map_type(GRID_MAP),
+            EPSG_code(DEFAULT_EPSG_CODE){};
+
+        LocalMapData(const std::string _id, const base::Transform3d &_offset,
+                    const LocalMapType _map_type, const std::string _EPSG_code)
+            :id(_id), offset(_offset), map_type(_map_type), EPSG_code(_EPSG_code) {};
 
         /**  string id of this local map **/
         std::string id;
