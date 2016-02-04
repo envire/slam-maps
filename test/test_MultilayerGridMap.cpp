@@ -87,7 +87,8 @@ BOOST_AUTO_TEST_CASE(test_gridmap_has)
 
     // check if the existence of the grid after it was removed
     grid_map->removeLayer("double_grid"); 
-    BOOST_CHECK_EQUAL(grid_map->hasLayer("double_grid"), false);  
+    BOOST_CHECK_EQUAL(grid_map->hasLayer("double_grid"), false);
+    BOOST_CHECK_EQUAL(grid.getId(), DEFAULT_GRID_MAP_ID);
 
     delete grid_map;
 }
