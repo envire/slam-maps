@@ -15,23 +15,25 @@ namespace envire { namespace maps
 
     enum LocalMapType
     {
-        GRID_MAP = 0,
-        GEOMETRIC_MAP = 1,
-        MLS_MAP = 2,
-        TOPOLOGICAL_MAP = 3
+        UNKNOWN_MAP = -1,
+        GRID_MAP = 1,
+        GEOMETRIC_MAP = 2,
+        TOPOLOGICAL_MAP = 3,
+        MLS_MAP = 4
     };
 
+    const std::string UNKNOWN_MAP_ID = "";
     const std::string DEFAULT_GRID_MAP_ID = "DEFAULT_GRID_MAP";
-    const std::string DEFAULT_EPSG_CODE = "NONE";
+    const std::string UNKNOWN_EPSG_CODE = "NONE";
 
     struct LocalMapData
     {
         /** Grid map is the map by default **/
         LocalMapData()
-            :id(DEFAULT_GRID_MAP_ID),
+            :id(UNKNOWN_MAP_ID),
             offset(base::Transform3d::Identity()),
-            map_type(GRID_MAP),
-            EPSG_code(DEFAULT_EPSG_CODE){};
+            map_type(UNKNOWN_MAP),
+            EPSG_code(UNKNOWN_EPSG_CODE){};
 
         LocalMapData(const std::string _id, const base::Transform3d &_offset,
                     const LocalMapType _map_type, const std::string _EPSG_code)

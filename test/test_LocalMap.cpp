@@ -10,7 +10,7 @@ BOOST_AUTO_TEST_CASE(test_local_map_default_constuctor)
     // default
     LocalMap *map_1 = new LocalMap();
 
-    BOOST_CHECK_EQUAL(map_1->getId(), std::string(""));
+    BOOST_CHECK_EQUAL(map_1->getId(), UNKNOWN_MAP_ID);
     BOOST_CHECK_EQUAL(map_1->getOffset().matrix().isApprox(base::Transform3d::Identity().matrix()), true); 
 
     delete map_1;
