@@ -29,20 +29,20 @@ namespace envire {namespace maps
 
     public:
         typedef boost::shared_ptr< GridMap<T> > Ptr;
-        typedef boost::multi_array<T, 2> ArrayType;
+        typedef boost::multi_array<T, 2> GridCell;
 
     private:
         /** default value type **/
         T default_value;
 
         /** Store the actual content of the cells of the grid **/
-        ArrayType* cells;
+        GridCell* cells;
 
     public:
 
         GridMap() 
             : Grid(), 
-              cells(new ArrayType())
+              cells(new GridCell())
         {
         }
 
@@ -77,7 +77,7 @@ namespace envire {namespace maps
                 const T& default_value)
             : Grid(num_cells, resolution),
               default_value(default_value),
-              cells(new ArrayType())
+              cells(new GridCell())
         {
         }
 
@@ -87,7 +87,7 @@ namespace envire {namespace maps
                 const boost::shared_ptr<LocalMapData> &data)
             : Grid(num_cells, resolution, data),
               default_value(default_value),
-              cells(new ArrayType())
+              cells(new GridCell())
         {}
 
         GridMap(const GridMap& other)
@@ -95,7 +95,7 @@ namespace envire {namespace maps
               default_value(other.default_value)
         {
             /** Get the cells **/
-            this->cells = new ArrayType(*(other.cells));
+            this->cells = new GridCell(*(other.cells));
         }
 
         /** @brief default destructor
@@ -171,7 +171,7 @@ namespace envire {namespace maps
         const typename std::enable_if<std::is_arithmetic<Q>::value, Q>::type&
         getMax() const
         {
-            const ArrayType &array = getCells();
+            const GridCell &array = getCells();
             return *(std::max_element(array.origin(), array.origin() + array.num_elements()));
         }
 
@@ -185,7 +185,7 @@ namespace envire {namespace maps
         const typename std::enable_if<std::is_arithmetic<Q>::value, Q>::type&
         getMin() const
         {
-            const ArrayType &array = getCells();
+            const GridCell &array = getCells();
             return *(std::min_element(array.origin(), array.origin() + array.num_elements()));
         }
 
@@ -199,9 +199,9 @@ namespace envire {namespace maps
                 return;
             }
 
-            ArrayType &src = getCells();
+            GridCell &src = getCells();
 
-            ArrayType tmp;
+            GridCell tmp;
             tmp.resize(boost::extents[this->num_cells.x()][this->num_cells.y()]);
             std::fill(tmp.data(), tmp.data() + tmp.num_elements(), default_value);
 
@@ -249,7 +249,7 @@ namespace envire {namespace maps
                     default_value);
         }
 
-        ArrayType& getCells()
+        GridCell& getCells()
         {
             if (cells->num_elements() == 0)
                 init();
@@ -257,7 +257,7 @@ namespace envire {namespace maps
             return *cells;
         }
 
-        const ArrayType& getCells() const
+        const GridCell& getCells() const
         {
             if (cells->num_elements() == 0)
                 init();
