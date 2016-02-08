@@ -26,6 +26,8 @@ ElevationMapVisualization::ElevationMapVisualization()
     grid_keys.append(QString("elevation_min"));
 
     current_grid_key = QString("elevation");
+
+    this->heatMapGradient.createDefaultHeatMapGradient();
 }
 
 ElevationMapVisualization::~ElevationMapVisualization()
@@ -143,8 +145,8 @@ osg::Image* ElevationMapVisualization::createTextureImage()
     else 
     {
         elev_range = elev_map.getElevationRange();
-    }    
-    
+    }
+
     //scaling between SCALING_MIN_VALUE and SCALING_MAX_VALUE meters 
     double scaling = std::abs(elev_range.second - elev_range.first);
 
@@ -156,24 +158,18 @@ osg::Image* ElevationMapVisualization::createTextureImage()
     {
         for (unsigned int x = 0; x < elev_map.getNumCells().x(); ++x)
         {
+            /** Get the cell value **/
             double cell_value;
             if (current_grid_key == QString("elevation_min"))
                 cell_value = elev_map.at(Index(x, y)).elevation_min;
             else
                 cell_value = elev_map.at(Index(x, y)).elevation;
 
-            double hue = (cell_value - 
-                std::floor(cell_value / scaling) * scaling) / scaling;
+
+            double normalize_value = (cell_value-elev_range.first)/scaling;
             osg::Vec4f col(1.0,1.0,0.6,1.0);
-            double luminance = 0.6;
-            //if( illumination )
-            //    luminance *= *(illumination++);
-            //if( visibility )
-            //    col.a() = *(visibility++);
-            //if( cycleHeightColor )
-                vizkit3d::hslToRgb( hue, 1.0, luminance, col.r(), col.g(), col.b());
-            //else
-            //    col = osg::Vec4f( col.r() * luminance, col.g() * luminance, col.b() * luminance, col.a() );
+            this->heatMapGradient.getColorAtValue(normalize_value, col.r(),col.g(),col.b());
+
 
             *pos++ = (unsigned char)(col.r() * 255.0);
             *pos++ = (unsigned char)(col.g() * 255.0);
@@ -181,7 +177,7 @@ osg::Image* ElevationMapVisualization::createTextureImage()
             *pos++ = (unsigned char)(col.a() * 255.0);
         }
     }
-        
+
     image->setImage(
             elev_map.getNumCells().x(),
             elev_map.getNumCells().y(),

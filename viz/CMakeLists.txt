@@ -11,4 +11,5 @@ rock_vizkit_plugin(envire_maps-viz
         ElevationMapVisualization.hpp
         MLSGridVisualization.hpp
         PatchesGeode.hpp
+        ColorGradient.hpp
 )

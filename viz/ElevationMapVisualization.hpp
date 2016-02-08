@@ -4,6 +4,8 @@
 #include <boost/noncopyable.hpp>
 #include <vizkit3d/Vizkit3DPlugin.hpp>
 
+#include "ColorGradient.hpp"
+
 #include <osg/Geode>
 #include <osg/Shape>
 #include <osg/Texture2D>
@@ -41,7 +43,9 @@ namespace vizkit3d
 
             osg::HeightField* createHeighField();
 
-            osg::Image* createTextureImage();        
+            osg::Image* createTextureImage();
+
+            envire::maps::ColorGradient heatMapGradient;
 
         public slots:
             QStringList getElevationLayers();
