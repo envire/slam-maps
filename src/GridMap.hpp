@@ -207,9 +207,9 @@ namespace envire {namespace maps
 
             boost::swap(tmp, src);
 
-            for (unsigned int y = 0; y < this->num_cells.y(); ++y)
+            for (unsigned int x = 0; x < this->num_cells.x(); ++x)
             {
-                for (unsigned int x = 0; x < this->num_cells.x(); ++x)
+                for (unsigned int y = 0; y < this->num_cells.y(); ++y)
                 {
                     int x_new = x + idx.x();
                     int y_new = y + idx.y();
@@ -217,7 +217,7 @@ namespace envire {namespace maps
                     if ((x_new >= 0 && x_new < this->num_cells.x())
                         && (y_new >= 0 && y_new < this->num_cells.y()))
                     {
-                        get(Index(x_new, y_new)) = *(tmp.data() + y * this->num_cells.x() + x);
+                        get(Index(x_new, y_new)) = *(tmp.data() + x * this->num_cells.y() + y);
                     }
                 }
             }
@@ -231,12 +231,12 @@ namespace envire {namespace maps
     private:
         T& get(Index idx)
         {
-            return *(getCells().data() + idx.y() * this->num_cells.x() + idx.x());
+            return *(getCells().data() + idx.x() * this->num_cells.y() + idx.y());
         }
 
         const T& get(Index idx) const
         {
-            return *(getCells().data() + idx.y() * this->num_cells.x() + idx.x());
+            return *(getCells().data() + idx.x() * this->num_cells.y() + idx.y());
         }
 
         void init() const
