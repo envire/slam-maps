@@ -28,6 +28,7 @@ namespace envire {namespace maps
     {
 
     public:
+        typedef boost::shared_ptr< GridMap<T> > Ptr;
         typedef boost::multi_array<T, 2> ArrayType;
 
     private:
