@@ -4,7 +4,6 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <boost/intrusive_ptr.hpp>
 #include <boost/function.hpp>
 
 #include "LocalMap.hpp"
@@ -14,9 +13,9 @@ namespace envire { namespace maps
 
     /**@brief type for the number of cells
      */
-    typedef Eigen::Matrix<unsigned int, 2, 1> Vector2ui;  
+    typedef Eigen::Matrix<unsigned int, 2, 1> Vector2ui;
 
-    typedef Eigen::Vector2d Vector2d;  
+    typedef Eigen::Vector2d Vector2d;
 
     typedef Eigen::Vector3d Vector3d;
 
@@ -40,25 +39,25 @@ namespace envire { namespace maps
             template<typename OtherDerived>
             Index(const Eigen::MatrixBase<OtherDerived>& other)
                 : Eigen::Matrix<unsigned int, 2, 1>(other)
-            {}            
+            {}
 
             bool operator<(const Index& other) const
             {
                 return (x() < other.x() 
                     || (x() == other.x() && y() < other.y()));
-            }           
+            }
 
             bool operator>(const Index& other) const
             {
                 return (x() > other.x() 
                     || (x() == other.x() && y() > other.y()));
-            }         
+            }
 
             // TODO: add exception if the other is bigger
             // than this. due to uint
             //Index operator-(const Index& other) const
             //{
-            //}          
+            //}
     };
 
     /** Base class for all 2D gridbased maps.
@@ -69,7 +68,7 @@ namespace envire { namespace maps
     class Grid : public LocalMap
     {
         public:
-            typedef boost::intrusive_ptr<Grid> Ptr;
+            typedef boost::shared_ptr<Grid> Ptr;
 
         protected:
             /** Number of cells in X-axis and Y-axis **/
@@ -81,7 +80,7 @@ namespace envire { namespace maps
              */
             Vector2d resolution;
 
-        public:            
+        public:
             Grid();
 
             Grid(const Vector2ui &num_cells, const Vector2d &resolution);
@@ -102,7 +101,7 @@ namespace envire { namespace maps
 
             /** @brief get the number of cells
              */
-            const Vector2ui& getNumCells() const; 
+            const Vector2ui& getNumCells() const;
 
             /** 
              * @brief get the resolution of the grid
@@ -116,7 +115,7 @@ namespace envire { namespace maps
              */
             Vector2d getSize() const;
 
-            bool inGrid(const Index& idx) const;  
+            bool inGrid(const Index& idx) const;
 
             /**
              * @brief convert the index (the grid position) into position in local frame
