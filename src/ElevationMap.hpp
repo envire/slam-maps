@@ -26,6 +26,9 @@ namespace envire {namespace maps
     class ElevationMap : public GridMap<ElevationData>
     {
     public:
+        typedef boost::shared_ptr<ElevationMap> Ptr;
+
+    public:
         ElevationMap();
 
         ElevationMap(const Vector2ui &num_cells, const Vector2d &resolution);
