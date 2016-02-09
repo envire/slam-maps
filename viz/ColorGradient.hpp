@@ -1,3 +1,5 @@
+// Code available at: http://www.andrewnoske.com/wiki/Code_-_heatmaps_and_color_gradients
+
 #include <vector>
 
 namespace envire { namespace maps
@@ -36,11 +38,13 @@ namespace envire { namespace maps
       void createDefaultHeatMapGradient()
       {
         color.clear();
-        color.push_back(ColorPoint(0, 0, 1,   0.0f));      // Blue.
-        color.push_back(ColorPoint(0, 1, 1,   0.25f));     // Cyan.
-        color.push_back(ColorPoint(0, 1, 0,   0.5f));      // Green.
-        color.push_back(ColorPoint(1, 1, 0,   0.75f));     // Yellow.
-        color.push_back(ColorPoint(1, 0, 0,   1.0f));      // Red.
+        color.push_back(ColorPoint(0, 0, 0,   0.0f));      // black.
+        color.push_back(ColorPoint(0, 0, 1,   0.1428f));   // Blue.
+        color.push_back(ColorPoint(0, 1, 1,   0.2856f));   // Cyan.
+        color.push_back(ColorPoint(0, 1, 0,   0.4284f));   // Green.
+        color.push_back(ColorPoint(1, 1, 0,   0.5712f));   // Yellow.
+        color.push_back(ColorPoint(1, 0, 0,   0.7140f));   // Red.
+        color.push_back(ColorPoint(1, 1, 1,   1.0f));      // White.
       }
 
       //-- Inputs a (value) between 0 and 1 and outputs the (red), (green) and (blue)
