@@ -71,10 +71,10 @@ bool Grid::fromGrid(const Index& idx, Vector3d& pos) const
 bool Grid::fromGrid(const Index& idx, Vector3d& pos_in_frame, const base::Transform3d &frame_in_grid) const
 {
     Vector3d pos_in_map;
-    if (!fromGrid(idx, pos_in_map))
-    {
+
+    if (fromGrid(idx, pos_in_map) == false)
         return false;
-    }
+
     pos_in_frame = frame_in_grid.inverse() * pos_in_map;
 
     return true;
