@@ -15,30 +15,34 @@ namespace envire { namespace maps
      */
     typedef Eigen::Matrix<unsigned int, 2, 1> Vector2ui;
 
+    /**@brief type for grid resolution
+     */
     typedef Eigen::Vector2d Vector2d;
 
+    /**@brief type for grid position
+     */
     typedef Eigen::Vector3d Vector3d;
 
     /**@brief Internal structure used to represent a position on the grid
      * itself, as a cell index
      */
-    class Index : public Eigen::Matrix<unsigned int, 2, 1>
+    class Index : public Vector2ui
     {
         public:
-            typedef Eigen::Matrix<unsigned int, 2, 1> Base;
+            typedef Vector2ui Base;
 
-            Index() 
-                : Eigen::Matrix<unsigned int, 2, 1>(0, 0)
+            Index()
+                :  Vector2ui(0, 0)
             {}
 
             Index(unsigned int x, unsigned int y) 
-                : Eigen::Matrix<unsigned int, 2, 1>(x, y)
+                : Vector2ui(x, y)
             {}
 
             // This constructor allows you to construct Index from Eigen expressions
             template<typename OtherDerived>
             Index(const Eigen::MatrixBase<OtherDerived>& other)
-                : Eigen::Matrix<unsigned int, 2, 1>(other)
+                : Vector2ui(other)
             {}
 
             bool operator<(const Index& other) const
@@ -115,17 +119,21 @@ namespace envire { namespace maps
              */
             Vector2d getSize() const;
 
+            /**
+             * @brief check whether the index argument is inside the grid
+             * @return true or false
+             */
             bool inGrid(const Index& idx) const;
 
             /**
              * @brief convert the index (the grid position) into position in local frame
              * by taking the offset (base::Transform3d) into account as description
-             * of local grid frame
-             * 
+             * from the local map
+             *
              */
             bool fromGrid(const Index& idx, Vector3d& pos) const; 
 
-            /** 
+            /**
              * @brief Converts coordinates from the map-local grid coordinates to
              * the coordinates in the specified \c frame
              */
@@ -140,7 +148,7 @@ namespace envire { namespace maps
              * 
              * @return [description]
              */
-            bool toGrid(const Vector3d& pos, Index& idx) const;    
+            bool toGrid(const Vector3d& pos, Index& idx) const;
 
             bool toGrid(const Vector3d& pos, Index& idx, Vector3d &pos_diff) const;
 

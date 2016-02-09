@@ -52,14 +52,18 @@ bool Grid::inGrid(const Index& idx) const
 
 bool Grid::fromGrid(const Index& idx, Vector3d& pos) const
 {
+    /** Index inside the grid **/
     if (inGrid(idx))
     {
-        // position of cell center without offset
+        // position at the cell center without offset trnasformation
         Vector2d center = (idx.cast<double>() + Vector2d(0.5, 0.5)).array() * resolution.array();
-        // position of cell center in the grid CS
-        pos = getOffset() * Vector3d(center.x(), center.y(), 0.);
+
+        // Apply the offset transformation to the obtained position
+        pos = this->getOffset() * Vector3d(center.x(), center.y(), 0.);
         return true;
-    } else {
+    } else
+    {
+        /** Index outside the grid **/
         return false;
     }
 }
@@ -67,11 +71,10 @@ bool Grid::fromGrid(const Index& idx, Vector3d& pos) const
 bool Grid::fromGrid(const Index& idx, Vector3d& pos_in_frame, const base::Transform3d &frame_in_grid) const
 {
     Vector3d pos_in_map;
-    bool result = fromGrid(idx, pos_in_map);
-
-    if (result == false)
+    if (!fromGrid(idx, pos_in_map))
+    {
         return false;
-
+    }
     pos_in_frame = frame_in_grid.inverse() * pos_in_map;
 
     return true;
@@ -80,7 +83,7 @@ bool Grid::fromGrid(const Index& idx, Vector3d& pos_in_frame, const base::Transf
 bool Grid::toGrid(const Vector3d& pos, Index& idx, Vector3d &pos_diff) const
 {
     // position without offset
-    Vector2d pos_temp = (getOffset().inverse() * pos).head<2>();  
+    Vector2d pos_temp = (this->getOffset().inverse() * pos).head<2>();  
 
     // cast to float due to position which lies on the border between two cells
     Eigen::Vector2d idx_double = pos_temp.array() / resolution.array();
