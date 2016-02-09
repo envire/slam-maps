@@ -60,6 +60,7 @@ BOOST_AUTO_TEST_CASE(test_grid_index)
 
 BOOST_AUTO_TEST_CASE(test_grid_constructor_default)
 {
+    BOOST_TEST_MESSAGE("test_grid_constructor_default");
     Grid grid;
 
     BOOST_CHECK_EQUAL(grid.getNumCells(), Vector2ui(0, 0));
@@ -68,11 +69,13 @@ BOOST_AUTO_TEST_CASE(test_grid_constructor_default)
 
     BOOST_CHECK_EQUAL(grid.inGrid(Index(0, 0)), false);  
 
-    Vector3d pos;
+    Vector3d pos(0.00,0.00,0.00);
     BOOST_CHECK_EQUAL(grid.fromGrid(Index(0, 0), pos), false);
+    BOOST_TEST_MESSAGE("Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
 
-    Index idx;    
+    Index idx;
     BOOST_CHECK_EQUAL(grid.toGrid(Eigen::Vector3d(0, 0, 0), idx), false);     
+    BOOST_TEST_MESSAGE("Idx to grid: "<<idx[0]<<","<<idx[1]);
 }
 
 BOOST_AUTO_TEST_CASE(test_grid_constructor)
@@ -97,39 +100,50 @@ BOOST_AUTO_TEST_CASE(test_grid_index_in_grid)
 
 BOOST_AUTO_TEST_CASE(test_grid_index2pos_without_offset)
 {
+    BOOST_TEST_MESSAGE("test_grid_index2pos_without_offset");
+
     // size: 10 x 100
-    Grid grid(Vector2ui(100, 200), Vector2d(0.1, 0.5)); 
+    Grid grid(Vector2ui(100, 200), Vector2d(0.1, 0.5));
 
     Vector3d pos;
 
     // bottom right
     BOOST_CHECK_EQUAL(grid.fromGrid(Index(0, 0), pos), true);
-    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.05, 0.25, 0.), 0.0001), true);  
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.05, 0.25, 0.), 0.0001), true);
+    BOOST_TEST_MESSAGE("Bottom Right Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
 
     BOOST_CHECK_EQUAL(grid.fromGrid(Index(0, 1), pos), true);
-    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.05, 0.75, 0.), 0.0001), true);    
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.05, 0.75, 0.), 0.0001), true);
+    BOOST_TEST_MESSAGE("Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
 
     BOOST_CHECK_EQUAL(grid.fromGrid(Index(1, 0), pos), true);
-    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.15, 0.25, 0.), 0.0001), true);         
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.15, 0.25, 0.), 0.0001), true);
+    BOOST_TEST_MESSAGE("Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
 
     BOOST_CHECK_EQUAL(grid.fromGrid(Index(1, 1), pos), true);
     BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.15, 0.75, 0.), 0.0001), true); 
+    BOOST_TEST_MESSAGE("Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
 
     // top left
     BOOST_CHECK_EQUAL(grid.fromGrid(Index(99, 199), pos), true);
-    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(9.95, 99.75, 0.), 0.0001), true);        
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(9.95, 99.75, 0.), 0.0001), true);
+    BOOST_TEST_MESSAGE("Top Left Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
 
     // middle
     BOOST_CHECK_EQUAL(grid.fromGrid(Index(49, 99), pos), true);
-    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(4.95, 49.75, 0.), 0.0001), true);        
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(4.95, 49.75, 0.), 0.0001), true);
+    BOOST_TEST_MESSAGE("Middle Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
 
     // outside: pos should be unchanged
-    BOOST_CHECK_EQUAL(grid.fromGrid(Index(100, 200), pos), false); 
-    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(4.95, 49.75, 0.), 0.0001), true);   
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(100, 200), pos), false);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(4.95, 49.75, 0.), 0.0001), true);
 }
 
 BOOST_AUTO_TEST_CASE(test_grid_index2pos_with_offset)
 {
+    BOOST_TEST_MESSAGE("test_grid_index2pos_with_offset");
+
+    // size: 10 x 100
     Grid grid(Vector2ui(100, 200), Vector2d(0.1, 0.5));   
     grid.getOffset().translate(Vector3d(-5, -50, 0));
 
@@ -168,19 +182,28 @@ BOOST_AUTO_TEST_CASE(test_grid_index2pos_in_frame)
 
     // bottom right
     BOOST_CHECK_EQUAL(grid.fromGrid(Index(0, 0), pos, frame_in_grid), true);
-    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(-5.45, -51.45, 0.5), 0.0001), true);      
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(-5.45, -51.45, 0.5), 0.0001), true);
 
     // top left
     BOOST_CHECK_EQUAL(grid.fromGrid(Index(99, 199), pos, frame_in_grid), true);
-    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(4.45, 48.05, 0.5), 0.0001), true);           
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(4.45, 48.05, 0.5), 0.0001), true);
 
-    // middle
+    // middle in X
     BOOST_CHECK_EQUAL(grid.fromGrid(Index(50, 100), pos, frame_in_grid), true);
-    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(-0.45, -1.45, 0.5), 0.0001), true); 
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(-0.45, -1.45, 0.5), 0.0001), true);
+
+    // middle in Y
+    //BOOST_CHECK_EQUAL(grid.fromGrid(Index(99, 50), pos, frame_in_grid), true);
+    //BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(-1.45, -0.45, 0.5), 0.0001), true);
+
+    // middle in X and Y
+    //BOOST_CHECK_EQUAL(grid.fromGrid(Index(50, 50), pos, frame_in_grid), true);
+    //BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(-0.45, -0.45, 0.5), 0.0001), true);
+
 
     // outside: pos should be unchanged
-    BOOST_CHECK_EQUAL(grid.fromGrid(Index(100, 200), pos, frame_in_grid), false);  
-    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(-0.45, -1.45, 0.5), 0.0001), true);          
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(100, 100), pos, frame_in_grid), false);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(-0.45, -1.45, 0.5), 0.0001), true);
 }
 
 BOOST_AUTO_TEST_CASE(test_grid_pos2index_without_offset)
