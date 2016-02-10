@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_CASE(test_mlgridmap_default_constructor)
     BOOST_CHECK_EQUAL(grid_map->getResolution(), Vector2d(0, 0));    
     BOOST_CHECK_EQUAL(grid_map->getSize(), Vector2d(0, 0));     
 
-    BOOST_CHECK_EQUAL(grid_map->getOffset().matrix().isApprox(base::Transform3d::Identity().matrix()), true); 
+    BOOST_CHECK_EQUAL(grid_map->localFrame().matrix().isApprox(base::Transform3d::Identity().matrix()), true); 
 
     delete grid_map;        
 }
@@ -28,13 +28,13 @@ BOOST_AUTO_TEST_CASE(test_mlgridmap_constructor)
     MultilayerGridMap *grid_map = new MultilayerGridMap(num_cells, resolution);
 
     Eigen::Vector3d translation = Eigen::Vector3d::Random(3);
-    grid_map->getOffset().translate(translation);
+    grid_map->localFrame().translate(translation);
 
     BOOST_CHECK_EQUAL(grid_map->getNumCells(), num_cells);
     BOOST_CHECK_EQUAL(grid_map->getResolution(), resolution);    
     BOOST_CHECK_EQUAL(grid_map->getSize(), Vector2d(20, 50));     
 
-    BOOST_CHECK_EQUAL(grid_map->getOffset().translation().isApprox(translation), true); 
+    BOOST_CHECK_EQUAL(grid_map->localFrame().translation().isApprox(translation), true); 
 
     delete grid_map;        
 }
@@ -43,10 +43,10 @@ BOOST_AUTO_TEST_CASE(test_mlgridmap_share_properties)
 {
     MultilayerGridMap *grid_map = new MultilayerGridMap(num_cells, resolution);
 
-    grid_map->getId() = "first";
+    grid_map->id() = "first";
 
     Eigen::Vector3d translation = Eigen::Vector3d::Random(3);
-    grid_map->getOffset().translate(translation);
+    grid_map->localFrame().translate(translation);
 
     // the underlying layers should share the properties with MultilayerGridMap
     grid_map->addLayer<double>("double_grid", std::numeric_limits<double>::infinity());
@@ -55,19 +55,19 @@ BOOST_AUTO_TEST_CASE(test_mlgridmap_share_properties)
 
     BOOST_CHECK_EQUAL(grid_map->getNumCells(), grid.getNumCells());
     BOOST_CHECK_EQUAL(grid_map->getResolution(), grid.getResolution());       
-    BOOST_CHECK_EQUAL(grid_map->getId(), grid.getId());      
-    BOOST_CHECK_EQUAL(grid_map->getOffset().matrix().isApprox(grid.getOffset().matrix()), true);     
+    BOOST_CHECK_EQUAL(grid_map->id(), grid.id());      
+    BOOST_CHECK_EQUAL(grid_map->localFrame().matrix().isApprox(grid.localFrame().matrix()), true);     
 
     // change of the properties should apply to MultilayerGridMap
     // and its underlying layers
-    grid_map->getId() = "grid_map";
+    grid_map->id() = "grid_map";
 
-    BOOST_CHECK_EQUAL(grid_map->getId(), "grid_map");    
-    BOOST_CHECK_EQUAL(grid.getId(), "grid_map"); 
+    BOOST_CHECK_EQUAL(grid_map->id(), "grid_map");    
+    BOOST_CHECK_EQUAL(grid.id(), "grid_map"); 
 
-    grid.getId() = "grid";
-    BOOST_CHECK_EQUAL(grid_map->getId(), "grid");    
-    BOOST_CHECK_EQUAL(grid.getId(), "grid");     
+    grid.id() = "grid";
+    BOOST_CHECK_EQUAL(grid_map->id(), "grid");    
+    BOOST_CHECK_EQUAL(grid.id(), "grid");     
 
     delete grid_map;        
 }
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE(test_gridmap_has)
     // check if the existence of the grid after it was removed
     grid_map->removeLayer("double_grid"); 
     BOOST_CHECK_EQUAL(grid_map->hasLayer("double_grid"), false);
-    BOOST_CHECK_EQUAL(grid.getId(), UNKNOWN_MAP_ID);
+    BOOST_CHECK_EQUAL(grid.id(), UNKNOWN_MAP_ID);
 
     delete grid_map;
 }

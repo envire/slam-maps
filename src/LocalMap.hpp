@@ -46,8 +46,8 @@ namespace envire { namespace maps
          * It will be the offset with respect
          * to the bottom left corner (origin) of the map.
          * For the time being we use 3D transformation.
-         * 
-         * 
+         *
+         * It can also be reference as local Frame
          **/
         base::Transform3d offset;
 
@@ -108,22 +108,22 @@ namespace envire { namespace maps
 
             virtual ~LocalMap() {};
 
-            const std::string& getId() const
+            const std::string& id() const
             {
                 return data_ptr->id;
             }
 
-            std::string& getId()
+            std::string& id()
             {
                 return data_ptr->id;
             }
 
-            const base::Transform3d& getOffset() const
+            const base::Transform3d& localFrame() const
             {
                 return data_ptr->offset;
             }
 
-            base::Transform3d& getOffset()
+            base::Transform3d& localFrame()
             {
                 return data_ptr->offset;
             }

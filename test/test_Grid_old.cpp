@@ -166,8 +166,8 @@ BOOST_AUTO_TEST_CASE(test_grid_copy)
 	BOOST_CHECK_EQUAL(grid_copy->getCellSizeY(), grid->getCellSizeY());	
 	BOOST_CHECK_EQUAL(grid_copy->getScaleX(), grid->getScaleX());		
 	BOOST_CHECK_EQUAL(grid_copy->getScaleY(), grid->getScaleY());	
-	BOOST_CHECK_EQUAL(grid_copy->getOffsetX(), grid->getOffsetX());	
-	BOOST_CHECK_EQUAL(grid_copy->getOffsetY(), grid->getOffsetY());		
+	BOOST_CHECK_EQUAL(grid_copy->localFrameX(), grid->localFrameX());	
+	BOOST_CHECK_EQUAL(grid_copy->localFrameY(), grid->localFrameY());		
 
 	// check default value
 	BOOST_CHECK_EQUAL(grid_copy->getDefaultValue(), grid->getDefaultValue());

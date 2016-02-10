@@ -88,9 +88,9 @@ osg::HeightField* ElevationMapVisualization::createHeighField()
     heightField->allocate(elev_map.getNumCells().x(), elev_map.getNumCells().y());
     heightField->setXInterval(elev_map.getResolution().x());
     heightField->setYInterval(elev_map.getResolution().y());
-    double offset_x = elev_map.getOffset().translation().x();
-    double offset_y = elev_map.getOffset().translation().y();
-    double offset_z = elev_map.getOffset().translation().z();
+    double offset_x = elev_map.localFrame().translation().x();
+    double offset_y = elev_map.localFrame().translation().y();
+    double offset_z = elev_map.localFrame().translation().z();
     heightField->setOrigin(osg::Vec3d(offset_x, offset_y, offset_z));
     heightField->setSkirtHeight(0.0f); 
 

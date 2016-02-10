@@ -85,8 +85,8 @@ void MLSGridVisualization::updateMainNode ( osg::Node* node )
     const double xs = res.x();
     const double ys = res.y();
 
-//    const double xo = mls.getOffsetX();
-//    const double yo = mls.getOffsetY();
+//    const double xo = mls.localFrameX();
+//    const double yo = mls.localFrameY();
 
     osg::ref_ptr<osg::Vec3Array> var_vertices = new osg::Vec3Array;
     base::TimeMark timer("MLS_VIZ::updateMainNode");
