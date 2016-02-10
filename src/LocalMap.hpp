@@ -81,7 +81,7 @@ namespace envire { namespace maps
 
             LocalMap()
                 : data_ptr(new LocalMapData())
-            {        
+            {
             }
 
             /**
@@ -113,10 +113,10 @@ namespace envire { namespace maps
                 return data_ptr->id;
             }
 
-            std::string& getId() 
+            std::string& getId()
             {
                 return data_ptr->id;
-            }            
+            }
 
             const base::Transform3d& getOffset() const
             {
@@ -126,6 +126,16 @@ namespace envire { namespace maps
             base::Transform3d& getOffset()
             {
                 return data_ptr->offset;
+            }
+
+            const LocalMapType& type() const
+            {
+                return data_ptr->map_type;
+            }
+
+            LocalMapType& type()
+            {
+                return data_ptr->map_type;
             }
 
             const boost::shared_ptr<LocalMapData>& getLocalMap() const
