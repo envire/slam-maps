@@ -6,6 +6,9 @@ using namespace envire::maps;
 
 BOOST_AUTO_TEST_CASE(test_grid_index)
 {
+
+    // Index is (x,y)
+
     // check default constructor
     Index index;
     BOOST_CHECK_EQUAL(index.x(), 0);
@@ -120,8 +123,20 @@ BOOST_AUTO_TEST_CASE(test_grid_from_grid_without_offset)
 
     // bottom left (according to 1873-2015 IEEE standard) is you see it as x
     // horizontal and y vertical
-    // bottom right if you see it x vertical and y horizontal. The important
+    // Y
+    // ^
+    // |
+    // | (0,0) (1,0)...
+    // O - - - - - - - > X
+    // or bottom right if you see it x vertical and y horizontal. The important
     // thing is that the coordinate system does not change.
+    //            X
+    //            ^
+    //            |
+    //       (2,0)|
+    //       (1,0)|
+    //       (0,0)|
+    //  Y < - - - O
     BOOST_CHECK_EQUAL(grid.fromGrid(Index(0, 0), pos), true);
     BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.05, 0.25, 0.), 0.0001), true);
     BOOST_TEST_MESSAGE("Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
@@ -259,116 +274,160 @@ BOOST_AUTO_TEST_CASE(test_grid_from_grid_in_specific_frame)
     BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.00, 0.00, 0.00), 0.0001), true);
 }
 
-//BOOST_AUTO_TEST_CASE(test_grid_pos2index_without_offset)
-//{
-//    // size: 10 x 100
-//    Grid grid(Vector2ui(100, 200), Vector2d(0.1, 0.5)); 
-//
-//    // ---- Position 2 Index ---- 
-//
-//    Index idx;
-//    Vector3d pos_diff;
-//
-//    // bottom right: pos is corner of the cell
-//    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(0.0, 0.0, 0.), idx, pos_diff), true);
-//    BOOST_CHECK_EQUAL(idx, Index(0,0));
-//    BOOST_CHECK_EQUAL(pos_diff.isApprox(Vector3d(-0.05, -0.25, 0.0), 0.0001), true);  
-//
-//    // bottom right: pos is center of the cell
-//    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(0.05, 0.25, 0.), idx, pos_diff), true);
-//    BOOST_CHECK_EQUAL(idx, Index(0,0));
-//    BOOST_CHECK_EQUAL(pos_diff.norm() <= 1e-6, true); 
-//
-//    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(0.1, 0.5, 0.), idx, pos_diff), true);
-//    BOOST_CHECK_EQUAL(idx, Index(1,1));
-//    BOOST_CHECK_EQUAL(pos_diff.isApprox(Vector3d(-0.05, -0.25, 0.0), 0.0001), true);   
-//
-//    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(0.1, 0.0, 0.), idx, pos_diff), true);
-//    BOOST_CHECK_EQUAL(idx, Index(1,0));
-//    BOOST_CHECK_EQUAL(pos_diff.isApprox(Vector3d(-0.05, -0.25, 0.0), 0.0001), true);   
-//
-//    // top left: pos is center of the cell
-//    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(9.95, 99.75, 0.), idx, pos_diff), true);
-//    BOOST_CHECK_EQUAL(idx, Index(99, 199)); 
-//    BOOST_CHECK_EQUAL(pos_diff.norm() <= 1e-6, true); 
-//
-//    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(9.99, 99.99, 0.), idx, pos_diff), true);
-//    BOOST_CHECK_EQUAL(idx, Index(99, 199)); 
-//    BOOST_CHECK_EQUAL(pos_diff.isApprox(Vector3d(0.04, 0.24, 0.0), 0.0001), true); 
-//
-//    // Outside of the grid
-//    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(10, 100, 0.), idx, pos_diff), false);
-//    BOOST_CHECK_EQUAL(idx, Index(99, 199)); 
-//    BOOST_CHECK_EQUAL(pos_diff.isApprox(Vector3d(0.04, 0.24, 0.0), 0.0001), true);  
-//}
-//
-//BOOST_AUTO_TEST_CASE(test_grid_pos2index_with_offset)
-//{
-//    Grid grid(Vector2ui(100, 200), Vector2d(0.1, 0.5));   
-//    grid.localFrame().translate(Vector3d(-5, -50, 0));
-//
-//    // ---- Index 2 Position ---- 
-//    Index idx;
-//    Vector3d pos_diff;
-//
-//    // bottom right
-//    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(-5, -50, 0.), idx, pos_diff), true);
-//    BOOST_CHECK_EQUAL(idx, Index(0,0));
-//    BOOST_CHECK_EQUAL(pos_diff.isApprox(Vector3d(-0.05, -0.25, 0.0), 0.0001), true);  
-//
-//    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(-4.91, -49.51, 0.), idx, pos_diff), true);
-//    BOOST_CHECK_EQUAL(idx, Index(0,0));
-//    BOOST_CHECK_EQUAL(pos_diff.isApprox(Vector3d(0.04, 0.24, 0.0), 0.0001), true);  
-//
-//    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(-4.95, -49.75, 0.), idx, pos_diff), true);
-//    BOOST_CHECK_EQUAL(idx, Index(0,0));
-//    BOOST_CHECK_EQUAL(pos_diff.norm() <= 1e-6, true); 
-//
-//    // the position on the corner of the cell
-//    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(-4.90, -49.50, 0.), idx, pos_diff), true);
-//    // not defined: various values are posible (0,0), (1,0), (0,1), (1,1)
-//    //BOOST_CHECK_EQUAL(idx, Index(1,1)); 
-//    //BOOST_CHECK_EQUAL(pos_diff.isApprox(Vector3d(-0.05, -0.25, 0.0), 0.0001), true);     
-//    BOOST_REQUIRE_CLOSE(pos_diff.norm(), 0.25, 2); 
-//
-//    // top left: pos is center of the cell
-//    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(4.95, 49.75, 0.), idx, pos_diff), true);
-//    BOOST_CHECK_EQUAL(idx, Index(99, 199));
-//    BOOST_CHECK_EQUAL(pos_diff.norm() <= 1e-6, true);
-//
-//    // top left: pos is top left corner
-//    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(5, 50, 0.), idx, pos_diff), false);
-//    BOOST_CHECK_EQUAL(idx, Index(99, 199));
-//    BOOST_CHECK_EQUAL(pos_diff.norm() <= 1e-6, true);
-//
-//    //TODO: write more tests with the Transform3d including rotation
-//}
-//
-//BOOST_AUTO_TEST_CASE(test_grid_pos2index_in_specific_frame)
-//{
-//    Grid grid(Vector2ui(100, 100), Vector2d(0.1, 0.5));
-//    grid.localFrame().translate(Vector3d(-5, -50, 0));
-//
-//    // ---- Index 2 Position in the specific frame ---- 
-//
-//    Eigen::Vector3d pos;
-//
-//    base::Transform3d frame_in_grid(Eigen::Translation3d( 0.5, 1.7, -0.5 ));
-//
-//    // bottom right
-//    Index idx;
-//    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(-5.45, -51.45, 0.5), idx, frame_in_grid), true);
-//    BOOST_CHECK_EQUAL(idx, Index(0,0));    
-//
-//    // top left
-//    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(4.45, 48.05, 0.5), idx, frame_in_grid), true);    
-//    BOOST_CHECK_EQUAL(idx, Index(99, 199));   
-//
-//    // middle
-//    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(-0.45, -1.45, 0.5), idx, frame_in_grid), true);    
-//    BOOST_CHECK_EQUAL(idx, Index(50, 100));   
-//
-//    // outside: pos should be unchanged
-//    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(5, 50, 0.5), idx, frame_in_grid), false);    
-//    BOOST_CHECK_EQUAL(idx, Index(50, 100));         
-//}
+BOOST_AUTO_TEST_CASE(test_grid_to_grid_without_offset)
+{
+    // size: 10 x 100
+    Grid grid(Vector2ui(100, 200), Vector2d(0.1, 0.5));
+
+    // ---- Position 2 Index ---- 
+
+    Index idx;
+    Vector3d pos_diff;
+
+    // bottom left (according to 1873-2015 IEEE standard)
+    // pos is corner of the cell
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(0.0, 0.0, 0.), idx, pos_diff), true);
+    BOOST_CHECK_EQUAL(idx, Index(0,0));
+    BOOST_CHECK_EQUAL(pos_diff.isApprox(Vector3d(-0.05, -0.25, 0.0), 0.0001), true);
+
+    // bottom left (according to 1873-2015 IEEE standard)
+    // pos is center of the cell
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(0.05, 0.25, 0.), idx, pos_diff), true);
+    BOOST_CHECK_EQUAL(idx, Index(0,0));
+    BOOST_CHECK_EQUAL(pos_diff.norm() <= 1e-6, true); 
+
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(0.1, 0.5, 0.), idx, pos_diff), true);
+    BOOST_CHECK_EQUAL(idx, Index(1,1));
+    BOOST_CHECK_EQUAL(pos_diff.isApprox(Vector3d(-0.05, -0.25, 0.0), 0.0001), true);
+
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(0.1, 0.0, 0.), idx, pos_diff), true);
+    BOOST_CHECK_EQUAL(idx, Index(1,0));
+    BOOST_CHECK_EQUAL(pos_diff.isApprox(Vector3d(-0.05, -0.25, 0.0), 0.0001), true);
+
+    // top right (according to 1873-2015 IEEE standard)
+    // pos is center of the cell
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(9.95, 99.75, 0.), idx, pos_diff), true);
+    BOOST_CHECK_EQUAL(idx, Index(99, 199));
+    BOOST_CHECK_EQUAL(pos_diff.norm() <= 1e-6, true);
+
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(9.99, 99.99, 0.), idx, pos_diff), true);
+    BOOST_CHECK_EQUAL(idx, Index(99, 199));
+    BOOST_CHECK_EQUAL(pos_diff.isApprox(Vector3d(0.04, 0.24, 0.0), 0.0001), true); //difference between 9.99 - 9.95 = 0.04 (x coordinate)
+
+    idx.setZero();
+    pos_diff.setZero();
+    // Outside of the grid (it does not modify the grid)
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(10, 100, 0.), idx, pos_diff), false);
+    BOOST_CHECK_EQUAL(idx, Index(0, 0));
+    BOOST_CHECK_EQUAL(pos_diff.norm() <= 1e-6, true);
+}
+
+BOOST_AUTO_TEST_CASE(test_grid_to_grid_with_offset)
+{
+    // size: 10 x 100
+    Grid grid(Vector2ui(100, 200), Vector2d(0.1, 0.5));
+    grid.localFrame().translate(Vector3d(5, 50, 0));
+
+    // ---- Index 2 Position ---- 
+    Index idx;
+    Vector3d pos_diff;
+
+    // bottom left (according to 1873-2015 IEEE standard)
+    // the position on the center of the cell
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(-5, -50, 0.), idx, pos_diff), true);
+    BOOST_CHECK_EQUAL(idx, Index(0,0));
+    BOOST_CHECK_EQUAL(pos_diff.isApprox(Vector3d(-0.05, -0.25, 0.0), 0.0001), true);
+    BOOST_TEST_MESSAGE("Position in grid: "<<idx[0]<<","<<idx[1]);
+
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(-4.91, -49.51, 0.), idx, pos_diff), true);
+    BOOST_CHECK_EQUAL(idx, Index(0,0));
+    BOOST_CHECK_EQUAL(pos_diff.isApprox(Vector3d(0.04, 0.24, 0.0), 0.0001), true); // difference 4.95 - 4.91 = 0.04 (x coordinate)
+    BOOST_TEST_MESSAGE("Position in grid: "<<idx[0]<<","<<idx[1]);
+
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(-4.95, -49.75, 0.), idx, pos_diff), true);
+    BOOST_CHECK_EQUAL(idx, Index(0,0));
+    BOOST_CHECK_EQUAL(pos_diff.norm() <= 1e-6, true);
+    BOOST_TEST_MESSAGE("Position in grid: "<<idx[0]<<","<<idx[1]);
+
+    // bottom left (according to 1873-2015 IEEE standard)
+    // the position on the corner of the cell
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(-4.89, -49.49, 0.), idx, pos_diff), true);
+    BOOST_CHECK_EQUAL(idx, Index(1,1));
+    BOOST_CHECK_EQUAL(pos_diff.isApprox(Vector3d(-0.04, -0.24, 0.0), 0.0001), true);
+    BOOST_TEST_MESSAGE("Position in grid: "<<idx[0]<<","<<idx[1]);
+
+    // top right (according to 1873-2015 IEEE standard)
+    // the position on the center of the cell
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(4.95, 49.75, 0.), idx, pos_diff), true);
+    BOOST_CHECK_EQUAL(idx, Index(99, 199));
+    BOOST_CHECK_EQUAL(pos_diff.norm() <= 1e-6, true);
+    BOOST_TEST_MESSAGE("Position in grid: "<<idx[0]<<","<<idx[1]);
+
+    idx.setZero();
+    pos_diff.setZero();
+
+    // top right (according to 1873-2015 IEEE standard)
+    // the position is the corner of the cell is out of the grid
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(5, 50, 0.), idx, pos_diff), false);
+    BOOST_CHECK_EQUAL(idx, Index(0, 0));
+    BOOST_CHECK_EQUAL(pos_diff.norm() <= 1e-6, true);
+    BOOST_TEST_MESSAGE("Position in grid: "<<idx[0]<<","<<idx[1]);
+
+    //TODO: write more tests with the Transform3d including rotation
+}
+
+BOOST_AUTO_TEST_CASE(test_grid_to_grid_in_specific_frame)
+{
+    // size: 10 x 50
+    Grid grid(Vector2ui(100, 100), Vector2d(0.1, 0.5));
+    grid.localFrame().translate(Vector3d(5, 50, 0));
+
+
+    /** Index and Position **/
+    Index idx;
+    Eigen::Vector3d pos;
+
+    // bottom left (according to 1873-2015 IEEE standard)
+    // (without specific frame given)
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(-4.95, -49.75, 0.0), idx), true);
+    BOOST_CHECK_EQUAL(idx, Index(0,0));
+
+    // ---- Index 2 Position in the specific frame ----
+    base::Transform3d frame_in_grid(Eigen::Translation3d(-5, -50, -0.5 ));
+
+    // bottom left (according to 1873-2015 IEEE standard)
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(0, 0, 0), idx, frame_in_grid), true);
+    BOOST_CHECK_EQUAL(idx, Index(0, 0));
+
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(0.05, 0.25, 0.5), idx, frame_in_grid), true);
+    BOOST_CHECK_EQUAL(idx, Index(0,0));
+
+    // bottom left (according to 1873-2015 IEEE standard)
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(9.95, 49.75, 0.5), idx, frame_in_grid), true);
+    BOOST_CHECK_EQUAL(idx, Index(99, 99));
+
+    // middle in X
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(5.05, 49.75, 0.5), idx, frame_in_grid), true);
+    BOOST_CHECK_EQUAL(idx, Index(50, 99));
+
+    // middle in Y
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(9.95, 25.25, 0.5), idx, frame_in_grid), true);
+    BOOST_CHECK_EQUAL(idx, Index(99, 50));
+
+    // middle in X and Y
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(5.05, 25.25, 0.5), idx, frame_in_grid), true);
+    BOOST_CHECK_EQUAL(idx, Index(50, 50));
+
+    idx.setZero();
+
+    // outside: pos should be unchanged
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(5, 50, 0.5), idx, frame_in_grid), false);
+    BOOST_CHECK_EQUAL(idx, Index(0, 0));
+
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(10, 25, 0.5), idx, frame_in_grid), false);
+    BOOST_CHECK_EQUAL(idx, Index(0, 0));
+
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(10, 50, 0.5), idx, frame_in_grid), false);
+    BOOST_CHECK_EQUAL(idx, Index(0, 0));
+
+}

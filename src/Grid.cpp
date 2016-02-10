@@ -83,7 +83,7 @@ bool Grid::fromGrid(const Index& idx, Vector3d& pos_in_frame, const base::Transf
 bool Grid::toGrid(const Vector3d& pos, Index& idx, Vector3d &pos_diff) const
 {
     // position without offset
-    Vector2d pos_temp = (this->localFrame().inverse() * pos).head<2>();  
+    Vector2d pos_temp = (this->localFrame() * pos).head<2>();
 
     // cast to float due to position which lies on the border between two cells
     Eigen::Vector2d idx_double = pos_temp.array() / resolution.array();
@@ -92,8 +92,8 @@ bool Grid::toGrid(const Vector3d& pos, Index& idx, Vector3d &pos_diff) const
     Vector3d center;
     if(inGrid(idx_temp) && fromGrid(idx_temp, center))
     {
-        idx = idx_temp; 
-        pos_diff = pos - center;    
+        idx = idx_temp;
+        pos_diff = pos - center;
         return true;
     }
     else {
