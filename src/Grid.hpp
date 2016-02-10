@@ -39,29 +39,26 @@ namespace envire { namespace maps
                 : Vector2ui(x, y)
             {}
 
-            // This constructor allows you to construct Index from Eigen expressions
+            /* @brief this constructor allows you to construct Index from Eigen expressions
+             */
             template<typename OtherDerived>
             Index(const Eigen::MatrixBase<OtherDerived>& other)
                 : Vector2ui(other)
             {}
 
+            /* @brief smaller than operator (element by element)
+             */
             bool operator<(const Index& other) const
             {
-                return (x() < other.x() 
-                    || (x() == other.x() && y() < other.y()));
+                return (x() < other.x() && y() < other.y());
             }
 
+            /* @brief bigger than operator (element by element)
+             */
             bool operator>(const Index& other) const
             {
-                return (x() > other.x() 
-                    || (x() == other.x() && y() > other.y()));
+                return (x() > other.x() && y() > other.y());
             }
-
-            // TODO: add exception if the other is bigger
-            // than this. due to uint
-            //Index operator-(const Index& other) const
-            //{
-            //}
     };
 
     /** Base class for all 2D gridbased maps.
