@@ -140,8 +140,11 @@ namespace envire { namespace maps
              * @brief [brief description]
              * @details for the corner and border cases no definite solution 
              * 
-             * @param pos [description]
-             * @param idx [description]
+             * @param pos position in the local frame
+             * @param idx calculated index in teh grid
+             * @param pos_diff difference between the position and the center of
+             * the selected cell given by the calculated index. It gives an idea
+             * of the estimated error.
              * 
              * @return [description]
              */
