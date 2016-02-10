@@ -4,48 +4,20 @@
 #include <list>
 #include "GridMap.hpp"
 #include "SurfacePatch.hpp"
+#include <map>
 
 namespace envire {
 namespace maps {
 
-class TraversabilityNode;
-
-class NodeConnection
+class TraversabilityNodeBase
 {
-public:
-    enum TYPE
-    {
-        OBSTACLE,
-        TRAVERSABLE,
-    };
-    NodeConnection(TraversabilityNode *from, TraversabilityNode *to);
-private:
-    TraversabilityNode *from;
-    TraversabilityNode *to;
-};
-    
-class TraversabilityNode
-{
-    std::vector<NodeConnection *> connections;
-    const SurfacePatch *corespondingPatch;
+protected:
+    std::vector<TraversabilityNodeBase *> connections;
+    float height;
     envire::maps::Index idx;
+    
+    
 public:
-    TraversabilityNode(const SurfacePatch *patch);
-    /**
-     * Returns the index of this cell and the index of the
-     * corresponding MLS Patch. The indices of the TraversabilityMap
-     * and the MLSGrid must match at all times.
-     * */
-    const Index &getIndex() const;
-    
-    const SurfacePatch &getCorrespondingPatch() const;
-    
-    void addConnection(TraversabilityNode *node);
-};
-    
-template <class T>
-class TraversabilityNode2
-{
     enum TYPE
     {
         OBSTACLE,
@@ -53,44 +25,77 @@ class TraversabilityNode2
         UNKNOWN,
         HOLE,
     };
-    std::vector<NodeConnection *> connections;
-    const T *userData;
-    envire::maps::Index idx;
-    
-    double height;
-    
-public:
-    TraversabilityNode();
-    TraversabilityNode(const T *userData);
 
+    TraversabilityNodeBase(float height, const Index &idx);
+
+    float getHeight() const;
+    
     /**
      * Returns the index of this cell
      * */
     const Index &getIndex() const;
     
-    const T &getUserData() const;
+    void addConnection(TraversabilityNodeBase *node);
     
-    void addConnection(TraversabilityNode *node);
+    const std::vector<TraversabilityNodeBase *> &getConnections() const;
+};
+
+template <class T>
+class TraversabilityNode : public TraversabilityNodeBase
+{
+    const T *userData;
+public:
+    TraversabilityNode(float height, const Index& idx ,const T *userDatap) : 
+        TraversabilityNodeBase(height, idx), userData(userDatap) 
+    {
+    };
+
+    const T &getUserData() const
+    {
+        return *userData;
+    };
 };
     
+class TraversabilityNodeListBase
+{
+    typedef std::multimap<float, TraversabilityNodeBase *> List;
+    List nodeList;
+ public:
+    TraversabilityNodeListBase();
+    const List &getNodes() const;
+    
+    bool hasNodeforHeight(double height) const;
+    void addNode(TraversabilityNodeBase *node)
+    {
+        nodeList.insert(std::make_pair(node->getHeight(), node));
+    };
+};
+
+template <class T>
 class TraversabilityNodeList
 {
-    std::list<TraversabilityNode> nodeList;
- public:
-    const std::list<TraversabilityNode> &getNodes();
-    
-    bool hasNodeforHeight(double height);
-    TraversabilityNode *getNodeforHeight(double height);
+    TraversabilityNodeListBase *base;
+public:
 
-    TraversabilityNode *getNodeforPatch(SurfacePatch *patch);
-    
-    //hm, pass the MLS Patch here ?
-    TraversabilityNode *addNode(const SurfacePatch *patch, const Index &idx);
+    TraversabilityNodeList(TraversabilityNodeListBase *base);
+     
+    const std::list<TraversabilityNodeBase *> &getNodes() const;
+
+    bool hasNodeforHeight(double height) const;
+    TraversabilityNode<T> *getNodeforHeight(double height) const;
+
+    TraversabilityNode<T> *addNode(const T* userData, const Index &idx, float height)
+    {
+        TraversabilityNode<T> *newNode = new TraversabilityNode<T>(height, idx, userData);
+        base->addNode(newNode);
+    };
 };
 
-class TraversabilityMap3d : public envire::maps::GridMap<TraversabilityNodeList>
+
+class TraversabilityMap3d : public envire::maps::GridMap<TraversabilityNodeListBase>
 {
-    
+public:
+    Eigen::Vector3f getNodePosition(const TraversabilityNodeBase *node) const;
     
 };
 

@@ -10,6 +10,7 @@ rock_library(envire_maps
         ElevationMap.cpp
         MLSGrid.cpp
         tools/BresenhamLine.cpp
+        TraversabilityMap3d.cpp
     HEADERS
         LocalMap.hpp
         Grid.hpp
