@@ -214,6 +214,36 @@ BOOST_AUTO_TEST_CASE(test_grid_from_grid_with_offset)
     //TODO: write more tests with the Transform3d including rotation
 }
 
+BOOST_AUTO_TEST_CASE(test_grid_from_grid_translate_grid)
+{
+    BOOST_TEST_MESSAGE("test_grid_from_grid_with_offset");
+
+    // size: 10 x 100
+    Grid grid(Vector2ui(100, 200), Vector2d(0.1, 0.5));   
+    grid.translate(Vector3d(-5, -50, 0));
+
+    // ---- Index 2 Position ----
+    Vector3d pos;
+
+    // bottom left (according to 1873-2015 IEEE standard)
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(0, 0), pos), true);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(-4.95, -49.75, 0.), 0.0001), true);
+
+    // top right (according to 1873-2015 IEEE standard)
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(99, 199), pos), true);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(4.95, 49.75, 0.), 0.0001), true);
+
+    // middle
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(50, 100), pos), true);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.05, 0.25, 0.), 0.0001), true);
+
+    // outside: pos should be unchanged
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(100, 200), pos), false);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.05, 0.25, 0.), 0.0001), true);
+
+    //TODO: write more tests with the Transform3d including rotation
+}
+
 BOOST_AUTO_TEST_CASE(test_grid_from_grid_in_specific_frame)
 {
     BOOST_TEST_MESSAGE("test_grid_from_grid_in_specific_frame");
@@ -327,6 +357,60 @@ BOOST_AUTO_TEST_CASE(test_grid_to_grid_with_offset)
     // size: 10 x 100
     Grid grid(Vector2ui(100, 200), Vector2d(0.1, 0.5));
     grid.localFrame().translate(Vector3d(5, 50, 0));
+
+    // ---- Index 2 Position ---- 
+    Index idx;
+    Vector3d pos_diff;
+
+    // bottom left (according to 1873-2015 IEEE standard)
+    // the position on the center of the cell
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(-5, -50, 0.), idx, pos_diff), true);
+    BOOST_CHECK_EQUAL(idx, Index(0,0));
+    BOOST_CHECK_EQUAL(pos_diff.isApprox(Vector3d(-0.05, -0.25, 0.0), 0.0001), true);
+    BOOST_TEST_MESSAGE("Position in grid: "<<idx[0]<<","<<idx[1]);
+
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(-4.91, -49.51, 0.), idx, pos_diff), true);
+    BOOST_CHECK_EQUAL(idx, Index(0,0));
+    BOOST_CHECK_EQUAL(pos_diff.isApprox(Vector3d(0.04, 0.24, 0.0), 0.0001), true); // difference 4.95 - 4.91 = 0.04 (x coordinate)
+    BOOST_TEST_MESSAGE("Position in grid: "<<idx[0]<<","<<idx[1]);
+
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(-4.95, -49.75, 0.), idx, pos_diff), true);
+    BOOST_CHECK_EQUAL(idx, Index(0,0));
+    BOOST_CHECK_EQUAL(pos_diff.norm() <= 1e-6, true);
+    BOOST_TEST_MESSAGE("Position in grid: "<<idx[0]<<","<<idx[1]);
+
+    // bottom left (according to 1873-2015 IEEE standard)
+    // the position on the corner of the cell
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(-4.89, -49.49, 0.), idx, pos_diff), true);
+    BOOST_CHECK_EQUAL(idx, Index(1,1));
+    BOOST_CHECK_EQUAL(pos_diff.isApprox(Vector3d(-0.04, -0.24, 0.0), 0.0001), true);
+    BOOST_TEST_MESSAGE("Position in grid: "<<idx[0]<<","<<idx[1]);
+
+    // top right (according to 1873-2015 IEEE standard)
+    // the position on the center of the cell
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(4.95, 49.75, 0.), idx, pos_diff), true);
+    BOOST_CHECK_EQUAL(idx, Index(99, 199));
+    BOOST_CHECK_EQUAL(pos_diff.norm() <= 1e-6, true);
+    BOOST_TEST_MESSAGE("Position in grid: "<<idx[0]<<","<<idx[1]);
+
+    idx.setZero();
+    pos_diff.setZero();
+
+    // top right (according to 1873-2015 IEEE standard)
+    // the position is the corner of the cell is out of the grid
+    BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(5, 50, 0.), idx, pos_diff), false);
+    BOOST_CHECK_EQUAL(idx, Index(0, 0));
+    BOOST_CHECK_EQUAL(pos_diff.norm() <= 1e-6, true);
+    BOOST_TEST_MESSAGE("Position in grid: "<<idx[0]<<","<<idx[1]);
+
+    //TODO: write more tests with the Transform3d including rotation
+}
+
+BOOST_AUTO_TEST_CASE(test_grid_to_grid_translate_grid)
+{
+    // size: 10 x 100
+    Grid grid(Vector2ui(100, 200), Vector2d(0.1, 0.5));
+    grid.translate(Vector3d(-5, -50, 0));
 
     // ---- Index 2 Position ---- 
     Index idx;

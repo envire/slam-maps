@@ -117,6 +117,23 @@ namespace envire { namespace maps
             Vector2d getSize() const;
 
             /**
+             * @brief translate the grid
+             * This method moves (translates) the grid with respect the local frame given by
+             * the offset from the LocalMap class.
+             * It is the opposite to move the offset
+             */
+            void translate(const Eigen::Vector3d &translation);
+
+            /**
+             * @brief translate the grid
+             * This method rotates the grid with respect the local frame given by
+             * the offset from the LocalMap class.
+             * It is the opposite to move the offset
+             */
+            void rotate(const Eigen::Quaterniond &rotation);
+
+
+            /**
              * @brief check whether the index argument is inside the grid
              * @return true or false
              */

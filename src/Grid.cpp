@@ -43,6 +43,19 @@ Vector2d Grid::getSize() const
     return resolution.array() * num_cells.cast<double>().array();
 }
 
+void Grid::translate(const Eigen::Vector3d &translation)
+{
+    this->localFrame().translate(-translation);
+    return;
+}
+
+
+void Grid::rotate(const Eigen::Quaterniond &rotation)
+{
+    this->localFrame().rotate(rotation.inverse());
+    return;
+}
+
 bool Grid::inGrid(const Index& idx) const
 {
     // do not need to check idx against (0,0),
