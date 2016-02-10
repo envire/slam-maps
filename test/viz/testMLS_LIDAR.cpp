@@ -24,7 +24,14 @@ BOOST_AUTO_TEST_CASE(mls_simulate_LIDAR)
     mls_config.gapSize = 0.125f;
     mls_config.useNegativeInformation = true;
     MLSGrid *mls = new MLSGrid(numCells, res, mls_config);
-    mls->localFrame().translation() << -0.5*mls->getSize(), 0;
+
+    /** Translate the local frame (offset) **/
+    mls->localFrame().translation() << 0.5*mls->getSize(), 0;
+
+    /** Equivalent to translate the grid in opposite direction **/
+    //Eigen::Vector3d offset_grid;
+    //offset_grid << -0.5*mls->getSize(), 0.00;
+    //mls->translate(offset_grid);
 
     typedef Eigen::Hyperplane<double, 3> Plane;
     LIDARSimulator lidar(Eigen::VectorXd::LinSpaced(32, -16*M_PI/180, +16*M_PI/180), Eigen::VectorXd::LinSpaced(360, -M_PI, +M_PI));
