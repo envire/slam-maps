@@ -163,7 +163,7 @@ namespace envire {namespace maps
 
         /**
          * @brief [brief description]
-         * @details enable this function only for arithmetic types (intergral and floating types)
+         * @details enable this function only for arithmetic types (integral and floating types)
          * hide this function e.g. for class types
          * @return [description]
          */
@@ -177,7 +177,7 @@ namespace envire {namespace maps
 
         /**
          * @brief [brief description]
-         * @details enable this function only for arithmetic types (intergral and floating types)
+         * @details enable this function only for arithmetic types (integral and floating types)
          * hide this function e.g. for class types
          * @return [description]
          */

@@ -107,6 +107,12 @@ namespace envire { namespace maps
              */
             const Vector2ui& getNumCells() const;
 
+            size_t numElements() const
+            {
+                return getNumCells().prod();
+            }
+
+
             /** 
              * @brief get the resolution of the grid
              * @return cell size in local X-axis and Y-axis in world unit

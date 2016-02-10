@@ -1,7 +1,7 @@
 rock_vizkit_plugin(envire_maps-viz
         ElevationMapVisualization.cpp
-        MLSGridVisualization.cpp
-        PatchesGeode.cpp
+#        MLSGridVisualization.cpp
+#        PatchesGeode.cpp
         TraversabilityMap3dVisualization.cpp
     DEPS 
         envire_maps
