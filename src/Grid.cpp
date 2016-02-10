@@ -59,7 +59,7 @@ bool Grid::fromGrid(const Index& idx, Vector3d& pos) const
         Vector2d center = (idx.cast<double>() + Vector2d(0.5, 0.5)).array() * resolution.array();
 
         // Apply the offset transformation to the obtained position
-        pos = this->localFrame() * Vector3d(center.x(), center.y(), 0.);
+        pos = this->localFrame().inverse() * Vector3d(center.x(), center.y(), 0.);
         return true;
     } else
     {

@@ -93,147 +93,172 @@ BOOST_AUTO_TEST_CASE(test_grid_constructor)
 
 }
 
-//BOOST_AUTO_TEST_CASE(test_grid_index_in_grid)
-//{ 
-//    Grid grid(Vector2ui(100, 200), Vector2d(0.1, 0.5)); 
-//
-//    BOOST_CHECK_EQUAL(grid.inGrid(Index(0, 0)), true);          // bottom right
-//    BOOST_CHECK_EQUAL(grid.inGrid(Index(99, 199)), true);       // top left   
-//    BOOST_CHECK_EQUAL(grid.inGrid(Index(50, 100)), true);       // middle    
-//    BOOST_CHECK_EQUAL(grid.inGrid(Index(100, 200)), false);     // outside     
-//}
-//
-//BOOST_AUTO_TEST_CASE(test_grid_index2pos_without_offset)
-//{
-//    BOOST_TEST_MESSAGE("test_grid_index2pos_without_offset");
-//
-//    // size: 10 x 100
-//    Grid grid(Vector2ui(100, 200), Vector2d(0.1, 0.5));
-//
-//    Vector3d pos;
-//
-//    // bottom right
-//    BOOST_CHECK_EQUAL(grid.fromGrid(Index(0, 0), pos), true);
-//    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.05, 0.25, 0.), 0.0001), true);
-//    BOOST_TEST_MESSAGE("Bottom Right Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
-//
-//    BOOST_CHECK_EQUAL(grid.fromGrid(Index(0, 1), pos), true);
-//    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.05, 0.75, 0.), 0.0001), true);
-//    BOOST_TEST_MESSAGE("Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
-//
-//    BOOST_CHECK_EQUAL(grid.fromGrid(Index(1, 0), pos), true);
-//    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.15, 0.25, 0.), 0.0001), true);
-//    BOOST_TEST_MESSAGE("Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
-//
-//    BOOST_CHECK_EQUAL(grid.fromGrid(Index(1, 1), pos), true);
-//    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.15, 0.75, 0.), 0.0001), true); 
-//    BOOST_TEST_MESSAGE("Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
-//
-//    // top left
-//    BOOST_CHECK_EQUAL(grid.fromGrid(Index(99, 199), pos), true);
-//    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(9.95, 99.75, 0.), 0.0001), true);
-//    BOOST_TEST_MESSAGE("Top Left Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
-//
-//    // middle in X axis
-//    BOOST_CHECK_EQUAL(grid.fromGrid(Index(49, 0), pos), true);
-//    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(4.95, 0.25, 0.), 0.0001), true);
-//    BOOST_TEST_MESSAGE("Middle in X-axis Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
-//
-//    // middle in Y axis
-//    BOOST_CHECK_EQUAL(grid.fromGrid(Index(0, 99), pos), true);
-//    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.05, 49.75, 0.), 0.0001), true);
-//    BOOST_TEST_MESSAGE("Middle in Y-axis Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
-//
-//    // middle case 1
-//    BOOST_CHECK_EQUAL(grid.fromGrid(Index(49, 99), pos), true);
-//    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(4.95, 49.75, 0.), 0.0001), true);
-//    BOOST_TEST_MESSAGE("Middle Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
-//
-//    // middle case 2
-//    BOOST_CHECK_EQUAL(grid.fromGrid(Index(50, 100), pos), true);
-//    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(5.05, 50.25, 0.), 0.0001), true);
-//    BOOST_TEST_MESSAGE("Middle Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
-//
-//    // outside: pos should be unchanged
-//    BOOST_CHECK_EQUAL(grid.fromGrid(Index(100, 200), pos), false);
-//    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(5.05, 50.25, 0.), 0.0001), true);
-//}
-//
-//BOOST_AUTO_TEST_CASE(test_grid_index2pos_with_offset)
-//{
-//    BOOST_TEST_MESSAGE("test_grid_index2pos_with_offset");
-//
-//    // size: 10 x 100
-//    Grid grid(Vector2ui(100, 200), Vector2d(0.1, 0.5));   
-//    grid.localFrame().translate(Vector3d(-5, -50, 0));
-//
-//    // ---- Index 2 Position ---- 
-//    Vector3d pos;
-//
-//    // bottom right
-//    BOOST_CHECK_EQUAL(grid.fromGrid(Index(0, 0), pos), true);
-//    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(-4.95, -49.75, 0.), 0.0001), true);  
-//
-//    // top left
-//    BOOST_CHECK_EQUAL(grid.fromGrid(Index(99, 199), pos), true);
-//    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(4.95, 49.75, 0.), 0.0001), true);        
-//
-//    // middle
-//    BOOST_CHECK_EQUAL(grid.fromGrid(Index(50, 100), pos), true);
-//    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.05, 0.25, 0.), 0.0001), true);        
-//
-//    // outside: pos should be unchanged
-//    BOOST_CHECK_EQUAL(grid.fromGrid(Index(100, 200), pos), false); 
-//    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.05, 0.25, 0.), 0.0001), true);        
-//
-//    //TODO: write more tests with the Transform3d including rotation
-//}
-//
-//BOOST_AUTO_TEST_CASE(test_grid_index2pos_in_frame)
-//{
-//    BOOST_TEST_MESSAGE("test_grid_index2pos_in_frame");
-//
-//    // size: 10 x 50
-//    Grid grid(Vector2ui(100, 100), Vector2d(0.1, 0.5));
-//    grid.localFrame().translate(Vector3d(-5, -50, 0));
-//
-//    // ---- Index 2 Position in the specific frame ---- 
-//
-//    Eigen::Vector3d pos;
-//
-//    base::Transform3d frame_in_grid(Eigen::Translation3d( 0.5, 1.7, -0.5 ));
-//
-//    // bottom right
-//    BOOST_CHECK_EQUAL(grid.fromGrid(Index(0, 0), pos, frame_in_grid), true);
-//    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(-5.45, -51.45, 0.5), 0.0001), true);
-//    BOOST_TEST_MESSAGE("Bottom Right Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
-//
-//    // top left
-//    BOOST_CHECK_EQUAL(grid.fromGrid(Index(99, 199), pos, frame_in_grid), true);
-//    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(4.45, 48.05, 0.5), 0.0001), true);
-//    BOOST_TEST_MESSAGE("Top Left Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
-//
-//    // middle in X
-//    BOOST_CHECK_EQUAL(grid.fromGrid(Index(50, 100), pos, frame_in_grid), true);
-//    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(-0.45, -1.45, 0.5), 0.0001), true);
-//    BOOST_TEST_MESSAGE("Middle in X-axis Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
-//
-//    // middle in Y
-//    BOOST_CHECK_EQUAL(grid.fromGrid(Index(100, 50), pos, frame_in_grid), true);
-//    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(4.55, -26.45, 0.5), 0.0001), true);
-//    BOOST_TEST_MESSAGE("Middle in Y-axis Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
-//
-//    // middle in X and Y
-//    BOOST_CHECK_EQUAL(grid.fromGrid(Index(50, 50), pos, frame_in_grid), true);
-//    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(-0.45, -26.45, 0.5), 0.0001), true);
-//    BOOST_TEST_MESSAGE("Middle Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
-//
-//
-//    // outside: pos should be unchanged
-//    BOOST_CHECK_EQUAL(grid.fromGrid(Index(100, 100), pos, frame_in_grid), false);
-//    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(-0.45, -26.45, 0.5), 0.0001), true);
-//}
-//
+BOOST_AUTO_TEST_CASE(test_grid_index_in_grid)
+{
+    //Grid of 10x100
+    Grid grid(Vector2ui(100, 200), Vector2d(0.1, 0.5));
+
+    BOOST_CHECK_EQUAL(grid.inGrid(Index(0, 0)), true);          // bottom left (according to 1873-2015 IEEE standard)
+    BOOST_CHECK_EQUAL(grid.inGrid(Index(99, 199)), true);       // top right (according to 1873-2015 IEEE standard)
+    BOOST_CHECK_EQUAL(grid.inGrid(Index(50, 100)), true);       // middle
+    BOOST_CHECK_EQUAL(grid.inGrid(Index(100, 200)), false);     // outside
+    BOOST_CHECK_EQUAL(grid.inGrid(Index(99, 200)), false);     // outside
+    BOOST_CHECK_EQUAL(grid.inGrid(Index(100, 199)), false);     // outside
+    BOOST_CHECK_EQUAL(grid.inGrid(Index(-1, -1)), false);     // outside
+    BOOST_CHECK_EQUAL(grid.inGrid(Index(-1, 2)), false);     // outside
+    BOOST_CHECK_EQUAL(grid.inGrid(Index(2, -1)), false);     // outside
+}
+
+BOOST_AUTO_TEST_CASE(test_grid_from_grid_without_offset)
+{
+    BOOST_TEST_MESSAGE("test_grid_from_grid_without_offset");
+
+    // size: 10 x 100
+    Grid grid(Vector2ui(100, 200), Vector2d(0.1, 0.5));
+
+    Vector3d pos;
+
+    // bottom left (according to 1873-2015 IEEE standard) is you see it as x
+    // horizontal and y vertical
+    // bottom right if you see it x vertical and y horizontal. The important
+    // thing is that the coordinate system does not change.
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(0, 0), pos), true);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.05, 0.25, 0.), 0.0001), true);
+    BOOST_TEST_MESSAGE("Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
+
+    // Some other indexes close to the origin
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(0, 1), pos), true);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.05, 0.75, 0.), 0.0001), true);
+    BOOST_TEST_MESSAGE("Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
+
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(1, 0), pos), true);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.15, 0.25, 0.), 0.0001), true);
+    BOOST_TEST_MESSAGE("Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
+
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(1, 1), pos), true);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.15, 0.75, 0.), 0.0001), true); 
+    BOOST_TEST_MESSAGE("Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
+
+    //  top right (according to 1873-2015 IEEE standard)
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(99, 199), pos), true);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(9.95, 99.75, 0.), 0.0001), true);
+    BOOST_TEST_MESSAGE("Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
+
+    // middle in X axis
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(49, 0), pos), true);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(4.95, 0.25, 0.), 0.0001), true);
+    BOOST_TEST_MESSAGE("Middle in X-axis Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
+
+    // middle in Y axis
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(0, 99), pos), true);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.05, 49.75, 0.), 0.0001), true);
+    BOOST_TEST_MESSAGE("Middle in Y-axis Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
+
+    // middle case 1
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(49, 99), pos), true);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(4.95, 49.75, 0.), 0.0001), true);
+    BOOST_TEST_MESSAGE("Middle Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
+
+    // middle case 2
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(50, 100), pos), true);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(5.05, 50.25, 0.), 0.0001), true);
+    BOOST_TEST_MESSAGE("Middle Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
+
+    // outside: pos should be unchanged
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(100, 200), pos), false);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(5.05, 50.25, 0.), 0.0001), true);
+}
+
+BOOST_AUTO_TEST_CASE(test_grid_from_grid_with_offset)
+{
+    BOOST_TEST_MESSAGE("test_grid_from_grid_with_offset");
+
+    // size: 10 x 100
+    Grid grid(Vector2ui(100, 200), Vector2d(0.1, 0.5));   
+    grid.localFrame().translate(Vector3d(5, 50, 0));
+
+    // ---- Index 2 Position ----
+    Vector3d pos;
+
+    // bottom left (according to 1873-2015 IEEE standard)
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(0, 0), pos), true);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(-4.95, -49.75, 0.), 0.0001), true);
+
+    // top right (according to 1873-2015 IEEE standard)
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(99, 199), pos), true);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(4.95, 49.75, 0.), 0.0001), true);
+
+    // middle
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(50, 100), pos), true);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.05, 0.25, 0.), 0.0001), true);
+
+    // outside: pos should be unchanged
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(100, 200), pos), false);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.05, 0.25, 0.), 0.0001), true);
+
+    //TODO: write more tests with the Transform3d including rotation
+}
+
+BOOST_AUTO_TEST_CASE(test_grid_from_grid_in_specific_frame)
+{
+    BOOST_TEST_MESSAGE("test_grid_from_grid_in_specific_frame");
+
+    // size: 10 x 50
+    Grid grid(Vector2ui(100, 100), Vector2d(0.1, 0.5));
+    grid.localFrame().translate(Vector3d(5, 50, 0));
+
+    // Cartesian position
+    Eigen::Vector3d pos;
+
+    // bottom left (according to 1873-2015 IEEE standard)
+    // (without specific frame given)
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(0, 0), pos), true);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(-4.95, -49.75, 0.0), 0.0001), true);
+    BOOST_TEST_MESSAGE("Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
+
+    // ---- Index to Position in the specific frame ----
+    base::Transform3d frame_in_grid(Eigen::Translation3d(-5, -50, -0.5 ));
+
+    // bottom left (according to 1873-2015 IEEE standard)
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(0, 0), pos, frame_in_grid), true);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.05, 0.25, 0.5), 0.0001), true);
+    BOOST_TEST_MESSAGE("Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
+
+    // top right (according to 1873-2015 IEEE standard)
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(99, 99), pos, frame_in_grid), true);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(9.95, 49.75, 0.5), 0.0001), true);
+    BOOST_TEST_MESSAGE("Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
+
+    // index middle in X
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(50, 99), pos, frame_in_grid), true);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(5.05, 49.75, 0.5), 0.0001), true);
+    BOOST_TEST_MESSAGE("Middle in X-axis Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
+
+    // index middle in Y
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(99, 50), pos, frame_in_grid), true);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(9.95, 25.25, 0.5), 0.0001), true);
+    BOOST_TEST_MESSAGE("Middle in Y-axis Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
+
+    // index middle in X and Y
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(50, 50), pos, frame_in_grid), true);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(5.05, 25.25, 0.5), 0.0001), true);
+    BOOST_TEST_MESSAGE("Middle Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
+
+    pos.setZero();
+
+    // outside: pos should be unchanged
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(100, 100), pos, frame_in_grid), false);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.00, 0.00, 0.00), 0.0001), true);
+
+    // outside: pos should be unchanged
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(100, 50), pos, frame_in_grid), false);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.00, 0.00, 0.00), 0.0001), true);
+
+    // outside: pos should be unchanged
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(50, 100), pos, frame_in_grid), false);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.00, 0.00, 0.00), 0.0001), true);
+}
+
 //BOOST_AUTO_TEST_CASE(test_grid_pos2index_without_offset)
 //{
 //    // size: 10 x 100
@@ -319,7 +344,7 @@ BOOST_AUTO_TEST_CASE(test_grid_constructor)
 //    //TODO: write more tests with the Transform3d including rotation
 //}
 //
-//BOOST_AUTO_TEST_CASE(test_grid_pos2index_in_frame)
+//BOOST_AUTO_TEST_CASE(test_grid_pos2index_in_specific_frame)
 //{
 //    Grid grid(Vector2ui(100, 100), Vector2d(0.1, 0.5));
 //    grid.localFrame().translate(Vector3d(-5, -50, 0));
