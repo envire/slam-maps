@@ -13,4 +13,5 @@
     <depend package="gui/vizkit3d" optional="1"/>
     <depend package="slam/pcl" />
     <rosdep package="cgal" />
+   <tags>debug</tags>
 </package>
