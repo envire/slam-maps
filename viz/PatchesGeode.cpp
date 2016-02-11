@@ -16,6 +16,7 @@ namespace vizkit3d
         vertices = new osg::Vec3Array;
         normals = new osg::Vec3Array;
         geom = new osg::Geometry;
+        var_vertices = new osg::Vec3Array;
 
         geom->setVertexArray(vertices);
         geom->setNormalArray(normals);
@@ -103,6 +104,20 @@ namespace vizkit3d
         }
 
         closePolygon();
+
+        osg::Vec3 center = position + mean;
+
+        if(showNormals)
+        {
+            var_vertices->push_back(center);
+            var_vertices->push_back(center+normal*0.1);
+        }
+        if(showExtents)
+        {
+            var_vertices->push_back(osg::Vec3(position.x(), position.y(), mean.z() - extents.z()));
+            var_vertices->push_back(osg::Vec3(position.x(), position.y(), mean.z() + extents.z()));
+        }
+
     }
 
     void PatchesGeode::drawPlane(
@@ -294,5 +309,20 @@ namespace vizkit3d
     void PatchesGeode::showCycleColor(bool cycle_color)
     {
         this->cycle_color = cycle_color;
+    }
+
+    void PatchesGeode::drawLines()
+    {
+        osg::ref_ptr<osg::Geometry> var_geom = new osg::Geometry;
+        var_geom->setVertexArray( var_vertices );
+        osg::ref_ptr<osg::DrawArrays> drawArrays = new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, var_vertices->size() );
+        var_geom->addPrimitiveSet(drawArrays.get());
+
+        osg::ref_ptr<osg::Vec4Array> var_color = new osg::Vec4Array;
+        var_color->push_back( osg::Vec4( 0.5, 0.1, 0.8, 1.0 ) );
+        var_geom->setColorArray( var_color.get() );
+        var_geom->setColorBinding( osg::Geometry::BIND_OVERALL );
+
+        addDrawable( var_geom.get() );
     }
 } // namespace vizkit3d

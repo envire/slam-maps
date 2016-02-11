@@ -31,7 +31,7 @@ rock_testsuite(test_generate_points suite.cpp
    DEPS envire_maps)
 
 if( vizkit3d_FOUND )
-#    add_subdirectory(viz)
+    add_subdirectory(viz)
 endif( vizkit3d_FOUND )
 
 

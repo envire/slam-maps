@@ -33,19 +33,29 @@ namespace vizkit3d {
         void drawBox(
             const osg::Vec3& position, 
             const osg::Vec3& extents, 
-            const osg::Vec3& c_normal );        
+            const osg::Vec3& c_normal );
+
 
         void setColor(const osg::Vec4& color);
-        void setColorHSVA(float hue, float sat, float lum, float alpha); 
+        void setColorHSVA(float hue, float sat, float lum, float alpha);
+
+        void showNegative(bool show_negative);
+        void setNegativeColor(const osg::Vec4& color);
 
         void showCycleColor(bool cycle_color);
         void setCycleColorInterval(float cycle_color_interval);
+
+        void drawLines();
+
+
 
     private:
         osg::ref_ptr<osg::Vec3Array> vertices;
         osg::ref_ptr<osg::Vec3Array> normals;
         osg::ref_ptr<osg::Vec4Array> colors;  
         osg::ref_ptr<osg::Geometry> geom;  
+
+        osg::ref_ptr<osg::Vec3Array> var_vertices;
 
         size_t vertex_index;
 
@@ -55,6 +65,8 @@ namespace vizkit3d {
         float lum;
         osg::Vec4 color; 
 
+        bool showNormals;
+        bool showExtents;
         bool cycle_color;
         float cycle_color_interval;       
 

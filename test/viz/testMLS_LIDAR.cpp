@@ -16,15 +16,15 @@ using namespace envire::maps;
 BOOST_AUTO_TEST_CASE(mls_simulate_LIDAR)
 {
 //    GridConfig conf(150, 150, 0.1, 0.1, -7.5, -7.5);
-    Eigen::Vector2d res(0.25, 0.25);
-    Vector2ui numCells(150, 150);
+    Eigen::Vector2d res(0.125, 0.125);
+    Vector2ui numCells(200, 200);
 
     MLSConfig mls_config;
     mls_config.updateModel = MLSConfig::SLOPE;
     mls_config.gapSize = 0.125f;
     mls_config.useNegativeInformation = true;
     MLSGrid *mls = new MLSGrid(numCells, res, mls_config);
-    mls->getOffset().translation() << -0.5*mls->getSize(), 0;
+    mls->getGrid().getOffset().translation() << -0.5*mls->getGrid().getSize(), 0;
 
     typedef Eigen::Hyperplane<double, 3> Plane;
     LIDARSimulator lidar(Eigen::VectorXd::LinSpaced(32, -16*M_PI/180, +16*M_PI/180), Eigen::VectorXd::LinSpaced(360, -M_PI, +M_PI));

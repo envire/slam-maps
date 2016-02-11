@@ -10,6 +10,8 @@
 
 #include <base/TimeMark.hpp>
 
+#include <envire_maps/MLSGridI.hpp>
+
 using namespace vizkit3d;
 using namespace envire::maps;
 
@@ -19,6 +21,8 @@ osg::Vec3 Vec3( const Eigen::Matrix<T,3,1>& v )
     return osg::Vec3( v.x(), v.y(), v.z() );
 }
 
+
+// TODO is this really still necessary?
 struct MLSGridVisualization::Data {
     // Copy of the value given to updateDataIntern.
     //
@@ -80,17 +84,61 @@ void MLSGridVisualization::updateMainNode ( osg::Node* node )
             new ExtentsRectangle( mls->getExtents(), col ) );
     }    */
 
-    Eigen::Vector2d res = mls.getResolution();
-    Vector2ui num_cell = mls.getNumCells();
-    const double xs = res.x();
-    const double ys = res.y();
+    // setup the color for the next geometry
+//    if(mls.getConfig().useColor == true)
+//    {
+//        geode->showCycleColor(false);
+//        // TODO must be set per cell (if available)
+////        base::Vector3d c = p.getColor();
+////        osg::Vec4 col = osg::Vec4(c.x(), c.y(), c.z(), 1.0);
+////        geode->setColor(col);
+//    }
+//    else
+    if(cycleHeightColor)
+    {
+        geode->showCycleColor(true);
+        geode->setCycleColorInterval(cycleColorInterval);
+    }
+    else
+        geode->setColor(horizontalCellColor);
+
+    base::TimeMark timer("MLS_VIZ::updateMainNode");
+    mls.visualize(*geode);
+
+    if( showUncertainty || showNormals || showExtents)
+    {
+        geode->drawLines();
+    }
 
 //    const double xo = mls.getOffsetX();
 //    const double yo = mls.getOffsetY();
 
-    osg::ref_ptr<osg::Vec3Array> var_vertices = new osg::Vec3Array;
-    base::TimeMark timer("MLS_VIZ::updateMainNode");
 
+    std::cout << timer << std::endl;
+
+}
+
+void MLSGrid::visualize(vizkit3d::PatchesGeode& geode) const
+{
+    // dynamic casting instead of virtual function call allows to leave visualization in separate library
+    MLSGrid::MLSBase::MLSGridI* mlsi = dynamic_cast<MLSGrid::MLSBase::MLSGridI*>(map.get());
+
+    if(mlsi) mlsi->visualize(geode);
+    else
+    {
+        throw std::runtime_error("Can't visualize unknown map type");
+    }
+}
+
+
+
+void envire::maps::MLSGrid::MLSBase::MLSGridI::visualize(vizkit3d::PatchesGeode& geode) const
+{
+    const envire::maps::GridMap<SPList> &mls = grid;
+    Eigen::Vector2d res = mls.getResolution();
+    Vector2ui num_cell = mls.getNumCells();
+    const double xs = res.x();
+    const double ys = res.y();
     for (size_t x = 0; x < num_cell.x(); x++)
     {
         for (size_t y = 0; y < num_cell.y(); y++)
@@ -106,29 +154,9 @@ void MLSGridVisualization::updateMainNode ( osg::Node* node )
                 double xp = pos.x();
                 double yp = pos.y();
 
-                // setup the color for the next geometry
-                if(mls.getConfig().useColor == true)
-                {
-                    geode->showCycleColor(false);
-                    base::Vector3d c = p.getColor();
-                    osg::Vec4 col = osg::Vec4(c.x(), c.y(), c.z(), 1.0);
-                    geode->setColor(col);
-                }
-                else if(cycleHeightColor)
-                {
-                    geode->showCycleColor(true);
-                    geode->setCycleColorInterval(cycleColorInterval);
-                    double hue = (p.getMean() - std::floor(p.getMean() / cycleColorInterval) * cycleColorInterval) / cycleColorInterval;
-                    double sat = 1.0;
-                    double lum = 0.6;
-                    double alpha = std::max(0.0, 1.0 - p.getStdev());
-                    geode->setColorHSVA(hue, sat, lum, alpha);
-                }
-                else
-                    geode->setColor(horizontalCellColor);
 
                 // slopes need to be handled differently
-                if( mls.getConfig().updateModel == MLSConfig::SLOPE )
+                if( true )
                 {
                     if( !p.isNegative() )
                     {
@@ -140,73 +168,22 @@ void MLSGridVisualization::updateMainNode ( osg::Node* node )
                         osg::Vec3 mean = Vec3(p.getCenter());
                         mean.z() -= position.z();
                         osg::Vec3 normal = Vec3(p.getNormal());
-                        geode->drawPlane(position, extents * 0.5f, mean, normal);
-                        osg::Vec3 center = position + mean;
-
-                        if(showNormals)
-                        {
-                            var_vertices->push_back(center);
-                            var_vertices->push_back(center+normal*0.1);
-                        }
-                        if(showExtents)
-                        {
-                            var_vertices->push_back(osg::Vec3(xp, yp, minZ));
-                            var_vertices->push_back(osg::Vec3(xp, yp, maxZ));
-                        }
-                    }
-                    else if (showNegative)
-                    {
-                        geode->setColor( negativeCellColor );
-                        geode->drawBox(
-                                osg::Vec3( xp, yp, p.getMean()-p.getHeight()*.5 ),
-                                osg::Vec3( xs, ys, p.getHeight() ),
-                                osg::Vec3(0, 0, 1.0) );
-                    }
-                }
-                else
-                {
-                    if( p.isHorizontal() )
-                    {
-                        geode->drawBox( 
-                                osg::Vec3( xp, yp, p.getMean() ), 
-                                osg::Vec3( xs, ys, 0.0 ), 
-                                estimateNormals ? 
-                                    estimateNormal(mls, p, Index(x,y)) :
-                                    osg::Vec3( 0, 0, 1.0 ) );
-                    }
-                    else
-                    {
-                        if( p.isVertical() || showNegative )
-                        {   
-                            geode->setColor( 
-                                    p.isVertical() ? verticalCellColor : negativeCellColor );
-                            geode->drawBox( 
-                                    osg::Vec3( xp, yp, p.getMean()-p.getHeight()*.5 ), 
-                                    osg::Vec3( xs, ys, p.getHeight() ), 
-                                    osg::Vec3(0, 0, 1.0) );
-                        }
-                    }
+                        geode.drawPlane(position, extents * 0.5f, mean, normal);
+                  }
+//                    else if (showNegative)
+//                    {
+//                        geode->setColor( negativeCellColor );
+//                        geode->drawBox(
+//                                osg::Vec3( xp, yp, p.getMean()-p.getHeight()*.5 ),
+//                                osg::Vec3( xs, ys, p.getHeight() ),
+//                                osg::Vec3(0, 0, 1.0) );
+//                    }
                 }
             } // for(SPList ...)
         } // for(y ...)
     } // for(x ...)
 
-    if( showUncertainty || showNormals || showExtents)
-    {
-        osg::ref_ptr<osg::Geometry> var_geom = new osg::Geometry;
-        var_geom->setVertexArray( var_vertices );
-        osg::ref_ptr<osg::DrawArrays> drawArrays = new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, var_vertices->size() );
-        var_geom->addPrimitiveSet(drawArrays.get());
 
-        osg::ref_ptr<osg::Vec4Array> var_color = new osg::Vec4Array;
-        var_color->push_back( osg::Vec4( 0.5, 0.1, 0.8, 1.0 ) );
-        var_geom->setColorArray( var_color.get() );
-        var_geom->setColorBinding( osg::Geometry::BIND_OVERALL );
-
-        geode->addDrawable( var_geom.get() );
-    }
-
-    std::cout << timer << std::endl;
 }
 
 
@@ -215,6 +192,7 @@ void MLSGridVisualization::updateDataIntern(envire::maps::MLSGrid const& value)
     p->data = value;
 }
 
+#if 0
 osg::Vec3 MLSGridVisualization::estimateNormal(const MLSGrid &grid, const SurfacePatch &patch, const Index &patch_idx) const
 {
     Vector3d patch_pos;
@@ -255,6 +233,8 @@ osg::Vec3 MLSGridVisualization::estimateNormal(const MLSGrid &grid, const Surfac
     else
         return osg::Vec3(0,0,1.0);
 }
+#endif
+
 
 bool MLSGridVisualization::isUncertaintyShown() const
 {

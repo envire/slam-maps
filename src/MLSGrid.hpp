@@ -14,6 +14,11 @@
 #include <boost/scoped_ptr.hpp>
 
 
+namespace vizkit3d {
+// Forward declaration for visualization:
+class PatchesGeode;
+} // namespace vizkit3d
+
 namespace base
 {
 namespace samples
@@ -110,13 +115,14 @@ public:
      */
     void mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& pc2grid, bool withUncertainty = true);
 
-    void visualize() const; // TODO pass visualizer object
+    void visualize(vizkit3d::PatchesGeode& geode) const;
 
     void intersectCuboid(const Eigen::AlignedBox3f& box, MLSMapExchange& output) const;
 
     void getMap(MLSMapExchange & output) const;
 
     const Grid& getGrid() const;
+    Grid& getGrid();
 };
 
 
