@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_CASE(test_grid_empty)
     BOOST_CHECK_THROW(grid->getMax(), std::exception);  
     BOOST_CHECK_THROW(grid->getMin(), std::exception);      
     BOOST_CHECK_THROW(grid->clear(), std::exception);       
-    BOOST_CHECK_THROW(grid->moveBy(Index(0,0)), std::exception);          
+    BOOST_CHECK_THROW(grid->moveBy(Eigen::Vector2i(0,0)), std::exception);          
 
     delete grid;
 }
@@ -26,7 +26,8 @@ BOOST_AUTO_TEST_CASE(test_grid_copy)
     Vector2ui num_cells(100, 200);
     Vector2d resolution(0.1, 0.5);
 
-    GridMap<double> *grid = new GridMap<double>(num_cells, resolution, default_value); 
+    /* Grid map of 10x100 meters **/
+    GridMap<double> *grid = new GridMap<double>(num_cells, resolution, default_value);
     grid->localFrame().translate(Eigen::Vector3d::Random(3));
 
     for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
@@ -56,7 +57,7 @@ BOOST_AUTO_TEST_CASE(test_grid_copy)
         {
             BOOST_CHECK_EQUAL(grid->at(x, y), grid_copy->at(x,y));
         }
-    }       
+    }
 
     delete grid;
     delete grid_copy;
@@ -67,39 +68,40 @@ BOOST_AUTO_TEST_CASE(test_grid_cell_access)
     Vector2ui num_cells(100, 200);
     Vector2d resolution(0.1, 0.5);
 
-    GridMap<double> *grid = new GridMap<double>(num_cells, resolution, default_value); 
+    /* Grid map of 10x100 meters **/
+    GridMap<double> *grid = new GridMap<double>(num_cells, resolution, default_value);
 
     // check default valuegitk --all
 
     BOOST_CHECK_EQUAL(grid->getDefaultValue(), std::numeric_limits<double>::infinity());
 
     // access cell that is not in grid = > should throw error
-    BOOST_CHECK_THROW(grid->at(Index(num_cells.x(), num_cells.y())), std::exception); 
-    BOOST_CHECK_THROW(grid->at(Vector3d(grid->getSize().x(), grid->getSize().y(), 0)), std::exception);     
-    BOOST_CHECK_THROW(grid->at(num_cells.x(), num_cells.y()), std::exception);          
+    BOOST_CHECK_THROW(grid->at(Index(num_cells.x(), num_cells.y())), std::exception);
+    BOOST_CHECK_THROW(grid->at(Vector3d(grid->getSize().x(), grid->getSize().y(), 0)), std::exception);
+    BOOST_CHECK_THROW(grid->at(num_cells.x(), num_cells.y()), std::exception);
 
     // access cell that is in grid
-    BOOST_CHECK_EQUAL(grid->at(Index(num_cells.x() - 1, num_cells.y() - 1)), std::numeric_limits<double>::infinity());    
-    BOOST_CHECK_EQUAL(grid->at(Vector3d(grid->getSize().x() - resolution.x() - 0.01, 
-                                        grid->getSize().y() - resolution.y() - 0.01, 
+    BOOST_CHECK_EQUAL(grid->at(Index(num_cells.x() - 1, num_cells.y() - 1)), std::numeric_limits<double>::infinity());
+    BOOST_CHECK_EQUAL(grid->at(Vector3d(grid->getSize().x() - resolution.x() - 0.01,
+                                        grid->getSize().y() - resolution.y() - 0.01,
                                         0)), 
-                      std::numeric_limits<double>::infinity());        
-    BOOST_CHECK_EQUAL(grid->at(num_cells.x() - 1, num_cells.y() - 1), std::numeric_limits<double>::infinity());         
+                      std::numeric_limits<double>::infinity());
+    BOOST_CHECK_EQUAL(grid->at(num_cells.x() - 1, num_cells.y() - 1), std::numeric_limits<double>::infinity());
 
     GridMap<double> const* grid_const = grid;
 
     // access cell that is not in grid = > should throw error
     BOOST_CHECK_THROW(grid_const->at(Index(num_cells.x(), num_cells.y())), std::exception); 
-    BOOST_CHECK_THROW(grid_const->at(Vector3d(grid->getSize().x(), grid->getSize().y(), 0)), std::exception);     
-    BOOST_CHECK_THROW(grid_const->at(num_cells.x(), num_cells.y()), std::exception);            
+    BOOST_CHECK_THROW(grid_const->at(Vector3d(grid->getSize().x(), grid->getSize().y(), 0)), std::exception);
+    BOOST_CHECK_THROW(grid_const->at(num_cells.x(), num_cells.y()), std::exception);
 
     // access cell that is in grid
-    BOOST_CHECK_EQUAL(grid_const->at(Index(num_cells.x() - 1, num_cells.y() - 1)), std::numeric_limits<double>::infinity());    
-    BOOST_CHECK_EQUAL(grid_const->at(Vector3d(grid->getSize().x() - resolution.x() - 0.01, 
-                                              grid->getSize().y() - resolution.y() - 0.01, 
-                                              0)), 
-                      std::numeric_limits<double>::infinity());        
-    BOOST_CHECK_EQUAL(grid_const->at(num_cells.x() - 1, num_cells.y() - 1), std::numeric_limits<double>::infinity());        
+    BOOST_CHECK_EQUAL(grid_const->at(Index(num_cells.x() - 1, num_cells.y() - 1)), std::numeric_limits<double>::infinity());
+    BOOST_CHECK_EQUAL(grid_const->at(Vector3d(grid->getSize().x() - resolution.x() - 0.01,
+                                              grid->getSize().y() - resolution.y() - 0.01,
+                                              0)),
+                      std::numeric_limits<double>::infinity());
+    BOOST_CHECK_EQUAL(grid_const->at(num_cells.x() - 1, num_cells.y() - 1), std::numeric_limits<double>::infinity());
 
     //delete grid;
     //delete grid_const;
@@ -158,7 +160,7 @@ BOOST_AUTO_TEST_CASE(test_grid_clear)
         {
             BOOST_CHECK_EQUAL((grid->at(x, y) != grid->getDefaultValue()), true);
         }
-    }       
+    }
 
     grid->clear();
 
@@ -169,17 +171,17 @@ BOOST_AUTO_TEST_CASE(test_grid_clear)
         {
             BOOST_CHECK_EQUAL(grid->at(x, y), grid->getDefaultValue());
         }
-    }   
+    }
 
     delete grid;
 }
 
-BOOST_AUTO_TEST_CASE(test_grid_move)
+BOOST_AUTO_TEST_CASE(test_grid_move_complete)
 {
     Vector2ui num_cells(7, 5);
     Vector2d resolution(0.1, 0.5);
 
-    GridMap<double> *grid = new GridMap<double>(num_cells, resolution, default_value); 
+    GridMap<double> *grid = new GridMap<double>(num_cells, resolution, default_value);
 
     // random values
     for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
@@ -188,11 +190,11 @@ BOOST_AUTO_TEST_CASE(test_grid_move)
         {
             grid->at(Index(x,y)) = rand();
         }
-    }    
+    }
 
     // -------------- Test 1: move all values out of grid
 
-    grid->moveBy(Index(7,5));
+    grid->moveBy(Eigen::Vector2i(7,5));
 
     // in grid should be only default values
     for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
@@ -203,13 +205,128 @@ BOOST_AUTO_TEST_CASE(test_grid_move)
         }
     }
 
-    // -------------- Test 2: move by Index(-2,-3);
+    // random values
+    for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
+    {
+        for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
+        {
+            grid->at(Index(x,y)) = rand();
+        }
+    }
 
-    // 0 1 2 3 4 5 6 
-    // 0 1 2 3 4 5 6 
-    // 0 1 2 3 4 5 6 
-    // 0 1 2 3 4 5 6 
-    // 0 1 2 3 4 5 6 
+    // -------------- Test 2: move all values out of grid
+
+    grid->moveBy(Eigen::Vector2i(-7,-5));
+
+    // in grid should be only default values
+    for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
+    {
+        for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
+        {
+            BOOST_CHECK_EQUAL(grid->at(Index(x,y)), grid->getDefaultValue());
+        }
+    }
+
+
+    // random values
+    for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
+    {
+        for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
+        {
+            grid->at(Index(x,y)) = rand();
+        }
+    }
+
+    // -------------- Test 3: move all values out of grid
+
+    grid->moveBy(Eigen::Vector2i(7,0));
+
+    // in grid should be only default values
+    for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
+    {
+        for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
+        {
+            BOOST_CHECK_EQUAL(grid->at(Index(x,y)), grid->getDefaultValue());
+        }
+    }
+
+
+    // random values
+    for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
+    {
+        for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
+        {
+            grid->at(Index(x,y)) = rand();
+        }
+    }
+
+    // -------------- Test 4: move all values out of grid
+
+    grid->moveBy(Eigen::Vector2i(0,5));
+
+    // in grid should be only default values
+    for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
+    {
+        for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
+        {
+            BOOST_CHECK_EQUAL(grid->at(Index(x,y)), grid->getDefaultValue());
+        }
+    }
+
+
+    // -------------- Test 5: move all values out of grid
+
+    grid->moveBy(Eigen::Vector2i(-7,0));
+
+    // in grid should be only default values
+    for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
+    {
+        for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
+        {
+            BOOST_CHECK_EQUAL(grid->at(Index(x,y)), grid->getDefaultValue());
+        }
+    }
+
+
+    // random values
+    for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
+    {
+        for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
+        {
+            grid->at(Index(x,y)) = rand();
+        }
+    }
+
+    // -------------- Test 6: move all values out of grid
+
+    grid->moveBy(Eigen::Vector2i(0,-5));
+
+    // in grid should be only default values
+    for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
+    {
+        for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
+        {
+            BOOST_CHECK_EQUAL(grid->at(Index(x,y)), grid->getDefaultValue());
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(test_grid_move_partially)
+{
+    Vector2ui num_cells(7, 5);
+    Vector2d resolution(0.1, 0.5);
+
+    GridMap<double> *grid = new GridMap<double>(num_cells, resolution, default_value);
+
+    // -------------- Test 1: move by Index Offset (0,0);
+
+    //Y
+    //^  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //O - - - - - - - -> X
     for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
     {
         for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
@@ -218,23 +335,275 @@ BOOST_AUTO_TEST_CASE(test_grid_move)
         }
     }
 
-    grid->moveBy(Index(-2, -3)); 
+    // Printing utility loop
+    //for (unsigned int y = grid->getNumCells().y(); y-->0;)
+    //{
+    //    for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
+    //    {
+    //        std::cout<<"["<<x<<","<<y<<"]";
+    //        std::cout<<grid->at(Index(x,y))<<"\t";
+    //    }
+    //    std::cout<<"\n";
+    //}
 
-    // 2 3 4 5 6 inf inf 
-    // 2 3 4 5 6 inf inf 
-    // inf inf inf inf inf inf inf 
-    // inf inf inf inf inf inf inf 
-    // inf inf inf inf inf inf inf 
+
+    grid->moveBy(Eigen::Vector2i(0, 0));
+
     for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
     {
         for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
         {
-            if (y < (grid->getNumCells().y() - 3) && x < (grid->getNumCells().x() - 2))
-                BOOST_CHECK_EQUAL(grid->at(Index(x,y)), x + 2);
-            else
+            BOOST_CHECK_EQUAL(grid->at(Index(x,y)), x);
+        }
+    }
+
+    // -------------- Test 2: move by Index Offset (1,0);
+
+    //Y
+    //^  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //O - - - - - - - -> X
+    for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
+    {
+        for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
+        {
+            grid->at(Index(x,y)) = x;
+        }
+    }
+
+    //Y
+    //^  inf 0 1 2 3 4 5
+    //|  inf 0 1 2 3 4 5
+    //|  inf 0 1 2 3 4 5
+    //|  inf 0 1 2 3 4 5
+    //|  inf 0 1 2 3 4 5
+    //O - - - - - - - -> X
+
+    grid->moveBy(Eigen::Vector2i(1, 0));
+
+    for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
+    {
+        for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
+        {
+            if (x == 0)
                 BOOST_CHECK_EQUAL(grid->at(Index(x,y)), grid->getDefaultValue());
+            else
+                BOOST_CHECK_EQUAL(grid->at(Index(x,y)), x-1);
+        }
+    }
+
+   // -------------- Test 3: move by Index Offset (0,1);
+
+    //Y
+    //^  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //O - - - - - - - -> X
+    for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
+    {
+        for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
+        {
+            grid->at(Index(x,y)) = x;
+        }
+    }
+
+    //Y
+    //^  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //| inf inf inf inf inf inf inf
+    //O - - - - - - - -> X
+
+    grid->moveBy(Eigen::Vector2i(0, 1));
+
+    for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
+    {
+        for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
+        {
+            if (y == 0)
+                BOOST_CHECK_EQUAL(grid->at(Index(x,y)), grid->getDefaultValue());
+            else
+                BOOST_CHECK_EQUAL(grid->at(Index(x,y)), x);
+        }
+    }
+
+    // -------------- Test 4: move by Index Offset (1,1);
+
+    //Y
+    //^  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //O - - - - - - - -> X
+    for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
+    {
+        for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
+        {
+            grid->at(Index(x,y)) = x;
+        }
+    }
+
+    //Y
+    //^  inf 0 1 2 3 4 5
+    //|  inf 0 1 2 3 4 5
+    //|  inf 0 1 2 3 4 5
+    //|  inf 0 1 2 3 4 5
+    //|  inf inf inf inf inf inf inf
+    //O - - - - - - - -> X
+
+    grid->moveBy(Eigen::Vector2i(1, 1));
+
+    for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
+    {
+        for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
+        {
+            if (x==0 || y == 0)
+                BOOST_CHECK_EQUAL(grid->at(Index(x,y)), grid->getDefaultValue());
+            else
+                BOOST_CHECK_EQUAL(grid->at(Index(x,y)), x-1);
+        }
+    }
+
+    // -------------- Test 4: move by Index Offset (-1,-1);
+
+    //Y
+    //^  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //O - - - - - - - -> X
+    for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
+    {
+        for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
+        {
+            grid->at(Index(x,y)) = x;
+        }
+    }
+
+    //Y
+    //^  inf inf inf inf inf inf inf
+    //|  1 2 3 4 5 6 inf
+    //|  1 2 3 4 5 6 inf
+    //|  1 2 3 4 5 6 inf
+    //|  1 2 3 4 5 6 inf
+    //O - - - - - - - -> X
+
+    grid->moveBy(Eigen::Vector2i(-1, -1));
+
+    for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
+    {
+        for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
+        {
+            if (x==grid->getNumCells().x()-1 || y == grid->getNumCells().y()-1)
+                BOOST_CHECK_EQUAL(grid->at(Index(x,y)), grid->getDefaultValue());
+            else
+                BOOST_CHECK_EQUAL(grid->at(Index(x,y)), x+1);
+        }
+    }
+
+
+    // -------------- Test 5: move by Index Offset (3,3);
+
+    //Y
+    //^  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //O - - - - - - - -> X
+    for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
+    {
+        for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
+        {
+            grid->at(Index(x,y)) = x;
+        }
+    }
+
+    grid->moveBy(Eigen::Vector2i(3, 3));
+
+    for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
+    {
+        for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
+        {
+            if (x < grid->getNumCells().x()-(grid->getNumCells().x()-3)  || y < grid->getNumCells().y()-(grid->getNumCells().y()-3))
+                BOOST_CHECK_EQUAL(grid->at(Index(x,y)), grid->getDefaultValue());
+            else
+                BOOST_CHECK_EQUAL(grid->at(Index(x,y)), x-3);
+        }
+    }
+
+    // -------------- Test 6: move by Index Offset (-3,-3);
+
+    //Y
+    //^  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //|  0 1 2 3 4 5 6
+    //O - - - - - - - -> X
+    for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
+    {
+        for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
+        {
+            grid->at(Index(x,y)) = x;
+        }
+    }
+
+    grid->moveBy(Eigen::Vector2i(-3, -3));
+
+    for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
+    {
+        for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
+        {
+            if (x >= grid->getNumCells().x()-3 ||y >= grid->getNumCells().y()-3)
+                BOOST_CHECK_EQUAL(grid->at(Index(x,y)), grid->getDefaultValue());
+            else
+                BOOST_CHECK_EQUAL(grid->at(Index(x,y)), x+3);
         }
     }
 
     delete grid;
+}
+
+BOOST_AUTO_TEST_CASE(test_grid_move_partially_check_magic_number)
+{
+    double magic_number = 8.00;
+    Vector2ui num_cells(7, 5);
+    Vector2d resolution(0.1, 0.5);
+
+    GridMap<double> *grid = new GridMap<double>(num_cells, resolution, 0.0);
+
+    // -------------- Test 1: move by Index Offset (2,2);
+
+    //Y
+    //^  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  0 0 0 8 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //O - - - - - - - -> X
+    grid->at(Index(3,2)) = magic_number;
+
+    // Printing utility loop
+    for (unsigned int y = grid->getNumCells().y(); y-->0;)
+    {
+        for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
+        {
+            std::cout<<"["<<x<<","<<y<<"]";
+            std::cout<<grid->at(Index(x,y))<<"\t";
+        }
+        std::cout<<"\n";
+    }
+
+    grid->moveBy(Eigen::Vector2i(2, 2));
+
+    BOOST_CHECK_EQUAL(grid->at(Index(5,4)), magic_number);
 }

@@ -189,35 +189,46 @@ namespace envire {namespace maps
             return *(std::min_element(array.origin(), array.origin() + array.num_elements()));
         }
 
-        void moveBy(Index idx)
+        /**
+         * @brief Move the content of the grid
+         * @details by the offset described in the argument
+         * @return void
+         */
+        void moveBy(Eigen::Vector2i idx_offset)
         {
-            // if all grid values should be moved outside
-            if (abs(idx.x()) >= this->num_cells.x()
-                || abs(idx.y()) >= this->num_cells.y())
+
+            // In case the offset is equal or bigger than teh grid size
+            // all values should be moved outside the grid and initialize then 
+            // by the default value
+            if (abs(idx_offset.x()) >= this->num_cells.x()
+                || abs(idx_offset.y()) >= this->num_cells.y())
             {
                 init();
                 return;
             }
 
+            /** Get the cells of the grid **/
             GridCell &src = getCells();
 
+            /** Temporary cells with the same size and default values **/
             GridCell tmp;
             tmp.resize(boost::extents[this->num_cells.x()][this->num_cells.y()]);
             std::fill(tmp.data(), tmp.data() + tmp.num_elements(), default_value);
 
             boost::swap(tmp, src);
 
+            /** Perform the move calculation base on the idx_offset parameter**/
             for (unsigned int x = 0; x < this->num_cells.x(); ++x)
             {
                 for (unsigned int y = 0; y < this->num_cells.y(); ++y)
                 {
-                    int x_new = x + idx.x();
-                    int y_new = y + idx.y();
+                    int x_new = x + idx_offset.x();
+                    int y_new = y + idx_offset.y();
 
                     if ((x_new >= 0 && x_new < this->num_cells.x())
                         && (y_new >= 0 && y_new < this->num_cells.y()))
                     {
-                        get(Index(x_new, y_new)) = *(tmp.data() + x * this->num_cells.y() + y);
+                        get(Index(x_new, y_new)) = *(tmp.data() + y * this->num_cells.x() + x);
                     }
                 }
             }
@@ -231,12 +242,12 @@ namespace envire {namespace maps
     private:
         T& get(Index idx)
         {
-            return *(getCells().data() + idx.x() * this->num_cells.y() + idx.y());
+            return *(getCells().data() + idx.y() * this->num_cells.x() + idx.x());
         }
 
         const T& get(Index idx) const
         {
-            return *(getCells().data() + idx.x() * this->num_cells.y() + idx.y());
+            return *(getCells().data() + idx.y() * this->num_cells.x() + idx.x());
         }
 
         void init() const
@@ -245,8 +256,7 @@ namespace envire {namespace maps
                 throw std::runtime_error("The grid size is zero! (therefore the array to hold the cells could be not allocated properly)");
 
             cells->resize(boost::extents[this->num_cells.x()][this->num_cells.y()]);
-            std::fill(cells->data(), cells->data() + cells->num_elements(),
-                    default_value);
+            std::fill(cells->data(), cells->data() + cells->num_elements(), default_value);
         }
 
         GridCell& getCells()
