@@ -98,9 +98,12 @@ void MLSGridVisualization::updateMainNode ( osg::Node* node )
     {
         geode->showCycleColor(true);
         geode->setCycleColorInterval(cycleColorInterval);
+        geode->setColorHSVA(0, 1.0, 0.6, 1.0);
     }
     else
         geode->setColor(horizontalCellColor);
+    geode->setShowExtents(showExtents);
+    geode->setShowNormals(showNormals);
 
     base::TimeMark timer("MLS_VIZ::updateMainNode");
     mls.visualize(*geode);

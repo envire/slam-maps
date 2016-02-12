@@ -45,6 +45,8 @@ namespace vizkit3d {
         void showCycleColor(bool cycle_color);
         void setCycleColorInterval(float cycle_color_interval);
 
+        void setShowExtents(bool enable = true) { showExtents = enable; };
+        void setShowNormals(bool enable = true) { showNormals = enable; };
         void drawLines();
 
 

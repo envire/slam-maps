@@ -40,7 +40,7 @@ struct MLSGrid::MLSBase::MLSGridI : public MLSGrid::MLSBase
             const Vector2d &resolution,
             const MLSConfig &config_)
     : MLSBase(config_)
-    , grid(num_cells, resolution, SPList())
+    , grid(num_cells, resolution, SPList(config_))
     {
         // assert that config is compatible to SurfaceType ...
     }

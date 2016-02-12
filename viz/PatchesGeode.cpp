@@ -18,6 +18,9 @@ namespace vizkit3d
         geom = new osg::Geometry;
         var_vertices = new osg::Vec3Array;
 
+        showNormals = true;
+        showExtents = false;
+
         geom->setVertexArray(vertices);
         geom->setNormalArray(normals);
         geom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
