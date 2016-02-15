@@ -7,7 +7,21 @@
 
 using namespace envire::maps;
 
+//double default_value = std::numeric_limits<double>::quiet_NaN();
 double default_value = std::numeric_limits<double>::infinity();
+
+bool compare_default_value(const double &value1, const double &value2, const double &d_value = default_value)
+{
+   if (boost::math::isnan(d_value))
+   {
+       return boost::math::isnan(value1) && boost::math::isnan(value2);
+   }
+   else
+   {
+       return (value1 == value2)&&(value1 == d_value);
+   }
+}
+
 
 BOOST_AUTO_TEST_CASE(test_grid_empty)
 {
@@ -15,10 +29,10 @@ BOOST_AUTO_TEST_CASE(test_grid_empty)
 
     // if the grid has size of (0,0)
     BOOST_CHECK_THROW(grid->at(Index(0,0)), std::exception);
-    BOOST_CHECK_THROW(grid->getMax(), std::exception);  
-    BOOST_CHECK_THROW(grid->getMin(), std::exception);      
-    BOOST_CHECK_THROW(grid->clear(), std::exception);       
-    BOOST_CHECK_THROW(grid->moveBy(Eigen::Vector2i(0,0)), std::exception);          
+    BOOST_CHECK_THROW(grid->getMax(), std::exception);
+    BOOST_CHECK_THROW(grid->getMin(), std::exception);
+    BOOST_CHECK_THROW(grid->clear(), std::exception);
+    BOOST_CHECK_THROW(grid->moveBy(Eigen::Vector2i(0,0)), std::exception);
 
     delete grid;
 }
@@ -35,7 +49,7 @@ BOOST_AUTO_TEST_CASE(test_grid_reset)
     // check configuration
     BOOST_CHECK_EQUAL(grid->getNumCells(), num_cells);
     BOOST_CHECK_EQUAL(grid->getResolution(), resolution);
-    BOOST_CHECK_EQUAL(grid->getDefaultValue(), default_value);
+    BOOST_CHECK_EQUAL(compare_default_value(grid->getDefaultValue(), default_value), true);
 
     Vector2ui new_num_cells(50, 50);
     Vector2d new_resolution(0.1, 0.1);
@@ -46,7 +60,7 @@ BOOST_AUTO_TEST_CASE(test_grid_reset)
     // check configuration
     BOOST_CHECK_EQUAL(grid->getNumCells(), new_num_cells);
     BOOST_CHECK_EQUAL(grid->getResolution(), new_resolution);
-    BOOST_CHECK_EQUAL( boost::math::isnan(grid->getDefaultValue()), true);
+    BOOST_CHECK_EQUAL(compare_default_value(grid->getDefaultValue(), new_default_value, new_default_value), true);
 
 
     delete grid;
@@ -81,7 +95,7 @@ BOOST_AUTO_TEST_CASE(test_grid_copy)
     BOOST_CHECK_EQUAL(grid_copy->localFrame().rotation(), grid->localFrame().rotation());    
 
     // check default value
-    BOOST_CHECK_EQUAL(grid_copy->getDefaultValue(), grid->getDefaultValue());
+    BOOST_CHECK_EQUAL(compare_default_value(grid_copy->getDefaultValue(), grid->getDefaultValue()), true);
 
     // check cell value
     for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
@@ -104,9 +118,8 @@ BOOST_AUTO_TEST_CASE(test_grid_cell_access)
     /* Grid map of 10x100 meters **/
     GridMap<double> *grid = new GridMap<double>(num_cells, resolution, default_value);
 
-    // check default valuegitk --all
-
-    BOOST_CHECK_EQUAL(grid->getDefaultValue(), std::numeric_limits<double>::infinity());
+    // check default value
+    BOOST_CHECK_EQUAL(compare_default_value(grid->getDefaultValue(), default_value), true);
 
     // access cell that is not in grid = > should throw error
     BOOST_CHECK_THROW(grid->at(Index(num_cells.x(), num_cells.y())), std::exception);
@@ -114,12 +127,13 @@ BOOST_AUTO_TEST_CASE(test_grid_cell_access)
     BOOST_CHECK_THROW(grid->at(num_cells.x(), num_cells.y()), std::exception);
 
     // access cell that is in grid
-    BOOST_CHECK_EQUAL(grid->at(Index(num_cells.x() - 1, num_cells.y() - 1)), std::numeric_limits<double>::infinity());
-    BOOST_CHECK_EQUAL(grid->at(Vector3d(grid->getSize().x() - resolution.x() - 0.01,
+    BOOST_CHECK_EQUAL(compare_default_value(grid->at(Index(num_cells.x() - 1, num_cells.y() - 1)), default_value), true);
+
+    BOOST_CHECK_EQUAL(compare_default_value(grid->at(Vector3d(grid->getSize().x() - resolution.x() - 0.01,
                                         grid->getSize().y() - resolution.y() - 0.01,
-                                        0)), 
-                      std::numeric_limits<double>::infinity());
-    BOOST_CHECK_EQUAL(grid->at(num_cells.x() - 1, num_cells.y() - 1), std::numeric_limits<double>::infinity());
+                                        0)), default_value), true);
+
+    BOOST_CHECK_EQUAL(compare_default_value(grid->at(num_cells.x() - 1, num_cells.y() - 1), default_value), true);
 
     GridMap<double> const* grid_const = grid;
 
@@ -129,12 +143,11 @@ BOOST_AUTO_TEST_CASE(test_grid_cell_access)
     BOOST_CHECK_THROW(grid_const->at(num_cells.x(), num_cells.y()), std::exception);
 
     // access cell that is in grid
-    BOOST_CHECK_EQUAL(grid_const->at(Index(num_cells.x() - 1, num_cells.y() - 1)), std::numeric_limits<double>::infinity());
-    BOOST_CHECK_EQUAL(grid_const->at(Vector3d(grid->getSize().x() - resolution.x() - 0.01,
+    BOOST_CHECK_EQUAL(compare_default_value(grid_const->at(Index(num_cells.x() - 1, num_cells.y() - 1)), default_value), true);
+    BOOST_CHECK_EQUAL(compare_default_value(grid_const->at(Vector3d(grid->getSize().x() - resolution.x() - 0.01,
                                               grid->getSize().y() - resolution.y() - 0.01,
-                                              0)),
-                      std::numeric_limits<double>::infinity());
-    BOOST_CHECK_EQUAL(grid_const->at(num_cells.x() - 1, num_cells.y() - 1), std::numeric_limits<double>::infinity());
+                                              0)), default_value), true);
+    BOOST_CHECK_EQUAL(compare_default_value(grid_const->at(num_cells.x() - 1, num_cells.y() - 1), default_value), true);
 
     //delete grid;
     //delete grid_const;
@@ -145,7 +158,7 @@ BOOST_AUTO_TEST_CASE(test_grid_minmax)
     Vector2ui num_cells(100, 200);
     Vector2d resolution(0.1, 0.5);
 
-    GridMap<double> *grid = new GridMap<double>(num_cells, resolution, default_value); 
+    GridMap<double> *grid = new GridMap<double>(num_cells, resolution, default_value);
 
     double min = std::numeric_limits<double>::max();
     double max = std::numeric_limits<double>::min();
@@ -175,7 +188,7 @@ BOOST_AUTO_TEST_CASE(test_grid_clear)
     Vector2ui num_cells(100, 200);
     Vector2d resolution(0.1, 0.5);
 
-    GridMap<double> *grid = new GridMap<double>(num_cells, resolution, default_value); 
+    GridMap<double> *grid = new GridMap<double>(num_cells, resolution, default_value);
 
     for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
     {
@@ -186,12 +199,12 @@ BOOST_AUTO_TEST_CASE(test_grid_clear)
         }
     }
 
-    // check if all cell are set 
+    // check if all cell are set
     for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
     {
         for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
         {
-            BOOST_CHECK_EQUAL((grid->at(x, y) != grid->getDefaultValue()), true);
+            BOOST_CHECK_EQUAL(!compare_default_value(grid->at(x,y), grid->getDefaultValue()), true);
         }
     }
 
@@ -202,7 +215,7 @@ BOOST_AUTO_TEST_CASE(test_grid_clear)
     {
         for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
         {
-            BOOST_CHECK_EQUAL(grid->at(x, y), grid->getDefaultValue());
+            BOOST_CHECK_EQUAL(compare_default_value(grid->at(x,y), grid->getDefaultValue()), true);
         }
     }
 
@@ -234,7 +247,7 @@ BOOST_AUTO_TEST_CASE(test_grid_move_complete)
     {
         for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
         {
-            BOOST_CHECK_EQUAL(grid->at(Index(x,y)), grid->getDefaultValue());
+            BOOST_CHECK_EQUAL(compare_default_value(grid->at(Index(x,y)), grid->getDefaultValue()), true);
         }
     }
 
@@ -256,7 +269,7 @@ BOOST_AUTO_TEST_CASE(test_grid_move_complete)
     {
         for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
         {
-            BOOST_CHECK_EQUAL(grid->at(Index(x,y)), grid->getDefaultValue());
+            BOOST_CHECK_EQUAL(compare_default_value(grid->at(Index(x,y)), grid->getDefaultValue()), true);
         }
     }
 
@@ -279,7 +292,7 @@ BOOST_AUTO_TEST_CASE(test_grid_move_complete)
     {
         for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
         {
-            BOOST_CHECK_EQUAL(grid->at(Index(x,y)), grid->getDefaultValue());
+            BOOST_CHECK_EQUAL(compare_default_value(grid->at(Index(x,y)), grid->getDefaultValue()), true);
         }
     }
 
@@ -302,7 +315,7 @@ BOOST_AUTO_TEST_CASE(test_grid_move_complete)
     {
         for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
         {
-            BOOST_CHECK_EQUAL(grid->at(Index(x,y)), grid->getDefaultValue());
+            BOOST_CHECK_EQUAL(compare_default_value(grid->at(Index(x,y)), grid->getDefaultValue()), true);
         }
     }
 
@@ -316,7 +329,7 @@ BOOST_AUTO_TEST_CASE(test_grid_move_complete)
     {
         for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
         {
-            BOOST_CHECK_EQUAL(grid->at(Index(x,y)), grid->getDefaultValue());
+            BOOST_CHECK_EQUAL(compare_default_value(grid->at(Index(x,y)), grid->getDefaultValue()), true);
         }
     }
 
@@ -339,7 +352,7 @@ BOOST_AUTO_TEST_CASE(test_grid_move_complete)
     {
         for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
         {
-            BOOST_CHECK_EQUAL(grid->at(Index(x,y)), grid->getDefaultValue());
+            BOOST_CHECK_EQUAL(compare_default_value(grid->at(Index(x,y)), grid->getDefaultValue()), true);
         }
     }
 }
@@ -422,7 +435,9 @@ BOOST_AUTO_TEST_CASE(test_grid_move_partially)
         for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
         {
             if (x == 0)
-                BOOST_CHECK_EQUAL(grid->at(Index(x,y)), grid->getDefaultValue());
+            {
+                BOOST_CHECK_EQUAL(compare_default_value(grid->at(Index(x,y)), grid->getDefaultValue()), true);
+            }
             else
                 BOOST_CHECK_EQUAL(grid->at(Index(x,y)), x-1);
         }
@@ -460,7 +475,9 @@ BOOST_AUTO_TEST_CASE(test_grid_move_partially)
         for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
         {
             if (y == 0)
-                BOOST_CHECK_EQUAL(grid->at(Index(x,y)), grid->getDefaultValue());
+            {
+                BOOST_CHECK_EQUAL(compare_default_value(grid->at(Index(x,y)), grid->getDefaultValue()), true);
+            }
             else
                 BOOST_CHECK_EQUAL(grid->at(Index(x,y)), x);
         }
@@ -498,7 +515,9 @@ BOOST_AUTO_TEST_CASE(test_grid_move_partially)
         for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
         {
             if (x==0 || y == 0)
-                BOOST_CHECK_EQUAL(grid->at(Index(x,y)), grid->getDefaultValue());
+            {
+                BOOST_CHECK_EQUAL(compare_default_value(grid->at(Index(x,y)), grid->getDefaultValue()), true);
+            }
             else
                 BOOST_CHECK_EQUAL(grid->at(Index(x,y)), x-1);
         }
@@ -536,7 +555,9 @@ BOOST_AUTO_TEST_CASE(test_grid_move_partially)
         for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
         {
             if (x==grid->getNumCells().x()-1 || y == grid->getNumCells().y()-1)
-                BOOST_CHECK_EQUAL(grid->at(Index(x,y)), grid->getDefaultValue());
+            {
+                BOOST_CHECK_EQUAL(compare_default_value(grid->at(Index(x,y)), grid->getDefaultValue()), true);
+            }
             else
                 BOOST_CHECK_EQUAL(grid->at(Index(x,y)), x+1);
         }
@@ -567,7 +588,9 @@ BOOST_AUTO_TEST_CASE(test_grid_move_partially)
         for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
         {
             if (x < grid->getNumCells().x()-(grid->getNumCells().x()-3)  || y < grid->getNumCells().y()-(grid->getNumCells().y()-3))
-                BOOST_CHECK_EQUAL(grid->at(Index(x,y)), grid->getDefaultValue());
+            {
+                BOOST_CHECK_EQUAL(compare_default_value(grid->at(Index(x,y)), grid->getDefaultValue()), true);
+            }
             else
                 BOOST_CHECK_EQUAL(grid->at(Index(x,y)), x-3);
         }
@@ -597,7 +620,9 @@ BOOST_AUTO_TEST_CASE(test_grid_move_partially)
         for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
         {
             if (x >= grid->getNumCells().x()-3 ||y >= grid->getNumCells().y()-3)
-                BOOST_CHECK_EQUAL(grid->at(Index(x,y)), grid->getDefaultValue());
+            {
+                BOOST_CHECK_EQUAL(compare_default_value(grid->at(Index(x,y)), grid->getDefaultValue()), true);
+            }
             else
                 BOOST_CHECK_EQUAL(grid->at(Index(x,y)), x+3);
         }
