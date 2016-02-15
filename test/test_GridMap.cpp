@@ -1,6 +1,8 @@
 #include <boost/test/unit_test.hpp>
 #include <envire_maps/GridMap.hpp>
 
+#include <boost/math/special_functions/fpclassify.hpp>
+
 #include <chrono>
 
 using namespace envire::maps;
@@ -20,6 +22,37 @@ BOOST_AUTO_TEST_CASE(test_grid_empty)
 
     delete grid;
 }
+
+
+BOOST_AUTO_TEST_CASE(test_grid_reset)
+{
+    Vector2ui num_cells(100, 200);
+    Vector2d resolution(0.1, 0.5);
+    GridMap<double> *grid = new GridMap<double>();
+
+    grid->reset(num_cells, resolution, default_value);
+
+    // check configuration
+    BOOST_CHECK_EQUAL(grid->getNumCells(), num_cells);
+    BOOST_CHECK_EQUAL(grid->getResolution(), resolution);
+    BOOST_CHECK_EQUAL(grid->getDefaultValue(), default_value);
+
+    Vector2ui new_num_cells(50, 50);
+    Vector2d new_resolution(0.1, 0.1);
+    double new_default_value = std::numeric_limits<double>::quiet_NaN();
+
+    grid->reset(new_num_cells, new_resolution, new_default_value);
+
+    // check configuration
+    BOOST_CHECK_EQUAL(grid->getNumCells(), new_num_cells);
+    BOOST_CHECK_EQUAL(grid->getResolution(), new_resolution);
+    BOOST_CHECK_EQUAL( boost::math::isnan(grid->getDefaultValue()), true);
+
+
+    delete grid;
+}
+
+
 
 BOOST_AUTO_TEST_CASE(test_grid_copy)
 {
@@ -593,15 +626,15 @@ BOOST_AUTO_TEST_CASE(test_grid_move_partially_check_magic_number)
     grid->at(Index(3,2)) = magic_number;
 
     // Printing utility loop
-    for (unsigned int y = grid->getNumCells().y(); y-->0;)
-    {
-        for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
-        {
-            std::cout<<"["<<x<<","<<y<<"]";
-            std::cout<<grid->at(Index(x,y))<<"\t";
-        }
-        std::cout<<"\n";
-    }
+    //for (unsigned int y = grid->getNumCells().y(); y-->0;)
+    //{
+    //    for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
+    //    {
+    //        std::cout<<"["<<x<<","<<y<<"]";
+    //        std::cout<<grid->at(Index(x,y))<<"\t";
+    //    }
+    //    std::cout<<"\n";
+    //}
 
     grid->moveBy(Eigen::Vector2i(2, 2));
 
