@@ -7,8 +7,8 @@
 
 using namespace envire::maps;
 
-//double default_value = std::numeric_limits<double>::quiet_NaN();
-double default_value = std::numeric_limits<double>::infinity();
+double default_value = std::numeric_limits<double>::quiet_NaN();
+//double default_value = std::numeric_limits<double>::infinity();
 
 bool compare_default_value(const double &value1, const double &value2, const double &d_value = default_value)
 {
@@ -158,13 +158,14 @@ BOOST_AUTO_TEST_CASE(test_grid_minmax)
     Vector2ui num_cells(100, 200);
     Vector2d resolution(0.1, 0.5);
 
-    GridMap<double> *grid = new GridMap<double>(num_cells, resolution, default_value);
+    /** Create a grid map to test the max values **/
+    GridMap<double> *grid_max = new GridMap<double>(num_cells, resolution, default_value);
 
     double min = std::numeric_limits<double>::max();
     double max = std::numeric_limits<double>::min();
-    for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
+    for (unsigned int x = 0; x < grid_max->getNumCells().x(); ++x)
     {
-        for (unsigned int y = 0; y < grid->getNumCells().y(); ++y)
+        for (unsigned int y = 0; y < grid_max->getNumCells().y(); ++y)
         {
             double cell_value = rand();
 
@@ -173,14 +174,50 @@ BOOST_AUTO_TEST_CASE(test_grid_minmax)
             if (max < cell_value)
                 max = cell_value;
 
-            grid->at(x, y) = cell_value;
+            grid_max->at(x, y) = cell_value;
         }
     }
 
-    BOOST_CHECK_CLOSE(grid->getMax(), max, 0.000001);
-    BOOST_CHECK_CLOSE(grid->getMin(), min, 0.000001);
+    BOOST_CHECK_CLOSE(grid_max->getMax(), max, 0.000001);
 
-    delete grid;
+    /** Include a default value in the grid map **/
+    grid_max->at(0,0) = grid_max->getDefaultValue();
+
+    /** Get the max with and without the default value **/
+    BOOST_CHECK_EQUAL(compare_default_value(grid_max->getMax(), grid_max->getDefaultValue()), true);
+    BOOST_CHECK_CLOSE(grid_max->getMax(false), max, 0.000001);
+
+    /** Create a grid map to test the min values **/
+    GridMap<double> *grid_min = new GridMap<double>(num_cells, resolution, -default_value);
+
+    min = std::numeric_limits<double>::max();
+    max = std::numeric_limits<double>::min();
+    for (unsigned int x = 0; x < grid_min->getNumCells().x(); ++x)
+    {
+        for (unsigned int y = 0; y < grid_min->getNumCells().y(); ++y)
+        {
+            double cell_value = rand();
+
+            if (min > cell_value)
+                min = cell_value;
+            if (max < cell_value)
+                max = cell_value;
+
+            grid_min->at(x, y) = cell_value;
+        }
+    }
+
+    BOOST_CHECK_CLOSE(grid_min->getMin(), min, 0.000001);
+
+    /** Include a default value in the grid map **/
+    grid_min->at(0,0) = grid_min->getDefaultValue();
+
+    /** Get the min with and without the default value **/
+    BOOST_CHECK_EQUAL(compare_default_value(grid_min->getMin(), grid_min->getDefaultValue(), -default_value), true);
+    BOOST_CHECK_CLOSE(grid_min->getMin(false), min, 0.000001);
+
+    delete grid_max;
+    delete grid_min;
 }
 
 BOOST_AUTO_TEST_CASE(test_grid_clear)

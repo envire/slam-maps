@@ -15,6 +15,7 @@
 /** Boost **/
 #include <boost/shared_ptr.hpp>
 #include <boost/multi_array.hpp>
+#include <boost/math/special_functions/fpclassify.hpp>
 
 namespace envire {namespace maps
 {
@@ -163,30 +164,98 @@ namespace envire {namespace maps
 
         /**
          * @brief [brief description]
-         * @details enable this function only for arithmetic types (intergral and floating types)
+         * @details enable this function only for arithmetic types (integral and floating types)
          * hide this function e.g. for class types
+         *
+         * It also has the possibility to exclude the default_value
+         *
          * @return [description]
          */
         template<class Q = T>
         const typename std::enable_if<std::is_arithmetic<Q>::value, Q>::type&
-        getMax() const
+        getMax(const bool include_default_value = true) const
         {
-            const GridCell &array = getCells();
-            return *(std::max_element(array.origin(), array.origin() + array.num_elements()));
+            auto first = this->getCells().origin();
+            auto last = this->getCells().origin() + this->getCells().num_elements();
+
+            /** Include the default value as a possible max value to return **/
+            if (include_default_value)
+            {
+                return *(std::max_element(first, last));
+            }
+            else
+            {
+                /** Exclude the default value as a possible max value to return **/
+
+                if (first==last) return *last;
+
+                auto largest = first;
+
+                while (++first != last)
+                {
+                    if(!this->isDefault(*largest))
+                    {
+                        if ((*largest < *first)&&(!this->isDefault(*first)))
+                        {
+                            largest = first;
+                        }
+                    }
+                    else
+                    {
+                        if (!this->isDefault(*first))
+                            largest = first;
+                    }
+                }
+                return *largest;
+            }
         }
 
         /**
          * @brief [brief description]
-         * @details enable this function only for arithmetic types (intergral and floating types)
+         * @details enable this function only for arithmetic types (integral and floating types)
          * hide this function e.g. for class types
+         *
+         * It also has the possibility to exclude the default_value
+         *
          * @return [description]
          */
         template<class Q = T>
         const typename std::enable_if<std::is_arithmetic<Q>::value, Q>::type&
-        getMin() const
+        getMin(const bool include_default_value = true) const
         {
-            const GridCell &array = getCells();
-            return *(std::min_element(array.origin(), array.origin() + array.num_elements()));
+            auto first = this->getCells().origin();
+            auto last = this->getCells().origin() + this->getCells().num_elements();
+
+            /** Include the default value as a possible min value to return **/
+            if (include_default_value)
+            {
+                return *(std::min_element(first, last));
+            }
+            else
+            {
+                /** Exclude the default value as a possible min value to return **/
+
+                if (first==last) return *last;
+
+                auto smallest = first;
+
+                while (++first != last)
+                {
+                    if(!this->isDefault(*smallest))
+                    {
+                        if ((*first < *smallest)&&(!this->isDefault(*first)))
+                        {
+                            smallest = first;
+                        }
+                    }
+                    else
+                    {
+                        if (!this->isDefault(*first))
+                            smallest = first;
+                    }
+                }
+                return *smallest;
+            }
         }
 
         /**
@@ -248,7 +317,7 @@ namespace envire {namespace maps
             this->init();
         }
 
-    public:
+    private:
         T& get(Index idx)
         {
             return *(getCells().data() + idx.y() * this->num_cells.x() + idx.x());
@@ -267,6 +336,20 @@ namespace envire {namespace maps
             cells->resize(boost::extents[this->num_cells.x()][this->num_cells.y()]);
             std::fill(cells->data(), cells->data() + cells->num_elements(), default_value);
         }
+
+        bool isDefault(const T value) const
+        {
+            if (boost::math::isnan(this->default_value))
+            {
+                return boost::math::isnan(value);
+            }
+            else
+            {
+                return value == this->default_value;
+            }
+        }
+
+    public:
 
         GridCell& getCells()
         {
