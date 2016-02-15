@@ -71,29 +71,6 @@ void MLSGridVisualization::updateMainNode ( osg::Node* node )
 
     MLSGrid &mls = p->data;
 
-    /*// draw the extents of the mls
-    group->removeChild( 1 );
-    if( showExtents )
-    {
-        // get the color as a function of the environmentitem pointer
-        float scale = ((long)item%1000)/1000.0;
-        osg::Vec4 col(0,0,0,1);
-        vizkit3d::hslToRgb( scale, 1.0, 0.6, col.x(), col.y(), col.z() );
-
-        group->addChild( 
-            new ExtentsRectangle( mls->getExtents(), col ) );
-    }    */
-
-    // setup the color for the next geometry
-//    if(mls.getConfig().useColor == true)
-//    {
-//        geode->showCycleColor(false);
-//        // TODO must be set per cell (if available)
-////        base::Vector3d c = p.getColor();
-////        osg::Vec4 col = osg::Vec4(c.x(), c.y(), c.z(), 1.0);
-////        geode->setColor(col);
-//    }
-//    else
     if(cycleHeightColor)
     {
         geode->showCycleColor(true);
@@ -113,9 +90,6 @@ void MLSGridVisualization::updateMainNode ( osg::Node* node )
         geode->drawLines();
     }
 
-//    const double xo = mls.getOffsetX();
-//    const double yo = mls.getOffsetY();
-
 
     std::cout << timer << std::endl;
 
@@ -123,12 +97,16 @@ void MLSGridVisualization::updateMainNode ( osg::Node* node )
 
 void MLSGrid::visualize(vizkit3d::PatchesGeode& geode) const
 {
-    // dynamic casting instead of virtual function call allows to leave visualization in separate library
-    MLSGrid::MLSBase::MLSGridI* mlsi = dynamic_cast<MLSGrid::MLSBase::MLSGridI*>(map.get());
 
-    if(mlsi) mlsi->visualize(geode);
-    else
+    switch(map->mls_config.updateModel)
     {
+    case MLSConfig::SLOPE:
+        dynamic_cast<const MLSGrid::MLSBase::MLSGridI&>(*map).visualize(geode);
+        break;
+    case MLSConfig::KALMAN:
+        // TODO
+        break;
+    default:
         throw std::runtime_error("Can't visualize unknown map type");
     }
 }

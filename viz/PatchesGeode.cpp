@@ -35,7 +35,8 @@ namespace vizkit3d
             const osg::Vec3& mean,
             const osg::Vec3& normal)
     {
-        // Sanity check (TODO should be disabled in release mode)
+#ifndef NDEBUG
+        // Sanity check (disabled in release mode)
         for(int i=0; i<3; ++i)
             if( std::abs(mean[i]) > extents[i])
             {
@@ -44,6 +45,7 @@ namespace vizkit3d
                 for(int j=0; j<3; ++j) std::cerr << extents[j] << (j==2? "}\n" : ", ");
                 break;
             }
+#endif
         // first calculate the intersections of the plane with the borders of the box
         // Here, `extents` and `mean` are relative to the origin of the box
         float dist = mean*normal; // scalar product gives the signed distance from the origin

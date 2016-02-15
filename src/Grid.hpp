@@ -121,7 +121,7 @@ namespace envire { namespace maps
 
             /**
              * @brief get the size of the grid in world unit
-             * @return size of the grid in local X-axis and Y-axis in wold unit
+             * @return size of the grid in local X-axis and Y-axis in world unit
              */
             Vector2d getSize() const;
 
