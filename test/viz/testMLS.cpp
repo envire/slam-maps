@@ -20,7 +20,7 @@ BOOST_AUTO_TEST_CASE( mlsviz_test )
     MLSConfig mls_config;
     mls_config.updateModel = MLSConfig::SLOPE;
     MLSGrid *mls = new MLSGrid(numCells, res, mls_config);
-    mls->getOffset().translation() << -0.5*mls->getSize(), 0;
+    mls->getGrid().getOffset().translation() << -0.5*mls->getGrid().getSize(), 0;
     for (unsigned int x = 0; x < numCells.x(); ++x) for(float dx = -.5f; dx <0.49f; dx+=0.125)
     {
         float xx = x+dx;
@@ -30,7 +30,9 @@ BOOST_AUTO_TEST_CASE( mlsviz_test )
             float yy = y+dy;
             float sn = std::sin(yy* M_PI/50);
 
-            mls->at(x, y).update(SurfacePatch(Eigen::Vector3f(dx*res.x(),dy*res.y(),cs*sn), 0.1));
+            mls->mergePoint(Eigen::Vector3d(xx*res.x(), yy*res.y(), cs*sn));
+            //mls->at(x, y).update(SurfacePatch(Eigen::Vector3f(dx*res.x(),dy*res.y(),cs*sn), 0.1));
+            //mls->at(x, y).update(SurfacePatch(cs*sn+10, 0.1, 9, SurfacePatch::NEGATIVE));
 //            mls->at(x, y).update(SurfacePatch(height, 0.1));
         }
     }
@@ -68,9 +70,10 @@ BOOST_AUTO_TEST_CASE(mls_loop)
     MLSConfig mls_config;
     mls_config.updateModel = MLSConfig::SLOPE;
     mls_config.gapSize = 0.05f;
+    mls_config.useNegativeInformation = false;
     float R = 5.0f, r=2.05f;
     MLSGrid *mls = new MLSGrid(numCells, res, mls_config);
-    mls->getOffset().translation() << -0.5*mls->getSize(), 0;
+    mls->getGrid().getOffset().translation() << -0.5*mls->getGrid().getSize(), 0;
 
     for (float alpha = 0; alpha < M_PI; alpha += M_PI/1024/4)
     {
@@ -83,12 +86,14 @@ BOOST_AUTO_TEST_CASE(mls_loop)
             float y = (R+r*std::cos(beta)) * sn;
             float z = r*std::sin(beta);
 
-            // Project points into MLS grid:
-            Index idx;
-            Vector3d rem;
-            if(!mls->toGrid(Vector3d(x, y, z), idx, rem)) continue;
+            mls->mergePoint(Vector3d(x,y,z));
 
-            mls->at(idx).update(SurfacePatch(rem.cast<float>(), 0.1));
+            // Project points into MLS grid:
+//            Index idx;
+//            Vector3d rem;
+//            if(!mls->toGrid(Vector3d(x, y, z), idx, rem)) continue;
+//
+//            mls->at(idx).update(SurfacePatch(rem.cast<float>(), 0.1));
         }
     }
 

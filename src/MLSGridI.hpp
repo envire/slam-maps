@@ -18,6 +18,7 @@ public:
 
     virtual void merge(const MLSBase& other) = 0;
     virtual void mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& pc2grid, bool withUncertainty) = 0;
+    virtual void mergePoint(const Eigen::Vector3d& point) = 0;
 //    virtual void visualize(vizkit3d::PatchesGeode& geode) const = 0;
 
     virtual MLSBase* clone() const = 0;
@@ -67,6 +68,7 @@ struct MLSGrid::MLSBase::MLSGridI : public MLSGrid::MLSBase
     }
 
     void mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& pc2grid, bool withUncertainty);
+    void mergePoint(const Eigen::Vector3d& point);
 };
 
 

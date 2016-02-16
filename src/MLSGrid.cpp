@@ -102,6 +102,15 @@ void MLSGrid::MLSBase::MLSGridI::mergePointCloud(const PointCloud& pc, const Eig
     }
 
 
+void MLSGrid::MLSBase::MLSGridI::mergePoint(const Vector3d & point)
+{
+    Eigen::Vector3d pos;
+    Index idx;
+    if(grid.toGrid(point, idx, pos))
+    {
+         grid.at(idx).update(SurfacePatch(pos.cast<float>(), 0.1));
+    }
+}
 
 MLSGrid::MLSGrid(
         const Vector2ui &num_cells_,
@@ -134,6 +143,12 @@ void MLSGrid::mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& pc2gr
 {
     map->mergePointCloud(pc, pc2grid, withUncertainty);
 }
+
+void MLSGrid::mergePoint(const Eigen::Vector3d& point)
+{
+    map->mergePoint(point);
+}
+
 
 MLSGrid& MLSGrid::operator =(const MLSGrid& other)
 {

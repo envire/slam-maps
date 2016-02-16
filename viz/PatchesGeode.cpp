@@ -119,8 +119,8 @@ namespace vizkit3d
         }
         if(showExtents)
         {
-            var_vertices->push_back(osg::Vec3(position.x(), position.y(), mean.z() - extents.z()));
-            var_vertices->push_back(osg::Vec3(position.x(), position.y(), mean.z() + extents.z()));
+            var_vertices->push_back(osg::Vec3(position.x(), position.y(), position.z() - extents.z()));
+            var_vertices->push_back(osg::Vec3(position.x(), position.y(), position.z() + extents.z()));
         }
 
     }

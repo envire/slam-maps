@@ -115,6 +115,8 @@ public:
      */
     void mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& pc2grid, bool withUncertainty = true);
 
+    void mergePoint(const Eigen::Vector3d& point);
+
     void visualize(vizkit3d::PatchesGeode& geode) const;
 
     void intersectCuboid(const Eigen::AlignedBox3f& box, MLSMapExchange& output) const;
