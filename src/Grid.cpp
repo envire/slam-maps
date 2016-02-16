@@ -40,14 +40,14 @@ const Vector2d& Grid::getResolution() const
 
 Vector2d Grid::getSize() const
 {
-    return resolution.array() * num_cells.cast<double>().array();
+    return resolution.array() * getNumCells().cast<double>().array();
 }
 
 bool Grid::inGrid(const Index& idx) const
 {
     // do not need to check idx against (0,0),
     // until idx is of type unsigned int
-    return (idx.array() < Index(num_cells).array()).all();
+    return (idx.array() < Index(getNumCells()).array()).all();
 }
 
 bool Grid::fromGrid(const Index& idx, Vector3d& pos) const
