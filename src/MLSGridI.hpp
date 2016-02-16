@@ -25,23 +25,23 @@ public:
 //    virtual const Grid& getGrid() const = 0;
     virtual Grid& getGrid() = 0;
 
-    struct MLSGridI; // will be templated
+    template<class SurfaceType>
+    struct MLSGridI;
 };
 
 
-// TODO Make this and SPList templated
-//    template<class SurfaceType>
+template<class SurfaceType>
 struct MLSGrid::MLSBase::MLSGridI : public MLSGrid::MLSBase
 {
-    //typedef List<SurfaceType> SPList;
-    GridMap<SPList> grid;
+    typedef SPList<SurfaceType> SPListST;
+    GridMap<SPListST> grid;
 
     MLSGridI(
             const Vector2ui &num_cells,
             const Vector2d &resolution,
             const MLSConfig &config_)
     : MLSBase(config_)
-    , grid(num_cells, resolution, SPList(config_))
+    , grid(num_cells, resolution, SPListST(config_))
     {
         // assert that config is compatible to SurfaceType ...
     }

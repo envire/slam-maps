@@ -12,11 +12,20 @@ namespace envire
 {
     namespace maps 
     {
+        template<class SurfacePatch>
         class SPList : public List<SurfacePatch> 
         {
         public:
-            typedef typename List<SurfacePatch>::Holder::iterator iterator;
-            typedef typename List<SurfacePatch>::Holder::const_iterator const_iterator;
+            typedef List<SurfacePatch> Base;
+            using Base::begin;
+            using Base::end;
+            using Base::insertTail;
+            using Base::insertHead;
+            using Base::erase;
+            using Base::insert;
+
+            typedef typename Base::Holder::iterator iterator;
+            typedef typename Base::Holder::const_iterator const_iterator;
 
             SPList(MLSConfig config = MLSConfig()) 
                 : List<SurfacePatch>(),

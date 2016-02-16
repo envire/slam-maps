@@ -101,7 +101,7 @@ void MLSGrid::visualize(vizkit3d::PatchesGeode& geode) const
     switch(map->mls_config.updateModel)
     {
     case MLSConfig::SLOPE:
-        dynamic_cast<const MLSGrid::MLSBase::MLSGridI&>(*map).visualize(geode);
+        dynamic_cast<const MLSGrid::MLSBase::MLSGridI<SurfacePatch>&>(*map).visualize(geode);
         break;
     case MLSConfig::KALMAN:
         // TODO
@@ -112,10 +112,10 @@ void MLSGrid::visualize(vizkit3d::PatchesGeode& geode) const
 }
 
 
-
-void envire::maps::MLSGrid::MLSBase::MLSGridI::visualize(vizkit3d::PatchesGeode& geode) const
+template<class SurfacePatch>
+void envire::maps::MLSGrid::MLSBase::MLSGridI<SurfacePatch>::visualize(vizkit3d::PatchesGeode& geode) const
 {
-    const envire::maps::GridMap<SPList> &mls = grid;
+    const envire::maps::GridMap<SPListST> &mls = grid;
     Eigen::Vector2d res = mls.getResolution();
     Vector2ui num_cell = mls.getNumCells();
     const double xs = res.x();
@@ -124,9 +124,9 @@ void envire::maps::MLSGrid::MLSBase::MLSGridI::visualize(vizkit3d::PatchesGeode&
     {
         for (size_t y = 0; y < num_cell.y(); y++)
         {
-            const SPList &list = mls.at(x, y);
+            const SPListST &list = mls.at(x, y);
 
-            for (SPList::const_iterator it = list.begin(); it != list.end(); it++)
+            for (typename SPListST::const_iterator it = list.begin(); it != list.end(); it++)
             {
 
                 const SurfacePatch &p(*it);

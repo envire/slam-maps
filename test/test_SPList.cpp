@@ -3,8 +3,11 @@
 
 #include <chrono>
 
-using namespace envire::maps;
+using envire::maps::SurfacePatch;
+using envire::maps::MLSConfig;
+using envire::maps::List;
 
+typedef envire::maps::SPList<SurfacePatch> SPList;
 
 BOOST_AUTO_TEST_CASE(test_sp_list_basic)
 {

@@ -17,10 +17,10 @@ namespace envire {
 
 namespace maps {
 
+#define ENVIRE_MAPS_MLSGRID(ret_type__) template<class SurfaceType> \
+    ret_type__ MLSGrid::MLSBase::MLSGridI<SurfaceType>
 
-// TODO Make this and SPList templated
-//    template<class SurfaceType>
-void MLSGrid::MLSBase::MLSGridI::mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& pc2grid, bool withUncertainty)
+ENVIRE_MAPS_MLSGRID(void)::mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& pc2grid, bool withUncertainty)
     {
         // TODO change everything to float, if possible (requires refactoring Grid)
 
@@ -62,8 +62,8 @@ void MLSGrid::MLSBase::MLSGridI::mergePointCloud(const PointCloud& pc, const Eig
             Bresenham::Point orig = origin.cast<int>(); // Origin in Bresenham compatible format
             for(IndexSet::const_iterator it = coveredCells.begin(); it != coveredCells.end(); ++it)
             {
-                const SPList &cell = workGrid.grid.at(*it);
-                for(SPList::const_iterator cit = cell.begin(); cit != cell.end(); ++cit)
+                const SPListST &cell = workGrid.grid.at(*it);
+                for(typename SPListST::const_iterator cit = cell.begin(); cit != cell.end(); ++cit)
                 {
                     // Merge cell into main grid
                     grid.at(*it).update(*cit);
@@ -102,7 +102,7 @@ void MLSGrid::MLSBase::MLSGridI::mergePointCloud(const PointCloud& pc, const Eig
     }
 
 
-void MLSGrid::MLSBase::MLSGridI::mergePoint(const Vector3d & point)
+ENVIRE_MAPS_MLSGRID(void)::mergePoint(const Vector3d & point)
 {
     Eigen::Vector3d pos;
     Index idx;
@@ -120,7 +120,7 @@ MLSGrid::MLSGrid(
     switch(config.updateModel)
     {
     case MLSConfig::SLOPE:
-        map.reset(new MLSGrid::MLSBase::MLSGridI(num_cells_, resolution_, config));
+        map.reset(new MLSGrid::MLSBase::MLSGridI<SurfacePatch>(num_cells_, resolution_, config));
         break;
     default:
         throw std::runtime_error("Not implemented!");
