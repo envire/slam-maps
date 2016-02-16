@@ -7,10 +7,37 @@ using namespace envire::maps;
 
 double default_value = std::numeric_limits<double>::infinity();
 
+BOOST_AUTO_TEST_CASE(test_base_class)
+{
+
+    class FooBase
+    {
+        double barBase;
+    };
+    
+    class Foo : public FooBase
+    {
+        double bar;
+    };
+    
+    class barBase
+    {
+    };
+    
+    GridMap<Foo> *grid = new GridMap<Foo>();
+
+    GridMap<FooBase> *gridBase = grid->toBaseGrid<FooBase>();
+
+//     GridMap<barBase> *gridBase = grid->toBaseGrid<barBase>();
+
+    
+    delete grid;
+}
+
 BOOST_AUTO_TEST_CASE(test_grid_empty)
 {
     GridMap<double> *grid = new GridMap<double>();
-
+    
     // if the grid has size of (0,0)
     BOOST_CHECK_THROW(grid->at(Index(0,0)), std::exception);
     BOOST_CHECK_THROW(grid->getMax(), std::exception);  
