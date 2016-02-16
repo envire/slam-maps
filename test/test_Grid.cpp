@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE(test_grid_index2pos_with_offset)
 
 BOOST_AUTO_TEST_CASE(test_grid_index2pos_in_frame)
 {
-    Grid grid(Vector2ui(100, 100), Vector2d(0.1, 0.5));
+    Grid grid(Vector2ui(100, 200), Vector2d(0.1, 0.5));
     grid.getOffset().translate(Vector3d(-5, -50, 0));
 
     // ---- Index 2 Position in the specific frame ---- 
@@ -193,17 +193,17 @@ BOOST_AUTO_TEST_CASE(test_grid_index2pos_in_frame)
     BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(-0.45, -1.45, 0.5), 0.0001), true);
 
     // middle in Y
-    //BOOST_CHECK_EQUAL(grid.fromGrid(Index(99, 50), pos, frame_in_grid), true);
-    //BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(-1.45, -0.45, 0.5), 0.0001), true);
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(99, 50), pos, frame_in_grid), true);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(4.45, -26.45, 0.5), 0.0001), true);
 
     // middle in X and Y
-    //BOOST_CHECK_EQUAL(grid.fromGrid(Index(50, 50), pos, frame_in_grid), true);
-    //BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(-0.45, -0.45, 0.5), 0.0001), true);
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(50, 50), pos, frame_in_grid), true);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(-0.45, -26.45, 0.5), 0.0001), true);
 
 
     // outside: pos should be unchanged
     BOOST_CHECK_EQUAL(grid.fromGrid(Index(100, 100), pos, frame_in_grid), false);
-    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(-0.45, -1.45, 0.5), 0.0001), true);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(-0.45, -26.45, 0.5), 0.0001), true);
 }
 
 BOOST_AUTO_TEST_CASE(test_grid_pos2index_without_offset)
@@ -293,7 +293,7 @@ BOOST_AUTO_TEST_CASE(test_grid_pos2index_with_offset)
 
 BOOST_AUTO_TEST_CASE(test_grid_pos2index_in_frame)
 {
-    Grid grid(Vector2ui(100, 100), Vector2d(0.1, 0.5));
+    Grid grid(Vector2ui(100, 200), Vector2d(0.1, 0.5));
     grid.getOffset().translate(Vector3d(-5, -50, 0));
 
     // ---- Index 2 Position in the specific frame ---- 
