@@ -18,6 +18,7 @@ rock_library(envire_maps
         MultilayerGridMap.hpp
         ElevationMap.hpp
         SurfacePatch.hpp
+        SurfacePatches.hpp
         List.hpp
         SPList.hpp
         MLSConfig.hpp

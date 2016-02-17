@@ -3,6 +3,7 @@ rock_vizkit_plugin(envire_maps-viz
         MLSGridVisualization.cpp
         PatchesGeode.cpp
         TraversabilityMap3dVisualization.cpp
+        StandaloneVisualizer.cpp
     DEPS 
         envire_maps
     DEPS_PKGCONFIG 
@@ -17,4 +18,5 @@ rock_vizkit_plugin(envire_maps-viz
         TraversabilityMap3dVisualization.hpp
         PatchesGeode.hpp
         ColorGradient.hpp
+        StandaloneVisualizer.hpp
 )
