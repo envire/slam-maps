@@ -197,19 +197,6 @@ public:
                 {
                     if(overlap(p.getMin(), p.getMax(), minHeight, maxHeight))
                         retList.insert(&p);
-                    
-//                     std::cout << "Found Patch " << p.bar << std::endl;
-//                     if(p > maxHeight)
-//                     {
-//                         std::cout << "is bigger than max height " << std::endl;
-//                         break;
-//                     }
-//                     
-//                     if(p > minHeight)
-//                     {
-//                         std::cout << "Insert ! " << std::endl;
-//                         retList.insert(&p);
-//                     }
                 }
             }
         }

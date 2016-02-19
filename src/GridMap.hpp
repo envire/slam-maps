@@ -19,159 +19,64 @@
 namespace envire {namespace maps
 {
 
-    class GridElementFactory
-    {
-    public:
-        virtual void *getNewInstance() const = 0;
-        
-        virtual void setDefault(void *e) const = 0;
-        
-        virtual void deleteInstance(void *e) const = 0;
-        
-        virtual const void *getDefaultValue() const = 0;
-    };
-
     template <typename T>
-    class GridElementFactoryImpl : public GridElementFactory
+    class GridStorage
     {
-        /** default value type **/
+        std::vector<T> cells;
+        Vector2ui gridSize;
         T default_value;
     public:
-        GridElementFactoryImpl(T defaultVal) : default_value(defaultVal)
-        {
-        }
-        
-        GridElementFactoryImpl()
-        {
-        }
-        
-        virtual const void *getDefaultValue() const
-        {
-            return &default_value;
-        }
-        
-        virtual void *getNewInstance() const
-        {
-            return new T(default_value);
-        }
-
-        virtual void setDefault(void *v) const
-        {
-            *static_cast<T *>(v) = default_value;
-        }
-        
-        virtual void deleteInstance(void* e) const
-        {
-            delete static_cast<T *>(e);
-        }
-    };
-
-    class GridStorageBase
-    {
-    public:
-        typedef boost::multi_array<void *, 2> GridCell;
-
-        GridStorageBase(GridStorageBase &other) : cells(other.cells), factory(other.factory)
-        {
-            //TODO change to copy case
-        }
-
-        GridStorageBase(const GridStorageBase &other) : cells(other.cells), factory(other.factory)
-        {
-            //TODO change to copy case
-        }
-
-
-        GridStorageBase(boost::shared_ptr<GridCell> c, boost::shared_ptr<GridElementFactory> f) : cells(c), factory(f)
-        {
-        }
-        
-        GridStorageBase(GridElementFactory *fac)
-        {
-            factory.reset(fac);
-            cells.reset(new GridCell());
-        }
-
-    protected:
-        /** Store the actual content of the cells of the grid **/
-        boost::shared_ptr<GridCell> cells;
-        
-        boost::shared_ptr<GridElementFactory> factory;
-    };
-    
-    template <typename T>
-    class GridStorage : public GridStorageBase
-    {
-    public:
-        GridStorage(Vector2ui size, T default_value) : GridStorageBase(new GridElementFactoryImpl<T>(default_value))
+        GridStorage(Vector2ui size, T default_value) : gridSize(size), default_value(default_value)
         {
             resize(size);
         }
 
         GridStorage(Vector2ui size) : GridStorage(size, T())
         {
-            resize(size);
         }
 
-        GridStorage(GridStorage &other) : GridStorageBase(other)
+        GridStorage() : GridStorage(Vector2ui(0,0), T())
         {
         }
 
-        GridStorage(const GridStorage &other) : GridStorageBase(other)
+        GridStorage(const GridStorage &other) : cells(other.cells), gridSize(other.gridSize), default_value(other.default_value)
         {
-            //FIXME create copy
         }
-
-        template <typename TY>
-        GridStorage<TY> *cast()
-        {
-            static_assert(
-                std::is_base_of<TY, T>::value, 
-                "T must be a descendant of TBASE"
-            );
-
-            return reinterpret_cast<GridStorage<TY> *>(this);
-        };
 
         const T &getDefaultValue() const
         {
-            return *static_cast<const T *> (factory->getDefaultValue());
+            return default_value;
         }
-//         GridCell& getCells()
-//         {
-//             return *cells;
-//         }
-// 
-//         const GridCell& getCells() const
-//         {
-//             return *cells;
-//         }
-//         
+        
+        typename std::vector<T>::iterator begin()
+        {
+            return cells.begin();
+        }
+
+        typename std::vector<T>::iterator end()
+        {
+            return cells.end();
+        }
+
+        typename std::vector<T>::const_iterator begin() const
+        {
+            return cells.begin();
+        }
+
+        typename std::vector<T>::const_iterator end() const
+        {
+            return cells.end();
+        }
+
         void resize(Vector2ui newSize)
         {
-            Index oldIndex(getNumCells());
-            
-            cells->resize(boost::extents[newSize.x()][newSize.y()]);
-            
-            for (unsigned int x = 0; x < newSize.x(); ++x)
-            {
-                for (unsigned int y = 0; y < newSize.y(); ++y)
-                {
-                    if(x >= oldIndex.x() 
-                        && y >= oldIndex.y())
-                    {
-                        void *newElem = factory->getNewInstance();
-                        factory->setDefault(newElem);
-                        (*cells)[x][y] = newElem;
-                    }
-                }
-            }
-            
+            gridSize = newSize;
+            cells.resize(newSize.prod(), default_value);
         };
         
         void moveBy(Index idx)
         {
-            const Vector2ui num_cells(getNumCells());
+            const Vector2ui num_cells(gridSize);
             
             // if all grid values should be moved outside
             if (abs(idx.x()) >= num_cells.x()
@@ -181,13 +86,8 @@ namespace envire {namespace maps
                 return;
             }
 
-            GridCell &src = *cells;
-
-            GridCell tmp;
-            tmp.resize(boost::extents[num_cells.x()][num_cells.y()]);
-            std::fill(tmp.data(), tmp.data() + tmp.num_elements(), nullptr);
-
-            boost::swap(tmp, src);
+            std::vector<T> tmp;
+            tmp.resize(gridSize.prod(), default_value);
 
             //copy pointers to new grid at new position
             for (unsigned int x = 0; x < num_cells.x(); ++x)
@@ -200,62 +100,60 @@ namespace envire {namespace maps
                     if ((x_new >= 0 && x_new < num_cells.x())
                         && (y_new >= 0 && y_new < num_cells.y()))
                     {
-                        std::swap(src[x_new][y_new], tmp[x][y]);
+                        std::swap(cells[toIdx(x, y)], tmp[toIdx(x_new, y_new)]);
                     }
                 }
             }
             
-            void **it = tmp.data();
-            void **end = tmp.data() + num_cells.prod();
-            
-            //if elements are empty in new grid, swap and clear them
-            for (unsigned int x = 0; x < num_cells.x(); ++x)
-            {
-                for (unsigned int y = 0; y < num_cells.y(); ++y)
-                {
-                    if(!src[x][y])
-                    {
-                        //search patch, that is not null;
-                        while((*it) == nullptr && it != end)
-                            it++;
-                        
-                        if(it == end)
-                            throw std::runtime_error("Internal error, this should never happen");
-                        
-                        std::swap(src[x][y], *it);
-                        factory->setDefault(src[x][y]);
-                    }
-                }
-            }
+            cells.swap(tmp);
         }
         
-        T& get(Index idx)
+        const T& at(Index idx) const
         {
-            return *(static_cast<T *> ( (*this->cells)[idx.x()][idx.y()]));
+            if(idx.x() >= gridSize.x() || idx.y() >= gridSize.y())
+                throw std::runtime_error("Provided index is out of the grid");
+            return cells[idx.x() + idx.y() * gridSize.x()];
         }
 
-        const T& get(Index idx) const
+        T& at(Index idx)
         {
-            return *(static_cast<const T *> (*(this->cells)[idx.x()][idx.y()]));
+            if(idx.x() >= gridSize.x() || idx.y() >= gridSize.y())
+                throw std::runtime_error("Provided index is out of the grid");
+            return cells[idx.x() + idx.y() * gridSize.x()];
         }
 
-        Vector2ui getNumCells() const
+        const T& at(size_t x, size_t y) const
         {
-            return Vector2ui(cells->shape()[0], cells->shape()[1]);
+            if(x >= gridSize.x() || y >= gridSize.y())
+                throw std::runtime_error("Provided index is out of the grid");
+            return cells[x + y * gridSize.x()];
+        }
+
+        T& at(size_t x, size_t y)
+        {
+            if(x >= gridSize.x() || y >= gridSize.y())
+                throw std::runtime_error("Provided index is out of the grid");
+            return cells[x + y * gridSize.x()];
+        }
+        
+        const Vector2ui &getNumCells() const
+        {
+            return gridSize;
         };
         
         void clear()
         {
-            const Vector2ui num_cells(getNumCells());
-
-            for (unsigned int x = 0; x < num_cells.x(); ++x)
+            for(T &e : cells)
             {
-                for (unsigned int y = 0; y < num_cells.y(); ++y)
-                {
-                    factory->setDefault((*cells)[x][y]);
-                }
+                e = default_value;
             }
         };
+        
+    protected:
+        size_t toIdx(size_t x, size_t y) const
+        {
+            return x  +  y * gridSize.x();
+        }
     };
 
     
@@ -264,46 +162,19 @@ namespace envire {namespace maps
      * This map offers a template class for all maps that are regular grids
      */
     template <typename T>
-    class GridMap: public Grid
+    class GridMap: public Grid, public GridStorage<T>
     {
 
     protected:
-        /** Store the actual content of the cells of the grid **/
-        GridStorage<T> *storage;
 
     public:
-
-        template <class TBASE>
-        GridMap<TBASE> *toBaseGrid()
-        {
-            static_assert(
-                std::is_base_of<TBASE, T>::value, 
-                "T must be a descendant of TBASE"
-            );
-            
-            return new GridMap<TBASE>(*this, storage->template cast<TBASE>());
-        }
-        
         GridMap() 
-            : Grid(),
-             storage(new GridStorage<T>(Vector2ui(0,0), T()))
-
-        {
-//             static_assert(
-//                 std::is_base_of<TBASE, T>::value, 
-//                 "T must be a descendant of MyBase"
-//             );
-        }
-
-        GridMap(const Grid &grid, GridStorage<T> *store)
-            : Grid(grid),
-              storage(store)
+            : Grid()
         {
         }
-        
+
         GridMap(const GridMap& other)
-            : Grid(other),
-              storage(new GridStorage<T>(*other.storage))
+            : Grid(other), GridStorage<T>(other)
         {
         }
         
@@ -337,7 +208,7 @@ namespace envire {namespace maps
                 const Eigen::Vector2d &resolution,
                 const T& default_value)
             : Grid(num_cells, resolution),
-              storage(new GridStorage<T>(num_cells, default_value))
+              GridStorage<T>(num_cells, default_value)
         {
         }
 
@@ -346,14 +217,13 @@ namespace envire {namespace maps
                 const T& default_value,
                 const boost::shared_ptr<LocalMapData> &data)
             : Grid(num_cells, resolution, data),
-              storage(new GridStorage<T>(num_cells, default_value))
+              GridStorage<T>(num_cells, default_value)
         {}
 
         /** @brief default destructor
          */
         ~GridMap()
         {
-            delete storage;
         }
 
     public:
@@ -362,7 +232,7 @@ namespace envire {namespace maps
             Index idx;
             if (!this->toGrid(pos, idx))
                 throw std::runtime_error("Provided position is out of the grid.");
-            return storage->get(idx);
+            return at(idx);
         }
 
         T& at(const Vector3d& pos)
@@ -370,59 +240,10 @@ namespace envire {namespace maps
             Index idx;
             if (!this->toGrid(pos, idx))
                 throw std::runtime_error("Provided position is out of the grid");
-            return storage->get(idx);
+            return at(idx);
         }
 
-        const T& at(Index idx) const
-        {
-            if (!this->inGrid(idx))
-                throw std::runtime_error("Provided index is out of the grid");
-            return storage->get(idx);
-        }
-
-        T& at(Index idx)
-        {
-            if (!this->inGrid(idx))
-                throw std::runtime_error("Provided index is out of the grid");
-            return storage->get(idx);
-        }
-
-        const T& at(size_t x, size_t y) const
-        {
-            Index idx(x, y);
-            if (!this->inGrid(idx))
-                throw std::runtime_error("Provided index is out of the grid");
-            return storage->get(idx);
-        }
-
-        T& at(size_t x, size_t y)
-        {
-            Index idx(x, y);
-            if (!this->inGrid(idx))
-                throw std::runtime_error("Provided index is out of the grid");
-            return storage->get(idx);
-        }
-        
-        const T& getDefaultValue() const
-        {
-            return storage->getDefaultValue();
-        }
-
-        template<class Q = T>
-        void forEach(std::function<void (const Index &idx, const Q &elem)> f) const
-        {
-            Vector2ui numCells(storage->getNumCells());
-            
-            for(int x = 0; x < numCells.x(); x++)
-            {
-                for(int y = 0; y < numCells.y(); y++)
-                {
-                    Index cur(x,y);
-                    f(cur, storage->get(cur));
-                }
-            }
-        }
-
+        using GridStorage<T>::at;
         
         /**
          * @brief [brief description]
@@ -434,25 +255,15 @@ namespace envire {namespace maps
         const typename std::enable_if<std::is_arithmetic<Q>::value, Q>::type&
         getMax() const
         {
-            Vector2ui numCells(storage->getNumCells());
+            Vector2ui numCells(getNumCells());
             
             std::cout << "Num Cells is " << numCells.transpose() << std::endl;
             if(numCells == Vector2ui(0,0))
                 throw std::runtime_error("Tried to compute max on empty map");
 
-            Index maxIdx(0,0);
-            Q max = storage->get(maxIdx);
-
-            forEach<Q>([&](const Index &idx, const Q &elem){
-                if(elem > max)
-                {
-                    maxIdx = idx;
-                    max = elem;
-                }
-            }
-            );
             
-            return storage->get(maxIdx);
+            
+            return *std::max_element(this->begin(), this->end());
         }
 
         /**
@@ -465,35 +276,18 @@ namespace envire {namespace maps
         const typename std::enable_if<std::is_arithmetic<Q>::value, Q>::type&
         getMin() const
         {
-            Vector2ui numCells(storage->getNumCells());
+            Vector2ui numCells(getNumCells());
             
             if(numCells == Vector2ui(0,0))
                 throw std::runtime_error("Tried to compute min on empty map");
 
-            Index minIdx(0,0);
-            Q min = storage->get(minIdx);
-
-            forEach<Q>([&](const Index &idx, const Q &elem){
-                if(elem < min)
-                {
-                    minIdx = idx;
-                    min = elem;
-                }
-            }
-            );
-            
-            return storage->get(minIdx);
+            return *std::min_element(this->begin(), this->end());
         }
-
-        void moveBy(Index idx)
+        
+        virtual const Vector2ui& getNumCells() const
         {
-            storage->moveBy(idx);
-        }
-
-        void clear()
-        {
-            storage->clear();
-        }
+            return GridStorage<T>::getNumCells();
+        };
 
     protected:
     };
