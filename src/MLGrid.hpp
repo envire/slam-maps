@@ -40,8 +40,8 @@ public:
     bool overlap( double a1, double a2, double b1, double b2 ) const
     {
         return 
-            ((a1 < b2) && (a2 > b2)) ||
-            ((a1 < b1) && (a2 > b1));
+            ((a1 <= b2) && (a2 >= b2)) ||
+            ((a1 <= b1) && (a2 >= b1));
     }
     
     MLView intersectCuboid(const Eigen::AlignedBox3f& box) const
