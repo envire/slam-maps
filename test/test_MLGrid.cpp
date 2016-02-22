@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include "../src/MLSGrid.hpp"
+#include "../src/MLGrid.hpp"
 
 using namespace envire::maps;
 

@@ -11,7 +11,7 @@ rock_testsuite(test_gridmap suite.cpp
    DEPS envire_maps)   
 
 rock_testsuite(test_mlGrid suite.cpp
-   test_MLMap.cpp
+   test_MLGrid.cpp
    DEPS envire_maps)     
 
 rock_testsuite(test_multilayergridmap suite.cpp
