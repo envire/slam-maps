@@ -41,27 +41,66 @@ BOOST_AUTO_TEST_CASE(test_base_class)
     grid.at(2,2).insert(p2);
     grid.at(2,2).insert(p);
     
-    for(const Patch &p : grid.at(2,2))
-        std::cout << "Bar is " << p.getMin() << std::endl;
-
-    Eigen::Vector3d pos;
-    grid.fromGrid(Index(2,2), pos);
+    BOOST_CHECK_EQUAL(grid.at(2,2).size(), 2);
     
-    std::cout << "From" << pos.transpose() << std::endl;
-    
-    Eigen::AlignedBox3f box(Eigen::Vector3f(0.5, .5, 49),Eigen::Vector3f(2.0, 2.0, 60));
-    
-    MLGrid<Patch>::MLView view = grid.intersectCuboid(box);
-    
-    std::cout << "Subview Size : " << view.getNumCells().transpose() << std::endl;
-    for(size_t x = 0; x < view.getNumCells().x(); x++)
     {
-        for(size_t y = 0; y < view.getNumCells().y(); y++)
-        {
-            for(const Patch *p : view.at(x,y))
-                std::cout << "X " << x << " Y " << y << " Bar is " << p->getMin() << std::endl;
-        }
+    auto it = grid.at(2,2).begin();
+    
+    BOOST_CHECK_EQUAL(it->getMin(), 38);
+    it++;
+    BOOST_CHECK_EQUAL(it->getMin(), 55);
     }
+//     for(const Patch &p : grid.at(2,2))
+//         std::cout << "Bar is " << p.getMin() << std::endl;
+
+//     Eigen::Vector3d pos;
+//     grid.fromGrid(Index(2,2), pos);
+//     
+//     std::cout << "From" << pos.transpose() << std::endl;
+    
+    {
+    Eigen::AlignedBox3f box(Eigen::Vector3f(0.5, .5, 49),Eigen::Vector3f(2.0, 2.0, 60));
+    MLGrid<Patch>::MLView view = grid.intersectCuboid(box);
+
+//     std::cout << "Subview Size : " << view.getNumCells().transpose() << std::endl;
+//     for(size_t x = 0; x < view.getNumCells().x(); x++)
+//     {
+//         for(size_t y = 0; y < view.getNumCells().y(); y++)
+//         {
+//             for(const Patch *p : view.at(x,y))
+//                 std::cout << "X " << x << " Y " << y << " Bar is " << p->getMin() << std::endl;
+//         }
+//     }
+//     
+    BOOST_CHECK_EQUAL(view.at(1,1).size(), 2);
+    auto it = view.at(1,1).begin();
+    
+    BOOST_CHECK_EQUAL((*it)->getMin(), 38);
+    it++;
+    BOOST_CHECK_EQUAL((*it)->getMin(), 55);
+    }
+
+    {
+    Eigen::AlignedBox3f box(Eigen::Vector3f(0.5, .5, 37),Eigen::Vector3f(2.0, 2.0, 38));
+    MLGrid<Patch>::MLView view = grid.intersectCuboid(box);
+
+    BOOST_CHECK_EQUAL(view.at(1,1).size(), 1);
+    auto it = view.at(1,1).begin();
+    
+    BOOST_CHECK_EQUAL((*it)->getMin(), 38);
+    }
+
+    {
+    Eigen::AlignedBox3f box(Eigen::Vector3f(0.5, .5, 80),Eigen::Vector3f(2.0, 2.0, 105));
+    MLGrid<Patch>::MLView view = grid.intersectCuboid(box);
+
+    BOOST_CHECK_EQUAL(view.at(1,1).size(), 1);
+    auto it = view.at(1,1).begin();
+    
+    BOOST_CHECK_EQUAL((*it)->getMin(), 55);
+    }
+
+
     
 
     
