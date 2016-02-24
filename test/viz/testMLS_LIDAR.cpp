@@ -2,12 +2,9 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Geometry>
-#include <boost/scoped_ptr.hpp>
 
-#include <vizkit3d/Vizkit3DWidget.hpp>
-#include <vizkit3d/QtThreadedWidget.hpp>
-#include "MLSGridVisualization.hpp"
-#include <vizkit3d/GridVisualization.hpp>
+#include "StandaloneVisualizer.hpp"
+#include <envire_maps/MLSGrid.hpp>
 
 #include "../tools/GeneratePointclouds.hpp"
 using namespace envire::maps;
@@ -40,30 +37,15 @@ BOOST_AUTO_TEST_CASE(mls_simulate_LIDAR)
         }
     }
 
-
-    QtThreadedWidget<vizkit3d::Vizkit3DWidget> app;
-    app.start();
-
-   //create vizkit3d plugin for showing envire
-   vizkit3d::MLSGridVisualization *mls_viz = new vizkit3d::MLSGridVisualization();
-   mls_viz->updateData(*mls);
-
-       //create vizkit3d widget
-   vizkit3d::Vizkit3DWidget *widget = app.getWidget();
-   // grid plugin
-       vizkit3d::GridVisualization *grid_viz = new vizkit3d::GridVisualization();
-   widget->addPlugin(grid_viz);
-   // add envire plugin
-   widget->addPlugin(mls_viz);
+    StandaloneVisualizer app;
 
    Eigen::ArrayXXd ranges;
    PointCloud pointcloud;
    Eigen::Affine3d trafo;
    trafo.setIdentity();
    int loop = 0;
-   while (app.isRunning())
+   while (app.wait(1000))
    {
-       usleep(1000);
        if(++loop & 1023) continue;
        trafo.translation().setRandom();
        Eigen::Quaterniond q; q.coeffs().setRandom(); q.normalize();
@@ -73,7 +55,7 @@ BOOST_AUTO_TEST_CASE(mls_simulate_LIDAR)
        lidar.getRanges(ranges, scene, trafo, &pointcloud);
 
        mls->mergePointCloud(pointcloud, trafo, false);
-       mls_viz->updateData(*mls);
+       app.updateData(*mls);
    }
 
 }

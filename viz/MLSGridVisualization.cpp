@@ -101,7 +101,7 @@ void MLSGrid::visualize(vizkit3d::PatchesGeode& geode) const
     switch(map->mls_config.updateModel)
     {
     case MLSConfig::SLOPE:
-        dynamic_cast<const MLSGrid::MLSBase::MLSGridI<SurfacePatch>&>(*map).visualize(geode);
+        dynamic_cast<const MLSGrid::MLSBase::MLSGridI<SurfacePatchT<MLSConfig::SLOPE> >&>(*map).visualize(geode);
         break;
     case MLSConfig::KALMAN:
         // TODO
@@ -139,7 +139,7 @@ void envire::maps::MLSGrid::MLSBase::MLSGridI<SurfacePatch>::visualize(vizkit3d:
                 // slopes need to be handled differently
                 if( true )
                 {
-                    if( !p.isNegative() )
+//                    if( !p.isNegative() )
                     {
                         float minZ, maxZ;
                         p.getRange(minZ, maxZ);
@@ -150,7 +150,7 @@ void envire::maps::MLSGrid::MLSBase::MLSGridI<SurfacePatch>::visualize(vizkit3d:
                         mean.z() -= position.z();
                         osg::Vec3 normal = Vec3(p.getNormal());
                         geode.drawPlane(position, extents * 0.5f, mean, normal);
-                  }
+                    }
 //                    else if (showNegative)
 //                    {
 //                        geode->setColor( negativeCellColor );

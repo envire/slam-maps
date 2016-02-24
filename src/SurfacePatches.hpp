@@ -35,32 +35,62 @@ typedef boost::intrusive::link_mode<boost::intrusive::auto_unlink> auto_unlink_m
 class SurfacePatchBase : public boost::intrusive::list_base_hook<auto_unlink_mode>
 {
 protected:
-    size_t update_idx;
+    size_t update_idx; // TODO is this really useful?
     float min, max;
 public:
+    // TODO TYPE is for compatibility with old Patches -- probably should be made optional
+    enum TYPE
+    {
+        VERTICAL = 0,
+        HORIZONTAL = 1,
+        NEGATIVE = 2
+    };
+
     explicit SurfacePatchBase(const float &z, const size_t& updateIdx = 0)
     : update_idx(updateIdx)
     , min(z), max(z)
     { }
 
-    void merge(const SurfacePatchBase& other)
+    explicit SurfacePatchBase(const float &mean, const float &height, const size_t& updateIdx = 0)
+    : update_idx(updateIdx)
+    , min(mean - height), max(mean)
+    { }
+
+    bool merge(const SurfacePatchBase& other, const float& gapSize=0.0f)
     {
+        if(!isCovered(other, gapSize)) return false;
         min = std::min(min, other.min);
         max = std::max(max, other.max);
         update_idx = std::max(update_idx, other.update_idx);
+        return true;
     }
 
     float getMin() const { return min; }
     float getMax() const { return max; }
     float getTop() const { return max; }
     float getBottom() const { return min; }
+    void getRange(float& mini, float& maxi) const {mini = min; maxi = max; }
+
+    bool isCovered(const float& z, const float& gapSize = 0.0f) const
+    {
+        return min - gapSize < z && z < max + gapSize;
+    }
+    bool isCovered(const SurfacePatchBase& other, const float& gapSize) const
+    {
+        // This is equivalent to the old overlap function.
+        // TODO Some overlapping cases are not covered by this!
+        return
+//                (min - gapSize < other.max && max + gapSize > other.max) ||
+//                (min - gapSize < other.min && max + gapSize > other.min);
+                isCovered(other.max, gapSize) || isCovered(other.min, gapSize);
+
+    }
 
 
 };
 
-
 /**
- * templated surface patch class.
+ * Templated surface patch class.
  * Eventually, this should be renamed to SurfacePatch
  * TODO add color option, write implementations for all variants
  */
@@ -72,15 +102,24 @@ class SurfacePatchT;
  * SurfacePatch type for SLOPE update model.
  */
 template<>
-class SurfacePatchT<MLSConfig::SLOPE> : SurfacePatchBase
+class SurfacePatchT<MLSConfig::SLOPE> : public SurfacePatchBase
 {
     base::PlaneFitting<float> plane;
+    float n;
+    TYPE type;
     typedef SurfacePatchBase Base;
 public:
     SurfacePatchT(const Eigen::Vector3f& point, const float& cov)
-: Base(point.z())
-, plane(point, 1.0f/cov)
-{ }
+        : Base(point.z())
+        , plane(point, 1.0f/cov)
+        , n(1), type(TYPE::HORIZONTAL)
+    { }
+
+    SurfacePatchT(const float& mean, const float& stdev, const float& height = 0, TYPE type_=TYPE::HORIZONTAL)
+        : Base(mean, height)
+        , n(1), type(type_)
+    { }
+
 
     /**
      * Compares two patches by their center of mass
@@ -105,10 +144,41 @@ public:
         return Base::getMin();
     }
 
+    Eigen::Vector3f getCenter() const
+    {
+        Eigen::Vector3f center(plane.x, plane.y, plane.z);
+        return center * (1.0f/plane.n);
+    }
+
     Eigen::Vector3f getNormal() const
     {
-        return Eigen::Vector3f::UnitZ();
+        if(n<=1.0f) return Eigen::Vector3f::UnitZ();
+        typedef base::PlaneFitting<float>::Matrix3 Mat3;
+        Mat3 moments;
+        moments << plane.xx, plane.xy, plane.xz,
+                   plane.xy, plane.yy, plane.yz,
+                   plane.xz, plane.yz, plane.zz;
+        moments *= 1.0/plane.n;
+        Eigen::Vector3f mu = getCenter();
+
+        moments -= mu * mu.transpose();
+        Eigen::SelfAdjointEigenSolver<Mat3> eig;
+        eig.computeDirect(moments, Eigen::ComputeEigenvectors);
+        return eig.eigenvectors().col(0);
     }
+
+    bool merge(const SurfacePatchT& other, const float& gapSize = 0.0f)
+    {
+        if(Base::merge(other, gapSize))
+        {
+            plane.update(other.plane);
+            n+= other.n;
+            return true;
+        }
+
+        return false;
+    }
+
 };
 
 

@@ -29,8 +29,8 @@ class StandaloneVisualizer::Impl
         //create vizkit3d widget
         vizkit3d::Vizkit3DWidget *widget = app.getWidget();
         // grid plugin
-        //vizkit3d::GridVisualization *grid_viz = new vizkit3d::GridVisualization();
-        //widget->addPlugin(grid_viz);
+        vizkit3d::GridVisualization *grid_viz = new vizkit3d::GridVisualization();
+        widget->addPlugin(grid_viz);
         // add envire plugin
         widget->addPlugin(mls_viz);
     }

@@ -85,6 +85,7 @@ namespace envire
                 }
 
             }   
+#if 0
 
             /** Finds a surface patch at \c (position.x, position.y) that matches
              * the Z information contained in \c patch (patch is used to get mean
@@ -105,10 +106,10 @@ namespace envire
                 return getPatchByZ(tmp, sigma_threshold, ignore_negative);
             }            
 
-            bool isCovered(double zPos, double zStdev) const
+            bool isCovered(double zPos, double zStdev, double gapSize = 0.0) const
             {
                 const SurfacePatch tmp(zPos, zStdev);
-                return getPatchByZ(tmp)->isCovered(tmp);
+                return getPatchByZ(tmp)->isCovered(tmp, gapSize);
             }
         private:
             template<class It>
@@ -140,6 +141,16 @@ namespace envire
             {
                 return getPatchByZ(begin(), end(), patch, sigma_threshold, ignore_negative);
             }
+#else
+            bool isCovered(const float zPos, const float gapSize = 0.0) const
+            {
+                for(const_iterator it = begin(); it!= end(); ++it)
+                {
+                    if(it->isCovered(zPos, gapSize)) return true;
+                }
+                return false;
+            }
+#endif
 
             std::pair<iterator, double> getNearestPatch(const SurfacePatch& p)
             {
@@ -166,7 +177,7 @@ namespace envire
 
             bool merge(SurfacePatch& p, SurfacePatch& o)
             {
-                return p.merge(o, config);
+                return p.merge(o, config.gapSize);
             }                   
         };
 

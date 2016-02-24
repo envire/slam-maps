@@ -24,7 +24,7 @@ ENVIRE_MAPS_MLSGRID(void)::mergePointCloud(const PointCloud& pc, const Eigen::Af
     {
         // TODO change everything to float, if possible (requires refactoring Grid)
 
-        const bool useNegative = mls_config.useNegativeInformation; // TODO also check that grid is not empty?
+        const bool useNegative = false && mls_config.useNegativeInformation; // TODO also check that grid is not empty?
         MLSGridI tempGrid = useNegative
                         ? MLSGridI(grid.getNumCells(), grid.getResolution(), mls_config)
                         : MLSGridI();
@@ -48,7 +48,7 @@ ENVIRE_MAPS_MLSGRID(void)::mergePointCloud(const PointCloud& pc, const Eigen::Af
                 if(useNegative && grid.at(idx).isCovered(pos.z(), stdev))
                     continue;
 
-                workGrid.grid.at(idx).update(SurfacePatch(pos.cast<float>(), stdev));
+                workGrid.grid.at(idx).update(SurfaceType(pos.cast<float>(), stdev));
                 if(useNegative)
                     coveredCells.insert(idx);
             }
@@ -89,8 +89,9 @@ ENVIRE_MAPS_MLSGRID(void)::mergePointCloud(const PointCloud& pc, const Eigen::Af
                         const double p_var = 0.05;
                         double z_mean = z_max * (factor) + orig_relative.z() - p_var;
                         double p_height = height * (factor) - 2*p_var;
-                        double z_stdev = cit->getStdev() * factor;
-                        SurfacePatch np(z_mean, z_stdev, p_height, SurfacePatch::NEGATIVE);
+                        //double z_stdev = cit->getStdev() * factor;
+                        double z_stdev = 0.05 * factor; // TODO get stdev from patch
+                        SurfaceType np(z_mean, z_stdev, p_height, SurfaceType::NEGATIVE);
                         // TODO set update_idx of np?
 
                         // merge negative patch:
@@ -108,7 +109,8 @@ ENVIRE_MAPS_MLSGRID(void)::mergePoint(const Vector3d & point)
     Index idx;
     if(grid.toGrid(point, idx, pos))
     {
-         grid.at(idx).update(SurfacePatch(pos.cast<float>(), 0.1));
+        // TODO get stddev from config or by function parameter
+        grid.at(idx).update(SurfaceType(pos.cast<float>(), 0.1));
     }
 }
 
@@ -120,7 +122,7 @@ MLSGrid::MLSGrid(
     switch(config.updateModel)
     {
     case MLSConfig::SLOPE:
-        map.reset(new MLSGrid::MLSBase::MLSGridI<SurfacePatch>(num_cells_, resolution_, config));
+        map.reset(new MLSGrid::MLSBase::MLSGridI<SurfacePatchT<MLSConfig::SLOPE> >(num_cells_, resolution_, config));
         break;
     default:
         throw std::runtime_error("Not implemented!");

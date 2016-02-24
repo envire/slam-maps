@@ -7,7 +7,7 @@ rock_vizkit_plugin(envire_maps-viz
     DEPS 
         envire_maps
     DEPS_PKGCONFIG 
-        base-viz
+        base-viz vizkit3d  vizkit3d-viz
     MOC 
         ElevationMapVisualization.hpp
         MLSGridVisualization.hpp

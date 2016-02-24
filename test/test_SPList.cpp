@@ -1,10 +1,11 @@
 #include <boost/test/unit_test.hpp>
 #include <envire_maps/SPList.hpp>
+#include <envire_maps/SurfacePatches.hpp>
 
 #include <chrono>
 
-using envire::maps::SurfacePatch;
 using envire::maps::MLSConfig;
+typedef envire::maps::SurfacePatchT<MLSConfig::SLOPE> SurfacePatch;
 using envire::maps::List;
 
 typedef envire::maps::SPList<SurfacePatch> SPList;
