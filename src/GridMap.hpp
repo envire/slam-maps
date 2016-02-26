@@ -165,8 +165,8 @@ namespace envire {namespace maps
      * This map is a Grid structure for a raster metric (Cartesian) map
      * This map offers a template class for all maps that are regular grids
      */
-    template <typename T>
-    class GridMap: public Grid, public GridStorage<T>
+    template <typename T, typename R = GridStorage<T> >
+    class GridMap: public Grid, public R
     {
 
     protected:
@@ -177,8 +177,13 @@ namespace envire {namespace maps
         {
         }
 
+        GridMap(const Grid& oGrid, R oStorage)
+            : Grid(oGrid), R(oStorage)
+        {
+        }
+
         GridMap(const GridMap& other)
-            : Grid(other), GridStorage<T>(other)
+            : Grid(other), R(other)
         {
         }
         
@@ -212,7 +217,7 @@ namespace envire {namespace maps
                 const Eigen::Vector2d &resolution,
                 const T& default_value)
             : Grid(num_cells, resolution),
-              GridStorage<T>(num_cells, default_value)
+              R(num_cells, default_value)
         {
         }
 
@@ -221,7 +226,7 @@ namespace envire {namespace maps
                 const T& default_value,
                 const boost::shared_ptr<LocalMapData> &data)
             : Grid(num_cells, resolution, data),
-              GridStorage<T>(num_cells, default_value)
+              R(num_cells, default_value)
         {}
 
         /** @brief default destructor
@@ -247,7 +252,7 @@ namespace envire {namespace maps
             return at(idx);
         }
 
-        using GridStorage<T>::at;
+        using R::at;
         
         /**
          * @brief [brief description]
@@ -290,7 +295,7 @@ namespace envire {namespace maps
         
         virtual const Vector2ui& getNumCells() const
         {
-            return GridStorage<T>::getNumCells();
+            return R::getNumCells();
         };
 
     protected:
