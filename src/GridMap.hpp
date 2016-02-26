@@ -16,6 +16,9 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/multi_array.hpp>
 
+#include "AccessIterator.hpp"
+
+
 namespace envire {namespace maps
 {
 
@@ -158,6 +161,157 @@ namespace envire {namespace maps
         {
             return x  +  y * gridSize.x();
         }
+    };
+
+    
+    
+    template <typename T>
+    class GridStorageAccess
+    {
+    public:
+        
+        typedef AccessIterator<T> iterator;
+        typedef ConstAccessIterator<T> const_iterator;
+        
+        virtual const T &getDefaultValue() const
+        {
+            throw std::runtime_error("Full virtual method called");
+        }
+        
+        virtual iterator begin()
+        {
+            throw std::runtime_error("Full virtual method called");
+        }
+
+        virtual iterator end()
+        {
+            throw std::runtime_error("Full virtual method called");
+        }
+
+        virtual const_iterator begin() const
+        {
+            throw std::runtime_error("Full virtual method called");
+        }
+
+        virtual const_iterator end() const
+        {
+            throw std::runtime_error("Full virtual method called");
+        }
+
+        virtual void resize(Vector2ui newSize)
+        {
+            throw std::runtime_error("Full virtual method called");
+        };
+        
+        virtual void moveBy(Index idx)
+        {
+            throw std::runtime_error("Full virtual method called");
+        }
+        
+        virtual const T& at(Index idx) const
+        {
+            throw std::runtime_error("Full virtual method called");
+        }
+
+        virtual T& at(Index idx)
+        {
+            throw std::runtime_error("Full virtual method called");
+        }
+
+        virtual const T& at(size_t x, size_t y) const
+        {
+            throw std::runtime_error("Full virtual method called");
+        }
+
+        virtual T& at(size_t x, size_t y)
+        {
+            throw std::runtime_error("Full virtual method called");
+        }
+        
+        virtual const Vector2ui &getNumCells() const
+        {
+            throw std::runtime_error("Full virtual method called");
+        };
+        
+        virtual void clear()
+        {
+            throw std::runtime_error("Full virtual method called");
+        };
+    };
+    
+    template <typename T, typename TBASE>
+    class GridStorageAccessImpl : public GridStorageAccess<TBASE>
+    {
+        GridStorage<T> *storage;
+    public:
+        GridStorageAccessImpl(GridStorage<T> *storage) : storage(storage)
+        {
+        }
+
+        virtual const TBASE &getDefaultValue() const
+        {
+            return storage->getDefaultValue();
+        }
+        
+        virtual typename GridStorageAccess<TBASE>::iterator begin()
+        {
+            return AccessIteratorImpl<T, TBASE, std::vector<T> >(storage->begin());
+        }
+
+        virtual typename GridStorageAccess<TBASE>::iterator end()
+        {
+            throw std::runtime_error("Full virtual method called");
+        }
+
+        virtual typename GridStorageAccess<TBASE>::const_iterator begin() const
+        {
+            throw std::runtime_error("Full virtual method called");
+        }
+
+        virtual typename GridStorageAccess<TBASE>::const_iterator end() const
+        {
+            throw std::runtime_error("Full virtual method called");
+        }
+
+        virtual void resize(Vector2ui newSize)
+        {
+            storage->resize(newSize);
+        };
+        
+        virtual void moveBy(Index idx)
+        {
+            storage->moveBy(idx);
+        }
+        
+        const TBASE& at(Index idx) const
+        {
+            return static_cast<const TBASE &>(storage->at(idx));
+        }
+
+        TBASE& at(Index idx)
+        {
+            return static_cast<TBASE &>(storage->at(idx));
+        }
+
+        const TBASE& at(size_t x, size_t y) const
+        {
+            return static_cast<const TBASE &>(storage->at(x, y));
+        }
+
+        TBASE& at(size_t x, size_t y)
+        {
+            return static_cast<TBASE &>(storage->at(x, y));
+        }
+        
+        const Vector2ui &getNumCells() const
+        {
+            return storage->getNumCells();
+        };
+        
+        void clear()
+        {
+            storage->clear();
+        };
     };
 
     

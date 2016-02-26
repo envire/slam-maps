@@ -2,41 +2,74 @@
 #include "../src/MLGrid.hpp"
 
 using namespace envire::maps;
+class PatchBase
+{
+    public:
+        PatchBase(double m, double ma) : min(m), max(ma)
+        {
+        }
+        
+        double min;
+        double max;
+
+        double getMiddle() const 
+        {
+            return min + (max - min) / 2.0;
+        }
+        
+    bool operator<(const PatchBase &other) const{
+        return  getMiddle() < other.getMiddle();
+    }
+
+    double getMin() const {
+        return min;
+    };
+
+    double getMax() const {
+        return max;
+    };
+};
+
+class Patch : public PatchBase
+{
+public:
+    Patch() : PatchBase(0,0)
+    {
+    };
+    
+    Patch(double m, double ma) : PatchBase(m, ma)
+    {
+    };
+    double someValue;
+};
+
+BOOST_AUTO_TEST_CASE(test_levelAccess)
+{
+    LevelList<Patch> list;
+    
+    LevelListAccess<PatchBase> *access = new LevelListAccessImpl<Patch, PatchBase>(&list);
+    
+}
+
+BOOST_AUTO_TEST_CASE(test_mapAccess)
+{
+    GridMap<Patch> map;
+
+    GridStorageAccess<PatchBase> *test = new GridStorageAccessImpl<Patch, PatchBase>(&map);
+
+    GridMap<PatchBase, GridStorageAccess<PatchBase> > test2(map, *test);
+    
+    
+}
 
 BOOST_AUTO_TEST_CASE(test_base_class)
 {
-    class Patch
-    {
-        public:
-            Patch(double m, double ma) : min(m), max(ma)
-            {
-            }
-            
-            double min;
-            double max;
 
-            double getMiddle() const 
-            {
-                return min + (max - min) / 2.0;
-            }
-            
-        bool operator<(const Patch &other) const{
-            return  getMiddle() < other.getMiddle();
-        }
-
-        double getMin() const {
-            return min;
-        };
-
-        double getMax() const {
-            return max;
-        };
-    };
     
-    MLGrid<Patch> grid(Vector2ui(5,5), Eigen::Vector2d(0.5,0.5));
+    MLGrid<PatchBase> grid(Vector2ui(5,5), Eigen::Vector2d(0.5,0.5));
 
-    Patch p(38, 50);
-    Patch p2(55, 80);
+    PatchBase p(38, 50);
+    PatchBase p2(55, 80);
     
     grid.at(2,2).insert(p2);
     grid.at(2,2).insert(p);
@@ -60,7 +93,7 @@ BOOST_AUTO_TEST_CASE(test_base_class)
     
     {
     Eigen::AlignedBox3f box(Eigen::Vector3f(0.5, .5, 49),Eigen::Vector3f(2.0, 2.0, 60));
-    MLGrid<Patch>::MLView view = grid.intersectCuboid(box);
+    MLGrid<PatchBase>::MLView view = grid.intersectCuboid(box);
 
 //     std::cout << "Subview Size : " << view.getNumCells().transpose() << std::endl;
 //     for(size_t x = 0; x < view.getNumCells().x(); x++)
@@ -82,7 +115,7 @@ BOOST_AUTO_TEST_CASE(test_base_class)
 
     {
     Eigen::AlignedBox3f box(Eigen::Vector3f(0.5, .5, 37),Eigen::Vector3f(2.0, 2.0, 38));
-    MLGrid<Patch>::MLView view = grid.intersectCuboid(box);
+    MLGrid<PatchBase>::MLView view = grid.intersectCuboid(box);
 
     BOOST_CHECK_EQUAL(view.at(1,1).size(), 1);
     auto it = view.at(1,1).begin();
@@ -92,19 +125,13 @@ BOOST_AUTO_TEST_CASE(test_base_class)
 
     {
     Eigen::AlignedBox3f box(Eigen::Vector3f(0.5, .5, 80),Eigen::Vector3f(2.0, 2.0, 105));
-    MLGrid<Patch>::MLView view = grid.intersectCuboid(box);
+    MLGrid<PatchBase>::MLView view = grid.intersectCuboid(box);
 
     BOOST_CHECK_EQUAL(view.at(1,1).size(), 1);
     auto it = view.at(1,1).begin();
     
     BOOST_CHECK_EQUAL((*it)->getMin(), 55);
     }
-
-
-    
-
-    
-    
 }
 
 
