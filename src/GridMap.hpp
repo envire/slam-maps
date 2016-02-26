@@ -26,6 +26,10 @@ namespace envire {namespace maps
         Vector2ui gridSize;
         T default_value;
     public:
+        
+        typedef typename std::vector<T>::iterator iterator;
+        typedef typename std::vector<T>::const_iterator const_iterator;
+        
         GridStorage(Vector2ui size, T default_value) : gridSize(size), default_value(default_value)
         {
             resize(size);
@@ -48,22 +52,22 @@ namespace envire {namespace maps
             return default_value;
         }
         
-        typename std::vector<T>::iterator begin()
+        iterator begin()
         {
             return cells.begin();
         }
 
-        typename std::vector<T>::iterator end()
+        iterator end()
         {
             return cells.end();
         }
 
-        typename std::vector<T>::const_iterator begin() const
+        const_iterator begin() const
         {
             return cells.begin();
         }
 
-        typename std::vector<T>::const_iterator end() const
+        const_iterator end() const
         {
             return cells.end();
         }
