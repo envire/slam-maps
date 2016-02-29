@@ -51,6 +51,24 @@ BOOST_AUTO_TEST_CASE(test_levelAccess)
     
 }
 
+BOOST_AUTO_TEST_CASE(test_levelAccess2)
+{
+    LevelList2<Patch, PatchBase> list;
+
+    std::cout << "SuperClass " << std::endl;
+    
+    list.begin();
+    
+    std::cout << "BaseClass " << std::endl;
+    LevelList2<PatchBase, PatchBase> *listBase = &list;
+    
+    listBase->begin();
+    
+    
+//     LevelListAccess<PatchBase> *access = new LevelListAccessImpl<Patch, PatchBase>(&list);
+    
+}
+
 BOOST_AUTO_TEST_CASE(test_mapAccess)
 {
     GridMap<Patch> map;

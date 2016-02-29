@@ -12,7 +12,6 @@
 #include "SurfacePatches.hpp"
 
 #include <boost/scoped_ptr.hpp>
-#include "LevelList.hpp"
 
 
 namespace vizkit3d {
