@@ -45,14 +45,13 @@ Vector2d Grid::getSize() const
 
 void Grid::translate(const Eigen::Vector3d &translation)
 {
-    this->localFrame().translate(-translation);
+    this->getLocalFrame().translate(-translation);
     return;
 }
 
-
 void Grid::rotate(const Eigen::Quaterniond &rotation)
 {
-    this->localFrame().rotate(rotation.inverse());
+    this->getLocalFrame().rotate(rotation.inverse());
     return;
 }
 
@@ -72,7 +71,7 @@ bool Grid::fromGrid(const Index& idx, Vector3d& pos) const
         Vector2d center = (idx.cast<double>() + Vector2d(0.5, 0.5)).array() * resolution.array();
 
         // Apply the offset transformation to the obtained position
-        pos = this->localFrame().inverse() * Vector3d(center.x(), center.y(), 0.);
+        pos = this->getLocalFrame().inverse() * Vector3d(center.x(), center.y(), 0.);
         return true;
     } else
     {
@@ -96,7 +95,7 @@ bool Grid::fromGrid(const Index& idx, Vector3d& pos_in_frame, const base::Transf
 bool Grid::toGrid(const Vector3d& pos, Index& idx, Vector3d &pos_diff) const
 {
     // position without offset
-    Vector2d pos_temp = (this->localFrame() * pos).head<2>();
+    Vector2d pos_temp = (this->getLocalFrame() * pos).head<2>();
 
     // cast to float due to position which lies on the border between two cells
     Eigen::Vector2d idx_double = pos_temp.array() / resolution.array();

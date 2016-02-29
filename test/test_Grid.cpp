@@ -89,10 +89,10 @@ BOOST_AUTO_TEST_CASE(test_grid_constructor)
     BOOST_CHECK_EQUAL(grid.getSize().isApprox(Vector2d(15.3, 25.7), 0.0001), true);
 
     /** Check local map members **/
-    BOOST_CHECK_EQUAL(grid.id(), envire::maps::UNKNOWN_MAP_ID);
-    BOOST_CHECK_EQUAL(grid.type(), envire::maps::LocalMapType::UNKNOWN_MAP);
-    BOOST_CHECK_EQUAL(grid.localFrame().translation(), base::Transform3d::Identity().translation());
-    BOOST_CHECK_EQUAL(grid.localFrame().rotation(), base::Transform3d::Identity().rotation());
+    BOOST_CHECK_EQUAL(grid.getId(), envire::maps::UNKNOWN_MAP_ID);
+    BOOST_CHECK_EQUAL(grid.getMapType(), envire::maps::LocalMapType::UNKNOWN_MAP);
+    BOOST_CHECK_EQUAL(grid.getLocalFrame().translation(), base::Transform3d::Identity().translation());
+    BOOST_CHECK_EQUAL(grid.getLocalFrame().rotation(), base::Transform3d::Identity().rotation());
 
 }
 
@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE(test_grid_from_grid_with_offset)
 
     // size: 10 x 100
     Grid grid(Vector2ui(100, 200), Vector2d(0.1, 0.5));   
-    grid.localFrame().translate(Vector3d(5, 50, 0));
+    grid.getLocalFrame().translate(Vector3d(5, 50, 0));
 
     // ---- Index 2 Position ----
     Vector3d pos;
@@ -250,7 +250,7 @@ BOOST_AUTO_TEST_CASE(test_grid_from_grid_in_specific_frame)
 
     // size: 10 x 50
     Grid grid(Vector2ui(100, 100), Vector2d(0.1, 0.5));
-    grid.localFrame().translate(Vector3d(5, 50, 0));
+    grid.getLocalFrame().translate(Vector3d(5, 50, 0));
 
     // Cartesian position
     Eigen::Vector3d pos;
@@ -356,7 +356,7 @@ BOOST_AUTO_TEST_CASE(test_grid_to_grid_with_offset)
 {
     // size: 10 x 100
     Grid grid(Vector2ui(100, 200), Vector2d(0.1, 0.5));
-    grid.localFrame().translate(Vector3d(5, 50, 0));
+    grid.getLocalFrame().translate(Vector3d(5, 50, 0));
 
     // ---- Index 2 Position ---- 
     Index idx;
@@ -464,7 +464,7 @@ BOOST_AUTO_TEST_CASE(test_grid_to_grid_in_specific_frame)
 {
     // size: 10 x 50
     Grid grid(Vector2ui(100, 100), Vector2d(0.1, 0.5));
-    grid.localFrame().translate(Vector3d(5, 50, 0));
+    grid.getLocalFrame().translate(Vector3d(5, 50, 0));
 
 
     /** Index and Position **/

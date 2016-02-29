@@ -13,7 +13,7 @@ using namespace envire::maps;
 BOOST_AUTO_TEST_CASE(elevviz_test) 
 {
     ElevationMap elev_map(Vector2ui(150, 250), Vector2d(0.1, 0.1));
-    elev_map.localFrame().translation() << -0.5 * elev_map.getSize(), 0;
+    elev_map.getLocalFrame().translation() << -0.5 * elev_map.getSize(), 0;
 
     for (unsigned int x = 10; x < elev_map.getNumCells().x() - 10; ++x) 
     {

@@ -35,14 +35,15 @@ namespace envire { namespace maps
             map_type(UNKNOWN_MAP),
             EPSG_code(UNKNOWN_EPSG_CODE){};
 
-        LocalMapData(const std::string _id, const base::Transform3d &_offset,
-                    const LocalMapType _map_type, const std::string _EPSG_code)
-            :id(_id), offset(_offset), map_type(_map_type), EPSG_code(_EPSG_code) {};
+        LocalMapData(const std::string &id, const base::Transform3d &offset,
+                    const LocalMapType map_type, const std::string &EPSG_code)
+            :id(id), offset(offset), map_type(map_type), EPSG_code(EPSG_code) {};
 
         /**  string id of this local map **/
         std::string id;
 
-        /** Offset within the grid. The description of the local map frame.
+        /** 
+         * Local Frame (Offset) within the grid. The description of the local map frame.
          * It will be the offset with respect
          * to the bottom left corner (origin) of the map.
          * For the time being we use 3D transformation.
@@ -108,37 +109,47 @@ namespace envire { namespace maps
 
             virtual ~LocalMap() {};
 
-            const std::string& id() const
+            const std::string& getId() const
             {
                 return data_ptr->id;
             }
 
-            std::string& id()
+            std::string& getId()
             {
                 return data_ptr->id;
             }
 
-            const base::Transform3d& localFrame() const
+            const base::Transform3d& getLocalFrame() const
             {
                 return data_ptr->offset;
             }
 
-            base::Transform3d& localFrame()
+            base::Transform3d& getLocalFrame()
             {
                 return data_ptr->offset;
             }
 
-            const LocalMapType& type() const
+            const LocalMapType& getMapType() const
             {
                 return data_ptr->map_type;
             }
 
-            LocalMapType& type()
+            LocalMapType& getMapType()
             {
                 return data_ptr->map_type;
             }
 
-            const boost::shared_ptr<LocalMapData>& getLocalMap() const
+            const std::string& getEPSGCode() const
+            {
+                return data_ptr->EPSG_code;
+            }
+
+            std::string& getEPSGCode()
+            {
+                return data_ptr->EPSG_code;
+            }            
+
+            const boost::shared_ptr<LocalMapData>& getLocalMapData() const
             {
                 return data_ptr;
             }

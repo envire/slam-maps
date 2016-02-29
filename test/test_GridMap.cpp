@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE(test_grid_copy)
 
     /* Grid map of 10x100 meters **/
     GridMap<double> *grid = new GridMap<double>(num_cells, resolution, default_value);
-    grid->localFrame().translate(Eigen::Vector3d::Random(3));
+    grid->getLocalFrame().translate(Eigen::Vector3d::Random(3));
 
     for (unsigned int x = 0; x < grid->getNumCells().x(); ++x)
     {
@@ -91,8 +91,8 @@ BOOST_AUTO_TEST_CASE(test_grid_copy)
     // check configuration
     BOOST_CHECK_EQUAL(grid_copy->getNumCells(), grid->getNumCells()); 
     BOOST_CHECK_EQUAL(grid_copy->getResolution(), grid->getResolution()); 
-    BOOST_CHECK_EQUAL(grid_copy->localFrame().translation(), grid->localFrame().translation());    
-    BOOST_CHECK_EQUAL(grid_copy->localFrame().rotation(), grid->localFrame().rotation());    
+    BOOST_CHECK_EQUAL(grid_copy->getLocalFrame().translation(), grid->getLocalFrame().translation());    
+    BOOST_CHECK_EQUAL(grid_copy->getLocalFrame().rotation(), grid->getLocalFrame().rotation());    
 
     // check default value
     BOOST_CHECK_EQUAL(compare_default_value(grid_copy->getDefaultValue(), grid->getDefaultValue()), true);

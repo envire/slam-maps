@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE( mlsviz_test )
     MLSGrid *mls = new MLSGrid(numCells, res, mls_config);
 
     /** Translate the local frame (offset) **/
-    mls->localFrame().translation() << 0.5*mls->getSize(), 0;
+    mls->getLocalFrame().translation() << 0.5*mls->getSize(), 0;
 
     /** Equivalent to translate the grid in opposite direction **/
     //Eigen::Vector3d offset_grid;
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(mls_loop)
     mls_config.gapSize = 0.05f;
     float R = 5.0f, r=2.05f;
     MLSGrid *mls = new MLSGrid(numCells, res, mls_config);
-    mls->localFrame().translation() << 0.5*mls->getSize(), 0;
+    mls->getLocalFrame().translation() << 0.5*mls->getSize(), 0;
 
     for (float alpha = 0; alpha < M_PI; alpha += M_PI/1024/4)
     {
