@@ -43,12 +43,20 @@ namespace envire { namespace maps
         std::string id;
 
         /** 
-         * Local Frame (Offset) within the grid. The description of the local map frame.
-         * It will be the offset with respect
-         * to the bottom left corner (origin) of the map.
+         * The map use the Cartesian coordinate system:
+         * the initial origin of the map is placed in the bottom left corner
+         * the x-axis points to the right from the the origin
+         * the y-axis points upwards from the origin
+         * 
+         * The offset along the x/y-axis is expressed in the map unit according
+         * to the unit of the map resolution
+         * 
+         * The offset represents the replacement of the local frame 
+         * with respect to the inital origin.
+         * 
          * For the time being we use 3D transformation.
          *
-         * It can also be reference as local Frame
+         * The offset can also be reference as local Frame
          **/
         base::Transform3d offset;
 
