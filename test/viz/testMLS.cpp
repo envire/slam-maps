@@ -27,6 +27,7 @@ BOOST_AUTO_TEST_CASE( mlsviz_test )
 
     MLSConfig mls_config;
     mls_config.updateModel = MLSConfig::SLOPE;
+    //mls_config.updateModel = MLSConfig::KALMAN;
     MLSGrid *mls = new MLSGrid(numCells, res, mls_config);
     mls->getGrid().getOffset().translation() << -0.5*mls->getGrid().getSize(), 0;
     for (unsigned int x = 0; x < numCells.x(); ++x) for(float dx = -.5f; dx <0.49f; dx+=0.125)
@@ -56,6 +57,7 @@ BOOST_AUTO_TEST_CASE(mls_loop)
 
     MLSConfig mls_config;
     mls_config.updateModel = MLSConfig::SLOPE;
+//    mls_config.updateModel = MLSConfig::KALMAN;
     mls_config.gapSize = 0.05f;
     mls_config.useNegativeInformation = false;
     float R = 5.0f, r=2.05f;

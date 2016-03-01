@@ -124,6 +124,9 @@ MLSGrid::MLSGrid(
     case MLSConfig::SLOPE:
         map.reset(new MLSGrid::MLSBase::MLSGridI<SurfacePatchT<MLSConfig::SLOPE> >(num_cells_, resolution_, config));
         break;
+    case MLSConfig::KALMAN:
+        map.reset(new MLSGrid::MLSBase::MLSGridI<SurfacePatchT<MLSConfig::KALMAN> >(num_cells_, resolution_, config));
+        break;
     default:
         throw std::runtime_error("Not implemented!");
         break;

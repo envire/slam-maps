@@ -32,12 +32,8 @@ namespace envire
                 config(config)
             {}
 
-            void update(const SurfacePatch& co)
+            void update(const SurfacePatch& o)
             {
-                // make a copy of the surfacepatch as it may get updated in the merge
-                // TODO: This can only happen if negative patches are involved, otherwise this copy could be avoided
-                SurfacePatch o( co );
-
                 iterator it = begin(), it_prev=end();
                 if(it==end())
                 {
@@ -175,9 +171,9 @@ namespace envire
 
             MLSConfig config;
 
-            bool merge(SurfacePatch& p, SurfacePatch& o)
+            bool merge(SurfacePatch& p, const SurfacePatch& o)
             {
-                return p.merge(o, config.gapSize);
+                return p.merge(o, config);
             }                   
         };
 

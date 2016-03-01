@@ -11,14 +11,19 @@ namespace vizkit3d {
     class PatchesGeode : public osg::Geode
     {
     public:
-        PatchesGeode();
+        PatchesGeode(float x_res, float y_res);
+
+        void setPosition(float x, float y)
+        {
+            xp = x; yp = y;
+        }
 
         /** Draws a plane inside the box given by \c position and \c extends,
          *  using \c normal and \c mean (relative to the origin of the box)
          */
         void drawPlane(
-            const osg::Vec3& position,
-            const osg::Vec3& extends,
+            const float& z,
+            const float& height,
             const osg::Vec3& mean,
             const osg::Vec3& normal);
 
@@ -31,10 +36,9 @@ namespace vizkit3d {
             double max);
 
         void drawBox(
-            const osg::Vec3& position, 
-            const osg::Vec3& extents, 
+            const float& top,
+            const float& height,
             const osg::Vec3& c_normal );
-
 
         void setColor(const osg::Vec4& color);
         void setColorHSVA(float hue, float sat, float lum, float alpha);
@@ -60,6 +64,9 @@ namespace vizkit3d {
         osg::ref_ptr<osg::Vec3Array> var_vertices;
 
         size_t vertex_index;
+
+        float xp, yp; // position of current patch
+        float xs, ys; // grid resolution
 
         float hue;
         float sat; 

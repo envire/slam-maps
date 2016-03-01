@@ -4,8 +4,10 @@
 
 namespace vizkit3d
 {
-    PatchesGeode::PatchesGeode()
+    PatchesGeode::PatchesGeode(float x_res, float y_res)
         : vertex_index(0),
+          xp(0), yp(0),
+          xs(x_res), ys(y_res),
           hue(0.0),
           sat(1.0),
           alpha(1.0),
@@ -30,11 +32,13 @@ namespace vizkit3d
         addDrawable(geom);
     }
     void PatchesGeode::drawPlane(
-            const osg::Vec3& position,
-            const osg::Vec3& extents,
+            const float & zp,
+            const float & height,
             const osg::Vec3& mean,
             const osg::Vec3& normal)
     {
+        const osg::Vec3 position(xp, yp, zp);
+        const osg::Vec3 extents(xs*0.5f, ys*0.5f, height*0.5f);
 #ifndef NDEBUG
         // Sanity check (disabled in release mode)
         for(int i=0; i<3; ++i)
@@ -188,17 +192,17 @@ namespace vizkit3d
     }
 
     void PatchesGeode::drawBox(
-            const osg::Vec3& position, 
-            const osg::Vec3& extents, 
+            const float& top,
+            const float& height,
             const osg::Vec3& c_normal )
     {
-        const double xp = position.x();
-        const double yp = position.y();
-        const double zp = position.z();
+//        const double xp = position.x();
+//        const double yp = position.y();
+        const float zp = top - height*0.5f;
 
-        const double xs = extents.x();
-        const double ys = extents.y();
-        const double zs = extents.z();
+//        const double xs = extents.x();
+//        const double ys = extents.y();
+        const float zs = height;
 
         const osg::Vec4 h( osg::Vec4(zp,zp,zp,zp) );
         osg::Vec3 normal( c_normal );

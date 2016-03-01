@@ -18,6 +18,7 @@ BOOST_AUTO_TEST_CASE(mls_simulate_LIDAR)
 
     MLSConfig mls_config;
     mls_config.updateModel = MLSConfig::SLOPE;
+//    mls_config.updateModel = MLSConfig::KALMAN;
     mls_config.gapSize = 0.125f;
     mls_config.useNegativeInformation = true;
     MLSGrid *mls = new MLSGrid(numCells, res, mls_config);

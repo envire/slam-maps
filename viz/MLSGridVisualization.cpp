@@ -66,10 +66,12 @@ void MLSGridVisualization::updateMainNode ( osg::Node* node )
 {
     osg::Group* group = static_cast<osg::Group*>(node);    
 
-    osg::ref_ptr<PatchesGeode> geode = new PatchesGeode();
+    MLSGrid &mls = p->data;
+    Eigen::Vector2d res = mls.getGrid().getResolution();
+
+    osg::ref_ptr<PatchesGeode> geode = new PatchesGeode(res.x(), res.y());
     group->setChild( 0, geode );
 
-    MLSGrid &mls = p->data;
 
     if(cycleHeightColor)
     {
@@ -104,62 +106,60 @@ void MLSGrid::visualize(vizkit3d::PatchesGeode& geode) const
         dynamic_cast<const MLSGrid::MLSBase::MLSGridI<SurfacePatchT<MLSConfig::SLOPE> >&>(*map).visualize(geode);
         break;
     case MLSConfig::KALMAN:
-        // TODO
+        dynamic_cast<const MLSGrid::MLSBase::MLSGridI<SurfacePatchT<MLSConfig::KALMAN> >&>(*map).visualize(geode);
         break;
     default:
         throw std::runtime_error("Can't visualize unknown map type");
     }
 }
 
+namespace envire {
+
+namespace maps {
+
+
+struct PatchVisualizer
+{
+    static void visualize(vizkit3d::PatchesGeode& geode, const SurfacePatchT<MLSConfig::SLOPE>& p)
+    {
+        if( !p.isNegative() )
+        {
+            float minZ, maxZ;
+            p.getRange(minZ, maxZ);
+//                        float stdev = p.getStdev() + 1e-4f;
+            float zp= (maxZ+minZ)*0.5f;
+            float height = (maxZ - minZ) + 1e-3f;
+            osg::Vec3 mean = Vec3(p.getCenter());
+            mean.z() -= zp;
+            osg::Vec3 normal = Vec3(p.getNormal());
+            geode.drawPlane(zp, height, mean, normal);
+        }
+    }
+    static void visualize(vizkit3d::PatchesGeode& geode, const SurfacePatchT<MLSConfig::KALMAN>& p)
+    {
+        {
+            geode.drawBox(p.mean, p.height, Vec3(p.getNormal()));
+        }
+    }
+};
 
 template<class SurfacePatch>
-void envire::maps::MLSGrid::MLSBase::MLSGridI<SurfacePatch>::visualize(vizkit3d::PatchesGeode& geode) const
+void MLSGrid::MLSBase::MLSGridI<SurfacePatch>::visualize(vizkit3d::PatchesGeode& geode) const
 {
-    const envire::maps::GridMap<SPListST> &mls = grid;
-    Eigen::Vector2d res = mls.getResolution();
+    const GridMap<SPListST> &mls = grid;
     Vector2ui num_cell = mls.getNumCells();
-    const double xs = res.x();
-    const double ys = res.y();
     for (size_t x = 0; x < num_cell.x(); x++)
     {
         for (size_t y = 0; y < num_cell.y(); y++)
         {
             const SPListST &list = mls.at(x, y);
 
+            Vector3d pos;
+            mls.fromGrid(Index(x,y), pos);
+            geode.setPosition(pos.x(), pos.y());
             for (typename SPListST::const_iterator it = list.begin(); it != list.end(); it++)
             {
-
-                const SurfacePatch &p(*it);
-                Vector3d pos;
-                mls.fromGrid(Index(x,y), pos);
-                double xp = pos.x();
-                double yp = pos.y();
-
-
-                // slopes need to be handled differently
-                if( true )
-                {
-//                    if( !p.isNegative() )
-                    {
-                        float minZ, maxZ;
-                        p.getRange(minZ, maxZ);
-//                        float stdev = p.getStdev() + 1e-4f;
-                        osg::Vec3 position(xp, yp, (maxZ+minZ)*0.5f);
-                        osg::Vec3 extents(xs, ys, (maxZ - minZ) + 1e-3f);
-                        osg::Vec3 mean = Vec3(p.getCenter());
-                        mean.z() -= position.z();
-                        osg::Vec3 normal = Vec3(p.getNormal());
-                        geode.drawPlane(position, extents * 0.5f, mean, normal);
-                    }
-//                    else if (showNegative)
-//                    {
-//                        geode->setColor( negativeCellColor );
-//                        geode->drawBox(
-//                                osg::Vec3( xp, yp, p.getMean()-p.getHeight()*.5 ),
-//                                osg::Vec3( xs, ys, p.getHeight() ),
-//                                osg::Vec3(0, 0, 1.0) );
-//                    }
-                }
+                PatchVisualizer::visualize(geode, *it);
             } // for(SPList ...)
         } // for(y ...)
     } // for(x ...)
@@ -167,6 +167,10 @@ void envire::maps::MLSGrid::MLSBase::MLSGridI<SurfacePatch>::visualize(vizkit3d:
 
 }
 
+
+}  // namespace maps
+
+}  // namespace envire
 
 void MLSGridVisualization::updateDataIntern(envire::maps::MLSGrid const& value)
 {

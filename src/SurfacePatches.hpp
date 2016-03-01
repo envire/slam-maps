@@ -86,6 +86,11 @@ public:
 
     }
 
+    bool isNegative() const
+    {
+        return false; // base patch does not allow negative patches
+    }
+
 
 };
 
@@ -104,10 +109,10 @@ class SurfacePatchT;
 template<>
 class SurfacePatchT<MLSConfig::SLOPE> : public SurfacePatchBase
 {
+    typedef SurfacePatchBase Base;
     base::PlaneFitting<float> plane;
     float n;
     TYPE type;
-    typedef SurfacePatchBase Base;
 public:
     SurfacePatchT(const Eigen::Vector3f& point, const float& cov)
         : Base(point.z())
@@ -167,9 +172,9 @@ public:
         return eig.eigenvectors().col(0);
     }
 
-    bool merge(const SurfacePatchT& other, const float& gapSize = 0.0f)
+    bool merge(const SurfacePatchT& other, const MLSConfig& config)
     {
-        if(Base::merge(other, gapSize))
+        if(Base::merge(other, config.gapSize))
         {
             plane.update(other.plane);
             n+= other.n;
@@ -179,11 +184,85 @@ public:
         return false;
     }
 
-};
+}; // SurfacePatchT<MLSConfig::SLOPE>
 
 
-//        template<MLSConfig::update_model model>
-//    class SurfacePatchBase : public
+
+
+
+template<>
+class SurfacePatchT<MLSConfig::KALMAN>: public SurfacePatchBase
+{
+public:
+    typedef SurfacePatchBase Base;
+    float mean, var, height;
+
+    template <class T> static inline void kalman_update( T& mean, T& var, T m_mean, T m_var )
+    {
+        float gain = var / (var + m_var);
+        if( gain != gain )
+            gain = 0.5f; // this happens when both vars are 0.
+        mean = mean + gain * (m_mean - mean);
+        var = (1.0f-gain)*var;
+    }
+
+
+public:
+    SurfacePatchT(const Eigen::Vector3f& point, const float& cov)
+        : Base(point.z())
+        , mean(point.z()), var(cov), height(0)
+    { }
+
+    SurfacePatchT(const float& mean, const float& stdev, const float& height = 0, TYPE type_=TYPE::HORIZONTAL)
+        : Base(mean, height)
+        , mean(mean), var(stdev*stdev), height(height)
+    { }
+    bool merge(const SurfacePatchT& other, const MLSConfig& config)
+    {
+        if( !Base::merge(other, config.gapSize))
+            return false;
+
+
+        float delta_dev = std::sqrt(var + other.var);
+        if(height==0.0f && other.height == 0.0f
+                && (mean - config.thickness - delta_dev) < other.mean &&
+                (mean + config.thickness + delta_dev) > other.mean )
+        {
+            kalman_update(mean, var, other.mean, other.var);
+        }
+        else
+        {
+            height = std::max(mean, other.mean) - std::min(mean - height, other.mean - other.height);
+            if(mean < other.mean)
+            {
+                mean = other.mean;
+                var = other.var;
+            }
+        }
+
+        return true;
+    }
+    Eigen::Vector3f getCenter() const
+    {
+        Eigen::Vector3f center(0.0f, 0.0f, mean);
+        return center;
+    }
+
+    bool operator<(const SurfacePatchT& other) const
+    {
+        return mean < other.mean;
+    }
+
+    Eigen::Vector3f getNormal() const
+    {
+        return Eigen::Vector3f::UnitZ();
+    }
+
+
+
+
+}; // SurfacePatchT<MLSConfig::KALMAN>
+
 
 
 }  // namespace maps
