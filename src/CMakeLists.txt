@@ -1,4 +1,4 @@
-find_package(Boost REQUIRED COMPONENTS system filesystem)
+find_package(Boost REQUIRED COMPONENTS system filesystem serialization)
 
 find_package(CGAL REQUIRED COMPONENTS Core)
 include(${CGAL_USE_FILE})

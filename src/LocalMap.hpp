@@ -4,6 +4,11 @@
 #include <base/Eigen.hpp>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+
+#include <boost_serialization/EigenTypes.hpp>
 
 #include <string>
 
@@ -80,6 +85,18 @@ namespace envire { namespace maps
             std::string EPSG_code;
 
         private:
+            /** Grants access to boost serialization */
+            friend class boost::serialization::access;  
+
+            /** Serializes the members of this class*/
+            template <typename Archive>
+            void serialize(Archive &ar, const unsigned int version)
+            {
+                ar & BOOST_SERIALIZATION_NVP(id);
+                ar & BOOST_SERIALIZATION_NVP(offset.matrix());
+                ar & BOOST_SERIALIZATION_NVP(map_type);
+                ar & BOOST_SERIALIZATION_NVP(EPSG_code);
+            }                         
     };
 
     /**
