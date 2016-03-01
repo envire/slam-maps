@@ -22,22 +22,15 @@ BOOST_AUTO_TEST_CASE(test_grid_index)
     Index index3(Eigen::Matrix<unsigned int, 2, 1>(3, 4));
     BOOST_CHECK_EQUAL(index3.x(), 3);
     BOOST_CHECK_EQUAL(index3.y(), 4);
-    // check the "<" operator
-    BOOST_CHECK_EQUAL((index2 < Index(index2.x() + 1, index2.y() + 1)), true);  //(2,4) < (3,5)
-    BOOST_CHECK_EQUAL((index2 < Index(index2.x(), index2.y())), false);         //(2,4) < (2,4)
-    BOOST_CHECK_EQUAL((index2 < Index(index2.x(), index2.y() + 1)), false);     //(2,4) < (2,5)
-    BOOST_CHECK_EQUAL((index2 < Index(index2.x(), index2.y() - 1)), false);     //(2,4) < (2,3)
-    BOOST_CHECK_EQUAL((index2 < Index(index2.x() - 1, index2.y() + 1)), false); //(2,4) < (1,5))
-    BOOST_CHECK_EQUAL((index2 < Index(index2.x() - 1, index2.y() - 1)), false); //(2,4) < (1,3)
-    BOOST_CHECK_EQUAL((index2 < Index(0,0)), false); //(2,4) < (0,0)
 
-    // check the ">" operator
-    BOOST_CHECK_EQUAL((index2 > Index(index2.x() - 1, index2.y() - 1)), true);  //(2,4) > (1,3)
-    BOOST_CHECK_EQUAL((index2 > Index(index2.x(), index2.y())), false);         //(2,4) > (2,4)
-    BOOST_CHECK_EQUAL((index2 > Index(index2.x(), index2.y() - 1)), false);     //(2,4) > (2,3)
-    BOOST_CHECK_EQUAL((index2 > Index(index2.x(), index2.y() + 1)), false);     //(2,4) > (2,5)
-    BOOST_CHECK_EQUAL((index2 > Index(index2.x() + 1, index2.y() - 1)), false); //(2,4) > (3,3)
-    BOOST_CHECK_EQUAL((index2 > Index(index2.x() + 1, index2.y() + 1)), false); //(2,4) > (3,5)
+    // check the "<" operator: strict weak ordering
+    BOOST_CHECK_EQUAL((index2 < Index(index2.x() + 1, index2.y() + 1)), true);  //(2,4) < (3,5)
+    BOOST_CHECK_EQUAL((index2 < Index(index2.x(), index2.y() + 1)), true);      //(2,4) < (2,5)    
+    BOOST_CHECK_EQUAL((index2 < Index(index2.x(), index2.y())), false);         //(2,4) < (2,4)
+    BOOST_CHECK_EQUAL((index2 < Index(index2.x(), index2.y() - 1)), false);     //(2,4) < (2,3)
+    BOOST_CHECK_EQUAL((index2 < Index(index2.x() - 1, index2.y() + 1)), false); //(2,4) < (1,5)
+    BOOST_CHECK_EQUAL((index2 < Index(index2.x() - 1, index2.y() - 1)), false); //(2,4) < (1,3)
+    BOOST_CHECK_EQUAL((index2 < Index(0,0)), false);                            //(2,4) < (0,0)
 
     // check the "==" operator
     BOOST_CHECK_EQUAL((index2 == Index(index2.x(), index2.y())), true);         //(2,4) == (2,4)
@@ -104,11 +97,11 @@ BOOST_AUTO_TEST_CASE(test_grid_index_in_grid)
     BOOST_CHECK_EQUAL(grid.inGrid(Index(99, 199)), true);       // top right (according to 1873-2015 IEEE standard)
     BOOST_CHECK_EQUAL(grid.inGrid(Index(50, 100)), true);       // middle
     BOOST_CHECK_EQUAL(grid.inGrid(Index(100, 200)), false);     // outside
-    BOOST_CHECK_EQUAL(grid.inGrid(Index(99, 200)), false);      // outside
+    BOOST_CHECK_EQUAL(grid.inGrid(Index(99, 200)), false);     // outside
     BOOST_CHECK_EQUAL(grid.inGrid(Index(100, 199)), false);     // outside
-    BOOST_CHECK_EQUAL(grid.inGrid(Index(-1, -1)), false);       // outside
-    BOOST_CHECK_EQUAL(grid.inGrid(Index(-1, 2)), false);        // outside
-    BOOST_CHECK_EQUAL(grid.inGrid(Index(2, -1)), false);        // outside
+    BOOST_CHECK_EQUAL(grid.inGrid(Index(-1, -1)), false);     // outside
+    BOOST_CHECK_EQUAL(grid.inGrid(Index(-1, 2)), false);     // outside
+    BOOST_CHECK_EQUAL(grid.inGrid(Index(2, -1)), false);     // outside
 }
 
 BOOST_AUTO_TEST_CASE(test_grid_from_grid_without_offset)

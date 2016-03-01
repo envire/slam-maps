@@ -46,18 +46,28 @@ namespace envire { namespace maps
                 : Vector2ui(other)
             {}
 
-            /* @brief smaller than operator (element by element)
+            /** @brief lexical ordering (Strict Weak Ordering)
+             * @details
+             * Returns true if:
+             *      - index.x() < other.x()
+             *      - index.x() == other.x() && index.y() < other.y()
+             * Otherwise, return false.
              */
             bool operator<(const Index& other) const
             {
-                return (x() < other.x() && y() < other.y());
+                return (x() < other.x() 
+                        || (x() == other.x() && y() < other.y()));
             }
 
-            /* @brief bigger than operator (element by element)
+            /**
+             * @brief Check if index is inside the other.
+             * @details 
+             * Returns true if x and y of index are smaller the x and y of other
+             * @return [description]
              */
-            bool operator>(const Index& other) const
+            bool isInside(const Index& other) const
             {
-                return (x() > other.x() && y() > other.y());
+                return (x() < other.x() && y() < other.y());
             }
     };
 

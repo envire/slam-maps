@@ -47,7 +47,7 @@ bool Grid::inGrid(const Index& idx) const
 {
     // do not need to check idx against (0,0),
     // until idx is of type unsigned int
-    return idx < Index(num_cells); 
+    return idx.isInside(Index(num_cells)); 
 }
 
 bool Grid::fromGrid(const Index& idx, Vector3d& pos) const
