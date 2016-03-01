@@ -33,7 +33,7 @@ namespace envire { namespace maps
                 EPSG_code(UNKNOWN_EPSG_CODE) 
             {};
 
-            /** @brief Consturctor with parameters */
+            /** @brief Constructor with parameters */
             LocalMapData(const std::string &id, const base::Transform3d &offset,
                         const LocalMapType map_type, const std::string &EPSG_code)
                 :id(id), offset(offset), map_type(map_type), EPSG_code(EPSG_code) 
@@ -83,24 +83,43 @@ namespace envire { namespace maps
     };
 
     /**
-     * @brief Local map
+     * @brief A class with basic map information
      * @details
-     * A local map is the basic element to form a global
-     * map (set of local maps structured in a tree).
+     * A local map is the basic element to form a complex map, such as Grid.
+     * 
+     * Generally, this class is a holder for LocalMapData and was created to allow to share
+     * the LocalMapData content (especially offset transformation) among various maps instances.
+     * 
+     * All maps, which share the same content of LocalMapData, own the same identification (id),
+     * transformation of local frame (offset) and other parameters presented in LocalMapData. 
+     * Therefore, the changes down on these parameters will affected all maps. 
+     * 
+     * To create a new LocalMap:
+     *    - with its own LocalMapData content 
+     *    (s. LocalMap() and LocalMap(const LocalMap& other)) 
+     *    - share the same LocalMapData content among different LocalMap instances 
+     *    (s. LocalMap(const boost::shared_ptr<LocalMapData> &data)).
+     * 
      */
     class LocalMap
     {
         public:
             typedef boost::shared_ptr<LocalMap> Ptr;
 
+            /**
+             * @brief Default constructor to create a new LocalMapData content
+             * @details [long description]
+             * 
+             * @param r [description]
+             */
             LocalMap()
                 : data_ptr(new LocalMapData())
             {}
 
             /**
-             * @brief Consturctor to share the LocalMapData
+             * @brief Constructor to share the same LocalMapData content
              * @details 
-             * To share same content (LocalMapData) between various instance of LocalMap
+             * Use this constructor to share same content between various instance of LocalMap
              * 
              * @param data Shared pointer to LocalMapData instance
              */
@@ -109,7 +128,7 @@ namespace envire { namespace maps
             {}
 
             /**
-             * @brief Make copy without sharing the content
+             * @brief Copy LocalMap and its content of LocalMapData without sharing it
              * @details 
              * The copy instance owns a new content (LocalMapData)
              * 
