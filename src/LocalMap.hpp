@@ -82,8 +82,9 @@ namespace envire { namespace maps
         private:
     };
 
-    /**@brief LocalMap
-     * Local map with respect to a given reference frame
+    /**
+     * @brief Local map
+     * @details
      * A local map is the basic element to form a global
      * map (set of local maps structured in a tree).
      */
@@ -94,30 +95,29 @@ namespace envire { namespace maps
 
             LocalMap()
                 : data_ptr(new LocalMapData())
-            {
-            }
+            {}
 
             /**
-             * @brief [brief description]
-             * @details to share same content (LocalMapData) between various instance of LocalMap
+             * @brief Consturctor to share the LocalMapData
+             * @details 
+             * To share same content (LocalMapData) between various instance of LocalMap
              * 
-             * @param data [description]
+             * @param data Shared pointer to LocalMapData instance
              */
             LocalMap(const boost::shared_ptr<LocalMapData> &data)
                 : data_ptr(data)
-            {
-            }
+            {}
 
             /**
-             * @brief make copy without sharing the content
-             * @details the copy instance owns a new content (LocalMapData)
+             * @brief Make copy without sharing the content
+             * @details 
+             * The copy instance owns a new content (LocalMapData)
              * 
              * @param other [description]
              */
             LocalMap(const LocalMap& other)
                 : data_ptr(new LocalMapData(*(other.data_ptr.get())))
-            {
-            }
+            {}
 
             virtual ~LocalMap() {};
 
@@ -189,6 +189,7 @@ namespace envire { namespace maps
             {
                 data_ptr->offset.rotate(rotation.inverse());
             }            
+
         protected:
             boost::shared_ptr<LocalMapData> data_ptr;
     };
