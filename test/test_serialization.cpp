@@ -35,16 +35,19 @@ BOOST_AUTO_TEST_CASE(test_localmap_data_serialization)
     BOOST_CHECK(local_map_data_o.EPSG_code == local_map_data_i.EPSG_code); 
 }
 
-/*BOOST_AUTO_TEST_CASE(test_localmap_serialization)
+BOOST_AUTO_TEST_CASE(test_localmap_serialization)
 {
+    // create an instance of LocalMapData
     boost::shared_ptr<LocalMapData> local_map_data_o(new LocalMapData());
     local_map_data_o->id = "test";
     local_map_data_o->offset = 0.2 * Eigen::Matrix3d::Identity();
     local_map_data_o->map_type = GEOMETRIC_MAP;
     local_map_data_o->EPSG_code = "EPSG_code";
 
+    // create LocalMap with the LocalMapData 
     LocalMap local_map_o(local_map_data_o);
 
+    // serialize
     std::stringstream stream;
     boost::archive::polymorphic_binary_oarchive oa(stream);
     oa << local_map_o;
@@ -54,6 +57,7 @@ BOOST_AUTO_TEST_CASE(test_localmap_data_serialization)
     LocalMap local_map_i;
     (*ia) >> local_map_i; 
 
+    // the LocalMapData should be the same after the serialization
     boost::shared_ptr<LocalMapData> local_map_data_i = local_map_i.getLocalMapData();
 
     BOOST_CHECK(local_map_o.getId() == local_map_i.getId()); 
@@ -64,9 +68,11 @@ BOOST_AUTO_TEST_CASE(test_localmap_data_serialization)
 
     // WARNING: the counter is 2 or more after desirialization, 
     // this is bug in boost (1.54)
-    BOOST_CHECK(local_map_data_i.use_count() == 2); 
+    BOOST_CHECK(local_map_data_i.use_count() == 3); 
     delete ia; 
-    BOOST_CHECK(local_map_data_i.use_count() == 1);  
+    // 2: since local variable local_map_data_i and member of local_map_i points to the same
+    // LocalMapData instance
+    BOOST_CHECK(local_map_data_i.use_count() == 2);  
 }
 
 /*BOOST_AUTO_TEST_CASE(test_grid_serialization)

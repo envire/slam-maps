@@ -226,8 +226,20 @@ namespace envire { namespace maps
                 data_ptr->offset.rotate(rotation.inverse());
             }            
 
-        protected:
+        private:
             boost::shared_ptr<LocalMapData> data_ptr;
+
+            /** Grants access to boost serialization */
+            friend class boost::serialization::access;  
+
+            /** Serializes the members of this class*/
+            template <typename Archive>
+            void serialize(Archive &ar, const unsigned int version)
+            {
+                ar & BOOST_SERIALIZATION_NVP(data_ptr);
+            }                   
+
+
     };
 }}
 #endif // __ENVIRE_MAPS_LOCAL_MAP_HPP__
