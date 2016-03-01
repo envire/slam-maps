@@ -9,10 +9,7 @@
 
 namespace envire { namespace maps
 {
-    /**@brief LocalMapType
-     * The type of the LocalMap
-     */
-
+    /** @brief The type of the LocalMap */
     enum LocalMapType
     {
         UNKNOWN_MAP = -1,
@@ -23,59 +20,66 @@ namespace envire { namespace maps
     };
 
     const std::string UNKNOWN_MAP_ID = "";
-    const std::string DEFAULT_GRID_MAP_ID = "DEFAULT_GRID_MAP";
     const std::string UNKNOWN_EPSG_CODE = "NONE";
 
-    struct LocalMapData
+    class LocalMapData
     {
-        /** Grid map is the map by default **/
-        LocalMapData()
-            :id(UNKNOWN_MAP_ID),
-            offset(base::Transform3d::Identity()),
-            map_type(UNKNOWN_MAP),
-            EPSG_code(UNKNOWN_EPSG_CODE){};
+        public:
+            /** @brief Default constructor */
+            LocalMapData()
+                :id(UNKNOWN_MAP_ID),
+                offset(base::Transform3d::Identity()),
+                map_type(UNKNOWN_MAP),
+                EPSG_code(UNKNOWN_EPSG_CODE) 
+            {};
 
-        LocalMapData(const std::string &id, const base::Transform3d &offset,
-                    const LocalMapType map_type, const std::string &EPSG_code)
-            :id(id), offset(offset), map_type(map_type), EPSG_code(EPSG_code) {};
+            /** @brief Consturctor with parameters */
+            LocalMapData(const std::string &id, const base::Transform3d &offset,
+                        const LocalMapType map_type, const std::string &EPSG_code)
+                :id(id), offset(offset), map_type(map_type), EPSG_code(EPSG_code) 
+            {};
 
-        /**  string id of this local map **/
-        std::string id;
+            /** @brief String id of the local map */
+            std::string id;
 
-        /** 
-         * The map use the Cartesian coordinate system:
-         * the initial origin of the map is placed in the bottom left corner
-         * the x-axis points to the right from the the origin
-         * the y-axis points upwards from the origin
-         * 
-         * The offset along the x/y-axis is expressed in the map unit according
-         * to the unit of the map resolution
-         * 
-         * The offset represents the replacement of the local frame 
-         * with respect to the inital origin.
-         * 
-         * For the time being we use 3D transformation.
-         *
-         * The offset can also be reference as local Frame
-         **/
-        base::Transform3d offset;
+            /** 
+             * @brief Offest of the local map frame
+             * @details
+             * The map uses the Cartesian coordinate system:
+             *    - the initial origin of the map is placed in the bottom left corner
+             *    - the x-axis points to the right from the the origin
+             *    - the y-axis points upwards from the origin
+             * 
+             * The offset represents the replacement of the local frame 
+             * with respect to the inital origin.
+             * 
+             * The offsets along the x, y and z-axis (translation) are expressed in the map unit 
+             * (according to the unit used in the map resolution).
+             *
+             * The offset can also be reference as local frame
+             */
+            base::Transform3d offset;
 
-        /** map_type of this local map **/
-        LocalMapType map_type;
+            /** @brief Type of the local map (s. #LocalMapType) */
+            LocalMapType map_type;
 
-        /** EPSG_code that provides the geo-localized coordinate system **/
-        std::string EPSG_code;
+            /** 
+             * @brief EPSG_code that provides the geo-localized coordinate system 
+             * @details
+             * The EPSG code depends in the coordinate system used for the
+             * local map "NONE" in case of not geo-referenced map.
+             * Example: "EPSG::4978" for the World Geodetic System 1984 (WGS-84)
+             * Example: "EPSG::3199" Spain - Canary Islands onshore and offshore.
+             * with bounds are [-21.93W, -11.75E] and [24.6S, 11.75N] using the
+             * World Geodetic System 1984 (WGS-84) coordinate reference system
+             * (CRS).
+             * Example: "EPSG::5243" ETRS89 / LCC Germany (E-N) Bremen area with
+             * WGS084 CRS
+             * Reference: https://www.epsg-registry.org 
+             */
+            std::string EPSG_code;
 
-        /** The EPSG code depends in the coordinate system used for the
-         * local map "NONE" in case of not geo-referenced map.
-         * Example: "EPSG::4978" for the World Geodetic System 1984 (WGS-84)
-         * Example: "EPSG::3199" Spain - Canary Islands onshore and offshore.
-         * with bounds are [-21.93W, -11.75E] and [24.6S, 11.75N] using the
-         * World Geodetic System 1984 (WGS-84) coordinate reference system
-         * (CRS).
-         * Example: "EPSG::5243" ETRS89 / LCC Germany (E-N) Bremen area with
-         * WGS084 CRS
-         * Reference: https://www.epsg-registry.org **/
+        private:
     };
 
     /**@brief LocalMap
