@@ -308,6 +308,7 @@ namespace envire {namespace maps
             init();
         }
 
+    private:
         void reset(const Vector2ui &num_cells, const Eigen::Vector2d &resolution, const T& default_value)
         {
             this->num_cells = num_cells;
@@ -317,7 +318,6 @@ namespace envire {namespace maps
             this->init();
         }
 
-    private:
         T& get(Index idx)
         {
             return *(getCells().data() + idx.y() * this->num_cells.x() + idx.x());

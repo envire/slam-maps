@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(test_grid_empty)
 }
 
 
-BOOST_AUTO_TEST_CASE(test_grid_reset)
+/*BOOST_AUTO_TEST_CASE(test_grid_reset)
 {
     Vector2ui num_cells(100, 200);
     Vector2d resolution(0.1, 0.5);
@@ -64,8 +64,7 @@ BOOST_AUTO_TEST_CASE(test_grid_reset)
 
 
     delete grid;
-}
-
+}*/
 
 
 BOOST_AUTO_TEST_CASE(test_grid_copy)

@@ -104,11 +104,11 @@ BOOST_AUTO_TEST_CASE(test_grid_index_in_grid)
     BOOST_CHECK_EQUAL(grid.inGrid(Index(99, 199)), true);       // top right (according to 1873-2015 IEEE standard)
     BOOST_CHECK_EQUAL(grid.inGrid(Index(50, 100)), true);       // middle
     BOOST_CHECK_EQUAL(grid.inGrid(Index(100, 200)), false);     // outside
-    BOOST_CHECK_EQUAL(grid.inGrid(Index(99, 200)), false);     // outside
+    BOOST_CHECK_EQUAL(grid.inGrid(Index(99, 200)), false);      // outside
     BOOST_CHECK_EQUAL(grid.inGrid(Index(100, 199)), false);     // outside
-    BOOST_CHECK_EQUAL(grid.inGrid(Index(-1, -1)), false);     // outside
-    BOOST_CHECK_EQUAL(grid.inGrid(Index(-1, 2)), false);     // outside
-    BOOST_CHECK_EQUAL(grid.inGrid(Index(2, -1)), false);     // outside
+    BOOST_CHECK_EQUAL(grid.inGrid(Index(-1, -1)), false);       // outside
+    BOOST_CHECK_EQUAL(grid.inGrid(Index(-1, 2)), false);        // outside
+    BOOST_CHECK_EQUAL(grid.inGrid(Index(2, -1)), false);        // outside
 }
 
 BOOST_AUTO_TEST_CASE(test_grid_from_grid_without_offset)
