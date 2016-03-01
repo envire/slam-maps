@@ -166,6 +166,29 @@ namespace envire { namespace maps
                 return data_ptr;
             }
 
+            /**
+             * @brief Translate the map with respect to its local frame
+             * @details 
+             * In the reality the local frame will be transform by the inverse translation
+             * 
+             * @param translation [description]
+             */
+            void translate(const Eigen::Vector3d &translation)
+            {
+                data_ptr->offset.translate(-translation);
+            }
+
+            /**
+             * @brief Rotate the map with respect to its local frame
+             * @details 
+             * In the reality the local frame will be rotated by the inverse rotation
+             * 
+             * @param rotation [description]
+             */
+            void rotate(const Eigen::Quaterniond &rotation)
+            {
+                data_ptr->offset.rotate(rotation.inverse());
+            }            
         protected:
             boost::shared_ptr<LocalMapData> data_ptr;
     };
