@@ -1,5 +1,8 @@
 #include <boost/test/unit_test.hpp>
 #include "../src/MLGrid.hpp"
+#include "../src/GridStorageInterface.hpp"
+#include "../src/GridStorageAccess.hpp"
+#include "../src/GridStorageFacade.hpp"
 
 using namespace envire::maps;
 class PatchBase
@@ -28,6 +31,11 @@ class PatchBase
     double getMax() const {
         return max;
     };
+    
+    virtual void test()
+    {
+        std::cout << "Base class " << std::endl; 
+    };
 };
 
 class Patch : public PatchBase
@@ -40,11 +48,25 @@ public:
     Patch(double m, double ma) : PatchBase(m, ma)
     {
     };
+    
+    virtual void test()
+    {
+        std::cout << "Derived Class " << std::endl;
+    };
+    
     double someValue;
 };
 
 BOOST_AUTO_TEST_CASE(test_levelAccess)
 {
+    Patch p;
+    
+    PatchBase b = p;
+    
+    p.test();
+    
+    b.test();
+
     LevelList<Patch> list;
     
     LevelListAccess<PatchBase> *access = new LevelListAccessImpl<Patch, PatchBase>(&list);
@@ -53,14 +75,14 @@ BOOST_AUTO_TEST_CASE(test_levelAccess)
 
 BOOST_AUTO_TEST_CASE(test_levelAccess2)
 {
-    LevelList2<Patch, PatchBase> list;
+    DerivableLevelList<Patch, PatchBase> list;
 
     std::cout << "SuperClass " << std::endl;
     
     list.begin();
     
     std::cout << "BaseClass " << std::endl;
-    LevelList2<PatchBase, PatchBase> *listBase = &list;
+    DerivableLevelList<PatchBase, PatchBase> *listBase = &list;
     
     listBase->begin();
     
@@ -73,11 +95,49 @@ BOOST_AUTO_TEST_CASE(test_mapAccess)
 {
     GridMap<Patch> map;
 
-    GridStorageAccess<PatchBase> *test = new GridStorageAccessImpl<Patch, PatchBase>(&map);
+    GridStorageInterface<PatchBase> *test = new GridStorageAccess<Patch, PatchBase>(&map);
 
-    GridMap<PatchBase, GridStorageAccess<PatchBase> > test2(map, *test);
+    GridMap<PatchBase, GridStorageFacade<PatchBase> > test2(map, GridStorageFacade<PatchBase>(test));
     
     
+}
+
+BOOST_AUTO_TEST_CASE(test_mapAccess2)
+{
+    GridMap<DerivableLevelList<Patch, PatchBase> > map(Vector2ui(5,5), Eigen::Vector2d(0.5,0.5), DerivableLevelList<Patch, PatchBase>());
+
+    GridStorageInterface<DerivableLevelList<PatchBase, PatchBase> > *test = new GridStorageAccess<DerivableLevelList<Patch, PatchBase>, DerivableLevelList<PatchBase, PatchBase> >(&map);
+
+    GridMap<DerivableLevelList<PatchBase, PatchBase>, GridStorageFacade<DerivableLevelList<PatchBase, PatchBase> > > test2(map, GridStorageFacade<DerivableLevelList<PatchBase, PatchBase> >(test));
+    
+    Patch p(38, 50);
+    Patch p2(55, 80);
+    
+    
+    map.at(2,2).insert(p2);
+    map.at(2,2).insert(p);
+    
+    BOOST_CHECK_EQUAL(map.at(2,2).size(), 2);
+    
+    {
+    auto it = map.at(2,2).begin();
+    
+    BOOST_CHECK_EQUAL(it->getMin(), 38);
+    it++;
+    BOOST_CHECK_EQUAL(it->getMin(), 55);
+    }
+
+    
+    BOOST_CHECK_EQUAL(test2.at(2,2).size(), 2);
+    
+    {
+    auto it = test2.at(2,2).begin();
+    
+    BOOST_CHECK_EQUAL(it->getMin(), 38);
+    it++;
+    BOOST_CHECK_EQUAL(it->getMin(), 55);
+    }
+
 }
 
 BOOST_AUTO_TEST_CASE(test_base_class)
