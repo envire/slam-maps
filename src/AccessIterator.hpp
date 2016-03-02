@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdexcept>
+#include <iostream>
 
 namespace envire 
 {
@@ -10,6 +11,8 @@ namespace maps
 
 template <class T, class A = std::allocator<T> >
 class AccessIterator { 
+protected:
+    AccessIterator *impl;
 public:
     typedef typename A::difference_type difference_type;
     typedef typename A::value_type value_type;
@@ -17,41 +20,51 @@ public:
     typedef typename A::pointer pointer;
     typedef std::forward_iterator_tag iterator_category;
 
-    AccessIterator() {};
-    AccessIterator(const AccessIterator&) {};
+    AccessIterator(AccessIterator *impl) : impl(impl) {};
+    AccessIterator(const AccessIterator &it)  : impl(it.impl) {};
     virtual ~AccessIterator() {};
 
-    virtual AccessIterator& operator=(const AccessIterator&) 
+    virtual AccessIterator& operator=(const AccessIterator &it) 
     {
-        throw std::runtime_error("Full virtual method called");
+        impl = it.impl;
+        return impl->operator=(it);
     };
     
-    virtual bool operator==(const AccessIterator&)
+    virtual bool operator==(const AccessIterator &it)
     {
-        throw std::runtime_error("Full virtual method called");
+        return impl->operator==(it);
     };
-    virtual bool operator!=(const AccessIterator&)
+
+    virtual bool operator!=(const AccessIterator &it)
     {
-        throw std::runtime_error("Full virtual method called");
+        return impl->operator!=(it);
     };
 
     virtual AccessIterator& operator++()
     {
-        throw std::runtime_error("Full virtual method called");
+        return impl->operator++();        
+    };
+
+    virtual AccessIterator operator++(int i)
+    {
+        return impl->operator++(i);
     };
 
     virtual reference operator*() const
     {
-        throw std::runtime_error("Full virtual method called");
+        return impl->operator*();
     };
+
     virtual pointer operator->() const
     {
-        throw std::runtime_error("Full virtual method called");
+        return impl->operator->();
     };
 };
 
 template <class T, class A = std::allocator<T> >
 class ConstAccessIterator { 
+protected:
+    ConstAccessIterator *impl;
 public:
     typedef typename A::difference_type difference_type;
     typedef const typename A::value_type value_type;
@@ -59,50 +72,69 @@ public:
     typedef typename A::const_pointer pointer;
     typedef std::forward_iterator_tag iterator_category;
 
-    ConstAccessIterator() {};
-    ConstAccessIterator(const ConstAccessIterator&) {};
+    ConstAccessIterator(ConstAccessIterator *impl) : impl(impl) {
+        std::cout << "Construction" << std::endl;
+    };
+    ConstAccessIterator(const ConstAccessIterator &it)  : impl(it.impl){
+        std::cout << "Copy by reference impl p is " << it.impl << " own " << impl << std::endl;
+    };
     virtual ~ConstAccessIterator() {};
 
-    virtual ConstAccessIterator& operator=(const ConstAccessIterator&) 
+    virtual ConstAccessIterator& operator=(const ConstAccessIterator &it) 
     {
-        throw std::runtime_error("Full virtual method called");
+        std::cout << "Copy by equal" << std::endl;
+        impl = it.impl;
+        return impl->operator=(it);
     };
     
-    virtual bool operator==(const ConstAccessIterator&)
+    virtual bool operator==(const ConstAccessIterator &it)
     {
-        throw std::runtime_error("Full virtual method called");
+        return impl->operator==(it);
     };
-    virtual bool operator!=(const ConstAccessIterator&)
+    
+    virtual bool operator!=(const ConstAccessIterator &it)
     {
-        throw std::runtime_error("Full virtual method called");
+        return impl->operator!=(it);
     };
 
     virtual ConstAccessIterator& operator++()
     {
-        throw std::runtime_error("Full virtual method called");
+        return impl->operator++();
+    };
+
+    virtual ConstAccessIterator operator++(int i)
+    {
+        return impl->operator++(i);
     };
 
     virtual reference operator*() const
     {
-        throw std::runtime_error("Full virtual method called");
+        return impl->operator*();
     };
+    
     virtual pointer operator->() const
     {
-        throw std::runtime_error("Full virtual method called");
+        return impl->operator->();
     };
 };
 
-template <class T, class TBase, class Container, class OwnBase>
+template <class T, class TBase, class Iterator, class OwnBase>
 class AccessIteratorImplBase : public OwnBase
 { 
     protected:
         typedef OwnBase baseIt;
-        typename Container::iterator it;
-    public:
-        AccessIteratorImplBase(typename Container::iterator it) : it(it)
+        Iterator it;
+        AccessIteratorImplBase() : OwnBase(nullptr)
         {
         };
-        AccessIteratorImplBase(const AccessIteratorImplBase&) {};
+    public:
+        AccessIteratorImplBase(Iterator it) : OwnBase(new AccessIteratorImplBase())
+        {
+            static_cast<AccessIteratorImplBase *>(OwnBase::impl)->it = it;
+        };
+        AccessIteratorImplBase(const AccessIteratorImplBase &it): OwnBase(it), it(it.it) {
+            std::cout << "Copy by Reference ImplBase" << std::endl;
+        };
         virtual ~AccessIteratorImplBase() {};
 
         virtual baseIt& operator=(const baseIt &other)
@@ -126,7 +158,12 @@ class AccessIteratorImplBase : public OwnBase
             it++;
             return *this;
         };
-
+        
+        virtual baseIt operator++(int) {
+            ++it;
+            return *this;
+        }
+        
         virtual typename baseIt::reference operator*() const
         {
             return *static_cast<typename OwnBase::value_type *>(&(*it));
@@ -139,21 +176,21 @@ class AccessIteratorImplBase : public OwnBase
 };
 
 template <class T, class TBase, class Container>
-class AccessIteratorImpl : public AccessIteratorImplBase<T, TBase, Container, AccessIterator<TBase> >
+class AccessIteratorImpl : public AccessIteratorImplBase<T, TBase, typename Container::iterator, AccessIterator<TBase> >
 {
 public:
     AccessIteratorImpl(typename Container::iterator it) : 
-        AccessIteratorImplBase<T, TBase, Container, AccessIterator<TBase> >(it)
+        AccessIteratorImplBase<T, TBase, typename Container::iterator, AccessIterator<TBase> >(it)
     {
     };
 };
 
 template <class T, class TBase, class Container>
-class ConstAccessIteratorImpl : public AccessIteratorImplBase<T, TBase, Container, ConstAccessIterator<TBase> >
+class ConstAccessIteratorImpl : public AccessIteratorImplBase<T, TBase, typename Container::const_iterator, ConstAccessIterator<TBase> >
 {
 public:
     ConstAccessIteratorImpl(typename Container::const_iterator it) : 
-        AccessIteratorImplBase<T, TBase, Container, ConstAccessIterator<TBase> >(it)
+        AccessIteratorImplBase<T, TBase, typename Container::const_iterator, ConstAccessIterator<TBase> >(it)
     {
     };
     
