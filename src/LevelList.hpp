@@ -21,18 +21,8 @@ public:
     
 };
 
-// template <class S>
-// class LevelList : public std::multiset<S>
-// {
-// public:
-//     LevelList()
-//     {
-//     };
-//     
-// };
-
 template <class S, class SBase>
-class LevelList2 : public LevelList2<SBase, SBase>, public std::multiset<S>
+class DerivableLevelList : public DerivableLevelList<SBase, SBase>, public std::multiset<S>
 {
 protected:
     virtual ConstAccessIterator<SBase> getBegin()
@@ -45,27 +35,37 @@ protected:
         return ConstAccessIteratorImpl<S, SBase, std::multiset<S> >(std::multiset<S>::end());
     };
     
+    virtual size_t getSize() const
+    {
+        return std::multiset<S>::size();
+    };
 public:
     using std::multiset<S>::begin;
+    using std::multiset<S>::end;
+
+    using std::multiset<S>::find;
     
-    LevelList2()
+    using std::multiset<S>::size;
+    
+    DerivableLevelList()
     {
     };
     
 };
 
 template <class S>
-class LevelList2<S, S>
+class DerivableLevelList<S, S>
 {
 protected:
     virtual ConstAccessIterator<S> getBegin() = 0;
     virtual ConstAccessIterator<S> getEnd() = 0;
+    virtual size_t getSize() const = 0;
     
 public:
     
     typedef ConstAccessIterator<S> iterator;
     
-    LevelList2()
+    DerivableLevelList()
     {
         std::cout << "FOO Spec " << std::endl;
     };
@@ -80,6 +80,10 @@ public:
         return getEnd();
     };
 
+    size_t size() const
+    {
+        return getSize();
+    };
     
 };
 
