@@ -20,11 +20,13 @@ public:
     AccessIteratorInterface(){};
     virtual ~AccessIteratorInterface() {};
 
+    virtual AccessIteratorInterface *getNewInstace() const = 0;
+    
     virtual AccessIteratorInterface& operator=(const AccessIteratorInterface &it) = 0;
     
-    virtual bool operator==(const AccessIteratorInterface &it) = 0;
+    virtual bool operator==(const AccessIteratorInterface &it) const = 0;
 
-    virtual bool operator!=(const AccessIteratorInterface &it) = 0;
+    virtual bool operator!=(const AccessIteratorInterface &it) const = 0;
 
     virtual void operator++() = 0;
 
@@ -47,185 +49,219 @@ public:
     typedef T* pointer;
     typedef std::forward_iterator_tag iterator_category;
 
-    AccessIterator(AccessIteratorInterface<T> *impl) : impl(impl) {};
-    AccessIterator(const AccessIterator &it)  : impl(it.impl) {};
-    virtual ~AccessIterator() {};
+    AccessIterator(const AccessIteratorInterface<T> &impl) : impl(impl.getNewInstace()) {};
+    
+    AccessIterator(const AccessIterator &it)  : impl(it.impl->getNewInstace()) {};
+    ~AccessIterator() {
+        delete impl;
+    };
 
-    virtual AccessIterator& operator=(const AccessIterator &it) 
+    AccessIterator& operator=(const AccessIterator &it) 
     {
-        impl = it.impl;
-        impl->operator=(it);
+        *impl = it.*impl;
         return *this;
     };
     
-    virtual bool operator==(const AccessIterator &it)
+    bool operator==(const AccessIterator &it)
     {
         return impl->operator==(it);
     };
 
-    virtual bool operator!=(const AccessIterator &it)
+    bool operator!=(const AccessIterator &it)
     {
         return impl->operator!=(it);
     };
 
-    virtual AccessIterator& operator++()
+    AccessIterator& operator++()
     {
         impl->operator++();
         return *this;
     };
 
-    virtual AccessIterator operator++(int i)
+    AccessIterator operator++(int i)
     {
         impl->operator++(i);
         return *this;
     };
 
-    virtual reference operator*() const
+    reference operator*() const
     {
         return impl->operator*();
     };
 
-    virtual pointer operator->() const
+    pointer operator->() const
     {
         return impl->operator->();
     };
 };
 
-
-
-template <class T, class A = std::allocator<T> >
-class ConstAccessIterator { 
-protected:
-    ConstAccessIterator *impl;
+template <class T>
+class ConstAccessIteratorInterface { 
 public:
-    typedef typename A::difference_type difference_type;
-    typedef const typename A::value_type value_type;
-    typedef typename A::const_reference reference;
-    typedef typename A::const_pointer pointer;
+    typedef std::ptrdiff_t difference_type;
+    typedef const T value_type;
+    typedef const T & reference;
+    typedef const T * pointer;
     typedef std::forward_iterator_tag iterator_category;
 
-    ConstAccessIterator(ConstAccessIterator *impl) : impl(impl) {
-        std::cout << "Construction" << std::endl;
-    };
-    ConstAccessIterator(const ConstAccessIterator &it)  : impl(it.impl){
-        std::cout << "Copy by reference impl p is " << it.impl << " own " << impl << std::endl;
-    };
-    virtual ~ConstAccessIterator() {};
-
-    virtual ConstAccessIterator& operator=(const ConstAccessIterator &it) 
-    {
-        std::cout << "Copy by equal" << std::endl;
-        impl = it.impl;
-        return impl->operator=(it);
+    ConstAccessIteratorInterface() {
     };
     
-    virtual bool operator==(const ConstAccessIterator &it)
+    ConstAccessIteratorInterface(const ConstAccessIteratorInterface &it) {
+    };
+    
+    virtual ~ConstAccessIteratorInterface() {};
+
+    virtual ConstAccessIteratorInterface *getNewInstace() const = 0;
+
+    virtual ConstAccessIteratorInterface& operator=(const ConstAccessIteratorInterface &it) = 0;
+    
+    virtual bool operator==(const ConstAccessIteratorInterface &it) const = 0;
+    
+    virtual bool operator!=(const ConstAccessIteratorInterface &it) const = 0;
+
+    virtual void operator++() = 0;
+
+    virtual void operator++(int i) = 0;
+
+    virtual reference operator*() const = 0;
+    
+    virtual pointer operator->() const = 0;
+};
+
+template <class T>
+class ConstAccessIterator { 
+protected:
+    ConstAccessIteratorInterface<T> *impl;
+public:
+    typedef std::ptrdiff_t difference_type;
+    typedef const T value_type;
+    typedef const T & reference;
+    typedef const T * pointer;
+    typedef std::forward_iterator_tag iterator_category;
+
+    ConstAccessIterator(const ConstAccessIteratorInterface<T> &impl) : impl(impl.getNewInstace()) {
+    };
+    
+    ConstAccessIterator(const ConstAccessIterator &it)  : impl(it.impl->getNewInstace()){
+    };
+    
+    ~ConstAccessIterator() {
+        delete impl;
+    };
+
+    ConstAccessIterator& operator=(const ConstAccessIterator &it) 
+    {
+        *impl = *it.impl;
+        return *this;
+    };
+    
+    bool operator==(const ConstAccessIterator &it)
     {
         return impl->operator==(it);
     };
     
-    virtual bool operator!=(const ConstAccessIterator &it)
+    bool operator!=(const ConstAccessIterator &it)
     {
         return impl->operator!=(it);
     };
 
-    virtual ConstAccessIterator& operator++()
+    ConstAccessIterator& operator++()
     {
-        return impl->operator++();
+        impl->operator++();
+        return *this;
     };
 
-    virtual ConstAccessIterator operator++(int i)
+    ConstAccessIterator operator++(int i)
     {
-        return impl->operator++(i);
+        impl->operator++(i);
+        return *this;
     };
 
-    virtual reference operator*() const
+    reference operator*() const
     {
         return impl->operator*();
     };
     
-    virtual pointer operator->() const
+    pointer operator->() const
     {
         return impl->operator->();
     };
 };
 
-template <class T, class TBase, class Iterator, class OwnBase>
-class AccessIteratorImplBase : public OwnBase
+template <class T, class TBase, class Iterator, class Interface>
+class AccessIteratorInterfaceImplBase : public Interface
 { 
     protected:
-        typedef OwnBase baseIt;
+        typedef Interface baseIt;
         Iterator it;
-        AccessIteratorImplBase() : OwnBase(nullptr)
-        {
-        };
     public:
-        AccessIteratorImplBase(Iterator it) : OwnBase(new AccessIteratorImplBase())
+        AccessIteratorInterfaceImplBase(const Iterator &it) : it(it)
         {
-            static_cast<AccessIteratorImplBase *>(OwnBase::impl)->it = it;
         };
-        AccessIteratorImplBase(const AccessIteratorImplBase &it): OwnBase(it), it(it.it) {
-            std::cout << "Copy by Reference ImplBase" << std::endl;
+        
+        AccessIteratorInterfaceImplBase(const AccessIteratorInterfaceImplBase &it): it(it.it) {
         };
-        virtual ~AccessIteratorImplBase() {};
+        
+        virtual ~AccessIteratorInterfaceImplBase() {};
 
+        virtual Interface *getNewInstace() const
+        {
+            return new AccessIteratorInterfaceImplBase<T, TBase, Iterator, Interface>(it);
+        };
+        
         virtual baseIt& operator=(const baseIt &other)
         {
-            it = static_cast<const AccessIteratorImplBase &>(other).it;
+            it = static_cast<const AccessIteratorInterfaceImplBase &>(other).it;
             return *this;
         };
         
         virtual bool operator==(const baseIt &other) const
         {
-            return it == static_cast<const AccessIteratorImplBase &>(other).it;
+            return it == static_cast<const AccessIteratorInterfaceImplBase &>(other).it;
         };
         
         virtual bool operator!=(const baseIt &other) const
         {
-            return it != static_cast<const AccessIteratorImplBase &>(other).it;
+            return it != static_cast<const AccessIteratorInterfaceImplBase &>(other).it;
         };
 
-        virtual baseIt& operator++()
+        virtual void operator++()
         {
             it++;
-            return *this;
         };
         
-        virtual baseIt operator++(int) {
+        virtual void operator++(int) {
             ++it;
-            return *this;
         }
         
         virtual typename baseIt::reference operator*() const
         {
-            return *static_cast<typename OwnBase::value_type *>(&(*it));
+            return *static_cast<typename Interface::value_type *>(&(*it));
         };
         
         virtual typename baseIt::pointer operator->() const
         {
-            return static_cast<typename OwnBase::value_type *>(it.operator->());
+            return static_cast<typename Interface::value_type *>(it.operator->());
         };
 };
 
 template <class T, class TBase, class Container>
-class AccessIteratorImpl : public AccessIteratorImplBase<T, TBase, typename Container::iterator, AccessIterator<TBase> >
+class AccessIteratorImpl : public AccessIterator<TBase>
 {
 public:
-    AccessIteratorImpl(typename Container::iterator it) : 
-        AccessIteratorImplBase<T, TBase, typename Container::iterator, AccessIterator<TBase> >(it)
+    AccessIteratorImpl(const typename Container::iterator &it) : AccessIterator<TBase>(AccessIteratorInterfaceImplBase<T, TBase, typename Container::iterator, AccessIteratorInterface<TBase> >(it))
     {
     };
 };
 
 template <class T, class TBase, class Container>
-class ConstAccessIteratorImpl : public AccessIteratorImplBase<T, TBase, typename Container::const_iterator, ConstAccessIterator<TBase> >
+class ConstAccessIteratorImpl : public ConstAccessIterator<TBase>
 {
 public:
-    ConstAccessIteratorImpl(typename Container::const_iterator it) : 
-        AccessIteratorImplBase<T, TBase, typename Container::const_iterator, ConstAccessIterator<TBase> >(it)
+    ConstAccessIteratorImpl(const typename Container::const_iterator &it) : ConstAccessIterator<TBase>(AccessIteratorInterfaceImplBase<T, TBase, typename Container::const_iterator, ConstAccessIteratorInterface<TBase> >(it))
     {
     };
-    
 };
 
 }
