@@ -8,26 +8,54 @@ namespace envire
 namespace maps 
 {
 
-
-template <class T, class A = std::allocator<T> >
-class AccessIterator { 
-protected:
-    AccessIterator *impl;
+template <class T>
+class AccessIteratorInterface { 
 public:
-    typedef typename A::difference_type difference_type;
-    typedef typename A::value_type value_type;
-    typedef typename A::reference reference;
-    typedef typename A::pointer pointer;
+    typedef std::ptrdiff_t difference_type;
+    typedef T value_type;
+    typedef T& reference;
+    typedef T* pointer;
     typedef std::forward_iterator_tag iterator_category;
 
-    AccessIterator(AccessIterator *impl) : impl(impl) {};
+    AccessIteratorInterface(){};
+    virtual ~AccessIteratorInterface() {};
+
+    virtual AccessIteratorInterface& operator=(const AccessIteratorInterface &it) = 0;
+    
+    virtual bool operator==(const AccessIteratorInterface &it) = 0;
+
+    virtual bool operator!=(const AccessIteratorInterface &it) = 0;
+
+    virtual void operator++() = 0;
+
+    virtual void operator++(int i) = 0;
+
+    virtual T &operator*() const = 0;
+
+    virtual T *operator->() const = 0;
+};
+
+
+template <class T>
+class AccessIterator { 
+protected:
+    AccessIteratorInterface<T> *impl;
+public:
+    typedef std::ptrdiff_t difference_type;
+    typedef T value_type;
+    typedef T& reference;
+    typedef T* pointer;
+    typedef std::forward_iterator_tag iterator_category;
+
+    AccessIterator(AccessIteratorInterface<T> *impl) : impl(impl) {};
     AccessIterator(const AccessIterator &it)  : impl(it.impl) {};
     virtual ~AccessIterator() {};
 
     virtual AccessIterator& operator=(const AccessIterator &it) 
     {
         impl = it.impl;
-        return impl->operator=(it);
+        impl->operator=(it);
+        return *this;
     };
     
     virtual bool operator==(const AccessIterator &it)
@@ -42,12 +70,14 @@ public:
 
     virtual AccessIterator& operator++()
     {
-        return impl->operator++();        
+        impl->operator++();
+        return *this;
     };
 
     virtual AccessIterator operator++(int i)
     {
-        return impl->operator++(i);
+        impl->operator++(i);
+        return *this;
     };
 
     virtual reference operator*() const
@@ -60,6 +90,8 @@ public:
         return impl->operator->();
     };
 };
+
+
 
 template <class T, class A = std::allocator<T> >
 class ConstAccessIterator { 
