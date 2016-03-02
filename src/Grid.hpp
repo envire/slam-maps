@@ -46,7 +46,7 @@ namespace envire { namespace maps
                 : Vector2ui(other)
             {}
 
-            /** @brief lexical ordering (Strict Weak Ordering)
+            /** @brief Lexicographical ordering (Strict Total Ordering)
              * @details
              * Returns true if:
              *      - index.x() < other.x()
