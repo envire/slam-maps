@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(test_levelAccess2)
     list.begin();
     
     std::cout << "BaseClass " << std::endl;
-    DerivableLevelList<PatchBase, PatchBase> *listBase = &list;
+    DerivableLevelList<PatchBase> *listBase = &list;
     
     listBase->begin();
     

@@ -10,18 +10,50 @@ namespace envire
 {
 namespace maps 
 {
-
+template <class _Tp>
+struct myCmp : public std::binary_function<_Tp, _Tp, bool>
+{
+    bool
+    operator()(const _Tp& __x, const _Tp& __y) const
+    { return *__x < *__y; }
+};
+    
 template <class S>
 class LevelList : public std::multiset<S>
 {
 public:
     LevelList()
     {
+    };    
+};
+
+template <class S>
+class LevelList<S *> : public std::multiset<S *, myCmp<S *>>
+{
+public:
+    LevelList()
+    {
+    };
+    
+    
+};
+
+template <class T>
+class LevelListAccess
+{
+public:
+
+    
+    virtual ConstAccessIterator<T> begin() = 0;
+    virtual ConstAccessIterator<T> end() = 0;
+    
+    LevelListAccess()
+    {
     };
     
 };
 
-template <class S, class SBase>
+template <class S, class SBase = S>
 class DerivableLevelList : public DerivableLevelList<SBase, SBase>, public std::multiset<S>
 {
 protected:
@@ -50,6 +82,10 @@ public:
     DerivableLevelList()
     {
     };
+
+    virtual ~DerivableLevelList()
+    {
+    };
     
 };
 
@@ -67,12 +103,10 @@ public:
     
     DerivableLevelList()
     {
-        std::cout << "FOO Spec " << std::endl;
     };
     
     iterator begin()
     {
-        std::cout << "Base Class" << std::endl;
         return getBegin();
     };
     iterator end()
@@ -90,39 +124,6 @@ public:
 
 
 
-template <class _Tp>
-struct myCmp : public std::binary_function<_Tp, _Tp, bool>
-{
-    bool
-    operator()(const _Tp& __x, const _Tp& __y) const
-    { return *__x < *__y; }
-};
-
-template <class S>
-class LevelList<S *> : public std::multiset<S *, myCmp<S *>>
-{
-public:
-    LevelList()
-    {
-    };
-    
-    
-};
-
-template <class T>
-class LevelListAccess
-{
-public:
-
-    
-    virtual ConstAccessIterator<T> begin() = 0;
-    virtual ConstAccessIterator<T> end() = 0;
-    
-    LevelListAccess()
-    {
-    };
-    
-};
 
 template <class T, class TBase>
 class LevelListAccessImpl : public LevelListAccess<TBase>
