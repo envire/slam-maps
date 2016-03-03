@@ -26,13 +26,13 @@ bool compare_default_value(const double &value1, const double &value2, const dou
 BOOST_AUTO_TEST_CASE(test_grid_empty)
 {
     GridMap<double> *grid = new GridMap<double>();
-
+    
     // if the grid has size of (0,0)
     BOOST_CHECK_THROW(grid->at(Index(0,0)), std::exception);
     BOOST_CHECK_THROW(grid->getMax(), std::exception);
     BOOST_CHECK_THROW(grid->getMin(), std::exception);
     BOOST_CHECK_THROW(grid->clear(), std::exception);
-    BOOST_CHECK_THROW(grid->moveBy(Eigen::Vector2i(0,0)), std::exception);
+    BOOST_CHECK_THROW(grid->moveBy(Index(0,0)), std::exception);
 
     delete grid;
 }

@@ -10,6 +10,10 @@ rock_testsuite(test_gridmap suite.cpp
    test_GridMap.cpp
    DEPS envire_maps)   
 
+rock_testsuite(test_mlGrid suite.cpp
+   test_MLGrid.cpp
+   DEPS envire_maps)     
+
 rock_testsuite(test_multilayergridmap suite.cpp
    test_MultilayerGridMap.cpp
    DEPS envire_maps)     
@@ -22,9 +26,9 @@ rock_testsuite(test_list suite.cpp
     test_List.cpp
     DEPS envire_maps)   
 
-rock_testsuite(test_sp_list suite.cpp
-   test_SPList.cpp
-   DEPS envire_maps)
+#rock_testsuite(test_sp_list suite.cpp
+#   test_SPList.cpp
+#   DEPS envire_maps)
 
 rock_testsuite(test_generate_points suite.cpp
    test_generate_points.cpp

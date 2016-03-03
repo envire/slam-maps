@@ -12,23 +12,28 @@ namespace envire
 {
     namespace maps 
     {
+        template<class SurfacePatch>
         class SPList : public List<SurfacePatch> 
         {
         public:
-            typedef typename List<SurfacePatch>::Holder::iterator iterator;
-            typedef typename List<SurfacePatch>::Holder::const_iterator const_iterator;
+            typedef List<SurfacePatch> Base;
+            using Base::begin;
+            using Base::end;
+            using Base::insertTail;
+            using Base::insertHead;
+            using Base::erase;
+            using Base::insert;
+
+            typedef typename Base::Holder::iterator iterator;
+            typedef typename Base::Holder::const_iterator const_iterator;
 
             SPList(MLSConfig config = MLSConfig()) 
                 : List<SurfacePatch>(),
                 config(config)
             {}
 
-            void update(const SurfacePatch& co)
+            void update(const SurfacePatch& o)
             {
-                // make a copy of the surfacepatch as it may get updated in the merge
-                // TODO: This can only happen if negative patches are involved, otherwise this copy could be avoided
-                SurfacePatch o( co );
-
                 iterator it = begin(), it_prev=end();
                 if(it==end())
                 {
@@ -76,6 +81,7 @@ namespace envire
                 }
 
             }   
+#if 0
 
             /** Finds a surface patch at \c (position.x, position.y) that matches
              * the Z information contained in \c patch (patch is used to get mean
@@ -96,10 +102,10 @@ namespace envire
                 return getPatchByZ(tmp, sigma_threshold, ignore_negative);
             }            
 
-            bool isCovered(double zPos, double zStdev) const
+            bool isCovered(double zPos, double zStdev, double gapSize = 0.0) const
             {
                 const SurfacePatch tmp(zPos, zStdev);
-                return getPatchByZ(tmp)->isCovered(tmp);
+                return getPatchByZ(tmp)->isCovered(tmp, gapSize);
             }
         private:
             template<class It>
@@ -131,6 +137,16 @@ namespace envire
             {
                 return getPatchByZ(begin(), end(), patch, sigma_threshold, ignore_negative);
             }
+#else
+            bool isCovered(const float zPos, const float gapSize = 0.0) const
+            {
+                for(const_iterator it = begin(); it!= end(); ++it)
+                {
+                    if(it->isCovered(zPos, gapSize)) return true;
+                }
+                return false;
+            }
+#endif
 
             std::pair<iterator, double> getNearestPatch(const SurfacePatch& p)
             {
@@ -155,7 +171,7 @@ namespace envire
 
             MLSConfig config;
 
-            bool merge(SurfacePatch& p, SurfacePatch& o)
+            bool merge(SurfacePatch& p, const SurfacePatch& o)
             {
                 return p.merge(o, config);
             }                   

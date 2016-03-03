@@ -40,7 +40,7 @@ const Vector2d& Grid::getResolution() const
 
 Vector2d Grid::getSize() const
 {
-    return resolution.array() * num_cells.cast<double>().array();
+    return resolution.array() * getNumCells().cast<double>().array();
 }
 
 bool Grid::inGrid(const Index& idx) const

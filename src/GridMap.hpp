@@ -1,7 +1,7 @@
-#ifndef __ENVIRE_MAPS_GRID_MAP_HPP__
-#define __ENVIRE_MAPS_GRID_MAP_HPP__
+#pragma once
 
-#include "Grid.hpp"
+#include "GridStorage.hpp"
+// #include "Grid.hpp"
 
 /** std **/
 #include <iostream>
@@ -17,36 +17,35 @@
 #include <boost/multi_array.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
 
+
 namespace envire {namespace maps
 {
-
     /**@brief GridMap class IEEE 1873 standard
      * This map is a Grid structure for a raster metric (Cartesian) map
      * This map offers a template class for all maps that are regular grids
      */
-    template <typename T>
-    class GridMap: public Grid
+    template <typename T, typename R = GridStorage<T> >
+    class GridMap: public Grid, public R
     {
 
-    public:
-        typedef boost::shared_ptr< GridMap<T> > Ptr;
-        typedef boost::multi_array<T, 2> GridCell;
-
-    private:
-        /** default value type **/
-        T default_value;
-
-        /** Store the actual content of the cells of the grid **/
-        GridCell* cells;
+    protected:
 
     public:
-
         GridMap() 
-            : Grid(), 
-              cells(new GridCell())
+            : Grid()
         {
         }
 
+        GridMap(const Grid& oGrid, R oStorage)
+            : Grid(oGrid), R(oStorage)
+        {
+        }
+
+        GridMap(const GridMap& other)
+            : Grid(other), R(other)
+        {
+        }
+        
         /** @brief Constructor of the abstract GridMap class
          *
          * Defines the extends and positioning of the grid. The grid is assumed
@@ -77,8 +76,7 @@ namespace envire {namespace maps
                 const Eigen::Vector2d &resolution,
                 const T& default_value)
             : Grid(num_cells, resolution),
-              default_value(default_value),
-              cells(new GridCell())
+              R(num_cells, default_value)
         {
         }
 
@@ -87,81 +85,34 @@ namespace envire {namespace maps
                 const T& default_value,
                 const boost::shared_ptr<LocalMapData> &data)
             : Grid(num_cells, resolution, data),
-              default_value(default_value),
-              cells(new GridCell())
+              R(num_cells, default_value)
         {}
-
-        GridMap(const GridMap& other)
-            : Grid(other),
-              default_value(other.default_value)
-        {
-            /** Get the cells **/
-            this->cells = new GridCell(*(other.cells));
-        }
 
         /** @brief default destructor
          */
         ~GridMap()
         {
-            delete cells;
         }
 
     public:
-        /********************************************/
-        /** GridMap method to operate with the map **/
-        /********************************************/
-
-        const T& getDefaultValue() const
-        {
-            return default_value;
-        }
-
         const T& at(const Vector3d& pos) const
         {
             Index idx;
-            if (!toGrid(pos, idx))
+            if (!this->toGrid(pos, idx))
                 throw std::runtime_error("Provided position is out of the grid.");
-            return get(idx);
+            return at(idx);
         }
 
         T& at(const Vector3d& pos)
         {
             Index idx;
-            if (!toGrid(pos, idx))
+            if (!this->toGrid(pos, idx))
                 throw std::runtime_error("Provided position is out of the grid");
-            return get(idx);
+            return at(idx);
         }
 
-        const T& at(Index idx) const
-        {
-            if (!inGrid(idx))
-                throw std::runtime_error("Provided index is out of the grid");
-            return get(idx);
-        }
-
-        T& at(Index idx)
-        {
-            if (!inGrid(idx))
-                throw std::runtime_error("Provided index is out of the grid");
-            return get(idx);
-        }
-
-        const T& at(size_t x, size_t y) const
-        {
-            Index idx(x, y);
-            if (!inGrid(idx))
-                throw std::runtime_error("Provided index is out of the grid");
-            return get(idx);
-        }
-
-        T& at(size_t x, size_t y)
-        {
-            Index idx(x, y);
-            if (!inGrid(idx))
-                throw std::runtime_error("Provided index is out of the grid");
-            return get(idx);
-        }
-
+        using R::at;
+        
         /**
          * @brief [brief description]
          * @details enable this function only for arithmetic types (integral and floating types)
@@ -175,36 +126,45 @@ namespace envire {namespace maps
         const typename std::enable_if<std::is_arithmetic<Q>::value, Q>::type&
         getMax(const bool include_default_value = true) const
         {
-            auto first = this->getCells().origin();
-            auto last = this->getCells().origin() + this->getCells().num_elements();
-
+            Vector2ui numCells(getNumCells());
+            
+            std::cout << "Num Cells is " << numCells.transpose() << std::endl;
+            if(numCells == Vector2ui(0,0))
+                throw std::runtime_error("Tried to compute max on empty map");
+            
+            auto it = this->begin();
+            auto endIt = this->end();
+            
+            const Q *first = &(*it);
+            const Q *last = &(*(this->end()));
+            
+            
             /** Include the default value as a possible max value to return **/
             if (include_default_value)
             {
-                return *(std::max_element(first, last));
+                return *std::max_element(this->begin(), this->end());
             }
             else
             {
-                /** Exclude the default value as a possible max value to return **/
+                const Q *largest = first;
 
-                if (first==last) return *last;
-
-                auto largest = first;
-
-                while (++first != last)
+                while (it != endIt)
                 {
+                    const Q *curElem = &(*it);
+                    
                     if(!this->isDefault(*largest))
                     {
-                        if ((*largest < *first)&&(!this->isDefault(*first)))
+                        if ((*largest < *curElem)&&(!this->isDefault(*curElem)))
                         {
-                            largest = first;
+                            largest = curElem;
                         }
                     }
                     else
                     {
-                        if (!this->isDefault(*first))
-                            largest = first;
+                        if (!this->isDefault(*curElem))
+                            largest = curElem;
                     }
+                    it++;
                 }
                 return *largest;
             }
@@ -223,149 +183,64 @@ namespace envire {namespace maps
         const typename std::enable_if<std::is_arithmetic<Q>::value, Q>::type&
         getMin(const bool include_default_value = true) const
         {
-            auto first = this->getCells().origin();
-            auto last = this->getCells().origin() + this->getCells().num_elements();
-
-            /** Include the default value as a possible min value to return **/
+            Vector2ui numCells(getNumCells());
+            
+            std::cout << "Num Cells is " << numCells.transpose() << std::endl;
+            if(numCells == Vector2ui(0,0))
+                throw std::runtime_error("Tried to compute max on empty map");
+            
+            auto it = this->begin();
+            auto endIt = this->end();
+            
+            const Q *first = &(*it);
+            const Q *last = &(*(this->end()));
+            
+            
+            /** Include the default value as a possible max value to return **/
             if (include_default_value)
             {
-                return *(std::min_element(first, last));
+                return *std::min_element(this->begin(), this->end());
             }
             else
             {
-                /** Exclude the default value as a possible min value to return **/
+                const Q *smallest = first;
 
-                if (first==last) return *last;
-
-                auto smallest = first;
-
-                while (++first != last)
+                while (it != endIt)
                 {
+                    const Q *curElem = &(*it);
+                    
                     if(!this->isDefault(*smallest))
                     {
-                        if ((*first < *smallest)&&(!this->isDefault(*first)))
+                        if ((*curElem < *smallest) &&(!this->isDefault(*curElem)))
                         {
-                            smallest = first;
+                            smallest = curElem;
                         }
                     }
                     else
                     {
-                        if (!this->isDefault(*first))
-                            smallest = first;
+                        if (!this->isDefault(*curElem))
+                            smallest = curElem;
                     }
+                    it++;
                 }
                 return *smallest;
             }
         }
 
-        /**
-         * @brief Move the content of the grid
-         * @details by the offset described in the argument
-         * @return void
-         */
-        void moveBy(Eigen::Vector2i idx_offset)
+        bool isDefault(const T &value) const
         {
-
-            // In case the offset is equal or bigger than teh grid size
-            // all values should be moved outside the grid and initialize then 
-            // by the default value
-            if (abs(idx_offset.x()) >= this->num_cells.x()
-                || abs(idx_offset.y()) >= this->num_cells.y())
-            {
-                init();
-                return;
-            }
-
-            /** Get the cells of the grid **/
-            GridCell &src = getCells();
-
-            /** Temporary cells with the same size and default values **/
-            GridCell tmp;
-            tmp.resize(boost::extents[this->num_cells.x()][this->num_cells.y()]);
-            std::fill(tmp.data(), tmp.data() + tmp.num_elements(), default_value);
-
-            boost::swap(tmp, src);
-
-            /** Perform the move calculation base on the idx_offset parameter**/
-            for (unsigned int x = 0; x < this->num_cells.x(); ++x)
-            {
-                for (unsigned int y = 0; y < this->num_cells.y(); ++y)
-                {
-                    int x_new = x + idx_offset.x();
-                    int y_new = y + idx_offset.y();
-
-                    if ((x_new >= 0 && x_new < this->num_cells.x())
-                        && (y_new >= 0 && y_new < this->num_cells.y()))
-                    {
-                        get(Index(x_new, y_new)) = *(tmp.data() + y * this->num_cells.x() + x);
-                    }
-                }
-            }
-        }
-
-        void clear()
-        {
-            init();
-        }
-
-    private:
-        void reset(const Vector2ui &num_cells, const Eigen::Vector2d &resolution, const T& default_value)
-        {
-            this->num_cells = num_cells;
-            this->resolution = resolution;
-            this->default_value = default_value;
-
-            this->init();
-        }
-
-        T& get(Index idx)
-        {
-            return *(getCells().data() + idx.y() * this->num_cells.x() + idx.x());
-        }
-
-        const T& get(Index idx) const
-        {
-            return *(getCells().data() + idx.y() * this->num_cells.x() + idx.x());
-        }
-
-        void init() const
-        {
-            if (this->num_cells == Vector2ui::Zero())
-                throw std::runtime_error("The grid size is zero! (therefore the array to hold the cells could be not allocated properly)");
-
-            cells->resize(boost::extents[this->num_cells.x()][this->num_cells.y()]);
-            std::fill(cells->data(), cells->data() + cells->num_elements(), default_value);
-        }
-
-        bool isDefault(const T value) const
-        {
-            if (boost::math::isnan(this->default_value))
+            if (boost::math::isnan(this->getDefaultValue()))
             {
                 return boost::math::isnan(value);
             }
             else
             {
-                return value == this->default_value;
+                return value == this->getDefaultValue();
             }
         }
+        
+        using R::getNumCells;
 
-    public:
-
-        GridCell& getCells()
-        {
-            if (cells->num_elements() == 0)
-                init();
-
-            return *cells;
-        }
-
-        const GridCell& getCells() const
-        {
-            if (cells->num_elements() == 0)
-                init();
-
-            return *cells;
-        }
-    };
+    };    
 }}
-#endif // __ENVIRE_MAPS_GRID_MAP_HPP__
+

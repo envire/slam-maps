@@ -18,10 +18,12 @@ rock_library(envire_maps
         MultilayerGridMap.hpp
         ElevationMap.hpp
         SurfacePatch.hpp
+        SurfacePatches.hpp
         List.hpp
         SPList.hpp
         MLSConfig.hpp
         MLSGrid.hpp
+        MLSGridI.hpp
         TraversabilityMap3d.hpp
         tools/BresenhamLine.hpp
         operations/GridInterpolation.hpp

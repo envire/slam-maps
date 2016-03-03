@@ -26,7 +26,10 @@ BOOST_AUTO_TEST_CASE(elevviz_test)
             elev_map.at(x,y).elevation_min = -1 * cs * sn;
         }
     }
+}
 
+static void showElevationMap(const ElevationMap &elev_map)
+{
     // set up test environment
     QtThreadedWidget<vizkit3d::Vizkit3DWidget> app;
     app.start();
@@ -49,3 +52,23 @@ BOOST_AUTO_TEST_CASE(elevviz_test)
     }
 }
 
+BOOST_AUTO_TEST_CASE(elevviz_loop)
+{
+    ElevationMap elev_map(Vector2ui(150, 250), Vector2d(0.1, 0.1));
+    elev_map.getLocalFrame().translation() << 0.5 * elev_map.getSize(), 0;
+    for(unsigned int x=0; x< elev_map.getNumCells().x(); ++x )
+        for(unsigned int y=0; y<elev_map.getNumCells().y(); ++y)
+        {
+            double R = Eigen::Vector2d(x-75.,y-125.).cwiseProduct(elev_map.getResolution()).norm();
+            double r2 = 2*2 - std::pow(R-5.0, 2);
+            if(r2 >= 0)
+            {
+                elev_map.at(x,y).elevation = -std::sqrt(r2);
+                elev_map.at(x,y).elevation_min = std::sqrt(r2);
+            }
+            else
+                elev_map.at(x,y).elevation = 0.0;
+        }
+
+    showElevationMap(elev_map);
+}

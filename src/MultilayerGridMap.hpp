@@ -56,7 +56,7 @@ namespace envire
                     throw std::out_of_range("MultilayerGridMap::addLayer: The grid with the key '" + key + "' exists already.");
                 }
 
-                GridMap<T> *new_grid = new GridMap<T>(num_cells, resolution, default_value, getLocalMapData());
+                GridMap<T> *new_grid = new GridMap<T>(getNumCells(), resolution, default_value, getLocalMapData());
                 layers[key] = new_grid;
 
                 return *new_grid;

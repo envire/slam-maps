@@ -81,10 +81,11 @@ namespace envire { namespace maps
         public:
             typedef boost::shared_ptr<Grid> Ptr;
 
-        protected:
+        private:
             /** Number of cells in X-axis and Y-axis **/
             Vector2ui num_cells;
 
+        protected:
             /** 
              * Resolution in local X-axis and Y-axis
              * (Size of the cell in local X-axis and Y-axis in world unit)
@@ -112,7 +113,13 @@ namespace envire { namespace maps
 
             /** @brief get the number of cells
              */
-            const Vector2ui& getNumCells() const;
+            virtual const Vector2ui& getNumCells() const;
+
+            size_t numElements() const
+            {
+                return getNumCells().prod();
+            }
+
 
             /** 
              * @brief get the resolution of the grid
@@ -122,7 +129,7 @@ namespace envire { namespace maps
 
             /**
              * @brief get the size of the grid in world unit
-             * @return size of the grid in local X-axis and Y-axis in wold unit
+             * @return size of the grid in local X-axis and Y-axis in world unit
              */
             Vector2d getSize() const;
 

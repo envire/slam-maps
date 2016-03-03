@@ -4,8 +4,10 @@
 
 namespace vizkit3d
 {
-    PatchesGeode::PatchesGeode()
+    PatchesGeode::PatchesGeode(float x_res, float y_res)
         : vertex_index(0),
+          xp(0), yp(0),
+          xs(x_res), ys(y_res),
           hue(0.0),
           sat(1.0),
           alpha(1.0),
@@ -16,6 +18,10 @@ namespace vizkit3d
         vertices = new osg::Vec3Array;
         normals = new osg::Vec3Array;
         geom = new osg::Geometry;
+        var_vertices = new osg::Vec3Array;
+
+        showNormals = true;
+        showExtents = false;
 
         geom->setVertexArray(vertices);
         geom->setNormalArray(normals);
@@ -26,12 +32,15 @@ namespace vizkit3d
         addDrawable(geom);
     }
     void PatchesGeode::drawPlane(
-            const osg::Vec3& position,
-            const osg::Vec3& extents,
+            const float & zp,
+            const float & height,
             const osg::Vec3& mean,
             const osg::Vec3& normal)
     {
-        // Sanity check (TODO should be disabled in release mode)
+        const osg::Vec3 position(xp, yp, zp);
+        const osg::Vec3 extents(xs*0.5f, ys*0.5f, height*0.5f);
+#ifndef NDEBUG
+        // Sanity check (disabled in release mode)
         for(int i=0; i<3; ++i)
             if( std::abs(mean[i]) > extents[i])
             {
@@ -40,6 +49,7 @@ namespace vizkit3d
                 for(int j=0; j<3; ++j) std::cerr << extents[j] << (j==2? "}\n" : ", ");
                 break;
             }
+#endif
         // first calculate the intersections of the plane with the borders of the box
         // Here, `extents` and `mean` are relative to the origin of the box
         float dist = mean*normal; // scalar product gives the signed distance from the origin
@@ -103,6 +113,20 @@ namespace vizkit3d
         }
 
         closePolygon();
+
+        osg::Vec3 center = position + mean;
+
+        if(showNormals)
+        {
+            var_vertices->push_back(center);
+            var_vertices->push_back(center+normal*0.1);
+        }
+        if(showExtents)
+        {
+            var_vertices->push_back(osg::Vec3(position.x(), position.y(), position.z() - extents.z()));
+            var_vertices->push_back(osg::Vec3(position.x(), position.y(), position.z() + extents.z()));
+        }
+
     }
 
     void PatchesGeode::drawPlane(
@@ -168,17 +192,17 @@ namespace vizkit3d
     }
 
     void PatchesGeode::drawBox(
-            const osg::Vec3& position, 
-            const osg::Vec3& extents, 
+            const float& top,
+            const float& height,
             const osg::Vec3& c_normal )
     {
-        const double xp = position.x();
-        const double yp = position.y();
-        const double zp = position.z();
+//        const double xp = position.x();
+//        const double yp = position.y();
+        const float zp = top - height*0.5f;
 
-        const double xs = extents.x();
-        const double ys = extents.y();
-        const double zs = extents.z();
+//        const double xs = extents.x();
+//        const double ys = extents.y();
+        const float zs = height;
 
         const osg::Vec4 h( osg::Vec4(zp,zp,zp,zp) );
         osg::Vec3 normal( c_normal );
@@ -294,5 +318,20 @@ namespace vizkit3d
     void PatchesGeode::showCycleColor(bool cycle_color)
     {
         this->cycle_color = cycle_color;
+    }
+
+    void PatchesGeode::drawLines()
+    {
+        osg::ref_ptr<osg::Geometry> var_geom = new osg::Geometry;
+        var_geom->setVertexArray( var_vertices );
+        osg::ref_ptr<osg::DrawArrays> drawArrays = new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, var_vertices->size() );
+        var_geom->addPrimitiveSet(drawArrays.get());
+
+        osg::ref_ptr<osg::Vec4Array> var_color = new osg::Vec4Array;
+        var_color->push_back( osg::Vec4( 0.5, 0.1, 0.8, 1.0 ) );
+        var_geom->setColorArray( var_color.get() );
+        var_geom->setColorBinding( osg::Geometry::BIND_OVERALL );
+
+        addDrawable( var_geom.get() );
     }
 } // namespace vizkit3d
