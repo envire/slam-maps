@@ -23,14 +23,26 @@ BOOST_AUTO_TEST_CASE(test_grid_index)
     BOOST_CHECK_EQUAL(index3.x(), 3);
     BOOST_CHECK_EQUAL(index3.y(), 4);
 
-    // check the "<" operator: strict weak ordering
+    // check the "<" operator: lexicographical ordering
+    // two cases should return true: (x is smaller) or (x is equal and y is smaller)
     BOOST_CHECK_EQUAL((index2 < Index(index2.x() + 1, index2.y() + 1)), true);  //(2,4) < (3,5)
-    BOOST_CHECK_EQUAL((index2 < Index(index2.x(), index2.y() + 1)), true);      //(2,4) < (2,5)    
+    BOOST_CHECK_EQUAL((index2 < Index(index2.x(), index2.y() + 1)), true);      //(2,4) < (2,5)  
+
     BOOST_CHECK_EQUAL((index2 < Index(index2.x(), index2.y())), false);         //(2,4) < (2,4)
     BOOST_CHECK_EQUAL((index2 < Index(index2.x(), index2.y() - 1)), false);     //(2,4) < (2,3)
     BOOST_CHECK_EQUAL((index2 < Index(index2.x() - 1, index2.y() + 1)), false); //(2,4) < (1,5)
     BOOST_CHECK_EQUAL((index2 < Index(index2.x() - 1, index2.y() - 1)), false); //(2,4) < (1,3)
     BOOST_CHECK_EQUAL((index2 < Index(0,0)), false);                            //(2,4) < (0,0)
+
+    // check the isInside: x and y are smaller
+    BOOST_CHECK_EQUAL((index2.isInside(Index(index2.x() + 1, index2.y() + 1))), true);  //(2,4) < (3,5)
+
+    BOOST_CHECK_EQUAL((index2.isInside(Index(index2.x(), index2.y() + 1))), false);     //(2,4) < (2,5)  
+    BOOST_CHECK_EQUAL((index2.isInside(Index(index2.x(), index2.y()))), false);         //(2,4) < (2,4)
+    BOOST_CHECK_EQUAL((index2.isInside(Index(index2.x(), index2.y() - 1))), false);     //(2,4) < (2,3)
+    BOOST_CHECK_EQUAL((index2.isInside(Index(index2.x() - 1, index2.y() + 1))), false); //(2,4) < (1,5)
+    BOOST_CHECK_EQUAL((index2.isInside(Index(index2.x() - 1, index2.y() - 1))), false); //(2,4) < (1,3)
+    BOOST_CHECK_EQUAL((index2.isInside(Index(0,0))), false);                            //(2,4) < (0,0)   
 
     // check the "==" operator
     BOOST_CHECK_EQUAL((index2 == Index(index2.x(), index2.y())), true);         //(2,4) == (2,4)
@@ -56,18 +68,27 @@ BOOST_AUTO_TEST_CASE(test_grid_constructor_default)
     BOOST_TEST_MESSAGE("test_grid_constructor_default");
     Grid grid;
 
+    /** Check grid members **/
     BOOST_CHECK_EQUAL(grid.getNumCells(), Vector2ui(0, 0));
     BOOST_CHECK_EQUAL(grid.getResolution(), Vector2d(0, 0));
     BOOST_CHECK_EQUAL(grid.getSize(), Vector2d(0, 0));
 
     BOOST_CHECK_EQUAL(grid.inGrid(Index(0, 0)), false);
 
-    Vector3d pos(0.00,0.00,0.00);
+    // since the grid has no size, return false
+    // the pos should be unchanged
+    Vector3d gt_pos(-5.13, 100.57, -89.89);
+    Vector3d pos(gt_pos);
     BOOST_CHECK_EQUAL(grid.fromGrid(Index(0, 0), pos), false);
+    BOOST_CHECK_EQUAL(pos, gt_pos);
     BOOST_TEST_MESSAGE("Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
 
-    Index idx;
+    // since the grid has no size, return false
+    // the pos should be unchanged
+    Index gt_idx(57, 13);
+    Index idx(gt_idx);
     BOOST_CHECK_EQUAL(grid.toGrid(Eigen::Vector3d(0, 0, 0), idx), false);
+    BOOST_CHECK_EQUAL(idx, gt_idx);
     BOOST_TEST_MESSAGE("Idx to grid: "<<idx[0]<<","<<idx[1]);
 }
 
@@ -83,6 +104,7 @@ BOOST_AUTO_TEST_CASE(test_grid_constructor)
     /** Check local map members **/
     BOOST_CHECK_EQUAL(grid.getId(), envire::maps::UNKNOWN_MAP_ID);
     BOOST_CHECK_EQUAL(grid.getMapType(), envire::maps::LocalMapType::UNKNOWN_MAP);
+    BOOST_CHECK_EQUAL(grid.getEPSGCode(), envire::maps::UNKNOWN_EPSG_CODE);
     BOOST_CHECK_EQUAL(grid.getLocalFrame().translation(), base::Transform3d::Identity().translation());
     BOOST_CHECK_EQUAL(grid.getLocalFrame().rotation(), base::Transform3d::Identity().rotation());
 
@@ -96,12 +118,13 @@ BOOST_AUTO_TEST_CASE(test_grid_index_in_grid)
     BOOST_CHECK_EQUAL(grid.inGrid(Index(0, 0)), true);          // bottom left (according to 1873-2015 IEEE standard)
     BOOST_CHECK_EQUAL(grid.inGrid(Index(99, 199)), true);       // top right (according to 1873-2015 IEEE standard)
     BOOST_CHECK_EQUAL(grid.inGrid(Index(50, 100)), true);       // middle
+
     BOOST_CHECK_EQUAL(grid.inGrid(Index(100, 200)), false);     // outside
-    BOOST_CHECK_EQUAL(grid.inGrid(Index(99, 200)), false);     // outside
+    BOOST_CHECK_EQUAL(grid.inGrid(Index(99, 200)), false);      // outside
     BOOST_CHECK_EQUAL(grid.inGrid(Index(100, 199)), false);     // outside
-    BOOST_CHECK_EQUAL(grid.inGrid(Index(-1, -1)), false);     // outside
-    BOOST_CHECK_EQUAL(grid.inGrid(Index(-1, 2)), false);     // outside
-    BOOST_CHECK_EQUAL(grid.inGrid(Index(2, -1)), false);     // outside
+    BOOST_CHECK_EQUAL(grid.inGrid(Index(-1, -1)), false);       // outside
+    BOOST_CHECK_EQUAL(grid.inGrid(Index(-1, 2)), false);        // outside
+    BOOST_CHECK_EQUAL(grid.inGrid(Index(2, -1)), false);        // outside
 }
 
 BOOST_AUTO_TEST_CASE(test_grid_from_grid_without_offset)

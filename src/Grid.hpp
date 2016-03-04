@@ -87,8 +87,12 @@ namespace envire { namespace maps
 
         protected:
             /** 
-             * Resolution in local X-axis and Y-axis
-             * (Size of the cell in local X-axis and Y-axis in world unit)
+             * @brief Resolution of the cell in local x-axis and y-axis
+             * @details
+             * Size of the cell in local x- und y-axis in some distance/length unit 
+             * (e.g. meter or inch)
+             * The unit used in the resolution should be the same as the unit used for
+             * the translation part of the local frame. (s. LocalMapData::offset)
              */
             Vector2d resolution;
 

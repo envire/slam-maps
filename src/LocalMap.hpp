@@ -50,16 +50,13 @@ namespace envire { namespace maps
             /** 
              * @brief Offest of the local map frame
              * @details
-             * The map uses the Cartesian coordinate system:
+             * The map uses the Cartesian coordinate system. Initially it is defined as follows:
              *    - the initial origin of the map is placed in the bottom left corner
              *    - the x-axis points to the right from the the origin
              *    - the y-axis points upwards from the origin
              * 
              * The offset represents the replacement of the local frame 
-             * with respect to the inital origin.
-             * 
-             * The offsets along the x, y and z-axis (translation) are expressed in the map unit 
-             * (according to the unit used in the map resolution).
+             * with respect to the inital coordinate system.
              *
              * The offset can also be reference as local frame
              */
@@ -105,18 +102,30 @@ namespace envire { namespace maps
      * A local map is the basic element to form a complex map, such as Grid.
      * 
      * Generally, this class is a holder for LocalMapData and was created to allow to share
-     * the LocalMapData content (especially offset transformation) among various maps instances.
+     * the same LocalMapData content among various maps instances.
      * 
      * All maps, which share the same content of LocalMapData, own the same identification (id),
      * transformation of local frame (offset) and other parameters presented in LocalMapData. 
      * Therefore, the changes down on these parameters will affected all maps. 
      * 
      * To create a new LocalMap:
-     *    - with its own LocalMapData content 
-     *    (s. LocalMap() and LocalMap(const LocalMap& other)) 
-     *    - share the same LocalMapData content among different LocalMap instances 
-     *    (s. LocalMap(const boost::shared_ptr<LocalMapData> &data)).
-     * 
+     *    - with its own LocalMapData content: 
+     *    LocalMap() and LocalMap(const LocalMap& other)
+     *    - with the LocalMapData content shared among different LocalMap instances: 
+     *    LocalMap(const boost::shared_ptr<LocalMapData> &data).
+     *    
+     * Each local map has its own coordinate system or shares one coordinate system with other maps. 
+     * The coordinate system is deifned by LocalMapData::offset, also named as local frame.
+     * There is two opportunity to transform the coordinate system of the map:  
+     *    - Through LocalMap::translate() and LocalMap::rotate() functions, to transform the map
+     *    relative to its local frame. These function apply inverse of the given transformation
+     *    to the local frame.
+     *    - Through <a href="http://eigen.tuxfamily.org/dox/classEigen_1_1Transform.html#a8fee784230fc83408b39716dc3fa9ab3" target="_blank">
+     *    LocalMap::getLocalFrame().translate()</a>
+     *     and <a href="http://eigen.tuxfamily.org/dox/classEigen_1_1Transform.html#a2ed345ee2437ea5bfa0683bf2e82a3b0" target="_blank">
+     *     LocalMap::getLocalFrame().rotate()</a>,
+     *    to transform the local frame relative to itself.
+     *    
      */
     class LocalMap
     {
@@ -125,9 +134,6 @@ namespace envire { namespace maps
 
             /**
              * @brief Default constructor to create a new LocalMapData content
-             * @details [long description]
-             * 
-             * @param r [description]
              */
             LocalMap()
                 : data_ptr(new LocalMapData())
@@ -149,7 +155,7 @@ namespace envire { namespace maps
              * @details 
              * The copy instance owns a new content (LocalMapData)
              * 
-             * @param other [description]
+             * @param other LocalMap
              */
             LocalMap(const LocalMap& other)
                 : data_ptr(new LocalMapData(*(other.data_ptr.get())))
@@ -203,11 +209,10 @@ namespace envire { namespace maps
             }
 
             /**
-             * @brief Translate the map with respect to its local frame
-             * @details 
-             * In the reality the local frame will be transform by the inverse translation
+             * @brief Translate the map relative to its local frame
              * 
-             * @param translation [description]
+             * @param translation <a href="http://eigen.tuxfamily.org/dox/group__matrixtypedefs.html#ga2006332f6989f501762673e21f5128f5" target="_blank">
+             * Eigen::Vector3d</a>
              */
             void translate(const Eigen::Vector3d &translation)
             {
@@ -215,11 +220,10 @@ namespace envire { namespace maps
             }
 
             /**
-             * @brief Rotate the map with respect to its local frame
-             * @details 
-             * In the reality the local frame will be rotated by the inverse rotation
+             * @brief Rotate the map relative to its local frame
              * 
-             * @param rotation [description]
+             * @param rotation <a href="http://eigen.tuxfamily.org/dox/group__Geometry__Module.html#ga0d2bd45f1215359f8e7c0d7ab53c4acb" target="_blank">
+             * Eigen::Quaterniond</a>
              */
             void rotate(const Eigen::Quaterniond &rotation)
             {
