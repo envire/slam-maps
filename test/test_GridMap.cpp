@@ -29,10 +29,10 @@ BOOST_AUTO_TEST_CASE(test_grid_empty)
     
     // if the grid has size of (0,0)
     BOOST_CHECK_THROW(grid->at(Index(0,0)), std::exception);
-    BOOST_CHECK_THROW(grid->getMax(), std::exception);
-    BOOST_CHECK_THROW(grid->getMin(), std::exception);
-    BOOST_CHECK_THROW(grid->clear(), std::exception);
-    BOOST_CHECK_THROW(grid->moveBy(Index(0,0)), std::exception);
+    BOOST_CHECK_THROW(grid->getMax(), std::exception);  
+    BOOST_CHECK_THROW(grid->getMin(), std::exception);      
+    BOOST_CHECK_NO_THROW(grid->clear());
+    BOOST_CHECK_NO_THROW(grid->moveBy(Index(0,0)));
 
     delete grid;
 }
@@ -666,6 +666,7 @@ BOOST_AUTO_TEST_CASE(test_grid_move_partially)
 
     delete grid;
 }
+
 
 BOOST_AUTO_TEST_CASE(test_grid_move_partially_check_magic_number)
 {
