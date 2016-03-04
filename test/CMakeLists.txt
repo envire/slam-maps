@@ -18,9 +18,9 @@ rock_testsuite(test_multilayergridmap suite.cpp
    test_MultilayerGridMap.cpp
    DEPS envire_maps)     
 
-rock_testsuite(test_surfacepatch suite.cpp
-   test_SurfacePatch.cpp
-   DEPS envire_maps)
+#rock_testsuite(test_surfacepatch suite.cpp
+#   test_SurfacePatch.cpp
+#   DEPS envire_maps)
 
 rock_testsuite(test_list suite.cpp
     test_List.cpp

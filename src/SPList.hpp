@@ -6,7 +6,7 @@
 #include <boost/pool/object_pool.hpp>
 
 #include "List.hpp"
-#include "SurfacePatch.hpp"
+#include "MLSConfig.hpp"
 
 namespace envire 
 {

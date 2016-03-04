@@ -3,7 +3,7 @@
 
 #include <list>
 #include "GridMap.hpp"
-#include "SurfacePatch.hpp"
+#include "SurfacePatches.hpp"
 #include <map>
 
 namespace envire {

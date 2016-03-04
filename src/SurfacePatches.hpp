@@ -4,8 +4,9 @@
 #include <numeric/PlaneFitting.hpp>
 #include <boost/intrusive/list.hpp>
 
-#include <Eigen/Core>
 #include <base/Eigen.hpp>
+#include <Eigen/Core>
+#include <Eigen/Eigenvalues>
 
 #include "MLSConfig.hpp"
 

@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 #include <envire_maps/List.hpp>
-#include <envire_maps/SurfacePatch.hpp>
+#include <envire_maps/SurfacePatches.hpp>
 
 #include <chrono>
 

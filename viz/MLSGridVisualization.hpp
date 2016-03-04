@@ -96,10 +96,12 @@ namespace vizkit3d
             double cycleColorInterval;
             bool showExtents;
 
+#if 0
             osg::Vec3 estimateNormal(
                 const envire::maps::MLSGrid &grid, 
                 const envire::maps::SurfacePatch &patch, 
                 const envire::maps::Index &patch_idx) const;
+#endif
     };
 }
 #endif

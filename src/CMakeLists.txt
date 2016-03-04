@@ -6,7 +6,6 @@ include(${CGAL_USE_FILE})
 rock_library(envire_maps
     SOURCES
         Grid.cpp
-        SurfacePatch.cpp
         ElevationMap.cpp
         MLSGrid.cpp
         tools/BresenhamLine.cpp
@@ -17,7 +16,6 @@ rock_library(envire_maps
         GridMap.hpp
         MultilayerGridMap.hpp
         ElevationMap.hpp
-        SurfacePatch.hpp
         SurfacePatches.hpp
         List.hpp
         SPList.hpp
