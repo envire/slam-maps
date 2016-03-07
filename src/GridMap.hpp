@@ -136,7 +136,7 @@ namespace envire {namespace maps
             auto endIt = this->end();
             
             const Q *first = &(*it);
-            const Q *last = &(*(this->end()));
+//            const Q *last = &(*(this->end()));
             
             
             /** Include the default value as a possible max value to return **/
@@ -193,7 +193,7 @@ namespace envire {namespace maps
             auto endIt = this->end();
             
             const Q *first = &(*it);
-            const Q *last = &(*(this->end()));
+//            const Q *last = &(*(this->end()));
             
             
             /** Include the default value as a possible max value to return **/

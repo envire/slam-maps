@@ -49,7 +49,8 @@ public:
     
     LevelListAccess()
     {
-    };
+    }
+    virtual ~LevelListAccess() {}
     
 };
 
@@ -104,6 +105,7 @@ public:
     DerivableLevelList()
     {
     };
+    virtual ~DerivableLevelList() { }
     
     iterator begin()
     {

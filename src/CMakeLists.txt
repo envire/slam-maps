@@ -14,6 +14,7 @@ rock_library(envire_maps
         LocalMap.hpp
         Grid.hpp
         GridMap.hpp
+        GridStorage.hpp
         MultilayerGridMap.hpp
         ElevationMap.hpp
         SurfacePatches.hpp

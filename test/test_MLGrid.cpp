@@ -71,6 +71,8 @@ BOOST_AUTO_TEST_CASE(test_levelAccess)
     
     LevelListAccess<PatchBase> *access = new LevelListAccessImpl<Patch, PatchBase>(&list);
     
+    delete access;
+
 }
 
 BOOST_AUTO_TEST_CASE(test_levelAccess2)
