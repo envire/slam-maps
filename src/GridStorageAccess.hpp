@@ -1,12 +1,12 @@
 #pragma once
 
-#include "GridStorageInterface.hpp"
+#include "GridStorageAccessInterface.hpp"
 
 
 namespace envire {namespace maps
 {
     template <typename T, typename TBASE>
-    class GridStorageAccess : public GridStorageInterface<TBASE>
+    class GridStorageAccess : public GridStorageAccessInterface<TBASE>
     {
         GridStorage<T> *storage;
     public:
@@ -19,22 +19,22 @@ namespace envire {namespace maps
             return storage->getDefaultValue();
         }
         
-        virtual typename GridStorageInterface<TBASE>::iterator begin()
+        virtual typename GridStorageAccessInterface<TBASE>::iterator begin()
         {
             return AccessIteratorImpl<T, TBASE, std::vector<T> >(storage->begin());
         }
 
-        virtual typename GridStorageInterface<TBASE>::iterator end()
+        virtual typename GridStorageAccessInterface<TBASE>::iterator end()
         {
             return AccessIteratorImpl<T, TBASE, std::vector<T> >(storage->end());
         }
 
-        virtual typename GridStorageInterface<TBASE>::const_iterator begin() const
+        virtual typename GridStorageAccessInterface<TBASE>::const_iterator begin() const
         {
             return ConstAccessIteratorImpl<T, TBASE, std::vector<T> >(storage->begin());
         }
 
-        virtual typename GridStorageInterface<TBASE>::const_iterator end() const
+        virtual typename GridStorageAccessInterface<TBASE>::const_iterator end() const
         {
             return ConstAccessIteratorImpl<T, TBASE, std::vector<T> >(storage->end());
         }

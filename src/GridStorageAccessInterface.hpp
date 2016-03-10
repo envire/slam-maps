@@ -5,14 +5,14 @@
 namespace envire {namespace maps
 {
     template <typename T>
-    class GridStorageInterface
+    class GridStorageAccessInterface
     {
     public:
         
         typedef AccessIterator<T> iterator;
         typedef ConstAccessIterator<T> const_iterator;
         
-        GridStorageInterface()
+        GridStorageAccessInterface()
         {
         }
 

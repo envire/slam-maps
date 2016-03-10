@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 #include "../src/MLGrid.hpp"
-#include "../src/GridStorageInterface.hpp"
+#include "../src/GridStorageAccessInterface.hpp"
 #include "../src/GridStorageAccess.hpp"
 #include "../src/GridStorageFacade.hpp"
 
@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE(test_mapAccess)
 {
     GridMap<Patch> map;
 
-    GridStorageInterface<PatchBase> *test = new GridStorageAccess<Patch, PatchBase>(&map);
+    GridStorageAccessInterface<PatchBase> *test = new GridStorageAccess<Patch, PatchBase>(&map);
 
     GridMap<PatchBase, GridStorageFacade<PatchBase> > test2(map, GridStorageFacade<PatchBase>(test));
     
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(test_mapAccess2)
 {
     GridMap<DerivableLevelList<Patch, PatchBase> > map(Vector2ui(5,5), Eigen::Vector2d(0.5,0.5), DerivableLevelList<Patch, PatchBase>());
 
-    GridStorageInterface<DerivableLevelList<PatchBase, PatchBase> > *test = new GridStorageAccess<DerivableLevelList<Patch, PatchBase>, DerivableLevelList<PatchBase, PatchBase> >(&map);
+    GridStorageAccessInterface<DerivableLevelList<PatchBase, PatchBase> > *test = new GridStorageAccess<DerivableLevelList<Patch, PatchBase>, DerivableLevelList<PatchBase, PatchBase> >(&map);
 
     GridMap<DerivableLevelList<PatchBase, PatchBase>, GridStorageFacade<DerivableLevelList<PatchBase, PatchBase> > > test2(map, GridStorageFacade<DerivableLevelList<PatchBase, PatchBase> >(test));
     

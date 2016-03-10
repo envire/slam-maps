@@ -1,19 +1,19 @@
 #pragma once
 
-#include "GridStorageInterface.hpp"
+#include "GridStorageAccessInterface.hpp"
 
 namespace envire {namespace maps
 {
     template <typename T>
     class GridStorageFacade
     {
-        GridStorageInterface<T> *impl;
+        GridStorageAccessInterface<T> *impl;
     public:
         
         typedef AccessIterator<T> iterator;
         typedef ConstAccessIterator<T> const_iterator;
         
-        GridStorageFacade(GridStorageInterface<T> *impl) : impl(impl)
+        GridStorageFacade(GridStorageAccessInterface<T> *impl) : impl(impl)
         {
         }
 
