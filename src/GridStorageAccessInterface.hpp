@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AccessIterator.hpp"
+#include "Index.hpp"
 
 namespace envire {namespace maps
 {

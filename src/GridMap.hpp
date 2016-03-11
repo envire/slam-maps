@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GridStorage.hpp"
-// #include "Grid.hpp"
+#include "Grid.hpp"
 
 /** std **/
 #include <iostream>
@@ -29,7 +29,7 @@ namespace envire {namespace maps
     {
 
     protected:
-
+        
     public:
         GridMap() 
             : Grid()

@@ -12,6 +12,7 @@ rock_library(envire_maps
         TraversabilityMap3d.cpp
     HEADERS
         LocalMap.hpp
+        Index.hpp
         Grid.hpp
         GridMap.hpp
         GridStorage.hpp

@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <stdexcept>
-#include "Grid.hpp"
+#include "Index.hpp"
 
 namespace envire {namespace maps
 {
@@ -66,7 +66,7 @@ namespace envire {namespace maps
             cells.resize(newSize.prod(), default_value);
         };
 
-        void moveBy(const Eigen::Vector2i &idx)
+        void moveBy(const Vector2i &idx)
         {
             const Vector2ui num_cells(gridSize);
             
