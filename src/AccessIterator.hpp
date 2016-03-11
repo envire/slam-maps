@@ -58,18 +58,18 @@ public:
 
     AccessIterator& operator=(const AccessIterator &it) 
     {
-        *impl = it.*impl;
+        *impl = *(it.impl);
         return *this;
     };
     
     bool operator==(const AccessIterator &it)
     {
-        return impl->operator==(it);
+        return impl->operator==(*(it.impl));
     };
 
     bool operator!=(const AccessIterator &it)
     {
-        return impl->operator!=(it);
+        return impl->operator!=(*(it.impl));
     };
 
     AccessIterator& operator++()
