@@ -100,8 +100,97 @@ BOOST_AUTO_TEST_CASE(test_mapAccess)
     GridStorageAccessInterface<PatchBase> *test = new GridStorageAccess<Patch, PatchBase>(&map);
 
     GridMap<PatchBase, GridStorageFacade<PatchBase> > test2(map, GridStorageFacade<PatchBase>(test));
+}
+
+BOOST_AUTO_TEST_CASE(test_map_access3)
+{
+
+    GridMap<Patch> map(Vector2ui(2,2), Eigen::Vector2d(1,1), Patch(0,0));
+    map.at(0,0) = Patch(0, 0);
+    map.at(0,1) = Patch(0, 1);
+    map.at(1,0) = Patch(1, 0);
+    map.at(1,1) = Patch(1, 1);
+
+    map.at(0,0).test();
+    map.at(0,1).test();
+
+    for (auto it = map.begin(); it != map.end(); ++it)
+    {
+        std::cout << it->getMin() << " " << it->getMax() << std::endl;
+    }
+
+    GridStorageAccessInterface<PatchBase> *test = new GridStorageAccess<Patch, PatchBase>(&map);
+
+    GridMap<PatchBase, GridStorageFacade<PatchBase> > test2(map, GridStorageFacade<PatchBase>(test));
+
+    test2.at(0,0).test();
+    test2.at(0,1).test();
+
+    for (auto it = test2.begin(); it != test2.end(); ++it)
+    {
+        std::cout << it->getMin() << " " << it->getMax() << std::endl;
+    }
+}
+
+#include <ctime>
+
+BOOST_AUTO_TEST_CASE(test_map_access_time)
+{
+    GridMap<Patch> map(Vector2ui(1000,1000), Eigen::Vector2d(1,1), Patch(0,0));
+
+    clock_t begin = clock();
+    for (unsigned int x = 0; x < 1000; ++x)
+    {
+        for (unsigned int y = 0; y < 1000; ++y)
+        {
+            map.at(x, y).getMin();
+        }        
+    }
+    clock_t end = clock();
+    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
     
+    std::cout << "map: " << elapsed_secs << std::endl;
+
+    begin = clock();
+    for (auto it = map.begin(); it != map.end(); ++it)
+    {
+        it->getMin();
+    }
+    end = clock();
+
+    elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
     
+    std::cout << "map: " << elapsed_secs << std::endl;       
+
+    GridStorageAccessInterface<PatchBase> *test = new GridStorageAccess<Patch, PatchBase>(&map);
+    GridMap<PatchBase, GridStorageFacade<PatchBase> > test2(map, GridStorageFacade<PatchBase>(test));    
+
+    begin = clock();
+    for (unsigned int x = 0; x < 1000; ++x)
+    {
+        for (unsigned int y = 0; y < 1000; ++y)
+        {
+            test2.at(x, y).getMin();
+        }        
+    }    
+    end = clock();
+
+    elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+    
+    std::cout << "test2: " << elapsed_secs << std::endl;
+
+    auto it_2 = test2.begin();
+
+    begin = clock();
+    for (auto it = test2.begin(); it != test2.end(); ++it)
+    {
+        it->getMin();
+    }
+    end = clock();
+
+    elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+    
+    std::cout << "test2: " << elapsed_secs << std::endl;            
 }
 
 BOOST_AUTO_TEST_CASE(test_mapAccess2)
