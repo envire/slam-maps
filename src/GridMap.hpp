@@ -17,6 +17,9 @@
 #include <boost/multi_array.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/nvp.hpp>
+
 
 namespace envire {namespace maps
 {
@@ -241,6 +244,17 @@ namespace envire {namespace maps
         
         using R::getNumCells;
 
+    protected:
+                /** Grants access to boost serialization */
+        friend class boost::serialization::access;  
+
+        /** Serializes the members of this class*/
+        template <typename Archive>
+        void serialize(Archive &ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(envire::maps::Grid);
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(R);
+        }   
     };    
 }}
 

@@ -4,6 +4,10 @@
 #include <stdexcept>
 #include "Index.hpp"
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/vector.hpp>
+
 namespace envire {namespace maps
 {
     
@@ -151,6 +155,18 @@ namespace envire {namespace maps
         {
             return x  +  y * gridSize.x();
         }
+
+        /** Grants access to boost serialization */
+        friend class boost::serialization::access;  
+
+        /** Serializes the members of this class*/
+        template <typename Archive>
+        void serialize(Archive &ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_NVP(cells);
+            ar & BOOST_SERIALIZATION_NVP(gridSize);
+            ar & BOOST_SERIALIZATION_NVP(default_value);
+        }          
     };
     
 }}

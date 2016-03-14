@@ -75,6 +75,166 @@ BOOST_AUTO_TEST_CASE(test_localmap_serialization)
     BOOST_CHECK(local_map_data_i.use_count() == 2);  
 }
 
+BOOST_AUTO_TEST_CASE(test_grid_serialization)
+{
+    // create an instance of LocalMapData
+    boost::shared_ptr<LocalMapData> local_map_data(new LocalMapData());
+    local_map_data->id = "test";
+    local_map_data->offset = 0.2 * Eigen::Matrix3d::Identity();
+    local_map_data->map_type = GEOMETRIC_MAP;
+    local_map_data->EPSG_code = "EPSG_code";
+    
+    Vector2ui num_cells(100, 100);
+    Vector2d resolution(0.1, 0.5);
+    Grid grid_o(num_cells, resolution, local_map_data);  
+
+    std::stringstream stream;
+    boost::archive::polymorphic_binary_oarchive oa(stream);
+    oa << grid_o;   
+    
+    // deserialize from string stream
+    boost::archive::polymorphic_binary_iarchive *ia = new boost::archive::polymorphic_binary_iarchive(stream);
+    Grid grid_i;
+    (*ia) >> grid_i; 
+
+    BOOST_CHECK(grid_i.getId() == grid_o.getId()); 
+    BOOST_CHECK_EQUAL(grid_i.getLocalFrame().matrix().isApprox(grid_o.getLocalFrame().matrix()), true); 
+    BOOST_CHECK(grid_i.getId() == grid_o.getId());
+    BOOST_CHECK(grid_i.getMapType() == grid_o.getMapType());
+    BOOST_CHECK(grid_i.getEPSGCode() == grid_o.getEPSGCode());    
+    BOOST_CHECK(grid_i.getNumCells() == grid_o.getNumCells());
+    BOOST_CHECK(grid_i.getResolution() == grid_o.getResolution());       
+}
+
+
+class A {
+public:
+    A()
+        : min(0), max(0) {};
+
+    A(double min, double max) 
+        : min(min), max(max) {};
+
+    bool operator==(const A &other) const
+    {
+        if (min == other.min && max == other.max)
+            return true;
+        else
+            return false;
+    }
+
+    void test()
+    {
+        std::cout << min << " " << max << std::endl;
+    }
+
+protected:        
+    double min;
+    double max; 
+
+    /** Grants access to boost serialization */
+    friend class boost::serialization::access;  
+
+    /** Serializes the members of this class*/
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(min);
+        ar & BOOST_SERIALIZATION_NVP(max);
+    }     
+};
+
+BOOST_AUTO_TEST_CASE(test_gridstorage_serialization)
+{
+    A default_value(-5.5, 3);
+    Vector2ui storage_size(2, 3);
+    GridStorage<A> storage_o(storage_size, default_value);
+
+    // a dv dv
+    // dv a dv
+    storage_o.at(0, 0) = A(0, 0);
+    storage_o.at(1, 1) = A(1, 1);
+
+    std::stringstream stream;
+    boost::archive::polymorphic_binary_oarchive oa(stream);
+    oa << storage_o;   
+    
+    // deserialize from string stream
+    boost::archive::polymorphic_binary_iarchive *ia = new boost::archive::polymorphic_binary_iarchive(stream);
+    GridStorage<A> storage_i;
+    (*ia) >> storage_i; 
+
+    BOOST_CHECK(storage_i.getDefaultValue() == storage_o.getDefaultValue()); 
+    BOOST_CHECK(storage_i.getDefaultValue() == default_value);
+    BOOST_CHECK(storage_i.getNumCells() == storage_o.getNumCells());
+    BOOST_CHECK(storage_i.getNumCells() == storage_size);
+
+    for (unsigned int x = 0; x < storage_size.x(); ++x)
+    {
+        for (unsigned int y = 0; y < storage_size.y(); ++y)
+        {
+            if (x == 0 && y == 0)
+            {
+                BOOST_CHECK(storage_i.at(x, y) == A(0, 0));
+            } else if (x == 1 && y == 1)
+            {
+                BOOST_CHECK(storage_i.at(x, y) == A(1, 1));
+            } else 
+            {
+                BOOST_CHECK(storage_i.at(x, y) == default_value);
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(test_gridmap_serialization)
+{
+    A default_value(-5.5, 3);
+    Vector2ui storage_size(2, 3);
+    Vector2d resolution(0.1, 0.5);
+    GridMap<A> grid_map_o(storage_size, resolution, default_value);
+
+    // a dv dv
+    // dv a dv
+    grid_map_o.at(0, 0) = A(0, 0);
+    grid_map_o.at(1, 1) = A(1, 1);
+
+    std::stringstream stream;
+    boost::archive::polymorphic_binary_oarchive oa(stream);
+    oa << grid_map_o;   
+    
+    // deserialize from string stream
+    boost::archive::polymorphic_binary_iarchive *ia = new boost::archive::polymorphic_binary_iarchive(stream);
+    GridMap<A> grid_map_i;
+    (*ia) >> grid_map_i; 
+
+    BOOST_CHECK(grid_map_i.getDefaultValue() == grid_map_o.getDefaultValue()); 
+    BOOST_CHECK(grid_map_i.getDefaultValue() == default_value);
+    BOOST_CHECK(grid_map_i.getResolution() == grid_map_o.getResolution()); 
+    BOOST_CHECK(grid_map_i.getResolution() == resolution);    
+    BOOST_CHECK(grid_map_i.getNumCells() == grid_map_o.getNumCells());
+    BOOST_CHECK(grid_map_i.getNumCells() == storage_size);
+
+    for (unsigned int x = 0; x < storage_size.x(); ++x)
+    {
+        for (unsigned int y = 0; y < storage_size.y(); ++y)
+        {
+            if (x == 0 && y == 0)
+            {
+                BOOST_CHECK(grid_map_i.at(x, y) == A(0, 0));
+            } else if (x == 1 && y == 1)
+            {
+                BOOST_CHECK(grid_map_i.at(x, y) == A(1, 1));
+            } else 
+            {
+                BOOST_CHECK(grid_map_i.at(x, y) == default_value);
+            }
+        }
+    }
+}
+
+
+
 /*BOOST_AUTO_TEST_CASE(test_grid_serialization)
 {
     Grid grid_o(Vector2ui(100, 100), Vector2d(0.153, 0.257));

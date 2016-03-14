@@ -6,6 +6,11 @@
 
 #include <boost/function.hpp>
 
+#include <boost/shared_ptr.hpp>
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+
 #include "LocalMap.hpp"
 #include "Index.hpp"
 
@@ -114,7 +119,21 @@ namespace envire { namespace maps
 
             bool toGrid(const Vector3d& pos, Index& idx, Vector3d &pos_diff) const;
 
-            bool toGrid(const Vector3d& pos_in_frame, Index& idx, const base::Transform3d &frame_in_grid) const;                    
+            bool toGrid(const Vector3d& pos_in_frame, Index& idx, const base::Transform3d &frame_in_grid) const;     
+
+        private:
+            /** Grants access to boost serialization */
+            friend class boost::serialization::access;  
+
+            /** Serializes the members of this class*/
+            template <typename Archive>
+            void serialize(Archive &ar, const unsigned int version)
+            {
+                ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(envire::maps::LocalMap);
+                ar & BOOST_SERIALIZATION_NVP(num_cells);
+                ar & BOOST_SERIALIZATION_NVP(resolution);
+            }    
+                           
     };
 }}
 
