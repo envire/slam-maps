@@ -25,13 +25,11 @@ public:
 //    virtual const Grid& getGrid() const = 0;
     virtual Grid& getGrid() = 0;
 
-    template<class SurfaceType>
-    struct MLSGridI;
 };
 
 
 template<class SurfaceType>
-struct MLSGrid::MLSBase::MLSGridI : public MLSGrid::MLSBase
+struct MLSGridI : public MLSGrid::MLSBase
 {
     typedef SPList<SurfaceType> SPListST;
     GridMap<SPListST> grid;
