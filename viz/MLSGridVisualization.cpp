@@ -105,10 +105,10 @@ void MLSGrid::visualize(vizkit3d::PatchesGeode& geode) const
     switch(map->mls_config.updateModel)
     {
     case MLSConfig::SLOPE:
-        dynamic_cast<const MLSGrid::MLSBase::MLSGridI<SurfacePatchT<MLSConfig::SLOPE> >&>(*map).visualize(geode);
+        dynamic_cast<const MLSGridI<SurfacePatchT<MLSConfig::SLOPE> >&>(*map).visualize(geode);
         break;
     case MLSConfig::KALMAN:
-        dynamic_cast<const MLSGrid::MLSBase::MLSGridI<SurfacePatchT<MLSConfig::KALMAN> >&>(*map).visualize(geode);
+        dynamic_cast<const MLSGridI<SurfacePatchT<MLSConfig::KALMAN> >&>(*map).visualize(geode);
         break;
     default:
         throw std::runtime_error("Can't visualize unknown map type");
@@ -146,7 +146,7 @@ struct PatchVisualizer
 };
 
 template<class SurfacePatch>
-void MLSGrid::MLSBase::MLSGridI<SurfacePatch>::visualize(vizkit3d::PatchesGeode& geode) const
+void MLSGridI<SurfacePatch>::visualize(vizkit3d::PatchesGeode& geode) const
 {
     const GridMap<SPListST> &mls = grid;
     Vector2ui num_cell = mls.getNumCells();

@@ -18,7 +18,7 @@ namespace envire {
 namespace maps {
 
 #define ENVIRE_MAPS_MLSGRID(ret_type__) template<class SurfaceType> \
-    ret_type__ MLSGrid::MLSBase::MLSGridI<SurfaceType>
+    ret_type__ MLSGridI<SurfaceType>
 
 ENVIRE_MAPS_MLSGRID(void)::mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& pc2grid, bool withUncertainty)
     {
@@ -122,10 +122,10 @@ MLSGrid::MLSGrid(
     switch(config.updateModel)
     {
     case MLSConfig::SLOPE:
-        map.reset(new MLSGrid::MLSBase::MLSGridI<SurfacePatchT<MLSConfig::SLOPE> >(num_cells_, resolution_, config));
+        map.reset(new MLSGridI<SurfacePatchT<MLSConfig::SLOPE> >(num_cells_, resolution_, config));
         break;
     case MLSConfig::KALMAN:
-        map.reset(new MLSGrid::MLSBase::MLSGridI<SurfacePatchT<MLSConfig::KALMAN> >(num_cells_, resolution_, config));
+        map.reset(new MLSGridI<SurfacePatchT<MLSConfig::KALMAN> >(num_cells_, resolution_, config));
         break;
     default:
         throw std::runtime_error("Not implemented!");
@@ -169,6 +169,17 @@ const Grid& MLSGrid::getGrid() const
 Grid& MLSGrid::getGrid()
 {
     return map->getGrid();
+}
+
+template<class SPType>
+const MLSGridI<SPType>& MLSGrid::getMLSGrid() const
+{
+    return dynamic_cast<const MLSGridI<SPType>&>(*map);
+}
+template<class SPType>
+MLSGridI<SPType>& MLSGrid::getMLSGrid()
+{
+        return dynamic_cast<MLSGridI<SPType>&>(*map);
 }
 
 }  // namespace maps

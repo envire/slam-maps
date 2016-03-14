@@ -89,6 +89,9 @@ private:
 };
 
 
+template<class SPType>
+struct MLSGridI;
+
 class MLSGrid
 {
     // Internal representation of map is hidden:
@@ -125,6 +128,14 @@ public:
 
     const Grid& getGrid() const;
     Grid& getGrid();
+
+    /** Low-level access to the actual MLSGrid implementation  */
+    template<class SPType>
+    const MLSGridI<SPType>& getMLSGrid() const;
+
+    /** Low-level access to the actual MLSGrid implementation  */
+    template<class SPType>
+    MLSGridI<SPType>& getMLSGrid();
 };
 
 
