@@ -35,6 +35,7 @@ namespace maps
 // TODO move this typedef somewhere more globally
 typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 
+#if 0
 
 class MLSMapExchange
 {
@@ -88,6 +89,12 @@ private:
     // TODO perhaps use std::pair<uint32_t, uint32_t> which would allow gaps in the storage container
 };
 
+#else
+// TODO implement
+class MLSMapExchange;
+
+#endif
+
 
 template<class SPType>
 struct MLSGridI;
@@ -126,8 +133,9 @@ public:
 
     void getMap(MLSMapExchange & output) const;
 
-    const Grid& getGrid() const;
-    Grid& getGrid();
+    Eigen::Vector2d getSize() const;
+    base::Transform3d& getLocalFrame();
+    Eigen::Vector2d getResolution() const;
 
     /** Low-level access to the actual MLSGrid implementation  */
     template<class SPType>

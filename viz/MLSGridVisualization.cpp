@@ -67,7 +67,7 @@ void MLSGridVisualization::updateMainNode ( osg::Node* node )
     osg::Group* group = static_cast<osg::Group*>(node);    
 
     MLSGrid &mls = p->data;
-    Eigen::Vector2d res = mls.getGrid().getResolution();
+    Eigen::Vector2d res = mls.getResolution();
 
     osg::ref_ptr<PatchesGeode> geode = new PatchesGeode(res.x(), res.y());
     group->setChild( 0, geode );

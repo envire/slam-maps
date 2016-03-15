@@ -24,7 +24,7 @@ BOOST_AUTO_TEST_CASE(mls_simulate_LIDAR)
     MLSGrid *mls = new MLSGrid(numCells, res, mls_config);
 
     /** Translate the local frame (offset) **/
-    mls->getGrid().getLocalFrame().translation() << 0.5*mls->getGrid().getSize(), 0;
+    mls->getLocalFrame().translation() << 0.5*mls->getSize(), 0;
 
     /** Equivalent to translate the grid in opposite direction **/
     //Eigen::Vector3d offset_grid;
