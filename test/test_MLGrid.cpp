@@ -1,8 +1,9 @@
 #include <boost/test/unit_test.hpp>
 #include "../src/MLGrid.hpp"
-#include "../src/GridStorageAccessInterface.hpp"
-#include "../src/GridStorageAccess.hpp"
-#include "../src/GridStorageFacade.hpp"
+
+#include "../src/storage/GridStorageAccessInterface.hpp"
+#include "../src/storage/GridStorageAccess.hpp"
+#include "../src/storage/GridStorageFacade.hpp"
 
 using namespace envire::maps;
 class PatchBase

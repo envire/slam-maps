@@ -1,7 +1,7 @@
 #pragma once
 
-#include "GridStorage.hpp"
 #include "Grid.hpp"
+#include "storage/GridStorage.hpp"
 
 /** std **/
 #include <iostream>
