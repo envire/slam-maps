@@ -2,11 +2,12 @@
 
 #include <vector>
 #include <stdexcept>
-#include "../Index.hpp"
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/vector.hpp>
+
+#include "../Index.hpp"
 
 namespace envire {namespace maps
 {

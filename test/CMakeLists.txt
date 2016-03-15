@@ -1,3 +1,7 @@
+rock_testsuite(test_index suite.cpp
+   test_Index.cpp
+   DEPS envire_maps)   
+
 rock_testsuite(test_localmap suite.cpp
    test_LocalMap.cpp
    DEPS envire_maps)   
