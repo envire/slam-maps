@@ -5,24 +5,22 @@ include(${CGAL_USE_FILE})
 
 rock_library(envire_maps
     SOURCES
-        Grid.cpp
         ElevationMap.cpp
-        MLSGrid.cpp
+#        MLSGrid.cpp
         TraversabilityMap3d.cpp
         tools/BresenhamLine.cpp        
     HEADERS
         LocalMap.hpp
         Index.hpp
-        Grid.hpp
         GridMap.hpp
-        MultilayerGridMap.hpp
+#        MultilayerGridMap.hpp
         ElevationMap.hpp
         SurfacePatches.hpp
         List.hpp
         SPList.hpp
         MLSConfig.hpp
-        MLSGrid.hpp
-        MLSGridI.hpp
+#        MLSGrid.hpp
+#        MLSGridI.hpp
         TraversabilityMap3d.hpp
         operations/GridInterpolation.hpp
         storage/AccessIterator.hpp

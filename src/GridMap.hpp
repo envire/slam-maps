@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Grid.hpp"
+#include "LocalMap.hpp"
 #include "storage/GridStorage.hpp"
 
 /** std **/
@@ -28,24 +28,32 @@ namespace envire {namespace maps
      * This map offers a template class for all maps that are regular grids
      */
     template <typename T, typename R = GridStorage<T> >
-    class GridMap: public Grid, public R
+    class GridMap: public LocalMap, public R
     {
 
-    protected:
-        
+    private:
+        /** 
+         * @brief Resolution of the cell in local x-axis and y-axis
+         * @details
+         * Size of the cell in local x- und y-axis in some distance/length unit 
+         * (e.g. meter or inch)
+         * The unit used in the resolution should be the same as the unit used for
+         * the translation part of the local frame. (s. LocalMapData::offset)
+         */
+        Vector2d resolution;        
+
     public:
         GridMap() 
-            : Grid()
-        {
-        }
-
-        GridMap(const Grid& oGrid, R oStorage)
-            : Grid(oGrid), R(oStorage)
+            : LocalMap(),
+              R(),
+              resolution(0,0)
         {
         }
 
         GridMap(const GridMap& other)
-            : Grid(other), R(other)
+            : LocalMap(other), 
+              R(other),
+              resolution(other.resolution)
         {
         }
         
@@ -78,8 +86,9 @@ namespace envire {namespace maps
         GridMap(const Vector2ui &num_cells,
                 const Eigen::Vector2d &resolution,
                 const T& default_value)
-            : Grid(num_cells, resolution),
-              R(num_cells, default_value)
+            : LocalMap(),
+              R(num_cells, default_value),
+              resolution(resolution)
         {
         }
 
@@ -87,8 +96,9 @@ namespace envire {namespace maps
                 const Eigen::Vector2d &resolution,
                 const T& default_value,
                 const boost::shared_ptr<LocalMapData> &data)
-            : Grid(num_cells, resolution, data),
-              R(num_cells, default_value)
+            : LocalMap(data),
+              R(num_cells, default_value),
+              resolution(resolution)
         {}
 
         /** @brief default destructor
@@ -98,6 +108,95 @@ namespace envire {namespace maps
         }
 
     public:
+        using R::getNumCells;
+
+        size_t getNumElements() const
+        {
+            return getNumCells().prod();
+        }
+
+        const Vector2d& getResolution() const 
+        { 
+            return resolution; 
+        }
+
+        Vector2d getSize() const
+        {
+            return resolution.array() * Vector2ui(getNumCells()).cast<double>().array();
+        }
+
+        bool inGrid(const Index& idx) const
+        {
+            // do not need to check idx against (0,0),
+            // until idx is of type unsigned int
+            return idx.isInside(Index(getNumCells())); 
+        }
+
+        bool fromGrid(const Index& idx, Vector3d& pos) const
+        {
+            /** Index inside the grid **/
+            if (inGrid(idx))
+            {
+                // position at the cell center without offset trnasformation
+                Vector2d center = (idx.cast<double>() + Vector2d(0.5, 0.5)).array() * resolution.array();
+
+                // Apply the offset transformation to the obtained position
+                pos = this->getLocalFrame().inverse() * Vector3d(center.x(), center.y(), 0.);
+                return true;
+            } else
+            {
+                /** Index outside the grid **/
+                return false;
+            }
+        }
+
+        bool fromGrid(const Index& idx, Vector3d& pos_in_frame, const base::Transform3d &frame_in_grid) const
+        {
+            Vector3d pos_in_map;
+
+            if (fromGrid(idx, pos_in_map) == false)
+                return false;
+
+            pos_in_frame = frame_in_grid.inverse() * pos_in_map;
+
+            return true;
+        }
+
+        bool toGrid(const Vector3d& pos, Index& idx, Vector3d &pos_diff) const
+        {
+            // position without offset
+            Vector2d pos_temp = Vector3d(this->getLocalFrame() * pos).head<2>();
+
+            // cast to float due to position which lies on the border between two cells
+            Eigen::Vector2d idx_double = pos_temp.array() / resolution.array();
+            Index idx_temp(std::floor(idx_double.x()), std::floor(idx_double.y()));
+
+            Vector3d center;
+            if(inGrid(idx_temp) && fromGrid(idx_temp, center))
+            {
+                idx = idx_temp;
+                pos_diff = pos - center;
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+
+        bool toGrid(const Vector3d& pos_in_frame, Index& idx, const base::Transform3d &frame_in_grid) const
+        {
+            Eigen::Vector3d pos_in_map = frame_in_grid * pos_in_frame;
+            Eigen::Vector3d pos_diff;
+            return toGrid(pos_in_map, idx, pos_diff);
+        }
+
+        bool toGrid(const Vector3d& pos, Index& idx) const 
+        {
+            Vector3d pos_diff;
+            return toGrid(pos, idx, pos_diff);
+        }        
+
+
         const T& at(const Vector3d& pos) const
         {
             Index idx;
@@ -241,8 +340,6 @@ namespace envire {namespace maps
                 return value == this->getDefaultValue();
             }
         }
-        
-        using R::getNumCells;
 
     protected:
                 /** Grants access to boost serialization */
@@ -252,8 +349,9 @@ namespace envire {namespace maps
         template <typename Archive>
         void serialize(Archive &ar, const unsigned int version)
         {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(envire::maps::Grid);
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(envire::maps::LocalMap);
             ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(R);
+            ar & BOOST_SERIALIZATION_NVP(resolution);
         }   
     };    
 }}

@@ -26,13 +26,38 @@ bool compare_default_value(const double &value1, const double &value2, const dou
 BOOST_AUTO_TEST_CASE(test_grid_empty)
 {
     GridMap<double> *grid = new GridMap<double>();
+
+    /** Check grid members **/
+    BOOST_CHECK_EQUAL(grid->getNumCells(), Vector2ui(0, 0));
+    BOOST_CHECK_EQUAL(grid->getResolution(), Vector2d(0, 0));
+    BOOST_CHECK_EQUAL(grid->getSize(), Vector2d(0, 0));    
+    BOOST_CHECK_EQUAL(grid->getNumElements(), 0);       
     
     // if the grid has size of (0,0)
-    BOOST_CHECK_THROW(grid->at(Index(0,0)), std::exception);
+    BOOST_CHECK_THROW(grid->at(Vector3d(0,0,0)), std::exception);    
     BOOST_CHECK_THROW(grid->getMax(), std::exception);  
-    BOOST_CHECK_THROW(grid->getMin(), std::exception);      
+    BOOST_CHECK_THROW(grid->getMin(), std::exception);  
+
+    /*// since the grid has no size, return false
+    // the pos should be unchanged
+    Vector3d gt_pos(-5.13, 100.57, -89.89);
+    Vector3d pos(gt_pos);
+    BOOST_CHECK_EQUAL(grid->fromGrid(Index(0, 0), pos), false);
+    BOOST_CHECK_EQUAL(pos, gt_pos);    
+
+    // since the grid has no size, return false
+    // the pos should be unchanged
+    Index gt_idx(57, 13);
+    Index idx(gt_idx);
+    BOOST_CHECK_EQUAL(grid->toGrid(Eigen::Vector3d(0, 0, 0), idx), false);
+    BOOST_CHECK_EQUAL(idx, gt_idx);    
+
+    // function inherited through storage    
+    BOOST_CHECK_THROW(grid->at(Index(0,0)), std::exception);
+    BOOST_CHECK_THROW(grid->at(0, 0), std::exception);    
+    BOOST_CHECK_EQUAL(grid->begin(), grid->end());
     BOOST_CHECK_NO_THROW(grid->clear());
-    BOOST_CHECK_NO_THROW(grid->moveBy(Index(0,0)));
+    BOOST_CHECK_NO_THROW(grid->moveBy(Index(0,0)));*/
 
     delete grid;
 }
