@@ -4,7 +4,6 @@
 #include <boost/archive/polymorphic_binary_oarchive.hpp>
 
 #include <envire_maps/LocalMap.hpp>
-#include <envire_maps/Grid.hpp>
 #include <envire_maps/GridMap.hpp>
 
 using namespace envire::maps;
@@ -73,37 +72,6 @@ BOOST_AUTO_TEST_CASE(test_localmap_serialization)
     // 2: since local variable local_map_data_i and member of local_map_i points to the same
     // LocalMapData instance
     BOOST_CHECK(local_map_data_i.use_count() == 2);  
-}
-
-BOOST_AUTO_TEST_CASE(test_grid_serialization)
-{
-    // create an instance of LocalMapData
-    boost::shared_ptr<LocalMapData> local_map_data(new LocalMapData());
-    local_map_data->id = "test";
-    local_map_data->offset = 0.2 * Eigen::Matrix3d::Identity();
-    local_map_data->map_type = GEOMETRIC_MAP;
-    local_map_data->EPSG_code = "EPSG_code";
-    
-    Vector2ui num_cells(100, 100);
-    Vector2d resolution(0.1, 0.5);
-    Grid grid_o(num_cells, resolution, local_map_data);  
-
-    std::stringstream stream;
-    boost::archive::polymorphic_binary_oarchive oa(stream);
-    oa << grid_o;   
-    
-    // deserialize from string stream
-    boost::archive::polymorphic_binary_iarchive *ia = new boost::archive::polymorphic_binary_iarchive(stream);
-    Grid grid_i;
-    (*ia) >> grid_i; 
-
-    BOOST_CHECK(grid_i.getId() == grid_o.getId()); 
-    BOOST_CHECK_EQUAL(grid_i.getLocalFrame().matrix().isApprox(grid_o.getLocalFrame().matrix()), true); 
-    BOOST_CHECK(grid_i.getId() == grid_o.getId());
-    BOOST_CHECK(grid_i.getMapType() == grid_o.getMapType());
-    BOOST_CHECK(grid_i.getEPSGCode() == grid_o.getEPSGCode());    
-    BOOST_CHECK(grid_i.getNumCells() == grid_o.getNumCells());
-    BOOST_CHECK(grid_i.getResolution() == grid_o.getResolution());       
 }
 
 
