@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(test_local_map_constuctor)
     BOOST_CHECK_EQUAL(map->getId(), data_new->id);
     BOOST_CHECK_EQUAL(map_2->getId(), map->getId());
 
-    BOOST_CHECK_EQUAL(map->getLocalFrame().matrix().isApprox(data_new->offset.matrix()), true);  
+    BOOST_CHECK_EQUAL(map->getLocalFrame().isApprox(data_new->offset), true);
     BOOST_CHECK_EQUAL(map_2->getLocalFrame().matrix().isApprox(map->getLocalFrame().matrix()), true); 
 
     BOOST_CHECK_EQUAL(map->getMapType(), data_new->map_type);
