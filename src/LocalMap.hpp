@@ -230,7 +230,7 @@ namespace envire { namespace maps
             /**
              * @brief Return the translation of the grid
              */
-            inline const Eigen::Vector3d & translation() const
+            inline const Eigen::Vector3d translation() const
             {
                 return data_ptr->offset.inverse().translation();
             }
