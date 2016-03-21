@@ -51,12 +51,19 @@ namespace envire { namespace maps
              * @brief Offest of the local map frame
              * @details
              * The map uses the Cartesian coordinate system. Initially it is defined as follows:
-             *    - the initial origin of the map is placed in the bottom left corner
-             *    - the x-axis points to the right from the the origin
+             *    - the initial origin (0,0,0) of the map is placed in the bottom left corner
+             *    - the x-axis points to the right from the origin
              *    - the y-axis points upwards from the origin
+             *Y
+             *^  0 1 2 3 4 5 6
+             *|  0 1 2 3 4 5 6
+             *|  0 1 2 3 4 5 6
+             *|  0 1 2 3 4 5 6
+             *|  0 1 2 3 4 5 6
+             *O - - - - - - - -> X
              * 
-             * The offset represents the replacement of the local frame 
-             * with respect to the inital coordinate system.
+             * The offset represents the displacement of the local frame
+             * with respect to the initial coordinate system (grid frame).
              *
              * The offset can also be reference as local frame
              */
@@ -93,7 +100,7 @@ namespace envire { namespace maps
                 ar & BOOST_SERIALIZATION_NVP(offset.matrix());
                 ar & BOOST_SERIALIZATION_NVP(map_type);
                 ar & BOOST_SERIALIZATION_NVP(EPSG_code);
-            }                         
+            }
     };
 
     /**
@@ -201,7 +208,7 @@ namespace envire { namespace maps
             std::string& getEPSGCode()
             {
                 return data_ptr->EPSG_code;
-            }            
+            }
 
             const boost::shared_ptr<LocalMapData>& getLocalMapData() const
             {
@@ -219,6 +226,15 @@ namespace envire { namespace maps
                 data_ptr->offset.translate(-translation);
             }
 
+
+            /**
+             * @brief Return the translation of the grid
+             */
+            inline const Eigen::Vector3d & translation() const
+            {
+                return data_ptr->offset.inverse().translation();
+            }
+
             /**
              * @brief Rotate the map relative to its local frame
              * 
@@ -228,20 +244,29 @@ namespace envire { namespace maps
             void rotate(const Eigen::Quaterniond &rotation)
             {
                 data_ptr->offset.rotate(rotation.inverse());
-            }            
+            }
+
+            /**
+             * @brief Return the rotation of the grid
+             */
+            inline const Eigen::Quaterniond rotation() const
+            {
+                return Eigen::Quaterniond(data_ptr->offset.inverse().rotation());
+            }
+
 
         private:
             boost::shared_ptr<LocalMapData> data_ptr;
 
             /** Grants access to boost serialization */
-            friend class boost::serialization::access;  
+            friend class boost::serialization::access;
 
             /** Serializes the members of this class*/
             template <typename Archive>
             void serialize(Archive &ar, const unsigned int version)
             {
                 ar & BOOST_SERIALIZATION_NVP(data_ptr);
-            }                   
+            }
 
 
     };
