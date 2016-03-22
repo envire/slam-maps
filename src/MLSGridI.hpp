@@ -23,7 +23,9 @@ public:
 
     virtual MLSBase* clone() const = 0;
 //    virtual const Grid& getGrid() const = 0;
-    virtual Grid& getGrid() = 0;
+    virtual Eigen::Vector2d getResolution() const= 0;
+    virtual Eigen::Vector2d getSize() const= 0;
+    virtual base::Transform3d& getLocalFrame() = 0;
 
 };
 
@@ -60,9 +62,17 @@ struct MLSGridI : public MLSGrid::MLSBase
         return new MLSGridI(*this);
     }
 
-    Grid& getGrid()
+    base::Transform3d& getLocalFrame()
     {
-        return grid;
+        return grid.getLocalFrame();
+    }
+    Eigen::Vector2d getSize() const
+    {
+        return grid.getSize();
+    }
+    Eigen::Vector2d getResolution() const
+    {
+        return grid.getResolution();
     }
 
     void mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& pc2grid, bool withUncertainty);

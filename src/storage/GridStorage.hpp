@@ -71,10 +71,15 @@ namespace envire {namespace maps
             cells.resize(newSize.prod(), default_value);
         };
 
+        /**
+         * @brief Move the content of the grid cells
+         * @details by the offset described in the argument
+         * @return void
+         */
         void moveBy(const Vector2i &idx)
         {
             const Vector2ui num_cells(gridSize);
-            
+
             // if all grid values should be moved outside
             if (abs(idx.x()) >= num_cells.x()
                 || abs(idx.y()) >= num_cells.y())
@@ -101,15 +106,15 @@ namespace envire {namespace maps
                     }
                 }
             }
-            
+
             cells.swap(tmp);
         }
-        
+
         void moveBy(const Index &idx)
         {
             moveBy(Eigen::Vector2i(idx.x(), idx.y()));
         }
-        
+
         const T& at(const Index &idx) const
         {
             if(idx.x() >= gridSize.x() || idx.y() >= gridSize.y())

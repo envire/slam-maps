@@ -1,7 +1,7 @@
 #ifndef __ENVIRE_MAPS_ELEVATION_MAP_HPP__
 #define __ENVIRE_MAPS_ELEVATION_MAP_HPP__
 
-#include "MultilayerGridMap.hpp"
+#include "GridMap.hpp"
 
 namespace envire {namespace maps
 {

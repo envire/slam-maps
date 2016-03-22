@@ -162,13 +162,17 @@ MLSGrid& MLSGrid::operator =(const MLSGrid& other)
     return *this;
 }
 
-const Grid& MLSGrid::getGrid() const
+Eigen::Vector2d MLSGrid::getResolution() const
 {
-    return map->getGrid();
+    return map->getResolution();
 }
-Grid& MLSGrid::getGrid()
+Eigen::Vector2d MLSGrid::getSize() const
 {
-    return map->getGrid();
+    return map->getSize();
+}
+base::Transform3d& MLSGrid::getLocalFrame()
+{
+    return map->getLocalFrame();
 }
 
 template<class SPType>

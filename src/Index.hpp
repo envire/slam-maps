@@ -42,19 +42,6 @@ namespace envire { namespace maps {
                 : Vector2ui(other)
             {}
 
-            /** @brief Lexicographical ordering (Strict Total Ordering)
-             * @details
-             * Returns true if:
-             *      - index.x() < other.x()
-             *      - index.x() == other.x() && index.y() < other.y()
-             * Otherwise, return false.
-             */
-            bool operator<(const Index& other) const
-            {
-                return (x() < other.x() 
-                        || (x() == other.x() && y() < other.y()));
-            }
-
             /**
              * @brief Check if index is inside the other.
              * @details 
@@ -66,6 +53,20 @@ namespace envire { namespace maps {
                 return (x() < other.x() && y() < other.y());
             }
     };
+
+    /** @brief Lexicographical ordering (Strict Total Ordering)
+     * @details
+     * Returns true if:
+     *      - index.x() < other.x()
+     *      - index.x() == other.x() && index.y() < other.y()
+     * Otherwise, return false.
+     */
+    inline bool operator<(const Index& lhs, const Index& rhs)
+    {
+        return (lhs.x() < rhs.x()
+                || (lhs.x() == rhs.x() && lhs.y() < rhs.y()));
+    }
+
 }}
 
 #endif // __ENVIRE_MAPS_INDEX_HPP__

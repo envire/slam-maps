@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Grid.hpp"
+#include "LocalMap.hpp"
 #include "storage/GridStorage.hpp"
 
 /** std **/
@@ -28,39 +28,47 @@ namespace envire {namespace maps
      * This map offers a template class for all maps that are regular grids
      */
     template <typename T, typename R = GridStorage<T> >
-    class GridMap: public Grid, public R
+    class GridMap: public LocalMap, public R
     {
 
-    protected:
-        
+    private:
+        /** 
+         * @brief Resolution of the cell in local x-axis and y-axis
+         * @details
+         * Size of the cell in local x- und y-axis in some distance/length unit 
+         * (e.g. meter or inch)
+         * The unit used in the resolution should be the same as the unit used for
+         * the translation part of the local frame. (s. LocalMapData::offset)
+         */
+        Vector2d resolution;
+
     public:
         GridMap() 
-            : Grid()
-        {
-        }
-
-        GridMap(const Grid& oGrid, R oStorage)
-            : Grid(oGrid), R(oStorage)
+            : LocalMap(),
+              R(),
+              resolution(0,0)
         {
         }
 
         GridMap(const GridMap& other)
-            : Grid(other), R(other)
+            : LocalMap(other), 
+              R(other),
+              resolution(other.resolution)
         {
         }
-        
+
         /** @brief Constructor of the abstract GridMap class
          *
          * Defines the extends and positioning of the grid. The grid is assumed
          * to be on the x-y plane of the reference frame. The number of grid
-         * cells is given by the num_cell_x and num_cell_y params. Each dimension
+         * cells is given by the num_cells parameter. Each dimension (x and y)
          * also has an scaling and offset parameter, such that the origin of the
-         * grid can be moved around and the grid scaled.
+         * grid (grid_map) can be moved around and the grid scaled.
          *
          * The relation between the grid cell index and position is:
          *
          * @verbatim
-         *
+        *
          * v_position = v_index * resolution + offset
          *
          * where:
@@ -78,8 +86,9 @@ namespace envire {namespace maps
         GridMap(const Vector2ui &num_cells,
                 const Eigen::Vector2d &resolution,
                 const T& default_value)
-            : Grid(num_cells, resolution),
-              R(num_cells, default_value)
+            : LocalMap(),
+              R(num_cells, default_value),
+              resolution(resolution)
         {
         }
 
@@ -87,8 +96,9 @@ namespace envire {namespace maps
                 const Eigen::Vector2d &resolution,
                 const T& default_value,
                 const boost::shared_ptr<LocalMapData> &data)
-            : Grid(num_cells, resolution, data),
-              R(num_cells, default_value)
+            : LocalMap(data),
+              R(num_cells, default_value),
+              resolution(resolution)
         {}
 
         /** @brief default destructor
@@ -98,6 +108,123 @@ namespace envire {namespace maps
         }
 
     public:
+        using R::getNumCells;
+
+        size_t getNumElements() const
+        {
+            return getNumCells().prod();
+        }
+
+        const Vector2d& getResolution() const 
+        {
+            return resolution;
+        }
+
+        Vector2d getSize() const
+        {
+            return resolution.array() * Vector2ui(getNumCells()).cast<double>().array();
+        }
+
+        bool inGrid(const Index& idx) const
+        {
+            // do not need to check idx against (0,0),
+            // until idx is of type unsigned int
+            return idx.isInside(Index(getNumCells()));
+        }
+
+        /** @brief get a position of an index from the Grid
+         * */
+        bool fromGrid(const Index& idx, Vector3d& pos) const
+        {
+            /** Index inside the grid **/
+            if (inGrid(idx))
+            {
+                // position at the cell center without offset transformation
+                Vector2d center = (idx.cast<double>() + Vector2d(0.5, 0.5)).array() * resolution.array();
+
+                // Apply the offset transformation to the obtained position
+                // pos_local = (Tgrid_local)^-1 * pos_grid
+                pos = this->getLocalFrame().inverse() * Vector3d(center.x(), center.y(), 0.);
+                return true;
+            } else
+            {
+                /** Index outside the grid **/
+                return false;
+            }
+        }
+
+        /** @brief get a position of an index from the Grid applying an offset
+         * set in the argument of the method
+         * transformation. T_offset = frame_in_map = Tmap_frame
+         * frame expressed with respect to the map_frame.
+         * map_frame is the local_frame in case there is an offset or grid_map
+         * in case there is not offset
+         * */
+        bool fromGrid(const Index& idx, Vector3d& pos_in_frame, const base::Transform3d &frame_in_map) const
+        {
+            Vector3d pos_in_map;
+
+            if (fromGrid(idx, pos_in_map) == false)
+                return false;
+
+            /** Transform the position by the offset form the argument **/
+            /** pos_in_frame = (Tmap_frame)^inverse * pos_in_map **/
+            pos_in_frame = frame_in_map.inverse() * pos_in_map;
+
+            return true;
+        }
+
+        /** @brief get the index to grid of a position
+         * */
+        bool toGrid(const Vector3d& pos, Index& idx, Vector3d &pos_diff) const
+        {
+            // Get the 2D position without the offset (in grid_frame)
+            // pos_grid = Tgrid_local pos_local
+            Vector2d pos_grid = Vector3d(this->getLocalFrame() * pos).head<2>();
+
+            // Get the index for the pos_grid
+            // cast to float due to position which lies on the border between two cells
+            Eigen::Vector2d idx_double = pos_grid.array() / resolution.array();
+            Index idx_temp(std::floor(idx_double.x()), std::floor(idx_double.y()));
+
+            Vector3d center;
+            if(inGrid(idx_temp) && fromGrid(idx_temp, center))
+            {
+                idx = idx_temp;
+                pos_diff = pos - center;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /** @brief get an index of a position in the map applying an offset set
+         * in the argument of the method.
+         *
+         * transformation. T_offset = frame_in_map = Tmap_frame
+         * frame expressed with respect to the map_frame.
+         * map_frame is the local_frame in case there is an offset or grid_map
+         * in case there is not offset
+         * */
+        bool toGrid(const Vector3d& pos_in_frame, Index& idx, const base::Transform3d &frame_in_map) const
+        {
+            /** Transform the position by the offset form the argument **/
+            /** pos_in_map = Tmap_frame * pos_in_frame **/
+            Eigen::Vector3d pos_in_map = frame_in_map * pos_in_frame;
+
+            Eigen::Vector3d pos_diff;
+            return toGrid(pos_in_map, idx, pos_diff);
+        }
+
+        bool toGrid(const Vector3d& pos, Index& idx) const 
+        {
+            Vector3d pos_diff;
+            return toGrid(pos, idx, pos_diff);
+        }
+
+
         const T& at(const Vector3d& pos) const
         {
             Index idx;
@@ -115,7 +242,7 @@ namespace envire {namespace maps
         }
 
         using R::at;
-        
+
         /**
          * @brief [brief description]
          * @details enable this function only for arithmetic types (integral and floating types)
@@ -130,18 +257,18 @@ namespace envire {namespace maps
         getMax(const bool include_default_value = true) const
         {
             Vector2ui numCells(getNumCells());
-            
+
             std::cout << "Num Cells is " << numCells.transpose() << std::endl;
             if(numCells == Vector2ui(0,0))
                 throw std::runtime_error("Tried to compute max on empty map");
-            
+
             auto it = this->begin();
             auto endIt = this->end();
-            
+
             const Q *first = &(*it);
 //            const Q *last = &(*(this->end()));
-            
-            
+
+
             /** Include the default value as a possible max value to return **/
             if (include_default_value)
             {
@@ -154,7 +281,7 @@ namespace envire {namespace maps
                 while (it != endIt)
                 {
                     const Q *curElem = &(*it);
-                    
+
                     if(!this->isDefault(*largest))
                     {
                         if ((*largest < *curElem)&&(!this->isDefault(*curElem)))
@@ -187,18 +314,18 @@ namespace envire {namespace maps
         getMin(const bool include_default_value = true) const
         {
             Vector2ui numCells(getNumCells());
-            
+
             std::cout << "Num Cells is " << numCells.transpose() << std::endl;
             if(numCells == Vector2ui(0,0))
                 throw std::runtime_error("Tried to compute max on empty map");
-            
+
             auto it = this->begin();
             auto endIt = this->end();
-            
+
             const Q *first = &(*it);
 //            const Q *last = &(*(this->end()));
-            
-            
+
+
             /** Include the default value as a possible max value to return **/
             if (include_default_value)
             {
@@ -211,7 +338,7 @@ namespace envire {namespace maps
                 while (it != endIt)
                 {
                     const Q *curElem = &(*it);
-                    
+
                     if(!this->isDefault(*smallest))
                     {
                         if ((*curElem < *smallest) &&(!this->isDefault(*curElem)))
@@ -241,8 +368,6 @@ namespace envire {namespace maps
                 return value == this->getDefaultValue();
             }
         }
-        
-        using R::getNumCells;
 
     protected:
                 /** Grants access to boost serialization */
@@ -252,9 +377,10 @@ namespace envire {namespace maps
         template <typename Archive>
         void serialize(Archive &ar, const unsigned int version)
         {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(envire::maps::Grid);
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(envire::maps::LocalMap);
             ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(R);
-        }   
-    };    
+            ar & BOOST_SERIALIZATION_NVP(resolution);
+        }
+    };
 }}
 
