@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include <envire_maps/Grid.hpp>
+#include <envire_maps/Index.hpp>
 #include <iostream>
 
 using namespace envire::maps;
