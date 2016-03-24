@@ -6,7 +6,6 @@
 #include "SurfacePatches.hpp"
 #include <map>
 
-namespace envire {
 namespace maps {
 
 class TraversabilityNodeBase
@@ -14,7 +13,7 @@ class TraversabilityNodeBase
 protected:
     std::vector<TraversabilityNodeBase *> connections;
     float height;
-    envire::maps::Index idx;
+    ::maps::Index idx;
     
     
 public:
@@ -92,14 +91,13 @@ public:
 };
 
 
-class TraversabilityMap3d : public envire::maps::GridMap<TraversabilityNodeListBase>
+class TraversabilityMap3d : public ::maps::GridMap<TraversabilityNodeListBase>
 {
 public:
     Eigen::Vector3f getNodePosition(const TraversabilityNodeBase *node) const;
     
 };
 
-}
 }
 
 #endif // TRAVERSABILITYMAP3D_H

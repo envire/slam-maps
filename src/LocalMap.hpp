@@ -1,5 +1,5 @@
-#ifndef __ENVIRE_MAPS_LOCAL_MAP_HPP__
-#define __ENVIRE_MAPS_LOCAL_MAP_HPP__
+#ifndef __MAPS_LOCAL_MAP_HPP__
+#define __MAPS_LOCAL_MAP_HPP__
 
 #include <base/Eigen.hpp>
 
@@ -12,7 +12,7 @@
 
 #include <string>
 
-namespace envire { namespace maps
+namespace maps
 {
     /** @brief The type of the LocalMap */
     enum LocalMapType
@@ -270,5 +270,5 @@ namespace envire { namespace maps
 
 
     };
-}}
-#endif // __ENVIRE_MAPS_LOCAL_MAP_HPP__
+}
+#endif // __MAPS_LOCAL_MAP_HPP__

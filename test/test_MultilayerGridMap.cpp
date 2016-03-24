@@ -1,7 +1,7 @@
 #include <boost/test/unit_test.hpp>
-#include <envire_maps/MultilayerGridMap.hpp>
+#include <maps/MultilayerGridMap.hpp>
 
-using namespace envire::maps;
+using namespace ::maps;
 
 Vector2ui num_cells(100, 100);
 Vector2d resolution(0.2, 0.5);

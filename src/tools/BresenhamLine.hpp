@@ -1,10 +1,8 @@
-#ifndef ENVIRE_MAPS_BRESENHAM_LINE__
-#define ENVIRE_MAPS_BRESENHAM_LINE__
+#ifndef __MAPS_BRESENHAM_LINE__
+#define __MAPS_BRESENHAM_LINE__
 
 #include <Eigen/Core>
 
-namespace envire
-{
 namespace maps {
 
 
@@ -48,6 +46,5 @@ private:
 
 }  // namespace maps
 
-}  // namespace envire
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef __ENVIRE_MAPS_MLS_GRID_HPP__
-#define __ENVIRE_MAPS_MLS_GRID_HPP__
+#ifndef __MAPS_MLS_GRID_HPP__
+#define __MAPS_MLS_GRID_HPP__
 
 #include <vector>
 
@@ -27,8 +27,6 @@ struct Pointcloud;
 } /* namespace samples */
 } /* namespace base */
 
-namespace envire
-{
 namespace maps
 {
 
@@ -151,6 +149,5 @@ public:
 
 
 } /* namespace maps */
-} /* namespace envire */
 
-#endif // __ENVIRE_MAPS_MLS_GRID_HPP__
+#endif // __MAPS_MLS_GRID_HPP__

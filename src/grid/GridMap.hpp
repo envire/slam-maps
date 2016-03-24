@@ -1,7 +1,10 @@
+#ifndef __MAPS_GRIDMAP_HPP_
+#define __MAPS_GRIDMAP_HPP_
+
 #pragma once
 
-#include "LocalMap.hpp"
-#include "storage/GridStorage.hpp"
+#include <maps/LocalMap.hpp>
+#include <maps/grid/GridCell.hpp>
 
 /** std **/
 #include <iostream>
@@ -21,13 +24,13 @@
 #include <boost/serialization/nvp.hpp>
 
 
-namespace envire {namespace maps
+namespace maps
 {
     /**@brief GridMap class IEEE 1873 standard
      * This map is a Grid structure for a raster metric (Cartesian) map
      * This map offers a template class for all maps that are regular grids
      */
-    template <typename T, typename R = GridStorage<T> >
+    template <typename T, typename R = GridCell<T> >
     class GridMap: public LocalMap, public R
     {
 
@@ -377,10 +380,11 @@ namespace envire {namespace maps
         template <typename Archive>
         void serialize(Archive &ar, const unsigned int version)
         {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(envire::maps::LocalMap);
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(::maps::LocalMap);
             ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(R);
             ar & BOOST_SERIALIZATION_NVP(resolution);
         }
     };
-}}
+}
 
+#endif /* __MAPS_GRIDMAP_HPP_ */

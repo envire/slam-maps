@@ -4,7 +4,7 @@
 #include "tools/GeneratePointclouds.hpp"
 
 
-using namespace envire::maps;
+using namespace ::maps;
 
 BOOST_AUTO_TEST_CASE(test_generate_PC)
 {

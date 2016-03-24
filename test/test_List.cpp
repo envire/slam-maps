@@ -1,10 +1,10 @@
 #include <boost/test/unit_test.hpp>
-#include <envire_maps/List.hpp>
-#include <envire_maps/SurfacePatches.hpp>
+#include <maps/grid/List.hpp>
+#include <maps/grid/SurfacePatches.hpp>
 
 #include <chrono>
 
-using namespace envire::maps;
+using namespace ::maps;
 
 class Element : public boost::intrusive::list_base_hook<auto_unlink_mode>
 {

@@ -1,16 +1,16 @@
 #pragma once
 
-#include "GridStorageAccessInterface.hpp"
+#include "GridCellAccessInterface.hpp"
 
 
-namespace envire {namespace maps
+namespace maps
 {
     template <typename T, typename TBASE>
-    class GridStorageAccess : public GridStorageAccessInterface<TBASE>
+    class GridCellAccess : public GridCellAccessInterface<TBASE>
     {
-        GridStorage<T> *storage;
+        GridCell<T> *storage;
     public:
-        GridStorageAccess(GridStorage<T> *storage) : storage(storage)
+        GridCellAccess(GridCell<T> *storage) : storage(storage)
         {
         }
 
@@ -19,22 +19,22 @@ namespace envire {namespace maps
             return storage->getDefaultValue();
         }
         
-        virtual typename GridStorageAccessInterface<TBASE>::iterator begin()
+        virtual typename GridCellAccessInterface<TBASE>::iterator begin()
         {
             return AccessIteratorImpl<T, TBASE, std::vector<T> >(storage->begin());
         }
 
-        virtual typename GridStorageAccessInterface<TBASE>::iterator end()
+        virtual typename GridCellAccessInterface<TBASE>::iterator end()
         {
             return AccessIteratorImpl<T, TBASE, std::vector<T> >(storage->end());
         }
 
-        virtual typename GridStorageAccessInterface<TBASE>::const_iterator begin() const
+        virtual typename GridCellAccessInterface<TBASE>::const_iterator begin() const
         {
             return ConstAccessIteratorImpl<T, TBASE, std::vector<T> >(storage->begin());
         }
 
-        virtual typename GridStorageAccessInterface<TBASE>::const_iterator end() const
+        virtual typename GridCellAccessInterface<TBASE>::const_iterator end() const
         {
             return ConstAccessIteratorImpl<T, TBASE, std::vector<T> >(storage->end());
         }
@@ -79,4 +79,4 @@ namespace envire {namespace maps
             storage->clear();
         };
     };    
-}}
+}

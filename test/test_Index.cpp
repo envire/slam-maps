@@ -1,8 +1,8 @@
 #include <boost/test/unit_test.hpp>
-#include <envire_maps/Index.hpp>
+#include <maps/grid/Index.hpp>
 #include <iostream>
 
-using namespace envire::maps;
+using namespace ::maps;
 
 BOOST_AUTO_TEST_CASE(test_index)
 {

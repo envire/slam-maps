@@ -10,12 +10,12 @@
 #include <osg/Shape>
 #include <osg/Texture2D>
 
-#include <envire_maps/ElevationMap.hpp>
+#include <maps/grid/ElevationMap.hpp>
 
 namespace vizkit3d
 {
     class ElevationMapVisualization
-        : public vizkit3d::Vizkit3DPlugin<envire::maps::ElevationMap>
+        : public vizkit3d::Vizkit3DPlugin<::maps::ElevationMap>
         , boost::noncopyable
     {
         Q_OBJECT
@@ -26,13 +26,13 @@ namespace vizkit3d
             ElevationMapVisualization();
             ~ElevationMapVisualization();
 
-            Q_INVOKABLE void updateData(envire::maps::ElevationMap const &sample)
-            {vizkit3d::Vizkit3DPlugin<envire::maps::ElevationMap>::updateData(sample);}
+            Q_INVOKABLE void updateData(::maps::ElevationMap const &sample)
+            {vizkit3d::Vizkit3DPlugin<::maps::ElevationMap>::updateData(sample);}
 
         protected:
             virtual osg::ref_ptr<osg::Node> createMainNode();
             virtual void updateMainNode(osg::Node* node);
-            virtual void updateDataIntern(envire::maps::ElevationMap const& plan);
+            virtual void updateDataIntern(::maps::ElevationMap const& plan);
 
         private:
             struct Data;
@@ -45,7 +45,7 @@ namespace vizkit3d
 
             osg::Image* createTextureImage();
 
-            envire::maps::ColorGradient heatMapGradient;
+            ::maps::ColorGradient heatMapGradient;
 
         public slots:
             QStringList getElevationLayers();

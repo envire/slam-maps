@@ -8,8 +8,6 @@
 
 
 
-namespace envire
-{
 namespace maps
 {
 
@@ -23,7 +21,7 @@ class StandaloneVisualizer::Impl
     {
         app.start();
 
-        //create vizkit3d plugin for showing envire
+        //create vizkit3d plugin
         mls_viz = new vizkit3d::MLSGridVisualization();
 
         //create vizkit3d widget
@@ -31,7 +29,7 @@ class StandaloneVisualizer::Impl
         // grid plugin
         vizkit3d::GridVisualization *grid_viz = new vizkit3d::GridVisualization();
         widget->addPlugin(grid_viz);
-        // add envire plugin
+        // add plugin
         widget->addPlugin(mls_viz);
     }
 };
@@ -60,4 +58,3 @@ bool StandaloneVisualizer::wait(int usecs)
 }
 
 } /* namespace maps */
-} /* namespace envire */

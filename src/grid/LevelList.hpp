@@ -8,8 +8,6 @@
 
 #include "storage/AccessIterator.hpp"
 
-namespace envire 
-{
 namespace maps 
 {
 template <class _Tp>
@@ -150,5 +148,4 @@ public:
     
 };
 
-}
 }

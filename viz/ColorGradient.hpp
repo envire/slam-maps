@@ -2,7 +2,7 @@
 
 #include <vector>
 
-namespace envire { namespace maps
+namespace maps
 {
 
     class ColorGradient
@@ -74,4 +74,4 @@ namespace envire { namespace maps
         return;
       }
     };
-}}
+}

@@ -2,32 +2,32 @@ find_package(Boost REQUIRED COMPONENTS system filesystem serialization)
 
 find_package(CGAL REQUIRED COMPONENTS Core)
 
-rock_library(envire_maps
+rock_library(maps
     SOURCES
-        ElevationMap.cpp
-        MLSGrid.cpp
-        TraversabilityMap3d.cpp
+        grid/ElevationMap.cpp
+        grid/MLSGrid.cpp
+        grid/TraversabilityMap3d.cpp
         tools/BresenhamLine.cpp        
     HEADERS
         LocalMap.hpp
-        Index.hpp
-        GridMap.hpp
-        MultilayerGridMap.hpp
-        ElevationMap.hpp
-        SurfacePatches.hpp
-        List.hpp
-        SPList.hpp
-        MLSConfig.hpp
-        MLSGrid.hpp
-        MLSGridI.hpp
-        TraversabilityMap3d.hpp
-        operations/GridInterpolation.hpp
-        storage/AccessIterator.hpp
-        storage/GridStorage.hpp
-        storage/GridStorageAccessInterface.hpp
-        storage/GridStorageAccess.hpp
-        storage/GridStorageFacade.hpp        
+        grid/Index.hpp
+        grid/GridMap.hpp
+        grid/MultilayerGridMap.hpp
+        grid/ElevationMap.hpp
+        grid/SurfacePatches.hpp
+        grid/List.hpp
+        grid/SPList.hpp
+        grid/MLSConfig.hpp
+        grid/MLSGrid.hpp
+        grid/MLSGridI.hpp
+        grid/TraversabilityMap3d.hpp
+        grid/AccessIterator.hpp
+        grid/GridCell.hpp
+        grid/GridCellAccessInterface.hpp
+        grid/GridCellAccess.hpp
+        grid/GridCellFacade.hpp        
         tools/BresenhamLine.hpp
+        operations/GridInterpolation.hpp
     DEPS_CMAKE
         Boost
     DEPS_PKGCONFIG 

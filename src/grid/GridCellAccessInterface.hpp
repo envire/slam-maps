@@ -3,17 +3,17 @@
 #include "AccessIterator.hpp"
 #include "../Index.hpp"
 
-namespace envire {namespace maps
+namespace maps
 {
     template <typename T>
-    class GridStorageAccessInterface
+    class GridCellAccessInterface
     {
     public:
         
         typedef AccessIterator<T> iterator;
         typedef ConstAccessIterator<T> const_iterator;
         
-        GridStorageAccessInterface()
+        GridCellAccessInterface()
         {
         }
 
@@ -39,4 +39,4 @@ namespace envire {namespace maps
         
         virtual void clear() = 0;
     };
-}}
+}

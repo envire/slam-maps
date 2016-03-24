@@ -1,7 +1,5 @@
 #include "BresenhamLine.hpp"
 
-namespace envire {
-
 namespace maps {
 
 
@@ -51,5 +49,3 @@ bool Bresenham::getNextPoint(Point & next)
 
 
 }  // namespace maps
-
-}  // namespace enviree

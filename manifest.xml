@@ -1,8 +1,8 @@
 <package>
-    <description brief="Envire Maps library">
-    Envire Maps library following the IEEE 1873 standard for mapa data representation
+    <description brief="Standard Maps library">
+    Standard Maps library following the IEEE 1873 standard for mapa data representation with extensions (i.e: MLS, 3D, Operators, etc..)
     </description>
-    <author> Envire Team/ric-team8@dfki.de</author>
+    <author> Autonomy Team/ric-team8@dfki.de</author>
     <maintainer>Anna Born/anna.born@dfki.de</maintainer>
     <license>BSD</license>
     <url>http://rock-robotics.org/</url>

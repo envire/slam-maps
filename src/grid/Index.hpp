@@ -1,10 +1,10 @@
-#ifndef __ENVIRE_MAPS_INDEX_HPP__
-#define __ENVIRE_MAPS_INDEX_HPP__
+#ifndef __MAPS_INDEX_HPP__
+#define __MAPS_INDEX_HPP__
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-namespace envire { namespace maps {
+namespace maps {
     /**@brief type for the number of cells
      */
     typedef Eigen::Matrix<unsigned int, 2, 1> Vector2ui;
@@ -67,6 +67,6 @@ namespace envire { namespace maps {
                 || (lhs.x() == rhs.x() && lhs.y() < rhs.y()));
     }
 
-}}
+}
 
-#endif // __ENVIRE_MAPS_INDEX_HPP__
+#endif // __MAPS_INDEX_HPP__

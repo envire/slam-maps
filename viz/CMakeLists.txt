@@ -1,11 +1,11 @@
-rock_vizkit_plugin(envire_maps-viz
+rock_vizkit_plugin(maps-viz
         ElevationMapVisualization.cpp
         MLSGridVisualization.cpp
         PatchesGeode.cpp
         TraversabilityMap3dVisualization.cpp
         StandaloneVisualizer.cpp
     DEPS 
-        envire_maps
+        maps
     DEPS_PKGCONFIG 
         base-viz vizkit3d  vizkit3d-viz
     MOC 

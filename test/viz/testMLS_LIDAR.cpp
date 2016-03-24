@@ -1,13 +1,13 @@
-#define BOOST_TEST_MODULE EnvireVizTest
+#define BOOST_TEST_MODULE VizTest
 #include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Geometry>
 
 #include "StandaloneVisualizer.hpp"
-#include <envire_maps/MLSGrid.hpp>
+#include <maps/grid/MLSGrid.hpp>
 
 #include "../tools/GeneratePointclouds.hpp"
-using namespace envire::maps;
+using namespace ::maps;
 
 
 BOOST_AUTO_TEST_CASE(mls_simulate_LIDAR)

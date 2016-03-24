@@ -3,8 +3,6 @@
 #include "LevelList.hpp"
 #include "GridMap.hpp"
 
-namespace envire {
-
 namespace maps {
     
 
@@ -85,5 +83,4 @@ public:
 
 };
 
-}
 }

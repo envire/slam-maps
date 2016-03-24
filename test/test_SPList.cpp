@@ -1,14 +1,14 @@
 #include <boost/test/unit_test.hpp>
-#include <envire_maps/SPList.hpp>
-#include <envire_maps/SurfacePatches.hpp>
+#include <maps/SPList.hpp>
+#include <maps/SurfacePatches.hpp>
 
 #include <chrono>
 
-using envire::maps::MLSConfig;
-typedef envire::maps::SurfacePatchT<MLSConfig::SLOPE> SurfacePatch;
-using envire::maps::List;
+using ::maps::MLSConfig;
+typedef ::maps::SurfacePatchT<MLSConfig::SLOPE> SurfacePatch;
+using ::maps::List;
 
-typedef envire::maps::SPList<SurfacePatch> SPList;
+typedef ::maps::SPList<SurfacePatch> SPList;
 
 BOOST_AUTO_TEST_CASE(test_sp_list_basic)
 {

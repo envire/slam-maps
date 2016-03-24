@@ -1,11 +1,11 @@
 #include <boost/test/unit_test.hpp>
-#include <envire_maps/GridMap.hpp>
+#include <maps/grid/GridMap.hpp>
 
 #include <boost/math/special_functions/fpclassify.hpp>
 
 #include <chrono>
 
-using namespace envire::maps;
+using namespace ::maps;
 
 double default_value = std::numeric_limits<double>::quiet_NaN();
 //double default_value = std::numeric_limits<double>::infinity();
@@ -75,9 +75,9 @@ BOOST_AUTO_TEST_CASE(test_grid_constructor)
     BOOST_CHECK_EQUAL(grid.at(Vector3d(0,0,0)), -5.5);
 
     /** Check local map members **/
-    BOOST_CHECK_EQUAL(grid.getId(), envire::maps::UNKNOWN_MAP_ID);
-    BOOST_CHECK_EQUAL(grid.getMapType(), envire::maps::LocalMapType::UNKNOWN_MAP);
-    BOOST_CHECK_EQUAL(grid.getEPSGCode(), envire::maps::UNKNOWN_EPSG_CODE);
+    BOOST_CHECK_EQUAL(grid.getId(), ::maps::UNKNOWN_MAP_ID);
+    BOOST_CHECK_EQUAL(grid.getMapType(), ::maps::LocalMapType::UNKNOWN_MAP);
+    BOOST_CHECK_EQUAL(grid.getEPSGCode(), ::maps::UNKNOWN_EPSG_CODE);
     BOOST_CHECK_EQUAL(grid.getLocalFrame().translation(), base::Transform3d::Identity().translation());
     BOOST_CHECK_EQUAL(grid.getLocalFrame().rotation(), base::Transform3d::Identity().rotation());
 }

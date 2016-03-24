@@ -1,5 +1,5 @@
 maps
-Envire Maps
+Standard Maps
 
 
 
@@ -52,5 +52,5 @@ STRUCTURE
 	easily embedded include the external software directly here
 -- doc/
 	should contain the existing doxygen file: doxygen.conf
-# slam-envire_maps
-Envire maps
+# slam-maps
+Standard maps

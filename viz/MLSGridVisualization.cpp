@@ -10,10 +10,10 @@
 
 #include <base/TimeMark.hpp>
 
-#include <envire_maps/MLSGridI.hpp>
+#include <maps/grid/MLSGridI.hpp>
 
 using namespace vizkit3d;
-using namespace envire::maps;
+using namespace ::maps;
 
 template <class T>
 osg::Vec3 Vec3( const Eigen::Matrix<T,3,1>& v )
@@ -27,7 +27,7 @@ struct MLSGridVisualization::Data {
     // Copy of the value given to updateDataIntern.
     //
     // Making a copy is required because of how OSG works
-    envire::maps::MLSGrid data;
+    ::maps::MLSGrid data;
 };
 
 
@@ -115,8 +115,6 @@ void MLSGrid::visualize(vizkit3d::PatchesGeode& geode) const
     }
 }
 
-namespace envire {
-
 namespace maps {
 
 
@@ -172,9 +170,8 @@ void MLSGridI<SurfacePatch>::visualize(vizkit3d::PatchesGeode& geode) const
 
 }  // namespace maps
 
-}  // namespace envire
 
-void MLSGridVisualization::updateDataIntern(envire::maps::MLSGrid const& value)
+void MLSGridVisualization::updateDataIntern(::maps::MLSGrid const& value)
 {
     p->data = value;
 }

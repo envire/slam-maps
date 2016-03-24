@@ -1,11 +1,11 @@
 #include <boost/test/unit_test.hpp>
 #include "../src/MLGrid.hpp"
 
-#include "../src/storage/GridStorageAccessInterface.hpp"
-#include "../src/storage/GridStorageAccess.hpp"
-#include "../src/storage/GridStorageFacade.hpp"
+#include "../src/storage/GridCellAccessInterface.hpp"
+#include "../src/storage/GridCellAccess.hpp"
+#include "../src/storage/GridCellFacade.hpp"
 
-using namespace envire::maps;
+using namespace ::maps;
 class PatchBase
 {
     public:
@@ -98,9 +98,9 @@ BOOST_AUTO_TEST_CASE(test_mapAccess)
 {
     GridMap<Patch> map;
 
-    GridStorageAccessInterface<PatchBase> *test = new GridStorageAccess<Patch, PatchBase>(&map);
+    GridCellAccessInterface<PatchBase> *test = new GridCellAccess<Patch, PatchBase>(&map);
 
-    GridMap<PatchBase, GridStorageFacade<PatchBase> > test2(map, GridStorageFacade<PatchBase>(test));
+    GridMap<PatchBase, GridCellFacade<PatchBase> > test2(map, GridCellFacade<PatchBase>(test));
 }
 
 BOOST_AUTO_TEST_CASE(test_map_access3)
@@ -120,9 +120,9 @@ BOOST_AUTO_TEST_CASE(test_map_access3)
         std::cout << it->getMin() << " " << it->getMax() << std::endl;
     }
 
-    GridStorageAccessInterface<PatchBase> *test = new GridStorageAccess<Patch, PatchBase>(&map);
+    GridCellAccessInterface<PatchBase> *test = new GridCellAccess<Patch, PatchBase>(&map);
 
-    GridMap<PatchBase, GridStorageFacade<PatchBase> > test2(map, GridStorageFacade<PatchBase>(test));
+    GridMap<PatchBase, GridCellFacade<PatchBase> > test2(map, GridCellFacade<PatchBase>(test));
 
     test2.at(0,0).test();
     test2.at(0,1).test();
@@ -163,8 +163,8 @@ BOOST_AUTO_TEST_CASE(test_map_access_time)
     
     std::cout << "map: " << elapsed_secs << std::endl;       
 
-    GridStorageAccessInterface<PatchBase> *test = new GridStorageAccess<Patch, PatchBase>(&map);
-    GridMap<PatchBase, GridStorageFacade<PatchBase> > test2(map, GridStorageFacade<PatchBase>(test));    
+    GridCellAccessInterface<PatchBase> *test = new GridCellAccess<Patch, PatchBase>(&map);
+    GridMap<PatchBase, GridCellFacade<PatchBase> > test2(map, GridCellFacade<PatchBase>(test));    
 
     begin = clock();
     for (unsigned int x = 0; x < 1000; ++x)
@@ -198,9 +198,9 @@ BOOST_AUTO_TEST_CASE(test_mapAccess2)
 {
     GridMap<DerivableLevelList<Patch, PatchBase> > map(Vector2ui(5,5), Eigen::Vector2d(0.5,0.5), DerivableLevelList<Patch, PatchBase>());
 
-    GridStorageAccessInterface<DerivableLevelList<PatchBase, PatchBase> > *test = new GridStorageAccess<DerivableLevelList<Patch, PatchBase>, DerivableLevelList<PatchBase, PatchBase> >(&map);
+    GridCellAccessInterface<DerivableLevelList<PatchBase, PatchBase> > *test = new GridCellAccess<DerivableLevelList<Patch, PatchBase>, DerivableLevelList<PatchBase, PatchBase> >(&map);
 
-    GridMap<DerivableLevelList<PatchBase, PatchBase>, GridStorageFacade<DerivableLevelList<PatchBase, PatchBase> > > test2(map, GridStorageFacade<DerivableLevelList<PatchBase, PatchBase> >(test));
+    GridMap<DerivableLevelList<PatchBase, PatchBase>, GridCellFacade<DerivableLevelList<PatchBase, PatchBase> > > test2(map, GridCellFacade<DerivableLevelList<PatchBase, PatchBase> >(test));
     
     Patch p(38, 50);
     Patch p2(55, 80);

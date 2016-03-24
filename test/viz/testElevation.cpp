@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE EnvireVizTest 
+#define BOOST_TEST_MODULE VizTest
 #include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Geometry>
@@ -9,7 +9,7 @@
 #include "ElevationMapVisualization.hpp"
 #include <vizkit3d/GridVisualization.hpp>
 
-using namespace envire::maps;
+using namespace ::maps;
 
 static void showElevationMap(const ElevationMap &elev_map)
 {
@@ -17,7 +17,7 @@ static void showElevationMap(const ElevationMap &elev_map)
     QtThreadedWidget<vizkit3d::Vizkit3DWidget> app;
     app.start();
 
-    //create vizkit3d plugin for showing envire
+    //create vizkit3d plugin
     vizkit3d::ElevationMapVisualization *elev_viz = new vizkit3d::ElevationMapVisualization();
     elev_viz->updateData(elev_map);
 
@@ -26,7 +26,7 @@ static void showElevationMap(const ElevationMap &elev_map)
     // grid plugin
     vizkit3d::GridVisualization *grid_viz = new vizkit3d::GridVisualization();
     widget->addPlugin(grid_viz);
-    // add envire plugin
+    // add plugin
     widget->addPlugin(elev_viz);
 
     while (app.isRunning())

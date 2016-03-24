@@ -7,13 +7,13 @@
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/vector.hpp>
 
-#include "../Index.hpp"
+#include <maps/grid/Index.hpp>
 
-namespace envire {namespace maps
+namespace maps
 {
     
     template <typename T>
-    class GridStorage
+    class GridCell
     {
         std::vector<T> cells;
         Vector2ui gridSize;
@@ -23,20 +23,20 @@ namespace envire {namespace maps
         typedef typename std::vector<T>::iterator iterator;
         typedef typename std::vector<T>::const_iterator const_iterator;
         
-        GridStorage(Vector2ui size, T default_value) : gridSize(size), default_value(default_value)
+        GridCell(Vector2ui size, T default_value) : gridSize(size), default_value(default_value)
         {
             resize(size);
         }
 
-        GridStorage(Vector2ui size) : GridStorage(size, T())
+        GridCell(Vector2ui size) : GridCell(size, T())
         {
         }
 
-        GridStorage() : GridStorage(Vector2ui(0,0), T())
+        GridCell() : GridCell(Vector2ui(0,0), T())
         {
         }
 
-        GridStorage(const GridStorage &other) : cells(other.cells), gridSize(other.gridSize), default_value(other.default_value)
+        GridCell(const GridCell &other) : cells(other.cells), gridSize(other.gridSize), default_value(other.default_value)
         {
         }
 
@@ -175,4 +175,4 @@ namespace envire {namespace maps
         }          
     };
     
-}}
+}

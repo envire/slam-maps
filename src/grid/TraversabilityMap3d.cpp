@@ -1,8 +1,6 @@
 #include "TraversabilityMap3d.hpp"
 
-namespace envire {
-    namespace maps {
-        
+namespace maps {
 
 Eigen::Vector3f TraversabilityMap3d::getNodePosition(const TraversabilityNodeBase* node) const
 {
@@ -52,5 +50,4 @@ const TraversabilityNodeListBase::List& TraversabilityNodeListBase::getNodes() c
 
 
 
-}
 }

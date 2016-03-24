@@ -1,11 +1,9 @@
-#ifndef SLAM_ENVIRE_MAPS_VIZ_STANDALONEVISUALIZER_HPP_
-#define SLAM_ENVIRE_MAPS_VIZ_STANDALONEVISUALIZER_HPP_
+#ifndef __MAPS_VIZ_STANDALONEVISUALIZER_HPP_
+#define __MAPS_VIZ_STANDALONEVISUALIZER_HPP_
 
 #include <boost/scoped_ptr.hpp>
 
 
-namespace envire
-{
 namespace maps
 {
 
@@ -25,6 +23,5 @@ public:
 };
 
 } /* namespace maps */
-} /* namespace envire */
 
-#endif /* SLAM_ENVIRE_MAPS_VIZ_STANDALONEVISUALIZER_HPP_ */
+#endif /* __MAPS_VIZ_STANDALONEVISUALIZER_HPP_ */

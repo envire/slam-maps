@@ -1,6 +1,6 @@
 #include "MLSGrid.hpp"
 
-#include "tools/BresenhamLine.hpp"
+#include <maps/tools/BresenhamLine.hpp>
 
 #include "GridMap.hpp"
 
@@ -13,14 +13,12 @@
 #include "MLSGridI.hpp"
 
 
-namespace envire {
-
 namespace maps {
 
-#define ENVIRE_MAPS_MLSGRID(ret_type__) template<class SurfaceType> \
+#define MAPS_MLSGRID(ret_type__) template<class SurfaceType> \
     ret_type__ MLSGridI<SurfaceType>
 
-ENVIRE_MAPS_MLSGRID(void)::mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& pc2grid, bool withUncertainty)
+MAPS_MLSGRID(void)::mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& pc2grid, bool withUncertainty)
     {
         // TODO change everything to float, if possible (requires refactoring Grid)
 
@@ -103,7 +101,7 @@ ENVIRE_MAPS_MLSGRID(void)::mergePointCloud(const PointCloud& pc, const Eigen::Af
     }
 
 
-ENVIRE_MAPS_MLSGRID(void)::mergePoint(const Vector3d & point)
+MAPS_MLSGRID(void)::mergePoint(const Vector3d & point)
 {
     Eigen::Vector3d pos;
     Index idx;
@@ -187,6 +185,3 @@ MLSGridI<SPType>& MLSGrid::getMLSGrid()
 }
 
 }  // namespace maps
-
-}  // namespace envire
-

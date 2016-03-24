@@ -9,13 +9,13 @@
 #include <osg/Material>
 
 using namespace vizkit3d;
-using namespace envire::maps;
+using namespace ::maps;
 
 struct ElevationMapVisualization::Data {
     // Copy of the value given to updateDataIntern.
     //
     // Making a copy is required because of how OSG works
-    envire::maps::ElevationMap data;
+    ::maps::ElevationMap data;
 };
 
 
@@ -223,7 +223,7 @@ QStringList ElevationMapVisualization::getElevationLayers()
     return grid_keys;
 }
 
-void ElevationMapVisualization::updateDataIntern(envire::maps::ElevationMap const& value)
+void ElevationMapVisualization::updateDataIntern(::maps::ElevationMap const& value)
 {
     p->data = value;
 }

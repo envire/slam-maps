@@ -1,9 +1,9 @@
-#ifndef __ENVIRE_MAPS_ELEVATION_MAP_HPP__
-#define __ENVIRE_MAPS_ELEVATION_MAP_HPP__
+#ifndef __MAPS_ELEVATION_MAP_HPP__
+#define __MAPS_ELEVATION_MAP_HPP__
 
 #include "GridMap.hpp"
 
-namespace envire {namespace maps
+namespace maps
 {
     struct ElevationData 
     {
@@ -54,7 +54,7 @@ namespace envire {namespace maps
 
         std::pair<double, double> getElevationMinRange() const; 
     };
-}}
+}
 
 
-#endif // __ENVIRE_MAPS_ELEVATION_MAP_HPP__
+#endif // __MAPS_ELEVATION_MAP_HPP__

@@ -1,5 +1,5 @@
-#ifndef __ENVIRE_MAPSC_SURFACEPATCHES_HPP_
-#define __ENVIRE_MAPS_SURFACEPATCHES_HPP_
+#ifndef __MAPS_SURFACEPATCHES_HPP_
+#define __MAPS_SURFACEPATCHES_HPP_
 
 #include <numeric/PlaneFitting.hpp>
 #include <boost/intrusive/list.hpp>
@@ -10,8 +10,6 @@
 
 #include "MLSConfig.hpp"
 
-
-namespace envire {
 
 namespace maps {
 
@@ -268,8 +266,5 @@ public:
 
 }  // namespace maps
 
-}  // namespace envire
 
-
-
-#endif /* __ENVIRE_MAPS_SURFACEPATCHES_HPP_ */
+#endif /* __MAPS_SURFACEPATCHES_HPP_ */

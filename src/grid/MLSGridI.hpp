@@ -1,11 +1,9 @@
-#ifndef SRC_MLSGRIDI_HPP_
-#define SRC_MLSGRIDI_HPP_
+#ifndef __MAPS_MLSGRIDI_HPP__
+#define __MAPS_MLSGRIDI_HPP__
 
 
 #include "MLSGrid.hpp"
 
-
-namespace envire {
 
 namespace maps {
 
@@ -83,11 +81,4 @@ struct MLSGridI : public MLSGrid::MLSBase
 
 }  // namespace maps
 
-}  // namespace envire
-
-
-
-
-
-
-#endif /* SRC_MLSGRIDI_HPP_ */
+#endif /* __MAPS_MLSGRIDI_HPP__ */

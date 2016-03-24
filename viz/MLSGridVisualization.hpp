@@ -9,12 +9,12 @@
 #include <osg/Shape>
 #include <osg/Texture2D>
 
-#include <envire_maps/MLSGrid.hpp>
+#include <maps/grid/MLSGrid.hpp>
 
 namespace vizkit3d
 {
     class MLSGridVisualization
-        : public vizkit3d::Vizkit3DPlugin<envire::maps::MLSGrid>
+        : public vizkit3d::Vizkit3DPlugin<::maps::MLSGrid>
         , boost::noncopyable
     {
         Q_OBJECT
@@ -35,13 +35,13 @@ namespace vizkit3d
             MLSGridVisualization();
             ~MLSGridVisualization();
 
-            Q_INVOKABLE void updateData(envire::maps::MLSGrid const &sample)
-            {vizkit3d::Vizkit3DPlugin<envire::maps::MLSGrid>::updateData(sample);}
+            Q_INVOKABLE void updateData(::maps::MLSGrid const &sample)
+            {vizkit3d::Vizkit3DPlugin<::maps::MLSGrid>::updateData(sample);}
 
         protected:
             virtual osg::ref_ptr<osg::Node> createMainNode();
             virtual void updateMainNode(osg::Node* node);
-            virtual void updateDataIntern(envire::maps::MLSGrid const& plan);
+            virtual void updateDataIntern(::maps::MLSGrid const& plan);
             
         private:
             struct Data;
@@ -98,9 +98,9 @@ namespace vizkit3d
 
 #if 0
             osg::Vec3 estimateNormal(
-                const envire::maps::MLSGrid &grid, 
-                const envire::maps::SurfacePatch &patch, 
-                const envire::maps::Index &patch_idx) const;
+                const ::maps::MLSGrid &grid, 
+                const ::maps::SurfacePatch &patch, 
+                const ::maps::Index &patch_idx) const;
 #endif
     };
 }

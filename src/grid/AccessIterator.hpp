@@ -3,8 +3,6 @@
 #include <stdexcept>
 #include <iostream>
 
-namespace envire 
-{
 namespace maps 
 {
 
@@ -264,5 +262,4 @@ public:
     };
 };
 
-}
 }

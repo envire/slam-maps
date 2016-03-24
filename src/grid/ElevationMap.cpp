@@ -1,7 +1,5 @@
 #include "ElevationMap.hpp"
 
-namespace envire 
-{
 namespace maps 
 {   
 
@@ -130,5 +128,4 @@ std::pair<double, double> ElevationMap::getElevationMinRange() const
     return std::pair<double, double>(min, max);
 }
 
-}
 }

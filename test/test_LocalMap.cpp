@@ -1,9 +1,9 @@
 #include <boost/test/unit_test.hpp>
-#include <envire_maps/LocalMap.hpp>
+#include <maps/LocalMap.hpp>
 
 #include <iostream>
 
-using namespace envire::maps;
+using namespace ::maps;
 
 BOOST_AUTO_TEST_CASE(test_local_map_default_constuctor)
 {

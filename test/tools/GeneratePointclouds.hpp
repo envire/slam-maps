@@ -9,7 +9,6 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 
-namespace envire {
 namespace maps {
 
 typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
@@ -85,7 +84,6 @@ protected:
 };
 
 }  // namespace maps
-}  // namespace envire
 
 
 

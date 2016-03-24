@@ -1,12 +1,12 @@
-#define BOOST_TEST_MODULE EnvireVizTest 
+#define BOOST_TEST_MODULE VizTest
 #include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Geometry>
 
 #include "StandaloneVisualizer.hpp"
-#include <envire_maps/MLSGrid.hpp>
+#include <maps/grid/MLSGrid.hpp>
 
-using namespace envire::maps;
+using namespace ::maps;
 
 static void show_MLS(const MLSGrid& mls)
 {
