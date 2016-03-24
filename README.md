@@ -1,11 +1,8 @@
-maps
 Standard Maps
-
-
 
 License
 -------
-dummy-license
+BSD
 
 Installation
 ------------
@@ -53,4 +50,4 @@ STRUCTURE
 -- doc/
 	should contain the existing doxygen file: doxygen.conf
 # slam-maps
-Standard maps
+Standard maps following the 1873-2015 IEEE Standard for Robot Map Data Representation for Navigation
