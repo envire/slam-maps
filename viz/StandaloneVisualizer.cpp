@@ -2,7 +2,7 @@
 
 #include <vizkit3d/Vizkit3DWidget.hpp>
 #include <vizkit3d/QtThreadedWidget.hpp>
-#include "MLSGridVisualization.hpp"
+#include "MLSMapVisualization.hpp"
 #include <vizkit3d/GridVisualization.hpp>
 #include "StandaloneVisualizer.hpp"
 
@@ -15,14 +15,14 @@ class StandaloneVisualizer::Impl
 {
     friend class StandaloneVisualizer;
     QtThreadedWidget<vizkit3d::Vizkit3DWidget> app;
-    vizkit3d::MLSGridVisualization *mls_viz;
+    vizkit3d::MLSMapVisualization *mls_viz;
 
     Impl()
     {
         app.start();
 
         //create vizkit3d plugin
-        mls_viz = new vizkit3d::MLSGridVisualization();
+        mls_viz = new vizkit3d::MLSMapVisualization();
 
         //create vizkit3d widget
         vizkit3d::Vizkit3DWidget *widget = app.getWidget();
@@ -47,7 +47,7 @@ StandaloneVisualizer::~StandaloneVisualizer()
     // TODO Auto-generated destructor stub
 }
 
-void StandaloneVisualizer::updateData(const MLSGrid& mls)
+void StandaloneVisualizer::updateData(const MLSMap& mls)
 {
     impl->mls_viz->updateData(mls);
 }

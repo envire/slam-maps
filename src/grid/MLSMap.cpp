@@ -1,4 +1,4 @@
-#include "MLSGrid.hpp"
+#include "MLSMap.hpp"
 
 #include <maps/tools/BresenhamLine.hpp>
 
@@ -10,23 +10,23 @@
 #include <set>
 
 
-#include "MLSGridI.hpp"
+#include "MLSMapI.hpp"
 
 
 namespace maps {
 
-#define MAPS_MLSGRID(ret_type__) template<class SurfaceType> \
-    ret_type__ MLSGridI<SurfaceType>
+#define MAPS_MLSMAP(ret_type__) template<class SurfaceType> \
+    ret_type__ MLSMapI<SurfaceType>
 
-MAPS_MLSGRID(void)::mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& pc2grid, bool withUncertainty)
+MAPS_MLSMAP(void)::mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& pc2grid, bool withUncertainty)
     {
         // TODO change everything to float, if possible (requires refactoring Grid)
 
         const bool useNegative = false && mls_config.useNegativeInformation; // TODO also check that grid is not empty?
-        MLSGridI tempGrid = useNegative
-                        ? MLSGridI(grid.getNumCells(), grid.getResolution(), mls_config)
-                        : MLSGridI();
-        MLSGridI &workGrid = useNegative ? tempGrid : *this;
+        MLSMapI tempGrid = useNegative
+                        ? MLSMapI(grid.getNumCells(), grid.getResolution(), mls_config)
+                        : MLSMapI();
+        MLSMapI &workGrid = useNegative ? tempGrid : *this;
 
     //    const std::vector<Eigen::Vector3d> & points = pc.vertices;
         // TODO uncertainty and color are ignored for now
@@ -101,7 +101,7 @@ MAPS_MLSGRID(void)::mergePointCloud(const PointCloud& pc, const Eigen::Affine3d&
     }
 
 
-MAPS_MLSGRID(void)::mergePoint(const Vector3d & point)
+MAPS_MLSMAP(void)::mergePoint(const Vector3d & point)
 {
     Eigen::Vector3d pos;
     Index idx;
@@ -112,7 +112,7 @@ MAPS_MLSGRID(void)::mergePoint(const Vector3d & point)
     }
 }
 
-MLSGrid::MLSGrid(
+MLSMap::MLSMap(
         const Vector2ui &num_cells_,
         const Eigen::Vector2d &resolution_,
         const MLSConfig & config)
@@ -120,68 +120,68 @@ MLSGrid::MLSGrid(
     switch(config.updateModel)
     {
     case MLSConfig::SLOPE:
-        map.reset(new MLSGridI<SurfacePatchT<MLSConfig::SLOPE> >(num_cells_, resolution_, config));
+        map.reset(new MLSMapI<SurfacePatchT<MLSConfig::SLOPE> >(num_cells_, resolution_, config));
         break;
     case MLSConfig::KALMAN:
-        map.reset(new MLSGridI<SurfacePatchT<MLSConfig::KALMAN> >(num_cells_, resolution_, config));
+        map.reset(new MLSMapI<SurfacePatchT<MLSConfig::KALMAN> >(num_cells_, resolution_, config));
         break;
     default:
         throw std::runtime_error("Not implemented!");
         break;
     }
 }
-MLSGrid::MLSGrid()
+MLSMap::MLSMap()
 {
     // empty
 }
 
-MLSGrid::~MLSGrid()
+MLSMap::~MLSMap()
 {
     // empty
 }
-MLSGrid::MLSGrid(const MLSGrid& other) : map(other.map->clone())
+MLSMap::MLSMap(const MLSMap& other) : map(other.map->clone())
 { }
 
-void MLSGrid::mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& pc2grid, bool withUncertainty)
+void MLSMap::mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& pc2grid, bool withUncertainty)
 {
     map->mergePointCloud(pc, pc2grid, withUncertainty);
 }
 
-void MLSGrid::mergePoint(const Eigen::Vector3d& point)
+void MLSMap::mergePoint(const Eigen::Vector3d& point)
 {
     map->mergePoint(point);
 }
 
 
-MLSGrid& MLSGrid::operator =(const MLSGrid& other)
+MLSMap& MLSMap::operator =(const MLSMap& other)
 {
     if(this != &other)
         map.reset(other.map->clone());
     return *this;
 }
 
-Eigen::Vector2d MLSGrid::getResolution() const
+Eigen::Vector2d MLSMap::getResolution() const
 {
     return map->getResolution();
 }
-Eigen::Vector2d MLSGrid::getSize() const
+Eigen::Vector2d MLSMap::getSize() const
 {
     return map->getSize();
 }
-base::Transform3d& MLSGrid::getLocalFrame()
+base::Transform3d& MLSMap::getLocalFrame()
 {
     return map->getLocalFrame();
 }
 
 template<class SPType>
-const MLSGridI<SPType>& MLSGrid::getMLSGrid() const
+const MLSMapI<SPType>& MLSMap::getMLSMap() const
 {
-    return dynamic_cast<const MLSGridI<SPType>&>(*map);
+    return dynamic_cast<const MLSMapI<SPType>&>(*map);
 }
 template<class SPType>
-MLSGridI<SPType>& MLSGrid::getMLSGrid()
+MLSMapI<SPType>& MLSMap::getMLSMap()
 {
-        return dynamic_cast<MLSGridI<SPType>&>(*map);
+        return dynamic_cast<MLSMapI<SPType>&>(*map);
 }
 
 }  // namespace maps

@@ -7,7 +7,7 @@
 namespace maps
 {
 
-class MLSGrid;
+class MLSMap;
 
 class StandaloneVisualizer
 {
@@ -19,7 +19,7 @@ public:
 
     bool wait(int usecs = 1000);
 
-    void updateData(const MLSGrid& mls);
+    void updateData(const MLSMap& mls);
 };
 
 } /* namespace maps */

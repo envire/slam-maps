@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "MLSGridVisualization.hpp"
+#include "MLSMapVisualization.hpp"
 
 #include "PatchesGeode.hpp"
 
@@ -10,7 +10,7 @@
 
 #include <base/TimeMark.hpp>
 
-#include <maps/grid/MLSGridI.hpp>
+#include <maps/grid/MLSMapI.hpp>
 
 using namespace vizkit3d;
 using namespace ::maps;
@@ -23,15 +23,15 @@ osg::Vec3 Vec3( const Eigen::Matrix<T,3,1>& v )
 
 
 // TODO is this really still necessary?
-struct MLSGridVisualization::Data {
+struct MLSMapVisualization::Data {
     // Copy of the value given to updateDataIntern.
     //
     // Making a copy is required because of how OSG works
-    ::maps::MLSGrid data;
+    ::maps::MLSMap data;
 };
 
 
-MLSGridVisualization::MLSGridVisualization()
+MLSMapVisualization::MLSMapVisualization()
     : p(new Data),
     horizontalCellColor(osg::Vec4(0.1,0.5,0.9,1.0)), 
     verticalCellColor(osg::Vec4(0.8,0.9,0.5,1.0)), 
@@ -46,12 +46,12 @@ MLSGridVisualization::MLSGridVisualization()
 {
 }
 
-MLSGridVisualization::~MLSGridVisualization()
+MLSMapVisualization::~MLSMapVisualization()
 {
     delete p;
 }
 
-osg::ref_ptr<osg::Node> MLSGridVisualization::createMainNode()
+osg::ref_ptr<osg::Node> MLSMapVisualization::createMainNode()
 {
     // Geode is a common node used for vizkit3d plugins. It allows to display
     // "arbitrary" geometries
@@ -62,11 +62,11 @@ osg::ref_ptr<osg::Node> MLSGridVisualization::createMainNode()
     return group.release();
 }
 
-void MLSGridVisualization::updateMainNode ( osg::Node* node )
+void MLSMapVisualization::updateMainNode ( osg::Node* node )
 {
     osg::Group* group = static_cast<osg::Group*>(node);    
 
-    MLSGrid &mls = p->data;
+    MLSMap &mls = p->data;
     Eigen::Vector2d res = mls.getResolution();
 
     osg::ref_ptr<PatchesGeode> geode = new PatchesGeode(res.x(), res.y());
@@ -99,16 +99,16 @@ void MLSGridVisualization::updateMainNode ( osg::Node* node )
 
 }
 
-void MLSGrid::visualize(vizkit3d::PatchesGeode& geode) const
+void MLSMap::visualize(vizkit3d::PatchesGeode& geode) const
 {
 
     switch(map->mls_config.updateModel)
     {
     case MLSConfig::SLOPE:
-        dynamic_cast<const MLSGridI<SurfacePatchT<MLSConfig::SLOPE> >&>(*map).visualize(geode);
+        dynamic_cast<const MLSMapI<SurfacePatchT<MLSConfig::SLOPE> >&>(*map).visualize(geode);
         break;
     case MLSConfig::KALMAN:
-        dynamic_cast<const MLSGridI<SurfacePatchT<MLSConfig::KALMAN> >&>(*map).visualize(geode);
+        dynamic_cast<const MLSMapI<SurfacePatchT<MLSConfig::KALMAN> >&>(*map).visualize(geode);
         break;
     default:
         throw std::runtime_error("Can't visualize unknown map type");
@@ -144,7 +144,7 @@ struct PatchVisualizer
 };
 
 template<class SurfacePatch>
-void MLSGridI<SurfacePatch>::visualize(vizkit3d::PatchesGeode& geode) const
+void MLSMapI<SurfacePatch>::visualize(vizkit3d::PatchesGeode& geode) const
 {
     const GridMap<SPListST> &mls = grid;
     Vector2ui num_cell = mls.getNumCells();
@@ -171,13 +171,13 @@ void MLSGridI<SurfacePatch>::visualize(vizkit3d::PatchesGeode& geode) const
 }  // namespace maps
 
 
-void MLSGridVisualization::updateDataIntern(::maps::MLSGrid const& value)
+void MLSMapVisualization::updateDataIntern(::maps::MLSMap const& value)
 {
     p->data = value;
 }
 
 #if 0
-osg::Vec3 MLSGridVisualization::estimateNormal(const MLSGrid &grid, const SurfacePatch &patch, const Index &patch_idx) const
+osg::Vec3 MLSMapVisualization::estimateNormal(const MLSMap &grid, const SurfacePatch &patch, const Index &patch_idx) const
 {
     Vector3d patch_pos;
     if(!grid.fromGrid(patch_idx, patch_pos))
@@ -220,72 +220,72 @@ osg::Vec3 MLSGridVisualization::estimateNormal(const MLSGrid &grid, const Surfac
 #endif
 
 
-bool MLSGridVisualization::isUncertaintyShown() const
+bool MLSMapVisualization::isUncertaintyShown() const
 {
     return showUncertainty;
 }
 
-void MLSGridVisualization::setShowUncertainty(bool enabled)
+void MLSMapVisualization::setShowUncertainty(bool enabled)
 {
     showUncertainty = enabled;
     emit propertyChanged("show_uncertainty");
     setDirty();
 }
 
-bool MLSGridVisualization::isNegativeShown() const
+bool MLSMapVisualization::isNegativeShown() const
 {
     return showNegative;
 }
 
-void MLSGridVisualization::setShowNegative(bool enabled)
+void MLSMapVisualization::setShowNegative(bool enabled)
 {
     showNegative = enabled;
     emit propertyChanged("show_negative");
     setDirty();
 }
 
-bool MLSGridVisualization::areNormalsEstimated() const
+bool MLSMapVisualization::areNormalsEstimated() const
 {
     return estimateNormals;
 }
 
-void MLSGridVisualization::setEstimateNormals(bool enabled)
+void MLSMapVisualization::setEstimateNormals(bool enabled)
 {
     estimateNormals = enabled;
     emit propertyChanged("estimate_normals");
     setDirty();
 }
 
-bool MLSGridVisualization::areNormalsShown() const
+bool MLSMapVisualization::areNormalsShown() const
 {
     return showNormals;
 }
 
-void MLSGridVisualization::setShowNormals(bool enabled)
+void MLSMapVisualization::setShowNormals(bool enabled)
 {
     showNormals = enabled;
     emit propertyChanged("show_normals");
     setDirty();
 }
 
-bool MLSGridVisualization::isHeightColorCycled() const
+bool MLSMapVisualization::isHeightColorCycled() const
 {
     return cycleHeightColor;
 }
 
-void MLSGridVisualization::setCycleHeightColor(bool enabled)
+void MLSMapVisualization::setCycleHeightColor(bool enabled)
 {
     cycleHeightColor = enabled;
     emit propertyChanged("cycle_height_color");
     setDirty();
 }
 
-double MLSGridVisualization::getCycleColorInterval() const
+double MLSMapVisualization::getCycleColorInterval() const
 {
     return cycleColorInterval;
 }
 
-void MLSGridVisualization::setCycleColorInterval(double interval)
+void MLSMapVisualization::setCycleColorInterval(double interval)
 {
     if(interval == 0.0)
         cycleColorInterval = 1.0;
@@ -295,14 +295,14 @@ void MLSGridVisualization::setCycleColorInterval(double interval)
     setDirty();
 }
 
-QColor MLSGridVisualization::getHorizontalCellColor() const
+QColor MLSMapVisualization::getHorizontalCellColor() const
 {
     QColor color;
     color.setRgbF(horizontalCellColor.x(), horizontalCellColor.y(), horizontalCellColor.z(), horizontalCellColor.w());
     return color;
 }
 
-void MLSGridVisualization::setHorizontalCellColor(QColor color)
+void MLSMapVisualization::setHorizontalCellColor(QColor color)
 {
     horizontalCellColor.x() = color.redF();
     horizontalCellColor.y() = color.greenF();
@@ -312,14 +312,14 @@ void MLSGridVisualization::setHorizontalCellColor(QColor color)
     setDirty();
 }
 
-QColor MLSGridVisualization::getVerticalCellColor() const
+QColor MLSMapVisualization::getVerticalCellColor() const
 {
     QColor color;
     color.setRgbF(verticalCellColor.x(), verticalCellColor.y(), verticalCellColor.z(), verticalCellColor.w());
     return color;
 }
 
-void MLSGridVisualization::setVerticalCellColor(QColor color)
+void MLSMapVisualization::setVerticalCellColor(QColor color)
 {
     verticalCellColor.x() = color.redF();
     verticalCellColor.y() = color.greenF();
@@ -329,14 +329,14 @@ void MLSGridVisualization::setVerticalCellColor(QColor color)
     setDirty();
 }
 
-QColor MLSGridVisualization::getNegativeCellColor() const
+QColor MLSMapVisualization::getNegativeCellColor() const
 {
     QColor color;
     color.setRgbF(negativeCellColor.x(), negativeCellColor.y(), negativeCellColor.z(), negativeCellColor.w());
     return color;
 }
 
-void MLSGridVisualization::setNegativeCellColor(QColor color)
+void MLSMapVisualization::setNegativeCellColor(QColor color)
 {
     negativeCellColor.x() = color.redF();
     negativeCellColor.y() = color.greenF();
@@ -346,14 +346,14 @@ void MLSGridVisualization::setNegativeCellColor(QColor color)
     setDirty();
 }
 
-QColor MLSGridVisualization::getUncertaintyColor() const
+QColor MLSMapVisualization::getUncertaintyColor() const
 {
     QColor color;
     color.setRgbF(uncertaintyColor.x(), uncertaintyColor.y(), uncertaintyColor.z(), uncertaintyColor.w());
     return color;
 }
 
-void MLSGridVisualization::setUncertaintyColor(QColor color)
+void MLSMapVisualization::setUncertaintyColor(QColor color)
 {
     uncertaintyColor.x() = color.redF();
     uncertaintyColor.y() = color.greenF();
@@ -363,17 +363,17 @@ void MLSGridVisualization::setUncertaintyColor(QColor color)
     setDirty();
 }
 
-void MLSGridVisualization::setShowExtents( bool value ) 
+void MLSMapVisualization::setShowExtents( bool value ) 
 {
     showExtents = value;
     emit propertyChanged("show_extents");
     setDirty();
 }
 
-bool MLSGridVisualization::areExtentsShown() const
+bool MLSMapVisualization::areExtentsShown() const
 {
     return showExtents;
 }
 
 //Macro that makes this plugin loadable in ruby, this is optional.
-//VizkitQtPlugin(MLSGridVisualization)
+//VizkitQtPlugin(MLSMapVisualization)

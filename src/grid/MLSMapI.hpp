@@ -1,13 +1,13 @@
-#ifndef __MAPS_MLSGRIDI_HPP__
-#define __MAPS_MLSGRIDI_HPP__
+#ifndef __MAPS_MLSMAPI_HPP__
+#define __MAPS_MLSMAPI_HPP__
 
 
-#include "MLSGrid.hpp"
+#include "MLSMap.hpp"
 
 
 namespace maps {
 
-class MLSGrid::MLSBase
+class MLSMap::MLSBase
 {
 public:
     MLSConfig mls_config;
@@ -29,12 +29,12 @@ public:
 
 
 template<class SurfaceType>
-struct MLSGridI : public MLSGrid::MLSBase
+struct MLSMapI : public MLSMap::MLSBase
 {
     typedef SPList<SurfaceType> SPListST;
     GridMap<SPListST> grid;
 
-    MLSGridI(
+    MLSMapI(
             const Vector2ui &num_cells,
             const Vector2d &resolution,
             const MLSConfig &config_)
@@ -43,7 +43,7 @@ struct MLSGridI : public MLSGrid::MLSBase
     {
         // assert that config is compatible to SurfaceType ...
     }
-    MLSGridI() : MLSBase(MLSConfig())
+    MLSMapI() : MLSBase(MLSConfig())
     {
         // empty
     }
@@ -57,7 +57,7 @@ struct MLSGridI : public MLSGrid::MLSBase
 
     MLSBase* clone() const
     {
-        return new MLSGridI(*this);
+        return new MLSMapI(*this);
     }
 
     base::Transform3d& getLocalFrame()
@@ -81,4 +81,4 @@ struct MLSGridI : public MLSGrid::MLSBase
 
 }  // namespace maps
 
-#endif /* __MAPS_MLSGRIDI_HPP__ */
+#endif /* __MAPS_MLSMAPI_HPP__ */

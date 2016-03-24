@@ -95,28 +95,28 @@ class MLSMapExchange;
 
 
 template<class SPType>
-struct MLSGridI;
+struct MLSMapI;
 
-class MLSGrid
+class MLSMap
 {
     // Internal representation of map is hidden:
     class MLSBase;
     boost::scoped_ptr<MLSBase> map;
 
 public:
-    MLSGrid();
-    MLSGrid(const Vector2ui &num_cells_,
+    MLSMap();
+    MLSMap(const Vector2ui &num_cells_,
             const Eigen::Vector2d &resolution_,
             const MLSConfig & config = MLSConfig());
-    ~MLSGrid();
-    MLSGrid(const MLSGrid& other);
-    MLSGrid& operator=(const MLSGrid& other);
+    ~MLSMap();
+    MLSMap(const MLSMap& other);
+    MLSMap& operator=(const MLSMap& other);
 
     /**
      * Joins two MLSMaps.
      * The maps must have compatible configurations.
      */
-    void merge(const MLSGrid& other);
+    void merge(const MLSMap& other);
 
     /**
      * Merges a pointcloud with a given origin into the map
@@ -135,13 +135,13 @@ public:
     base::Transform3d& getLocalFrame();
     Eigen::Vector2d getResolution() const;
 
-    /** Low-level access to the actual MLSGrid implementation  */
+    /** Low-level access to the actual MLSMap implementation  */
     template<class SPType>
-    const MLSGridI<SPType>& getMLSGrid() const;
+    const MLSMapI<SPType>& getMLSMap() const;
 
-    /** Low-level access to the actual MLSGrid implementation  */
+    /** Low-level access to the actual MLSMap implementation  */
     template<class SPType>
-    MLSGridI<SPType>& getMLSGrid();
+    MLSMapI<SPType>& getMLSMap();
 };
 
 

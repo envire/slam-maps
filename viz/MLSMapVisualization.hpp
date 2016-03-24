@@ -1,5 +1,5 @@
-#ifndef maps_MLSGridVisualization_H
-#define maps_MLSGridVisualization_H
+#ifndef maps_MLSMapVisualization_H
+#define maps_MLSMapVisualization_H
 
 #include <vizkit3d/Vizkit3DPlugin.hpp>
 
@@ -9,12 +9,12 @@
 #include <osg/Shape>
 #include <osg/Texture2D>
 
-#include <maps/grid/MLSGrid.hpp>
+#include <maps/grid/MLSMap.hpp>
 
 namespace vizkit3d
 {
-    class MLSGridVisualization
-        : public vizkit3d::Vizkit3DPlugin<::maps::MLSGrid>
+    class MLSMapVisualization
+        : public vizkit3d::Vizkit3DPlugin<::maps::MLSMap>
         , boost::noncopyable
     {
         Q_OBJECT
@@ -32,16 +32,16 @@ namespace vizkit3d
         Q_PROPERTY(QColor uncertainty_color READ getUncertaintyColor WRITE setUncertaintyColor)        
 
         public:
-            MLSGridVisualization();
-            ~MLSGridVisualization();
+            MLSMapVisualization();
+            ~MLSMapVisualization();
 
-            Q_INVOKABLE void updateData(::maps::MLSGrid const &sample)
-            {vizkit3d::Vizkit3DPlugin<::maps::MLSGrid>::updateData(sample);}
+            Q_INVOKABLE void updateData(::maps::MLSMap const &sample)
+            {vizkit3d::Vizkit3DPlugin<::maps::MLSMap>::updateData(sample);}
 
         protected:
             virtual osg::ref_ptr<osg::Node> createMainNode();
             virtual void updateMainNode(osg::Node* node);
-            virtual void updateDataIntern(::maps::MLSGrid const& plan);
+            virtual void updateDataIntern(::maps::MLSMap const& plan);
             
         private:
             struct Data;
@@ -98,7 +98,7 @@ namespace vizkit3d
 
 #if 0
             osg::Vec3 estimateNormal(
-                const ::maps::MLSGrid &grid, 
+                const ::maps::MLSMap &grid, 
                 const ::maps::SurfacePatch &patch, 
                 const ::maps::Index &patch_idx) const;
 #endif

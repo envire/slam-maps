@@ -4,7 +4,7 @@
 #include <Eigen/Geometry>
 
 #include "StandaloneVisualizer.hpp"
-#include <maps/grid/MLSGrid.hpp>
+#include <maps/grid/MLSMap.hpp>
 
 #include "../tools/GeneratePointclouds.hpp"
 using namespace ::maps;
@@ -21,7 +21,7 @@ BOOST_AUTO_TEST_CASE(mls_simulate_LIDAR)
     //    mls_config.updateModel = MLSConfig::KALMAN;
     mls_config.gapSize = 0.125f;
     mls_config.useNegativeInformation = true;
-    MLSGrid *mls = new MLSGrid(numCells, res, mls_config);
+    MLSMap *mls = new MLSMap(numCells, res, mls_config);
 
     /** Translate the local frame (offset) **/
     mls->getLocalFrame().translation() << 0.5*mls->getSize(), 0;

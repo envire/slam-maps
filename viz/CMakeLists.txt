@@ -1,6 +1,6 @@
 rock_vizkit_plugin(maps-viz
         ElevationMapVisualization.cpp
-        MLSGridVisualization.cpp
+        MLSMapVisualization.cpp
         PatchesGeode.cpp
         TraversabilityMap3dVisualization.cpp
         StandaloneVisualizer.cpp
@@ -10,11 +10,11 @@ rock_vizkit_plugin(maps-viz
         base-viz vizkit3d  vizkit3d-viz
     MOC 
         ElevationMapVisualization.hpp
-        MLSGridVisualization.hpp
+        MLSMapVisualization.hpp
         TraversabilityMap3dVisualization.hpp
     HEADERS 
         ElevationMapVisualization.hpp
-        MLSGridVisualization.hpp
+        MLSMapVisualization.hpp
         TraversabilityMap3dVisualization.hpp
         PatchesGeode.hpp
         ColorGradient.hpp

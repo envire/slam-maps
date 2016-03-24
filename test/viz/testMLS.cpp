@@ -4,11 +4,11 @@
 #include <Eigen/Geometry>
 
 #include "StandaloneVisualizer.hpp"
-#include <maps/grid/MLSGrid.hpp>
+#include <maps/grid/MLSMap.hpp>
 
 using namespace ::maps;
 
-static void show_MLS(const MLSGrid& mls)
+static void show_MLS(const MLSMap& mls)
 {
     std::cout << "update finish" << std::endl;
     StandaloneVisualizer app;
@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE( mlsviz_test )
     MLSConfig mls_config;
     mls_config.updateModel = MLSConfig::SLOPE;
     //mls_config.updateModel = MLSConfig::KALMAN;
-    MLSGrid *mls = new MLSGrid(numCells, res, mls_config);
+    MLSMap *mls = new MLSMap(numCells, res, mls_config);
 
     /** Translate the local frame (offset) **/
     mls->getLocalFrame().translation() << 0.5*mls->getSize(), 0;
@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE(mls_loop)
     mls_config.gapSize = 0.05f;
     mls_config.useNegativeInformation = false;
     float R = 5.0f, r=2.05f;
-    MLSGrid *mls = new MLSGrid(numCells, res, mls_config);
+    MLSMap *mls = new MLSMap(numCells, res, mls_config);
     mls->getLocalFrame().translation() << 0.5*mls->getSize(), 0;
 
     for (float alpha = 0; alpha < M_PI; alpha += M_PI/1024/4)

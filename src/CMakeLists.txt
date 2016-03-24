@@ -5,7 +5,7 @@ find_package(CGAL REQUIRED COMPONENTS Core)
 rock_library(maps
     SOURCES
         grid/ElevationMap.cpp
-        grid/MLSGrid.cpp
+        grid/MLSMap.cpp
         grid/TraversabilityMap3d.cpp
         tools/BresenhamLine.cpp        
     HEADERS
@@ -18,8 +18,8 @@ rock_library(maps
         grid/List.hpp
         grid/SPList.hpp
         grid/MLSConfig.hpp
-        grid/MLSGrid.hpp
-        grid/MLSGridI.hpp
+        grid/MLSMap.hpp
+        grid/MLSMapI.hpp
         grid/TraversabilityMap3d.hpp
         grid/AccessIterator.hpp
         grid/GridCell.hpp
