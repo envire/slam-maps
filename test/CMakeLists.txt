@@ -33,7 +33,11 @@ rock_testsuite(test_generate_points suite.cpp
 
 rock_testsuite(test_serialization suite.cpp
    test_serialization.cpp
-   DEPS maps)   
+   DEPS maps)
+
+rock_testsuite(test_geometricmap suite.cpp
+   test_GeometricMap.cpp
+   DEPS maps)
 
 if( vizkit3d_FOUND )
     add_subdirectory(viz)

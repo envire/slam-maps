@@ -25,7 +25,11 @@ rock_library(maps
         grid/GridCell.hpp
         grid/GridCellAccessInterface.hpp
         grid/GridCellAccess.hpp
-        grid/GridCellFacade.hpp        
+        grid/GridCellFacade.hpp
+        geometric/GeometricElement.hpp
+        geometric/Point.hpp
+        geometric/LineSegment.hpp
+        geometric/GeometricMap.hpp
         tools/BresenhamLine.hpp
         operations/GridInterpolation.hpp
     DEPS_CMAKE
