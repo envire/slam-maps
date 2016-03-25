@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE(test_grid_constructor)
 
     /** Check local map members **/
     BOOST_CHECK_EQUAL(grid.getId(), ::maps::UNKNOWN_MAP_ID);
-    BOOST_CHECK_EQUAL(grid.getMapType(), ::maps::LocalMapType::UNKNOWN_MAP);
+    BOOST_CHECK_EQUAL(grid.getMapType(), ::maps::LocalMapType::GRID_MAP);
     BOOST_CHECK_EQUAL(grid.getEPSGCode(), ::maps::UNKNOWN_EPSG_CODE);
     BOOST_CHECK_EQUAL(grid.getLocalFrame().translation(), base::Transform3d::Identity().translation());
     BOOST_CHECK_EQUAL(grid.getLocalFrame().rotation(), base::Transform3d::Identity().rotation());

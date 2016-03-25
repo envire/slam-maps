@@ -47,7 +47,7 @@ namespace maps
 
     public:
         GridMap() 
-            : LocalMap(),
+            : LocalMap(maps::LocalMapType::GRID_MAP),
               R(),
               resolution(0,0)
         {
@@ -89,7 +89,7 @@ namespace maps
         GridMap(const Vector2ui &num_cells,
                 const Eigen::Vector2d &resolution,
                 const T& default_value)
-            : LocalMap(),
+            : LocalMap(maps::LocalMapType::GRID_MAP),
               R(num_cells, default_value),
               resolution(resolution)
         {
