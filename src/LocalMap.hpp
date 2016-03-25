@@ -35,8 +35,17 @@ namespace maps
                 :id(UNKNOWN_MAP_ID),
                 offset(base::Transform3d::Identity()),
                 map_type(UNKNOWN_MAP),
-                EPSG_code(UNKNOWN_EPSG_CODE) 
+                EPSG_code(UNKNOWN_EPSG_CODE)
             {};
+
+            /** @brief Default constructor with only map type as argument */
+            LocalMapData(const LocalMapType map_type)
+                :id(UNKNOWN_MAP_ID),
+                offset(base::Transform3d::Identity()),
+                map_type(map_type),
+                EPSG_code(UNKNOWN_EPSG_CODE)
+            {};
+
 
             /** @brief Constructor with parameters */
             LocalMapData(const std::string &id, const base::Transform3d &offset,
@@ -167,6 +176,18 @@ namespace maps
             LocalMap(const LocalMap& other)
                 : data_ptr(new LocalMapData(*(other.data_ptr.get())))
             {}
+
+            /**
+             * @brief Copy LocalMap and its content of LocalMapData without sharing it
+             * @details 
+             * The copy instance owns a new content (LocalMapData)
+             * 
+             * @param other LocalMap
+             */
+            LocalMap(const LocalMapType map_type)
+                : data_ptr(new LocalMapData(map_type))
+            {}
+
 
             virtual ~LocalMap() {};
 
