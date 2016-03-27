@@ -8,9 +8,12 @@
 
 /** Std vector **/
 #include <vector>
+#include <unordered_map>
+#include <typeindex>
 
 /** Element type **/
-#include <maps/geometric/GeometricElement.hpp>
+#include <maps/geometric/Point.hpp>
+#include <maps/geometric/LineSegment.hpp>
 
 namespace maps
 {
@@ -18,14 +21,24 @@ namespace maps
      * This map is a Geometric structure for a vector metric (Cartesian) map
      * This map store collections of geometric entities (e.g. points, lines)
      */
-    template <typename T >
     class GeometricMap: public LocalMap
     {
 
+    public:
+        using ElementVector = std::vector<GeometricElementBase::Ptr>;
+        using ElementMap = std::unordered_map<std::type_index, ElementVector>;
+
     private:
-        std::vector< GeometricElement<T> > elements;
+        /** Elements are stored by type.
+         * Located with respect to the local frame (LocalMap)
+         * **/
+        ElementMap elements;
 
     public:
+
+        typedef typename ElementMap::iterator iterator;
+        typedef typename ElementMap::const_iterator const_iterator;
+
         GeometricMap()
             : LocalMap(maps::LocalMapType::GEOMETRIC_MAP)
         {
@@ -44,12 +57,14 @@ namespace maps
 
     public:
 
+        inline iterator begin() { return this->elements.begin(); }
+
+        inline iterator end() { return this->elements.end(); }
+
         size_t getNumElements() const
         {
             return this->elements.size();
         }
-
-
 
     };
 

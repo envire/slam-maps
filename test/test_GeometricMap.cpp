@@ -10,7 +10,7 @@ using namespace ::maps;
 BOOST_AUTO_TEST_CASE(test_geometric_map_constructor)
 {
     /** Check empty map **/
-    GeometricMap<double> *geometric = new GeometricMap<double>();
+    GeometricMap *geometric = new GeometricMap();
     BOOST_CHECK_EQUAL(geometric->getNumElements(), 0);
 
     /** Check local map members **/
@@ -22,14 +22,25 @@ BOOST_AUTO_TEST_CASE(test_geometric_map_constructor)
 
     delete geometric;
 }
+BOOST_AUTO_TEST_CASE(test_geometric_map_insert)
+{
+
+    /** Check empty map **/
+    GeometricMap *geometric = new GeometricMap();
+    BOOST_CHECK_EQUAL(geometric->getNumElements(), 0);
+
+    Point<double> my_point(0.0, 0.0, 0.0);
+
+    delete geometric;
+}
 
 BOOST_AUTO_TEST_CASE(test_geometric_map_copy)
 {
     /** Check empty map **/
-    GeometricMap<double> *geometric = new GeometricMap<double>();
+    GeometricMap *geometric = new GeometricMap();
     BOOST_CHECK_EQUAL(geometric->getNumElements(), 0);
 
-    GeometricMap<double> *geometric_copy = new GeometricMap<double>(*geometric);
+    GeometricMap *geometric_copy = new GeometricMap(*geometric);
 
     // check configuration
     BOOST_CHECK_EQUAL(geometric_copy->getNumElements(), geometric->getNumElements());

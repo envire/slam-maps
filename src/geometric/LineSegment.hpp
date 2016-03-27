@@ -5,13 +5,16 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
+/** Element type **/
+#include <maps/geometric/GeometricElement.hpp>
+
 namespace maps
 {
     template <typename T>
-    class LineSegment: public GeometricElement<T>, public Eigen::ParametrizedLine<T,3>
+    class LineSegment: public GeometricElement< Eigen::ParametrizedLine<T,3> >
     {
     public:
-        LineSegment(Eigen::Matrix<T, 3, 1> &psi_a, Eigen::Matrix<T, 3, 1> &psi_b):
+        LineSegment(Eigen::Matrix<T, 3, 1> &psi_a, Eigen::Matrix<T, 3, 1> &psi_b)
             : Eigen::ParametrizedLine<T,3>(psi_a, (psi_b-psi_a).normalized())
         {
         }
