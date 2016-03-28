@@ -26,7 +26,6 @@ rock_library(maps
         grid/GridCellAccessInterface.hpp
         grid/GridCellAccess.hpp
         grid/GridCellFacade.hpp
-        geometric/GeometricElement.hpp
         geometric/Point.hpp
         geometric/LineSegment.hpp
         geometric/GeometricMap.hpp

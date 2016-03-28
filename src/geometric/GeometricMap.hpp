@@ -11,33 +11,28 @@
 #include <unordered_map>
 #include <typeindex>
 
-/** Element type **/
-#include <maps/geometric/Point.hpp>
-#include <maps/geometric/LineSegment.hpp>
-
 namespace maps
 {
     /**@brief GeometricMap class IEEE 1873 standard
      * This map is a Geometric structure for a vector metric (Cartesian) map
      * This map store collections of geometric entities (e.g. points, lines)
      */
+    template <typename T>
     class GeometricMap: public LocalMap
     {
 
     public:
-        using ElementVector = std::vector<GeometricElementBase::Ptr>;
-        using ElementMap = std::unordered_map<std::type_index, ElementVector>;
+        using ElementVector = std::vector<T>;
 
     private:
-        /** Elements are stored by type.
-         * Located with respect to the local frame (LocalMap)
+        /** Elements is the Geometric Map.
          * **/
-        ElementMap elements;
+        ElementVector elements;
 
     public:
 
-        typedef typename ElementMap::iterator iterator;
-        typedef typename ElementMap::const_iterator const_iterator;
+        typedef typename ElementVector::iterator iterator;
+        typedef typename ElementVector::const_iterator const_iterator;
 
         GeometricMap()
             : LocalMap(maps::LocalMapType::GEOMETRIC_MAP)
@@ -45,7 +40,8 @@ namespace maps
         }
 
         GeometricMap(const GeometricMap& other)
-            : LocalMap(other)
+            : LocalMap(other),
+            elements (other.elements)
         {
         }
 
@@ -61,9 +57,62 @@ namespace maps
 
         inline iterator end() { return this->elements.end(); }
 
+        template <typename... Ts>
+        void resize(Ts&&... args)
+        {
+            this->elements.resize(std::forward<Ts>(args)...);
+        }
+
+        size_t capacity()
+        {
+            return this->elements.capacity();
+        }
+
+        void push_back(const T &value)
+        {
+            return this->elements.push_back(value);
+        }
+
+        void pop_back()
+        {
+            return this->elements.pop_back();
+        }
+
+        template <typename... Ts>
+        void insert(Ts&&... args)
+        {
+            this->elements.insert(std::forward<Ts>(args)...);
+        }
+
         size_t getNumElements() const
         {
             return this->elements.size();
+        }
+
+        T& at(size_t n)
+        {
+            return this->elements.at(n);
+        }
+
+        const T& at(size_t n) const
+        {
+            return this->elements.at(n);
+        }
+
+        T& operator[](std::size_t idx)
+        {
+            return this->elements[idx];
+        }
+
+        const T& operator[](std::size_t idx) const
+        {
+            return this->elements[idx];
+        }
+
+        template <typename... Ts>
+        iterator erase(Ts&&... args)
+        {
+            return this->elements.erase(std::forward<Ts>(args)...);
         }
 
     };
