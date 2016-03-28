@@ -47,8 +47,8 @@ BOOST_AUTO_TEST_CASE(elevviz_test)
         {
             float sn = std::sin(y * M_PI/50);
 
-            elev_map.at(x,y).elevation = cs * sn;
-            elev_map.at(x,y).elevation_min = -1 * cs * sn;
+            elev_map.at(x,y) = cs * sn;
+            //elev_map.at(x,y).elevation_min = -1 * cs * sn;
         }
     }
 }
@@ -72,11 +72,10 @@ BOOST_AUTO_TEST_CASE(elevviz_loop)
             double r2 = 2*2 - std::pow(R-5.0, 2);
             if(r2 >= 0)
             {
-                elev_map.at(x,y).elevation = -std::sqrt(r2);
-                elev_map.at(x,y).elevation_min = std::sqrt(r2);
+                elev_map.at(x,y) = std::sqrt(r2);
             }
             else
-                elev_map.at(x,y).elevation = 0.0;
+                elev_map.at(x,y) = 0.0;
         }
 
     showElevationMap(elev_map);

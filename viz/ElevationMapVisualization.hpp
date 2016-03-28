@@ -20,8 +20,6 @@ namespace vizkit3d
     {
         Q_OBJECT
 
-        Q_PROPERTY(QStringList elevation_layer READ getElevationLayers WRITE setElevationLayer)
-
         public:
             ElevationMapVisualization();
             ~ElevationMapVisualization();
@@ -38,9 +36,6 @@ namespace vizkit3d
             struct Data;
             Data* p;
 
-            QString current_grid_key;
-            QStringList grid_keys;
-
             osg::HeightField* createHeighField();
 
             osg::Image* createTextureImage();
@@ -48,10 +43,6 @@ namespace vizkit3d
             ::maps::ColorGradient heatMapGradient;
 
         public slots:
-            QStringList getElevationLayers();
-            QString getElevationLayer() const;
-            void setElevationLayer(const QStringList &keys); 
-            void setElevationLayer(const QString &key); 
     };
 }
 #endif

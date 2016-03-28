@@ -22,10 +22,6 @@ struct ElevationMapVisualization::Data {
 ElevationMapVisualization::ElevationMapVisualization()
     : p(new Data)
 {
-    grid_keys.append(QString("elevation"));
-    grid_keys.append(QString("elevation_min"));
-
-    current_grid_key = QString("elevation");
 
     this->heatMapGradient.createDefaultHeatMapGradient();
 }
@@ -94,27 +90,14 @@ osg::HeightField* ElevationMapVisualization::createHeighField()
     heightField->setOrigin(osg::Vec3d(offset_x, offset_y, offset_z));
     heightField->setSkirtHeight(0.0f); 
 
-    std::pair<double, double> elev_range;
-    double default_value;
-    if (current_grid_key == QString("elevation_min"))
-    {
-        elev_range = elev_map.getElevationMinRange();
-        default_value = ElevationData::ELEVATION_MIN_DEFAULT;
-    }
-    else {
-        elev_range = elev_map.getElevationRange();
-        default_value = ElevationData::ELEVATION_DEFAULT;
-    }
+    std::pair<double, double> elev_range = elev_map.getElevationRange();
+    double default_value = ElevationMap::ELEVATION_DEFAULT;
 
     for (unsigned int r = 0; r < heightField->getNumRows(); r++) 
     {
         for (unsigned int c = 0; c < heightField->getNumColumns(); c++) 
         {
-            double cell_value;
-            if (current_grid_key == QString("elevation_min"))
-                cell_value = elev_map.at(Index(c, r)).elevation_min;
-            else
-                cell_value = elev_map.at(Index(c, r)).elevation;
+            double cell_value = elev_map.at(Index(c, r));
 
             if( cell_value !=  default_value)
                 heightField->setHeight(c, r, cell_value);
@@ -137,15 +120,7 @@ osg::Image* ElevationMapVisualization::createTextureImage()
     unsigned char* image_raw_data = new unsigned char[size];
     unsigned char* pos = image_raw_data;
 
-    std::pair<double, double> elev_range;
-    if (current_grid_key == QString("elevation_min"))
-    {
-        elev_range = elev_map.getElevationMinRange();
-    }
-    else 
-    {
-        elev_range = elev_map.getElevationRange();
-    }
+    std::pair<double, double> elev_range = elev_map.getElevationRange();
 
     //scaling between SCALING_MIN_VALUE and SCALING_MAX_VALUE meters 
     double scaling = std::abs(elev_range.second - elev_range.first);
@@ -159,12 +134,7 @@ osg::Image* ElevationMapVisualization::createTextureImage()
         for (unsigned int x = 0; x < elev_map.getNumCells().x(); ++x)
         {
             /** Get the cell value **/
-            double cell_value;
-            if (current_grid_key == QString("elevation_min"))
-                cell_value = elev_map.at(Index(x, y)).elevation_min;
-            else
-                cell_value = elev_map.at(Index(x, y)).elevation;
-
+            double cell_value = elev_map.at(Index(x, y));
 
             double normalize_value = (cell_value-elev_range.first)/scaling;
             osg::Vec4f col(1.0,1.0,0.6,1.0);
@@ -192,36 +162,6 @@ osg::Image* ElevationMapVisualization::createTextureImage()
     return image;
 }
 
-void ElevationMapVisualization::setElevationLayer(const QStringList &keys)
-{
-    if (keys.empty())
-        return;
-
-    setElevationLayer(keys.front());
-}
-
-void ElevationMapVisualization::setElevationLayer(const QString &key)
-{
-    current_grid_key = key;
-    emit propertyChanged("elevation_layer");
-    setDirty();
-}
-
-QString ElevationMapVisualization::getElevationLayer() const
-{
-    return current_grid_key;
-}
-
-QStringList ElevationMapVisualization::getElevationLayers()
-{
-    if (!current_grid_key.isEmpty() && !grid_keys.isEmpty())
-    {
-        grid_keys.removeOne(current_grid_key);
-        grid_keys.prepend(current_grid_key);
-    }
-
-    return grid_keys;
-}
 
 void ElevationMapVisualization::updateDataIntern(::maps::ElevationMap const& value)
 {

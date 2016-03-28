@@ -5,29 +5,11 @@
 
 namespace maps
 {
-    struct ElevationData 
-    {
-        static const double ELEVATION_DEFAULT;
-        static const double ELEVATION_MIN_DEFAULT;
-
-        /**
-         * @brief [brief description]
-         * @details Consturctor with default values
-         */
-        ElevationData() 
-            : elevation(ELEVATION_DEFAULT),
-              elevation_min(ELEVATION_MIN_DEFAULT)
-        {}
-
-        double elevation;
-        double elevation_min;
-    };
-
-    class ElevationMap : public GridMap<ElevationData>
+    class ElevationMap : public GridMap<double>
     {
     public:
-        typedef boost::shared_ptr<ElevationMap> Ptr;
-
+        typedef boost::shared_ptr<double> Ptr;
+        static const double  ELEVATION_DEFAULT;
     public:
         ElevationMap();
 
@@ -51,8 +33,6 @@ namespace maps
         double getMeanElevation(const Vector3d& pos) const;
 
         std::pair<double, double> getElevationRange() const;   
-
-        std::pair<double, double> getElevationMinRange() const; 
     };
 }
 
