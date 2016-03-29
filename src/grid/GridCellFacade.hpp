@@ -42,9 +42,9 @@ namespace maps
             return impl->end();
         }
 
-        void resize(const Vector2ui &newSize)
+        void resize(const Vector2ui &new_number_cells)
         {
-            impl->resize(newSize);
+            impl->resize(new_number_cells);
         };
         
         void moveBy(const Index &idx)

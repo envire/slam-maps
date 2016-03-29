@@ -11,19 +11,25 @@
 
 namespace maps
 {
-    
+
     template <typename T>
     class GridCell
     {
+        /** The cells storage element **/
         std::vector<T> cells;
-        Vector2ui gridSize;
+
+        /** Number of cells in X-axis and Y-axis **/
+        Vector2ui num_cells;
+
+        /** Default value **/
         T default_value;
+
     public:
-        
+
         typedef typename std::vector<T>::iterator iterator;
         typedef typename std::vector<T>::const_iterator const_iterator;
-        
-        GridCell(Vector2ui size, T default_value) : gridSize(size), default_value(default_value)
+
+        GridCell(Vector2ui size, T default_value) : num_cells(size), default_value(default_value)
         {
             resize(size);
         }
@@ -36,7 +42,7 @@ namespace maps
         {
         }
 
-        GridCell(const GridCell &other) : cells(other.cells), gridSize(other.gridSize), default_value(other.default_value)
+        GridCell(const GridCell &other) : cells(other.cells), num_cells(other.num_cells), default_value(other.default_value)
         {
         }
 
@@ -65,10 +71,10 @@ namespace maps
             return cells.end();
         }
 
-        void resize(const Vector2ui &newSize)
+        void resize(const Vector2ui &new_number_cells)
         {
-            gridSize = newSize;
-            cells.resize(newSize.prod(), default_value);
+            this->num_cells = new_number_cells;
+            cells.resize(new_number_cells.prod(), default_value);
         };
 
         /**
@@ -78,7 +84,7 @@ namespace maps
          */
         void moveBy(const Vector2i &idx)
         {
-            const Vector2ui num_cells(gridSize);
+            const Vector2ui num_cells(this->num_cells);
 
             // if all grid values should be moved outside
             if (abs(idx.x()) >= num_cells.x()
@@ -89,7 +95,7 @@ namespace maps
             }
 
             std::vector<T> tmp;
-            tmp.resize(gridSize.prod(), default_value);
+            tmp.resize(num_cells.prod(), default_value);
 
             //copy pointers to new grid at new position
             for (unsigned int x = 0; x < num_cells.x(); ++x)
@@ -117,35 +123,35 @@ namespace maps
 
         const T& at(const Index &idx) const
         {
-            if(idx.x() >= gridSize.x() || idx.y() >= gridSize.y())
+            if(idx.x() >= num_cells.x() || idx.y() >= num_cells.y())
                 throw std::runtime_error("Provided index is out of the grid");
-            return cells[idx.x() + idx.y() * gridSize.x()];
+            return cells[idx.x() + idx.y() * num_cells.x()];
         }
 
         T& at(const Index &idx)
         {
-            if(idx.x() >= gridSize.x() || idx.y() >= gridSize.y())
+            if(idx.x() >= num_cells.x() || idx.y() >= num_cells.y())
                 throw std::runtime_error("Provided index is out of the grid");
-            return cells[idx.x() + idx.y() * gridSize.x()];
+            return cells[idx.x() + idx.y() * num_cells.x()];
         }
 
         const T& at(size_t x, size_t y) const
         {
-            if(x >= gridSize.x() || y >= gridSize.y())
+            if(x >= num_cells.x() || y >= num_cells.y())
                 throw std::runtime_error("Provided index is out of the grid");
-            return cells[x + y * gridSize.x()];
+            return cells[x + y * num_cells.x()];
         }
 
         T& at(size_t x, size_t y)
         {
-            if(x >= gridSize.x() || y >= gridSize.y())
+            if(x >= num_cells.x() || y >= num_cells.y())
                 throw std::runtime_error("Provided index is out of the grid");
-            return cells[x + y * gridSize.x()];
+            return cells[x + y * num_cells.x()];
         }
         
         const Vector2ui &getNumCells() const
         {
-            return gridSize;
+            return num_cells;
         };
         
         void clear()
@@ -159,7 +165,7 @@ namespace maps
     protected:
         size_t toIdx(size_t x, size_t y) const
         {
-            return x  +  y * gridSize.x();
+            return x  +  y * num_cells.x();
         }
 
         /** Grants access to boost serialization */
@@ -170,7 +176,7 @@ namespace maps
         void serialize(Archive &ar, const unsigned int version)
         {
             ar & BOOST_SERIALIZATION_NVP(cells);
-            ar & BOOST_SERIALIZATION_NVP(gridSize);
+            ar & BOOST_SERIALIZATION_NVP(num_cells);
             ar & BOOST_SERIALIZATION_NVP(default_value);
         }          
     };

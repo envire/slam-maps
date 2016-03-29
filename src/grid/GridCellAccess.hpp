@@ -39,9 +39,9 @@ namespace maps
             return ConstAccessIteratorImpl<T, TBASE, std::vector<T> >(storage->end());
         }
 
-        virtual void resize(Vector2ui newSize)
+        virtual void resize(Vector2ui new_number_cells)
         {
-            storage->resize(newSize);
+            storage->resize(new_number_cells);
         };
         
         virtual void moveBy(Index idx)
