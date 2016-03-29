@@ -154,7 +154,7 @@ void MLSMapI<SurfacePatch>::visualize(vizkit3d::PatchesGeode& geode) const
         {
             const SPListST &list = mls.at(x, y);
 
-            Vector3d pos;
+            Vector3d pos(0.00, 0.00, 0.00);
             mls.fromGrid(Index(x,y), pos);
             geode.setPosition(pos.x(), pos.y());
             for (typename SPListST::const_iterator it = list.begin(); it != list.end(); it++)
