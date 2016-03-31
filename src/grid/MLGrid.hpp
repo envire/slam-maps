@@ -21,6 +21,8 @@ public:
     {
     };
     
+    MLGrid() {}
+
     
     class MLView : public GridMap<LevelList<const P *> >
     {

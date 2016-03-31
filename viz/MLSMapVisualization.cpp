@@ -22,17 +22,28 @@ osg::Vec3 Vec3( const Eigen::Matrix<T,3,1>& v )
 }
 
 
-// TODO is this really still necessary?
 struct MLSMapVisualization::Data {
     // Copy of the value given to updateDataIntern.
     //
     // Making a copy is required because of how OSG works
-    ::maps::MLSMap data;
+    virtual ~Data() { }
+    virtual Eigen::Vector2d getResolution() const = 0;
+    virtual void visualize(vizkit3d::PatchesGeode& geode) const = 0;
+
+};
+
+template<enum MLSConfig::update_model Type>
+struct DataHold : public MLSMapVisualization::Data
+{
+    MLSMapI<Type> mls;
+    DataHold(const MLSMapI<Type> mls_) : mls(mls_) {}
+    Eigen::Vector2d getResolution() const { return mls.getResolution(); }
+    void visualize(vizkit3d::PatchesGeode& geode) const;
 };
 
 
 MLSMapVisualization::MLSMapVisualization()
-    : p(new Data),
+    : p(0),
     horizontalCellColor(osg::Vec4(0.1,0.5,0.9,1.0)), 
     verticalCellColor(osg::Vec4(0.8,0.9,0.5,1.0)), 
     negativeCellColor(osg::Vec4(0.1,0.5,0.9,0.2)), 
@@ -48,7 +59,6 @@ MLSMapVisualization::MLSMapVisualization()
 
 MLSMapVisualization::~MLSMapVisualization()
 {
-    delete p;
 }
 
 osg::ref_ptr<osg::Node> MLSMapVisualization::createMainNode()
@@ -64,10 +74,11 @@ osg::ref_ptr<osg::Node> MLSMapVisualization::createMainNode()
 
 void MLSMapVisualization::updateMainNode ( osg::Node* node )
 {
+    if(!p) return;
     osg::Group* group = static_cast<osg::Group*>(node);    
 
-    MLSMap &mls = p->data;
-    Eigen::Vector2d res = mls.getResolution();
+//    MLSMap &mls = p->data;
+    Eigen::Vector2d res = p->getResolution();
 
     osg::ref_ptr<PatchesGeode> geode = new PatchesGeode(res.x(), res.y());
     group->setChild( 0, geode );
@@ -85,7 +96,7 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
     geode->setShowNormals(showNormals);
 
     base::TimeMark timer("MLS_VIZ::updateMainNode");
-    mls.visualize(*geode);
+    p->visualize(*geode);
 
     if( showUncertainty || showNormals || showExtents)
     {
@@ -98,7 +109,7 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
     std::cout << timer << std::endl;
 
 }
-
+#if 0
 void MLSMap::visualize(vizkit3d::PatchesGeode& geode) const
 {
 
@@ -114,7 +125,7 @@ void MLSMap::visualize(vizkit3d::PatchesGeode& geode) const
         throw std::runtime_error("Can't visualize unknown map type");
     }
 }
-
+#endif
 namespace maps {
 
 
@@ -143,15 +154,18 @@ struct PatchVisualizer
     }
 };
 
-template<class SurfacePatch>
-void MLSMapI<SurfacePatch>::visualize(vizkit3d::PatchesGeode& geode) const
+} // namespace maps
+
+template<enum MLSConfig::update_model Type>
+void DataHold<Type>::visualize(vizkit3d::PatchesGeode& geode) const
 {
-    const GridMap<SPListST> &mls = grid;
+    //const GridMap<SPListST> &mls = *this;
     Vector2ui num_cell = mls.getNumCells();
     for (size_t x = 0; x < num_cell.x(); x++)
     {
         for (size_t y = 0; y < num_cell.y(); y++)
         {
+            typedef typename MLSMapI<Type>::SPListST SPListST;
             const SPListST &list = mls.at(x, y);
 
             Vector3d pos(0.00, 0.00, 0.00);
@@ -165,15 +179,18 @@ void MLSMapI<SurfacePatch>::visualize(vizkit3d::PatchesGeode& geode) const
     } // for(x ...)
 
 
-}
 
 
 }  // namespace maps
 
 
-void MLSMapVisualization::updateDataIntern(::maps::MLSMap const& value)
+void MLSMapVisualization::updateDataIntern(::maps::MLSMapKalman const& value)
 {
-    p->data = value;
+    p.reset(new DataHold<MLSConfig::KALMAN>( value ));
+}
+void MLSMapVisualization::updateDataIntern(::maps::MLSMapSloped const& value)
+{
+    p.reset(new DataHold<MLSConfig::SLOPE>( value ));
 }
 
 #if 0

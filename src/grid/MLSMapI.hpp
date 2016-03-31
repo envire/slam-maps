@@ -4,9 +4,11 @@
 
 #include "MLSMap.hpp"
 
+#include "MLGrid.hpp"
+
 
 namespace maps {
-
+#if 0
 class MLSMap::MLSBase
 {
 public:
@@ -27,53 +29,41 @@ public:
 
 };
 
+#endif
 
-template<class SurfaceType>
-struct MLSMapI : public MLSMap::MLSBase
+template<enum MLSConfig::update_model  SurfaceType>
+struct MLSMapI : public MLGrid<SurfacePatchT<SurfaceType> >
 {
-    typedef SPList<SurfaceType> SPListST;
-    GridMap<SPListST> grid;
+    typedef SurfacePatchT<SurfaceType> Patch;
+    typedef LevelList<Patch>SPListST; // TODO rename
+    typedef MLGrid<Patch> Base;
+//    GridMap<SPListST> grid;
+
+    MLSConfig config;
 
     MLSMapI(
             const Vector2ui &num_cells,
             const Vector2d &resolution,
             const MLSConfig &config_)
-    : MLSBase(config_)
-    , grid(num_cells, resolution, SPListST(config_))
+    : Base(num_cells, resolution)
+    , config(config_)
     {
-        // assert that config is compatible to SurfaceType ...
+        // TODO assert that config is compatible to SurfaceType ...
     }
-    MLSMapI() : MLSBase(MLSConfig())
+    MLSMapI()
     {
         // empty
     }
 
-    void merge(const MLSBase& other)
+    void merge(const MLSMapI& other)
     {
         // TODO
     }
 
     void visualize(vizkit3d::PatchesGeode& geode) const;
 
-    MLSBase* clone() const
-    {
-        return new MLSMapI(*this);
-    }
 
-    base::Transform3d& getLocalFrame()
-    {
-        return grid.getLocalFrame();
-    }
-    Eigen::Vector2d getSize() const
-    {
-        return grid.getSize();
-    }
-    Eigen::Vector2d getResolution() const
-    {
-        return grid.getResolution();
-    }
-
-    void mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& pc2grid, bool withUncertainty);
+    void mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& pc2grid, bool withUncertainty = false);
     void mergePoint(const Eigen::Vector3d& point);
 };
 

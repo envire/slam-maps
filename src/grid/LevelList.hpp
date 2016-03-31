@@ -1,15 +1,19 @@
 #pragma once
 
-#include <set>
+//#include <set>
 
-#include <boost/pool/object_pool.hpp>
-#include <boost/pool/pool_alloc.hpp>
-#include <boost/interprocess/allocators/private_node_allocator.hpp>
+//#include <boost/pool/object_pool.hpp>
+//#include <boost/pool/pool_alloc.hpp>
+//#include <boost/interprocess/allocators/private_node_allocator.hpp>
 
-#include "storage/AccessIterator.hpp"
+#include "AccessIterator.hpp"
+
+#include <boost/container/flat_set.hpp>
 
 namespace maps 
 {
+struct MLSConfig;
+
 template <class _Tp>
 struct myCmp : public std::binary_function<_Tp, _Tp, bool>
 {
@@ -19,16 +23,18 @@ struct myCmp : public std::binary_function<_Tp, _Tp, bool>
 };
     
 template <class S>
-class LevelList : public std::multiset<S>
+class LevelList : public boost::container::flat_set<S>
 {
 public:
     LevelList()
     {
     };    
+
+    void update(const S&, const MLSConfig&);
 };
 
 template <class S>
-class LevelList<S *> : public std::multiset<S *, myCmp<S *>>
+class LevelList<S *> : public boost::container::flat_set<S *, myCmp<S *>>
 {
 public:
     LevelList()
@@ -54,6 +60,7 @@ public:
     
 };
 
+#if 0
 template <class S, class SBase = S>
 class DerivableLevelList : public DerivableLevelList<SBase, SBase>, public std::multiset<S>
 {
@@ -147,5 +154,6 @@ public:
     };
     
 };
+#endif
 
-}
+} // namespace maps

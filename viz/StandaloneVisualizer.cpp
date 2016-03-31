@@ -47,7 +47,11 @@ StandaloneVisualizer::~StandaloneVisualizer()
     // TODO Auto-generated destructor stub
 }
 
-void StandaloneVisualizer::updateData(const MLSMap& mls)
+void StandaloneVisualizer::updateData(const MLSMapKalman& mls)
+{
+    impl->mls_viz->updateData(mls);
+}
+void StandaloneVisualizer::updateData(const MLSMapSloped& mls)
 {
     impl->mls_viz->updateData(mls);
 }

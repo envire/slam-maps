@@ -94,9 +94,10 @@ class MLSMapExchange;
 #endif
 
 
-template<class SPType>
+template<enum MLSConfig::update_model SPType>
 struct MLSMapI;
 
+#if 0
 class MLSMap
 {
     // Internal representation of map is hidden:
@@ -144,10 +145,14 @@ public:
     MLSMapI<SPType>& getMLSMap();
 };
 
+#endif
 
 
+typedef MLSMapI<MLSConfig::SLOPE> MLSMapSloped;
+typedef MLSMapI<MLSConfig::KALMAN> MLSMapKalman;
 
 
 } /* namespace maps */
+#include "MLSMapI.hpp"
 
 #endif // __MAPS_MLS_GRID_HPP__

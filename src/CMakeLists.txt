@@ -16,9 +16,11 @@ rock_library(maps
         grid/ElevationMap.hpp
         grid/SurfacePatches.hpp
         grid/List.hpp
+        grid/LevelList.hpp
         grid/SPList.hpp
         grid/MLSConfig.hpp
         grid/MLSMap.hpp
+        grid/MLGrid.hpp
         grid/MLSMapI.hpp
         grid/TraversabilityMap3d.hpp
         grid/AccessIterator.hpp

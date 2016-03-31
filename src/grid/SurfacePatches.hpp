@@ -31,7 +31,7 @@ struct SurfacePatchExchange
 
 typedef boost::intrusive::link_mode<boost::intrusive::auto_unlink> auto_unlink_mode;
 
-class SurfacePatchBase : public boost::intrusive::list_base_hook<auto_unlink_mode>
+class SurfacePatchBase /* : public boost::intrusive::list_base_hook<auto_unlink_mode> */
 {
 protected:
     size_t update_idx; // TODO is this really useful?

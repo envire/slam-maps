@@ -3,6 +3,7 @@
 
 #include <boost/scoped_ptr.hpp>
 
+#include <maps/grid/MLSMap.hpp>
 
 namespace maps
 {
@@ -19,7 +20,8 @@ public:
 
     bool wait(int usecs = 1000);
 
-    void updateData(const MLSMap& mls);
+    void updateData(const MLSMapKalman& mls);
+    void updateData(const MLSMapSloped& mls);
 };
 
 } /* namespace maps */

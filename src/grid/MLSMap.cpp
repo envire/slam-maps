@@ -15,16 +15,85 @@
 
 namespace maps {
 
-#define MAPS_MLSMAP(ret_type__) template<class SurfaceType> \
+template<class Patch>
+bool isCovered(const LevelList<Patch> &list, float zPos, const float gapSize = 0.0)
+{
+    for(typename LevelList<Patch>::const_iterator it = list.begin(); it!= list.end(); ++it)
+    {
+        if(it->isCovered(zPos, gapSize)) return true;
+    }
+    return false;
+}
+
+template<class Patch>
+bool merge(Patch& a, const Patch& b, const MLSConfig& config)
+{
+    return a.merge(b, config);
+}
+
+template<class Patch>
+void LevelList<Patch>::update(const Patch& o, const MLSConfig& conf)
+{
+    typedef typename LevelList<Patch>::iterator iterator;
+    iterator it = this->begin(), end = this->end(), it_prev = end;
+    if(it==end)
+    {
+        // insert into empty list
+        this->insert(o);
+        return;
+    }
+    // Find iterators so that *it_prev < o < *it
+    while(it != end && *it < o)
+    {
+        it_prev=it;
+        ++it;
+    }
+    if(it_prev == end)
+    {
+        // new patch is smaller than first patch
+        if(!merge(*it, o, conf))
+            this->insert(o);
+    }
+    else if(it==end)
+    {
+        // new patch is larger than last patch
+        if(!merge(*it_prev, o, conf))
+            this->insert(o);
+    }
+    else
+    {
+        // new patch lies between it_prev and it
+        // try to merge with previous patch:
+        if(merge(*it_prev, o, conf))
+        {
+            // this might make this patch merge-able with the next patch
+            if(merge(*it_prev, *it, conf))
+            {
+                // erase the second patch, since it was merged with the first
+                this->erase(it);
+            }
+        }
+        // otherwise, try to merge with the next patch
+        else if(!merge(*it, o, conf))
+        {
+            // if it is not merge-able, insert as a new patch between existing patches
+            this->insert(it, o);
+        }
+    }
+
+}
+
+
+#define MAPS_MLSMAP(ret_type__) template<enum MLSConfig::update_model SurfaceType> \
     ret_type__ MLSMapI<SurfaceType>
 
 MAPS_MLSMAP(void)::mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& pc2grid, bool withUncertainty)
     {
         // TODO change everything to float, if possible (requires refactoring Grid)
 
-        const bool useNegative = false && mls_config.useNegativeInformation; // TODO also check that grid is not empty?
+        const bool useNegative = false && config.useNegativeInformation; // TODO also check that grid is not empty?
         MLSMapI tempGrid = useNegative
-                        ? MLSMapI(grid.getNumCells(), grid.getResolution(), mls_config)
+                        ? MLSMapI(Base::getNumCells(), Base::getResolution(), config)
                         : MLSMapI();
         MLSMapI &workGrid = useNegative ? tempGrid : *this;
 
@@ -41,12 +110,12 @@ MAPS_MLSMAP(void)::mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& 
             Eigen::Vector3d pos = pc2grid * point;
             Index idx;
             // TODO toGrid is expensive (involves applying another Transformation)
-            if(grid.toGrid(pos, idx, pos))
+            if(Base::toGrid(pos, idx, pos))
             {
-                if(useNegative && grid.at(idx).isCovered(pos.z(), stdev))
+                if(useNegative && isCovered(Base::at(idx), pos.z(), stdev))
                     continue;
 
-                workGrid.grid.at(idx).update(SurfaceType(pos.cast<float>(), stdev));
+                workGrid.at(idx).update(Patch(pos.cast<float>(), stdev), config);
                 if(useNegative)
                     coveredCells.insert(idx);
             }
@@ -55,16 +124,16 @@ MAPS_MLSMAP(void)::mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& 
         {
             Index origin; // Grid index of sensor
             Eigen::Vector3d orig_relative; // coordinates of sensor inside grid cell
-            grid.toGrid(pc2grid.translation(), origin, orig_relative);
+            Base::toGrid(pc2grid.translation(), origin, orig_relative);
 
             Bresenham::Point orig = origin.cast<int>(); // Origin in Bresenham compatible format
             for(IndexSet::const_iterator it = coveredCells.begin(); it != coveredCells.end(); ++it)
             {
-                const SPListST &cell = workGrid.grid.at(*it);
+                const SPListST &cell = workGrid.at(*it);
                 for(typename SPListST::const_iterator cit = cell.begin(); cit != cell.end(); ++cit)
                 {
                     // Merge cell into main grid
-                    grid.at(*it).update(*cit);
+                    Base::at(*it).update(*cit, config);
 
                     // This block does actually the same for all cit:
                     Bresenham bresLine(orig, it->cast<int>());
@@ -89,11 +158,11 @@ MAPS_MLSMAP(void)::mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& 
                         double p_height = height * (factor) - 2*p_var;
                         //double z_stdev = cit->getStdev() * factor;
                         double z_stdev = 0.05 * factor; // TODO get stdev from patch
-                        SurfaceType np(z_mean, z_stdev, p_height, SurfaceType::NEGATIVE);
+                        Patch np(z_mean, z_stdev, p_height, Patch::NEGATIVE);
                         // TODO set update_idx of np?
 
                         // merge negative patch:
-                        grid.at(Index(next.cast<Index::Scalar>())).update(np);
+                        Base::at(Index(next.cast<Index::Scalar>())).update(np, config);
                     }
                 }
             }
@@ -105,13 +174,14 @@ MAPS_MLSMAP(void)::mergePoint(const Vector3d & point)
 {
     Eigen::Vector3d pos;
     Index idx;
-    if(grid.toGrid(point, idx, pos))
+    if(Base::toGrid(point, idx, pos))
     {
         // TODO get stddev from config or by function parameter
-        grid.at(idx).update(SurfaceType(pos.cast<float>(), 0.1));
+        Base::at(idx).update(Patch(pos.cast<float>(), 0.1), config);
     }
 }
 
+#if 0
 MLSMap::MLSMap(
         const Vector2ui &num_cells_,
         const Eigen::Vector2d &resolution_,
@@ -183,5 +253,10 @@ MLSMapI<SPType>& MLSMap::getMLSMap()
 {
         return dynamic_cast<MLSMapI<SPType>&>(*map);
 }
+#endif
+
+template struct MLSMapI<MLSConfig::KALMAN>;
+template struct MLSMapI<MLSConfig::SLOPE>;
+
 
 }  // namespace maps

@@ -14,7 +14,8 @@
 namespace vizkit3d
 {
     class MLSMapVisualization
-        : public vizkit3d::Vizkit3DPlugin<::maps::MLSMap>
+        : public vizkit3d::Vizkit3DPlugin<::maps::MLSMapKalman>
+        , public vizkit3d::VizPluginAddType<::maps::MLSMapSloped>
         , boost::noncopyable
     {
         Q_OBJECT
@@ -35,17 +36,20 @@ namespace vizkit3d
             MLSMapVisualization();
             ~MLSMapVisualization();
 
-            Q_INVOKABLE void updateData(::maps::MLSMap const &sample)
-            {vizkit3d::Vizkit3DPlugin<::maps::MLSMap>::updateData(sample);}
+            Q_INVOKABLE void updateData(::maps::MLSMapKalman const &sample)
+            {updateDataIntern(sample);}
+            Q_INVOKABLE void updateData(::maps::MLSMapSloped const &sample)
+            {updateDataIntern(sample);}
 
         protected:
             virtual osg::ref_ptr<osg::Node> createMainNode();
             virtual void updateMainNode(osg::Node* node);
-            virtual void updateDataIntern(::maps::MLSMap const& plan);
+            virtual void updateDataIntern(::maps::MLSMapSloped const& plan);
+            virtual void updateDataIntern(::maps::MLSMapKalman const& plan);
             
         private:
             struct Data;
-            Data* p;
+            boost::scoped_ptr<Data> p;
         
         public slots:
 
