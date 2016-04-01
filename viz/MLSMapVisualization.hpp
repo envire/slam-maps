@@ -36,11 +36,6 @@ namespace vizkit3d
             MLSMapVisualization();
             ~MLSMapVisualization();
 
-            Q_INVOKABLE void updateData(::maps::MLSMapKalman const &sample)
-            {updateDataIntern(sample);}
-            Q_INVOKABLE void updateData(::maps::MLSMapSloped const &sample)
-            {updateDataIntern(sample);}
-
         protected:
             virtual osg::ref_ptr<osg::Node> createMainNode();
             virtual void updateMainNode(osg::Node* node);
