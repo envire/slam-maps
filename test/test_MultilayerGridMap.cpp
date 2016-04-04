@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include <maps/MultilayerGridMap.hpp>
+#include <maps/grid/MultilayerGridMap.hpp>
 
 using namespace ::maps;
 

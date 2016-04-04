@@ -10,14 +10,9 @@
 #include <iostream>
 #include <type_traits>
 
-/** Eigen **/
-#include <Eigen/Core>
-#include <Eigen/Geometry>
-#include <Eigen/LU>
 
 /** Boost **/
 #include <boost/shared_ptr.hpp>
-#include <boost/multi_array.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
 
 #include <boost/serialization/access.hpp>
@@ -57,6 +52,14 @@ namespace maps
             : LocalMap(other), 
               R(other),
               resolution(other.resolution)
+        {
+        }
+
+        template<class T2, class R2>
+        GridMap(const GridMap<T2, R2>& other, const R& storage)
+            : LocalMap(other)
+            , R(storage)
+            , resolution(other.getResolution())
         {
         }
 

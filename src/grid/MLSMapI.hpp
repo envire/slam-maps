@@ -32,9 +32,9 @@ public:
 #endif
 
 template<enum MLSConfig::update_model  SurfaceType>
-struct MLSMapI : public MLGrid<SurfacePatchT<SurfaceType> >
+struct MLSMapI : public MLGrid<SurfacePatch<SurfaceType> >
 {
-    typedef SurfacePatchT<SurfaceType> Patch;
+    typedef SurfacePatch<SurfaceType> Patch;
     typedef LevelList<Patch>SPListST; // TODO rename
     typedef MLGrid<Patch> Base;
 //    GridMap<SPListST> grid;

@@ -131,7 +131,7 @@ namespace maps {
 
 struct PatchVisualizer
 {
-    static void visualize(vizkit3d::PatchesGeode& geode, const SurfacePatchT<MLSConfig::SLOPE>& p)
+    static void visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::SLOPE>& p)
     {
         if( !p.isNegative() )
         {
@@ -146,7 +146,7 @@ struct PatchVisualizer
             geode.drawPlane(zp, height, mean, normal);
         }
     }
-    static void visualize(vizkit3d::PatchesGeode& geode, const SurfacePatchT<MLSConfig::KALMAN>& p)
+    static void visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::KALMAN>& p)
     {
         {
             geode.drawBox(p.mean, p.height, Vec3(p.getNormal()));

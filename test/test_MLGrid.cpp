@@ -1,9 +1,10 @@
 #include <boost/test/unit_test.hpp>
-#include "../src/MLGrid.hpp"
+#include <maps/grid/MLGrid.hpp>
 
-#include "../src/storage/GridCellAccessInterface.hpp"
-#include "../src/storage/GridCellAccess.hpp"
-#include "../src/storage/GridCellFacade.hpp"
+#include <maps/grid/GridCellAccessInterface.hpp>
+#include <maps/grid/GridCellAccess.hpp>
+#include <maps/grid/GridCellFacade.hpp>
+#include <maps/grid/LevelList.hpp>
 
 using namespace ::maps;
 class PatchBase

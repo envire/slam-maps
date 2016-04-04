@@ -1,11 +1,5 @@
 #pragma once
 
-//#include <set>
-
-//#include <boost/pool/object_pool.hpp>
-//#include <boost/pool/pool_alloc.hpp>
-//#include <boost/interprocess/allocators/private_node_allocator.hpp>
-
 #include "AccessIterator.hpp"
 
 #include <boost/container/flat_set.hpp>
@@ -60,32 +54,31 @@ public:
     
 };
 
-#if 0
 template <class S, class SBase = S>
-class DerivableLevelList : public DerivableLevelList<SBase, SBase>, public std::multiset<S>
+class DerivableLevelList : public DerivableLevelList<SBase, SBase>, public boost::container::flat_set<S>
 {
 protected:
     virtual ConstAccessIterator<SBase> getBegin()
     {
-        return ConstAccessIteratorImpl<S, SBase, std::multiset<S> >(std::multiset<S>::begin());
+        return ConstAccessIteratorImpl<S, SBase, boost::container::flat_set<S> >(boost::container::flat_set<S>::begin());
     };
     
     virtual ConstAccessIterator<SBase> getEnd()
     {
-        return ConstAccessIteratorImpl<S, SBase, std::multiset<S> >(std::multiset<S>::end());
+        return ConstAccessIteratorImpl<S, SBase, boost::container::flat_set<S> >(boost::container::flat_set<S>::end());
     };
     
     virtual size_t getSize() const
     {
-        return std::multiset<S>::size();
+        return boost::container::flat_set<S>::size();
     };
 public:
-    using std::multiset<S>::begin;
-    using std::multiset<S>::end;
+    using boost::container::flat_set<S>::begin;
+    using boost::container::flat_set<S>::end;
 
-    using std::multiset<S>::find;
+    using boost::container::flat_set<S>::find;
     
-    using std::multiset<S>::size;
+    using boost::container::flat_set<S>::size;
     
     DerivableLevelList()
     {
@@ -154,6 +147,5 @@ public:
     };
     
 };
-#endif
 
 } // namespace maps

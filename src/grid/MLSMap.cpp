@@ -4,11 +4,7 @@
 
 #include "GridMap.hpp"
 
-#include "SPList.hpp"
-
 #include <exception>
-#include <set>
-
 
 #include "MLSMapI.hpp"
 

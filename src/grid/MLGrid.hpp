@@ -62,7 +62,7 @@ public:
             return MLView();
         }
         
-        MLView ret(maxIdx-minIdx, this->resolution);
+        MLView ret(maxIdx-minIdx, this->getResolution());
         
         for(size_t x = minIdx.x();x < maxIdx.x(); x++)
         {

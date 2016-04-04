@@ -2,7 +2,6 @@
 #define __MAPS_SURFACEPATCHES_HPP_
 
 #include <numeric/PlaneFitting.hpp>
-#include <boost/intrusive/list.hpp>
 
 #include <base/Eigen.hpp>
 #include <Eigen/Core>
@@ -18,20 +17,8 @@ typedef float SPScalar;
 typedef Eigen::Matrix<SPScalar, 3, 1> Vector3;
 typedef Eigen::Matrix<SPScalar, 3, 3> Matrix33;
 
-/**
- * Struct to exchange surface patches. Stores minimal information, efficiently.
- * This struct does not allow to link patches together.
- */
-struct SurfacePatchExchange
-{
-    Vector3 normal;
-    SPScalar mean, height, sigma, mini, maxi;
-};
 
-
-typedef boost::intrusive::link_mode<boost::intrusive::auto_unlink> auto_unlink_mode;
-
-class SurfacePatchBase /* : public boost::intrusive::list_base_hook<auto_unlink_mode> */
+class SurfacePatchBase
 {
 protected:
     size_t update_idx; // TODO is this really useful?
@@ -95,31 +82,30 @@ public:
 
 /**
  * Templated surface patch class.
- * Eventually, this should be renamed to SurfacePatch
- * TODO add color option, write implementations for all variants
+ * TODO add color option
  */
 template<MLSConfig::update_model model>
-class SurfacePatchT;
+class SurfacePatch;
 
 
 /**
  * SurfacePatch type for SLOPE update model.
  */
 template<>
-class SurfacePatchT<MLSConfig::SLOPE> : public SurfacePatchBase
+class SurfacePatch<MLSConfig::SLOPE> : public SurfacePatchBase
 {
     typedef SurfacePatchBase Base;
     base::PlaneFitting<float> plane;
     float n;
     TYPE type;
 public:
-    SurfacePatchT(const Eigen::Vector3f& point, const float& cov)
+    SurfacePatch(const Eigen::Vector3f& point, const float& cov)
         : Base(point.z())
         , plane(point, 1.0f/cov)
         , n(1), type(TYPE::HORIZONTAL)
     { }
 
-    SurfacePatchT(const float& mean, const float& stdev, const float& height = 0, TYPE type_=TYPE::HORIZONTAL)
+    SurfacePatch(const float& mean, const float& stdev, const float& height = 0, TYPE type_=TYPE::HORIZONTAL)
         : Base(mean, height)
         , n(1), type(type_)
     { }
@@ -128,7 +114,7 @@ public:
     /**
      * Compares two patches by their center of mass
      */
-    bool operator<(const SurfacePatchT& other) const
+    bool operator<(const SurfacePatch& other) const
     {
         return plane.z * other.plane.n < other.plane.z * plane.n;
     }
@@ -171,7 +157,7 @@ public:
         return eig.eigenvectors().col(0);
     }
 
-    bool merge(const SurfacePatchT& other, const MLSConfig& config)
+    bool merge(const SurfacePatch& other, const MLSConfig& config)
     {
         if(Base::merge(other, config.gapSize))
         {
@@ -183,14 +169,14 @@ public:
         return false;
     }
 
-}; // SurfacePatchT<MLSConfig::SLOPE>
+}; // SurfacePatch<MLSConfig::SLOPE>
 
 
 
 
 
 template<>
-class SurfacePatchT<MLSConfig::KALMAN>: public SurfacePatchBase
+class SurfacePatch<MLSConfig::KALMAN>: public SurfacePatchBase
 {
 public:
     typedef SurfacePatchBase Base;
@@ -207,16 +193,16 @@ public:
 
 
 public:
-    SurfacePatchT(const Eigen::Vector3f& point, const float& cov)
+    SurfacePatch(const Eigen::Vector3f& point, const float& cov)
         : Base(point.z())
         , mean(point.z()), var(cov), height(0)
     { }
 
-    SurfacePatchT(const float& mean, const float& stdev, const float& height = 0, TYPE type_=TYPE::HORIZONTAL)
+    SurfacePatch(const float& mean, const float& stdev, const float& height = 0, TYPE type_=TYPE::HORIZONTAL)
         : Base(mean, height)
         , mean(mean), var(stdev*stdev), height(height)
     { }
-    bool merge(const SurfacePatchT& other, const MLSConfig& config)
+    bool merge(const SurfacePatch& other, const MLSConfig& config)
     {
         if( !Base::merge(other, config.gapSize))
             return false;
@@ -247,7 +233,7 @@ public:
         return center;
     }
 
-    bool operator<(const SurfacePatchT& other) const
+    bool operator<(const SurfacePatch& other) const
     {
         return mean < other.mean;
     }
@@ -257,10 +243,7 @@ public:
         return Eigen::Vector3f::UnitZ();
     }
 
-
-
-
-}; // SurfacePatchT<MLSConfig::KALMAN>
+}; // SurfacePatch<MLSConfig::KALMAN>
 
 
 

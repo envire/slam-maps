@@ -1,27 +1,27 @@
 rock_testsuite(test_index suite.cpp
    test_Index.cpp
-   DEPS maps)   
+   DEPS maps)
 
 rock_testsuite(test_localmap suite.cpp
    test_LocalMap.cpp
-   DEPS maps)   
+   DEPS maps)
 
 rock_testsuite(test_gridmap suite.cpp
    test_GridMap.cpp
-   DEPS maps)   
+   DEPS maps)
 
-#rock_testsuite(test_mlGrid suite.cpp
-#   test_MLGrid.cpp
-#   DEPS maps)     
+rock_testsuite(test_mlGrid suite.cpp
+   test_MLGrid.cpp
+   DEPS maps)
 
 #rock_testsuite(test_multilayergridmap suite.cpp
 #   test_MultilayerGridMap.cpp
-#   DEPS maps)     
+#   DEPS maps)
 
 
-rock_testsuite(test_list suite.cpp
-    test_List.cpp
-    DEPS maps)   
+#rock_testsuite(test_list suite.cpp
+#    test_List.cpp
+#    DEPS maps)
 
 #rock_testsuite(test_sp_list suite.cpp
 #   test_SPList.cpp
