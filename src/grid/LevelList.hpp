@@ -3,6 +3,7 @@
 #include "AccessIterator.hpp"
 
 #include <boost/container/flat_set.hpp>
+#include <boost/serialization/split_member.hpp>
 
 namespace maps 
 {
@@ -19,12 +20,47 @@ struct myCmp : public std::binary_function<_Tp, _Tp, bool>
 template <class S>
 class LevelList : public boost::container::flat_set<S>
 {
+    typedef boost::container::flat_set<S> Base;
 public:
     LevelList()
     {
     };    
 
     void update(const S&, const MLSConfig&);
+protected:
+            /** Grants access to boost serialization */
+    friend class boost::serialization::access;
+
+    /** Serializes the members of this class*/
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int version)
+    {
+        boost::serialization::split_member(ar, *this, version);
+    }
+    template<class Archive>
+    void load(Archive &ar, const unsigned int version)
+    {
+        size_t count;
+        ar >> count;
+        Base::clear();
+        Base::reserve(count);
+        for(size_t i=0; i<count; ++i)
+        {
+            S obj;
+            ar >> obj;
+            Base::insert(Base::end(), std::move(obj));
+        }
+    }
+    template<class Archive>
+    void save(Archive& ar, const unsigned int version) const
+    {
+        size_t size = Base::size();
+        ar << size;
+        for(typename Base::const_iterator it = Base::begin(); it!= Base::end(); ++it)
+        {
+            ar << *it;
+        }
+    }
 };
 
 template <class S>

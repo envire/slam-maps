@@ -5,6 +5,7 @@
 
 #include <maps/LocalMap.hpp>
 #include <maps/grid/GridMap.hpp>
+#include <maps/grid/LevelList.hpp>
 
 using namespace ::maps;
 
@@ -201,6 +202,24 @@ BOOST_AUTO_TEST_CASE(test_gridmap_serialization)
     }
 }
 
+BOOST_AUTO_TEST_CASE(test_levellist_serialization)
+{
+    LevelList<int> list;
+    list.insert(42);
+    list.insert(-1337);
+    std::stringstream stream;
+    boost::archive::polymorphic_binary_oarchive oa(stream);
+    oa << list;
+
+    // deserialize from string stream
+    boost::archive::polymorphic_binary_iarchive *ia = new boost::archive::polymorphic_binary_iarchive(stream);
+    LevelList<int> list_out;
+    (*ia) >> list_out;
+
+    BOOST_CHECK_EQUAL(list_out.size(), 2);
+    BOOST_CHECK(list_out.find(42) != list_out.end());
+    BOOST_CHECK(list_out.find(-1337) != list_out.end());
+}
 
 
 /*BOOST_AUTO_TEST_CASE(test_grid_serialization)
