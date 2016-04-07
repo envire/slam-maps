@@ -41,6 +41,8 @@ namespace maps
         Vector2d resolution;
 
     public:
+        typedef T CellType;
+
         GridMap() 
             : LocalMap(maps::LocalMapType::GRID_MAP),
               R(),

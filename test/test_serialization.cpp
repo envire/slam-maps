@@ -6,6 +6,7 @@
 #include <maps/LocalMap.hpp>
 #include <maps/grid/GridMap.hpp>
 #include <maps/grid/LevelList.hpp>
+#include <maps/grid/MLGrid.hpp>
 
 using namespace ::maps;
 
@@ -212,15 +213,58 @@ BOOST_AUTO_TEST_CASE(test_levellist_serialization)
     oa << list;
 
     // deserialize from string stream
-    boost::archive::polymorphic_binary_iarchive *ia = new boost::archive::polymorphic_binary_iarchive(stream);
+    boost::archive::polymorphic_binary_iarchive ia(stream);
     LevelList<int> list_out;
-    (*ia) >> list_out;
+    ia >> list_out;
 
     BOOST_CHECK_EQUAL(list_out.size(), 2);
     BOOST_CHECK(list_out.find(42) != list_out.end());
     BOOST_CHECK(list_out.find(-1337) != list_out.end());
 }
 
+
+BOOST_AUTO_TEST_CASE(test_mlgrid_serialization)
+{
+    Vector2ui size(100, 200);
+    Vector2d res(0.25, 0.125);
+    MLGrid<int> grid(size, res), grid2;
+
+    Eigen::Vector2d gridSize = grid.getSize();
+
+    for(int i=0; i<100000; ++i)
+    {
+        Eigen::Vector3d v = Eigen::Vector3d::Random().cwiseAbs();
+        v.head<2>().array()*=gridSize.array();
+        grid.at(v).insert(int(rand()));
+    }
+
+    std::stringstream stream;
+    boost::archive::polymorphic_binary_oarchive oa(stream);
+    std::cout << stream.str().size() << std::endl;
+    oa << grid;
+    std::cout << stream.str().size() << std::endl;
+    // deserialize from string stream
+    boost::archive::polymorphic_binary_iarchive ia(stream);
+    ia >> grid2;
+
+
+    for(size_t x=0; x<size.x(); ++x)
+        for(size_t y=0; y<size.y(); ++y)
+        {
+            Index idx(x,y);
+            typedef MLGrid<int>::CellType Cell;
+            const Cell &cell1 = grid.at(idx), &cell2=grid2.at(idx);
+            BOOST_CHECK_EQUAL(cell1.size(), cell2.size());
+            Cell::const_iterator it1=cell1.begin(), it2=cell2.begin(), end1=cell1.end(), end2 = cell2.end();
+            for(; it1 != end1; ++it1, ++it2)
+            {
+                BOOST_CHECK(it2 != end2);
+                BOOST_CHECK_EQUAL(*it1, *it2);
+            }
+            BOOST_CHECK(it2 == end2);
+
+        }
+}
 
 /*BOOST_AUTO_TEST_CASE(test_grid_serialization)
 {
