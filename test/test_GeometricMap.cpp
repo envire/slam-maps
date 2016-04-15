@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(test_geometric_3d_point_map_copy)
     // check configuration
     BOOST_CHECK_EQUAL(geometric_copy->getNumElements(), geometric->getNumElements());
     BOOST_CHECK_EQUAL(geometric_copy->getMapType(), geometric->getMapType());
-    BOOST_CHECK_EQUAL(geometric->getEPSGCode(), geometric->getEPSGCode());
+    BOOST_CHECK_EQUAL(geometric_copy->getEPSGCode(), geometric->getEPSGCode());
     BOOST_CHECK_EQUAL(geometric_copy->getLocalFrame().translation(), geometric->getLocalFrame().translation());    
     BOOST_CHECK_EQUAL(geometric_copy->getLocalFrame().rotation(), geometric->getLocalFrame().rotation());    
 
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE(test_geometric_2d_line_map_copy)
     // check configuration
     BOOST_CHECK_EQUAL(geometric_copy->getNumElements(), geometric->getNumElements());
     BOOST_CHECK_EQUAL(geometric_copy->getMapType(), geometric->getMapType());
-    BOOST_CHECK_EQUAL(geometric->getEPSGCode(), geometric->getEPSGCode());
+    BOOST_CHECK_EQUAL(geometric_copy->getEPSGCode(), geometric->getEPSGCode());
     BOOST_CHECK_EQUAL(geometric_copy->getLocalFrame().translation(), geometric->getLocalFrame().translation());
     BOOST_CHECK_EQUAL(geometric_copy->getLocalFrame().rotation(), geometric->getLocalFrame().rotation());
 
