@@ -43,7 +43,7 @@ namespace maps
 
         inline VectorType& psi_a()
         {
-            return Eigen::ParametrizedLine<T, D>::origin();
+            return static_cast<VectorType&>(Eigen::ParametrizedLine<T, D>::origin());
         }
 
 
@@ -55,7 +55,7 @@ namespace maps
         void psi_b(const VectorType &other_psi_b)
         {
             this->_psi_b = other_psi_b;
-            this->direction() =  (this->_psi_b - this->_psi_a).normalized();
+            this->direction() =  (this->_psi_b - this->origin()).normalized();
             return;
         }
 
@@ -66,7 +66,7 @@ namespace maps
 
         inline VectorType& direction()
         {
-            return Eigen::ParametrizedLine<T, D>::direction();
+            return static_cast<VectorType&>(Eigen::ParametrizedLine<T, D>::direction());
         }
 
 
