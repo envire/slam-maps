@@ -21,25 +21,52 @@ namespace maps
     template <typename T, int D>
     class LineSegment: public Eigen::ParametrizedLine<T, D>
     {
+    public:
+        typedef typename Eigen::Matrix<T, D, 1> VectorType;
+
     private:
-        /**  Origin (psi_a) and End (psi_b) point of the line **/
-        Eigen::Matrix<T, D, 1, Eigen::DontAlign> _psi_b;
+        /**  Origin (psi_a) and End (psi_b) point of the line 
+         * m_origin form the parent class is the psi_a **/
+        VectorType _psi_b;
 
     public:
-        LineSegment(Eigen::Matrix<T, D, 1, Eigen::DontAlign> &psi_a, Eigen::Matrix<T, D, 1, Eigen::DontAlign> &psi_b)
+        LineSegment(const VectorType &psi_a, const VectorType &psi_b)
             : Eigen::ParametrizedLine<T, D>(psi_a, (psi_b-psi_a).normalized()),
             _psi_b(psi_b)
         {
         }
 
-        inline Eigen::Matrix<T, D, 1, Eigen::DontAlign> psi_a() const
+        inline const VectorType& psi_a() const
         {
-            return this->origin();
+            return const_cast<LineSegment<T, D>& >(*this).origin();
         }
 
-        inline Eigen::Matrix<T, D, 1, Eigen::DontAlign> psi_b() const
+        inline VectorType& psi_a()
         {
-            return _psi_b;
+            return Eigen::ParametrizedLine<T, D>::origin();
+        }
+
+
+        inline const VectorType& psi_b() const
+        {
+            return const_cast<VectorType& >(_psi_b);
+        }
+
+        void psi_b(const VectorType &other_psi_b)
+        {
+            this->_psi_b = other_psi_b;
+            this->direction() =  (this->_psi_b - this->_psi_a).normalized();
+            return;
+        }
+
+        inline const VectorType& direction() const
+        {
+            return const_cast<LineSegment<T, D>& >(*this).direction();
+        }
+
+        inline VectorType& direction()
+        {
+            return Eigen::ParametrizedLine<T, D>::direction();
         }
 
 
@@ -48,7 +75,7 @@ namespace maps
         inline T rho() const
         {
             /** The distance of zero to its projection onto the line **/
-            T dist = this->distance(Eigen::Matrix< T, D, 1,  Eigen::DontAlign>::Zero());
+            T dist = this->distance(VectorType::Zero());
 
             /** In case the projected distance is zero the line is passing by
              * the origin of the local coordinate system**/
