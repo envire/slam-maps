@@ -47,6 +47,10 @@ rock_testsuite(test_linesegment suite.cpp
     test_LineSegment.cpp
    DEPS maps)
 
+rock_testsuite(test_contourmap suite.cpp
+   test_ContourMap.cpp
+   DEPS maps)
+
 if( vizkit3d_FOUND )
     add_subdirectory(viz)
 endif( vizkit3d_FOUND )
