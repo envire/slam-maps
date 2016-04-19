@@ -1,6 +1,9 @@
 #pragma once
 #include <vizkit3d/Vizkit3DPlugin.hpp>
 
+/** Base types **/
+#include <base/Eigen.hpp>
+
 /** OSG **/
 #include <osg/Geometry>
 
@@ -23,6 +26,8 @@ namespace vizkit3d
     , boost::noncopyable
     {
         Q_OBJECT
+        Q_PROPERTY(double LineWidth READ getLineWidth WRITE setLineWidth)
+        Q_PROPERTY(QColor Color READ getColor WRITE setColor)
 
     public:
         ContourMapVisualization();
@@ -32,6 +37,15 @@ namespace vizkit3d
         {
             vizkit3d::Vizkit3DPlugin<::maps::ContourMap>::updateData(sample);
         }
+
+        void setColor(const base::Vector3d& color);
+	void setColor(double r, double g, double b, double a);
+
+    public slots:
+        double getLineWidth();
+	void setLineWidth(double line_width);
+        void setColor(QColor color);
+        QColor getColor() const;
 
     protected:
         virtual osg::ref_ptr<osg::Node> createMainNode();
@@ -47,8 +61,13 @@ namespace vizkit3d
         osg::ref_ptr<osg::DrawArrays> draw_arrays;
 	osg::ref_ptr<osg::Geometry> geom;
 	osg::ref_ptr<osg::Geode> geode;
+        osg::ref_ptr<osg::Vec4Array> color_array;
 
+        /** Property color attribute **/
+        osg::Vec4 color;
+
+        /** Property line width attribute **/
+        double line_width;
 
     };
-
 }
