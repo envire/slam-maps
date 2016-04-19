@@ -29,6 +29,7 @@ rock_library(maps
         geometric/Point.hpp
         geometric/LineSegment.hpp
         geometric/GeometricMap.hpp
+        geometric/ContourMap.hpp
         tools/BresenhamLine.hpp
         operations/GridInterpolation.hpp
     DEPS_CMAKE
