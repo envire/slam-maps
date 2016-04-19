@@ -11,3 +11,7 @@ rock_testsuite(testMLS testMLS.cpp
 rock_testsuite(testMLS_LIDAR testMLS_LIDAR.cpp
     DEPS maps-viz
     DEPS_PKGCONFIG vizkit3d  vizkit3d-viz)
+
+rock_testsuite(testContour testContourMap.cpp
+    DEPS maps-viz
+    DEPS_PKGCONFIG vizkit3d  vizkit3d-viz)
