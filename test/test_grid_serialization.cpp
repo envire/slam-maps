@@ -3,83 +3,12 @@
 #include <boost/archive/polymorphic_binary_iarchive.hpp>
 #include <boost/archive/polymorphic_binary_oarchive.hpp>
 
-/** Based local map **/
-#include <maps/LocalMap.hpp>
-
 /** Grid maps **/
 #include <maps/grid/GridMap.hpp>
 #include <maps/grid/LevelList.hpp>
 #include <maps/grid/MLGrid.hpp>
 
-using namespace ::maps;
 using namespace ::maps::grid;
-
-BOOST_AUTO_TEST_CASE(test_localmap_data_serialization)
-{
-    // create an instance of LocalMapData
-    LocalMapData local_map_data_o;
-    local_map_data_o.id = "test";
-    local_map_data_o.offset = 0.2 * Eigen::Matrix3d::Identity();
-    local_map_data_o.map_type = GEOMETRIC_MAP;
-    local_map_data_o.EPSG_code = "EPSG_code";
-
-    // serialize
-    std::stringstream stream;
-    boost::archive::polymorphic_binary_oarchive oa(stream);
-    oa << local_map_data_o;
-
-    // deserialize from string stream
-    boost::archive::polymorphic_binary_iarchive ia(stream);
-    LocalMapData local_map_data_i;
-    ia >> local_map_data_i;
-
-    // the deserialized data should be same as in the instance created above
-    BOOST_CHECK(local_map_data_o.id == local_map_data_i.id); 
-    BOOST_CHECK_EQUAL(local_map_data_o.offset.matrix().isApprox(local_map_data_i.offset.matrix()), true); 
-    BOOST_CHECK(local_map_data_o.map_type == local_map_data_i.map_type); 
-    BOOST_CHECK(local_map_data_o.EPSG_code == local_map_data_i.EPSG_code); 
-}
-
-BOOST_AUTO_TEST_CASE(test_localmap_serialization)
-{
-    // create an instance of LocalMapData
-    boost::shared_ptr<LocalMapData> local_map_data_o(new LocalMapData());
-    local_map_data_o->id = "test";
-    local_map_data_o->offset = 0.2 * Eigen::Matrix3d::Identity();
-    local_map_data_o->map_type = GEOMETRIC_MAP;
-    local_map_data_o->EPSG_code = "EPSG_code";
-
-    // create LocalMap with the LocalMapData 
-    LocalMap local_map_o(local_map_data_o);
-
-    // serialize
-    std::stringstream stream;
-    boost::archive::polymorphic_binary_oarchive oa(stream);
-    oa << local_map_o;
-
-    // deserialize from string stream
-    boost::archive::polymorphic_binary_iarchive *ia = new boost::archive::polymorphic_binary_iarchive(stream);
-    LocalMap local_map_i;
-    (*ia) >> local_map_i; 
-
-    // the LocalMapData should be the same after the serialization
-    boost::shared_ptr<LocalMapData> local_map_data_i = local_map_i.getLocalMapData();
-
-    BOOST_CHECK(local_map_o.getId() == local_map_i.getId()); 
-    BOOST_CHECK_EQUAL(local_map_o.getLocalFrame().matrix().isApprox(local_map_i.getLocalFrame().matrix()), true); 
-    BOOST_CHECK(local_map_data_o->id == local_map_data_i->id);
-    BOOST_CHECK(local_map_data_o->map_type == local_map_data_i->map_type);
-    BOOST_CHECK(local_map_data_o->EPSG_code == local_map_data_i->EPSG_code);
-
-    // WARNING: the counter is 2 or more after desirialization, 
-    // this is bug in boost (1.54)
-    BOOST_CHECK(local_map_data_i.use_count() == 3); 
-    delete ia; 
-    // 2: since local variable local_map_data_i and member of local_map_i points to the same
-    // LocalMapData instance
-    BOOST_CHECK(local_map_data_i.use_count() == 2);  
-}
-
 
 class A {
 public:
@@ -102,9 +31,9 @@ public:
         std::cout << min << " " << max << std::endl;
     }
 
-protected:        
+protected:
     double min;
-    double max; 
+    double max;
 
     /** Grants access to boost serialization */
     friend class boost::serialization::access;  
@@ -115,7 +44,7 @@ protected:
     {
         ar & BOOST_SERIALIZATION_NVP(min);
         ar & BOOST_SERIALIZATION_NVP(max);
-    }     
+    }
 };
 
 BOOST_AUTO_TEST_CASE(test_gridcell_serialization)
@@ -131,8 +60,8 @@ BOOST_AUTO_TEST_CASE(test_gridcell_serialization)
 
     std::stringstream stream;
     boost::archive::polymorphic_binary_oarchive oa(stream);
-    oa << storage_o;   
-    
+    oa << storage_o;
+
     // deserialize from string stream
     boost::archive::polymorphic_binary_iarchive *ia = new boost::archive::polymorphic_binary_iarchive(stream);
     GridCell<A> storage_i;
@@ -175,8 +104,8 @@ BOOST_AUTO_TEST_CASE(test_gridmap_serialization)
 
     std::stringstream stream;
     boost::archive::polymorphic_binary_oarchive oa(stream);
-    oa << grid_map_o;   
-    
+    oa << grid_map_o;
+
     // deserialize from string stream
     boost::archive::polymorphic_binary_iarchive *ia = new boost::archive::polymorphic_binary_iarchive(stream);
     GridMap<A> grid_map_i;
@@ -281,18 +210,18 @@ BOOST_AUTO_TEST_CASE(test_mlgrid_serialization)
     // deserialize from string stream
     boost::archive::polymorphic_binary_iarchive ia(stream);
     Grid grid_i;
-    ia >> grid_i;     
+    ia >> grid_i;
 
     BOOST_CHECK_EQUAL(grid_o.getNumCells(), grid_i.getNumCells());
-    BOOST_CHECK_EQUAL(grid_o.getResolution(), grid_i.getResolution());    
-    BOOST_CHECK_EQUAL(grid_o.getSize().isApprox(grid_i.getSize(), 0.0001), true); 
+    BOOST_CHECK_EQUAL(grid_o.getResolution(), grid_i.getResolution());
+    BOOST_CHECK_EQUAL(grid_o.getSize().isApprox(grid_i.getSize(), 0.0001), true);
 
     boost::shared_ptr<LocalMapData> local_map_data_i = grid_i.getLocalMap();
     boost::shared_ptr<LocalMapData> local_map_data_o = grid_o.getLocalMap();
 
     BOOST_CHECK(local_map_data_o->id == local_map_data_i->id);
     BOOST_CHECK(local_map_data_o->map_type == local_map_data_i->map_type);
-    BOOST_CHECK(local_map_data_o->EPSG_code == local_map_data_i->EPSG_code);   
+    BOOST_CHECK(local_map_data_o->EPSG_code == local_map_data_i->EPSG_code);
     BOOST_CHECK_EQUAL(local_map_data_o->offset.matrix().isApprox(local_map_data_i->offset.matrix()), true);  
 }
 
@@ -320,9 +249,9 @@ BOOST_AUTO_TEST_CASE(test_gridmap_serialization)
     // deserialize from string stream
     boost::archive::polymorphic_binary_iarchive ia(stream);
     GridMap<double> grid_i;
-    ia >> grid_i;   
+    ia >> grid_i;
 
     BOOST_CHECK_EQUAL(grid_o.getNumCells(), grid_i.getNumCells());
-    BOOST_CHECK_EQUAL(grid_o.getResolution(), grid_i.getResolution());    
-    BOOST_CHECK_EQUAL(grid_o.getSize().isApprox(grid_i.getSize(), 0.0001), true);           
+    BOOST_CHECK_EQUAL(grid_o.getResolution(), grid_i.getResolution());
+    BOOST_CHECK_EQUAL(grid_o.getSize().isApprox(grid_i.getSize(), 0.0001), true);
 }*/
