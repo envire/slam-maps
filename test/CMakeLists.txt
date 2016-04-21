@@ -58,6 +58,10 @@ rock_testsuite(test_grid_serialization suite.cpp
    test_grid_serialization.cpp
    DEPS maps)
 
+rock_testsuite(test_geometric_serialization suite.cpp
+   test_geometric_serialization.cpp
+   DEPS maps)
+
 # TEST TOOLS
 #
 rock_testsuite(test_generate_points suite.cpp

@@ -1,6 +1,10 @@
 #ifndef __MAPS_POINT_HPP__
 #define __MAPS_POINT_HPP__
 
+/** Boost serialization **/
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/nvp.hpp>
+
 /** Eigen **/
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -30,4 +34,15 @@ namespace maps { namespace geometric
     typedef Point<float, 2> Point2f;
     typedef Point<float, 3> Point3f;
 }}
+
+namespace boost { namespace serialization
+{
+    template<class Archive, typename T, int D>
+    void serialize(Archive & ar, ::maps::geometric::Point<T, D> & t, const unsigned int version)
+    {
+        for(size_t i=0; i<t.size(); i++)
+            ar & BOOST_SERIALIZATION_NVP(t.data()[i]);
+    }
+}}
+
 #endif /* __MAPS_POINT_HPP__ */

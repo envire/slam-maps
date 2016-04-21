@@ -11,6 +11,11 @@
 #include <unordered_map>
 #include <typeindex>
 
+/** Boost serialization **/
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/vector.hpp>
+
 namespace maps { namespace geometric
 {
     /**@brief GeometricMap class IEEE 1873 standard
@@ -115,8 +120,18 @@ namespace maps { namespace geometric
             return this->elements.erase(std::forward<Ts>(args)...);
         }
 
-    };
+    protected:
+        /** Grants access to boost serialization */
+        friend class boost::serialization::access;
 
+        /** Serializes the members of this class*/
+        template <typename Archive>
+        void serialize(Archive &ar, const unsigned int version)
+        {
+             ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(::maps::LocalMap);
+             ar & BOOST_SERIALIZATION_NVP(elements);
+        }
+    };
 }}
 
 #endif /* __MAPS_GEOMETRICMAP_HPP_ */

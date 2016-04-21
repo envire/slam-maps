@@ -378,8 +378,8 @@ namespace maps { namespace grid
         }
 
     protected:
-                /** Grants access to boost serialization */
-        friend class boost::serialization::access;  
+        /** Grants access to boost serialization */
+        friend class boost::serialization::access;
 
         /** Serializes the members of this class*/
         template <typename Archive>
