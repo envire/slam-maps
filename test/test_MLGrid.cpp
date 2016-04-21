@@ -13,31 +13,32 @@ class PatchBase
         PatchBase(double m, double ma) : min(m), max(ma)
         {
         }
-        
+
         double min;
         double max;
 
-        double getMiddle() const 
+        double getMiddle() const
         {
             return min + (max - min) / 2.0;
-        }
-        
-    bool operator<(const PatchBase &other) const{
-        return  getMiddle() < other.getMiddle();
-    }
+        };
 
-    double getMin() const {
-        return min;
-    };
+        bool operator<(const PatchBase &other) const
+        {
+            return  getMiddle() < other.getMiddle();
+        };
 
-    double getMax() const {
-        return max;
-    };
-    
-    virtual void test()
-    {
-        std::cout << "Base class " << std::endl; 
-    };
+        double getMin() const {
+            return min;
+        };
+
+        double getMax() const {
+            return max;
+        };
+
+        void test()
+        {
+            std::cout << "Base class " << std::endl; 
+        };
 };
 
 class Patch : public PatchBase
@@ -46,16 +47,16 @@ public:
     Patch() : PatchBase(0,0)
     {
     };
-    
+
     Patch(double m, double ma) : PatchBase(m, ma)
     {
     };
-    
-    virtual void test()
+
+    void test()
     {
         std::cout << "Derived Class " << std::endl;
     };
-    
+
     double someValue;
 };
 
