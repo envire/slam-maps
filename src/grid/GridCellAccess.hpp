@@ -14,11 +14,15 @@ namespace maps { namespace grid
         {
         }
 
+        virtual ~GridCellAccess()
+        {
+        }
+
         virtual const TBASE &getDefaultValue() const
         {
             return storage->getDefaultValue();
         }
-        
+
         virtual typename GridCellAccessInterface<TBASE>::iterator begin()
         {
             return AccessIteratorImpl<T, TBASE, std::vector<T> >(storage->begin());
@@ -43,12 +47,12 @@ namespace maps { namespace grid
         {
             storage->resize(new_number_cells);
         };
-        
+
         virtual void moveBy(Index idx)
         {
             storage->moveBy(idx);
         }
-        
+
         virtual const TBASE& at(Index idx) const
         {
             return static_cast<const TBASE &>(storage->at(idx));
@@ -68,15 +72,15 @@ namespace maps { namespace grid
         {
             return static_cast<TBASE &>(storage->at(x, y));
         }
-        
+
         virtual const Vector2ui &getNumCells() const
         {
             return storage->getNumCells();
         };
-        
+
         virtual void clear()
         {
             storage->clear();
         };
-    };    
+    };
 }}
