@@ -14,6 +14,8 @@ class PatchBase
         {
         }
 
+        virtual ~PatchBase(){};
+
         double min;
         double max;
 
@@ -35,7 +37,7 @@ class PatchBase
             return max;
         };
 
-        void test()
+        virtual void test()
         {
             std::cout << "Base class " << std::endl; 
         };
@@ -48,11 +50,13 @@ public:
     {
     };
 
+    virtual ~Patch(){};
+
     Patch(double m, double ma) : PatchBase(m, ma)
     {
     };
 
-    void test()
+    virtual void test()
     {
         std::cout << "Derived Class " << std::endl;
     };
