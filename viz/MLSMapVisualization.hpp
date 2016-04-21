@@ -14,8 +14,8 @@
 namespace vizkit3d
 {
     class MLSMapVisualization
-        : public vizkit3d::Vizkit3DPlugin<::maps::MLSMapKalman>
-        , public vizkit3d::VizPluginAddType<::maps::MLSMapSloped>
+        : public vizkit3d::Vizkit3DPlugin<::maps::grid::MLSMapKalman>
+        , public vizkit3d::VizPluginAddType<::maps::grid::MLSMapSloped>
         , boost::noncopyable
     {
         Q_OBJECT
@@ -39,8 +39,8 @@ namespace vizkit3d
         protected:
             virtual osg::ref_ptr<osg::Node> createMainNode();
             virtual void updateMainNode(osg::Node* node);
-            virtual void updateDataIntern(::maps::MLSMapSloped const& plan);
-            virtual void updateDataIntern(::maps::MLSMapKalman const& plan);
+            virtual void updateDataIntern(::maps::grid::MLSMapSloped const& plan);
+            virtual void updateDataIntern(::maps::grid::MLSMapKalman const& plan);
             
         private:
             struct Data;

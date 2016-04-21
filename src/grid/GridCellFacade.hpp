@@ -2,7 +2,7 @@
 
 #include "GridCellAccessInterface.hpp"
 
-namespace maps
+namespace maps { namespace grid
 {
     template <typename T>
     class GridCellFacade
@@ -88,4 +88,4 @@ namespace maps
         };
     };
     
-}
+}}

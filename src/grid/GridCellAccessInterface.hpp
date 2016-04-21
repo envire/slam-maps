@@ -3,7 +3,7 @@
 #include "AccessIterator.hpp"
 #include "Index.hpp"
 
-namespace maps
+namespace maps { namespace grid
 {
     template <typename T>
     class GridCellAccessInterface
@@ -39,4 +39,4 @@ namespace maps
         
         virtual void clear() = 0;
     };
-}
+}}

@@ -5,7 +5,7 @@
 
 #include <maps/grid/MLSMap.hpp>
 
-namespace maps
+namespace maps{ namespace grid
 {
 
 class MLSMap;
@@ -20,10 +20,11 @@ public:
 
     bool wait(int usecs = 1000);
 
-    void updateData(const MLSMapKalman& mls);
-    void updateData(const MLSMapSloped& mls);
+    void updateData(const ::maps::grid::MLSMapKalman& mls);
+    void updateData(const ::maps::grid::MLSMapSloped& mls);
 };
 
+} /* namespace grid */
 } /* namespace maps */
 
 #endif /* __MAPS_VIZ_STANDALONEVISUALIZER_HPP_ */

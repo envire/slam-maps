@@ -3,7 +3,7 @@
 
 #include "GridMap.hpp"
 
-namespace maps
+namespace maps { namespace grid
 {
     class ElevationMap : public GridMap<double>
     {
@@ -34,7 +34,7 @@ namespace maps
 
         std::pair<double, double> getElevationRange() const;   
     };
-}
+}}
 
 
 #endif // __MAPS_ELEVATION_MAP_HPP__

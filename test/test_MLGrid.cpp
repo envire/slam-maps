@@ -6,7 +6,7 @@
 #include <maps/grid/GridCellFacade.hpp>
 #include <maps/grid/LevelList.hpp>
 
-using namespace ::maps;
+using namespace ::maps::grid;
 class PatchBase
 {
     public:

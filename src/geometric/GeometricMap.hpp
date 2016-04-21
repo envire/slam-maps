@@ -11,7 +11,7 @@
 #include <unordered_map>
 #include <typeindex>
 
-namespace maps
+namespace maps { namespace geometric
 {
     /**@brief GeometricMap class IEEE 1873 standard
      * This map is a Geometric structure for a vector metric (Cartesian) map
@@ -117,6 +117,6 @@ namespace maps
 
     };
 
-}
+}}
 
 #endif /* __MAPS_GEOMETRICMAP_HPP_ */

@@ -7,7 +7,8 @@
 #include "MLGrid.hpp"
 
 
-namespace maps {
+namespace maps { namespace grid
+{
 #if 0
 class MLSMap::MLSBase
 {
@@ -69,6 +70,7 @@ struct MLSMapI : public MLGrid<SurfacePatch<SurfaceType> >
 
 
 
+}  // namespace grid
 }  // namespace maps
 
 #endif /* __MAPS_MLSMAPI_HPP__ */

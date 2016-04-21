@@ -11,7 +11,8 @@
 #include <set>
 
 
-namespace maps {
+namespace maps { namespace grid
+{
 
 template<class Patch>
 bool isCovered(const LevelList<Patch> &list, float zPos, const float gapSize = 0.0)
@@ -124,7 +125,7 @@ MAPS_MLSMAP(void)::mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& 
             Eigen::Vector3d orig_relative; // coordinates of sensor inside grid cell
             Base::toGrid(pc2grid.translation(), origin, orig_relative);
 
-            Bresenham::Point orig = origin.cast<int>(); // Origin in Bresenham compatible format
+            maps::tools::Bresenham::Point orig = origin.cast<int>(); // Origin in Bresenham compatible format
             for(IndexSet::const_iterator it = coveredCells.begin(); it != coveredCells.end(); ++it)
             {
                 const SPListST &cell = workGrid.at(*it);
@@ -134,8 +135,8 @@ MAPS_MLSMAP(void)::mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& 
                     Base::at(*it).update(*cit, config);
 
                     // This block does actually the same for all cit:
-                    Bresenham bresLine(orig, it->cast<int>());
-                    Bresenham::Point diff_coord = it->cast<int>() - orig;
+                    maps::tools::Bresenham bresLine(orig, it->cast<int>());
+                    maps::tools::Bresenham::Point diff_coord = it->cast<int>() - orig;
                     Eigen::DenseIndex maxDim;
                     diff_coord.cwiseAbs().maxCoeff(&maxDim);
                     double invDiff = 1.0/diff_coord[maxDim];
@@ -146,7 +147,7 @@ MAPS_MLSMAP(void)::mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& 
                     float z_max = max_z - orig_relative.z();
                     float height = max_z - min_z;
 
-                    Bresenham::Point next;
+                    maps::tools::Bresenham::Point next;
                     while(bresLine.getNextPoint(next))
                     {
                         double factor = (next-orig)[maxDim] * invDiff;
@@ -257,4 +258,5 @@ template struct MLSMapI<MLSConfig::KALMAN>;
 template struct MLSMapI<MLSConfig::SLOPE>;
 
 
+}  // namespace grid
 }  // namespace maps

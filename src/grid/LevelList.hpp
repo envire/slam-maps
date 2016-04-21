@@ -5,7 +5,7 @@
 #include <boost/container/flat_set.hpp>
 #include <boost/serialization/split_member.hpp>
 
-namespace maps 
+namespace maps { namespace grid
 {
 struct MLSConfig;
 
@@ -184,4 +184,4 @@ public:
     
 };
 
-} // namespace maps
+}} // namespace maps

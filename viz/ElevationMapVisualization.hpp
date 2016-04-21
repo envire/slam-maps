@@ -15,7 +15,7 @@
 namespace vizkit3d
 {
     class ElevationMapVisualization
-        : public vizkit3d::Vizkit3DPlugin<::maps::ElevationMap>
+        : public vizkit3d::Vizkit3DPlugin<::maps::grid::ElevationMap>
         , boost::noncopyable
     {
         Q_OBJECT
@@ -24,13 +24,13 @@ namespace vizkit3d
             ElevationMapVisualization();
             ~ElevationMapVisualization();
 
-            Q_INVOKABLE void updateData(::maps::ElevationMap const &sample)
-            {vizkit3d::Vizkit3DPlugin<::maps::ElevationMap>::updateData(sample);}
+            Q_INVOKABLE void updateData(::maps::grid::ElevationMap const &sample)
+            {vizkit3d::Vizkit3DPlugin<::maps::grid::ElevationMap>::updateData(sample);}
 
         protected:
             virtual osg::ref_ptr<osg::Node> createMainNode();
             virtual void updateMainNode(osg::Node* node);
-            virtual void updateDataIntern(::maps::ElevationMap const& plan);
+            virtual void updateDataIntern(::maps::grid::ElevationMap const& plan);
 
         private:
             struct Data;
@@ -40,7 +40,7 @@ namespace vizkit3d
 
             osg::Image* createTextureImage();
 
-            ::maps::ColorGradient heatMapGradient;
+            ColorGradient heatMapGradient;
 
         public slots:
     };

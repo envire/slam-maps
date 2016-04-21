@@ -26,7 +26,7 @@ struct Pointcloud;
 } /* namespace samples */
 } /* namespace base */
 
-namespace maps
+namespace maps { namespace grid
 {
 
 // TODO move this typedef somewhere more globally
@@ -151,6 +151,7 @@ typedef MLSMapI<MLSConfig::SLOPE> MLSMapSloped;
 typedef MLSMapI<MLSConfig::KALMAN> MLSMapKalman;
 
 
+} /* namespace grid */
 } /* namespace maps */
 #include "MLSMapI.hpp"
 

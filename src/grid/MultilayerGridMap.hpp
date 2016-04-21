@@ -9,7 +9,7 @@
 
 #include "GridMap.hpp"
 
-namespace maps
+namespace maps { namespace grid
 {
     class MultilayerGridMap : public Grid {
     public:
@@ -173,6 +173,6 @@ namespace maps
             return grid;
         }
     };
-}
+}}
 
 #endif // __MAPS_GRIDMAP_HPP__

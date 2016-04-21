@@ -4,7 +4,8 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-namespace maps {
+namespace maps { namespace grid
+{
     /**@brief type for the number of cells
      */
     typedef Eigen::Matrix<unsigned int, 2, 1> Vector2ui;
@@ -67,6 +68,6 @@ namespace maps {
                 || (lhs.x() == rhs.x() && lhs.y() < rhs.y()));
     }
 
-}
+}}
 
 #endif // __MAPS_INDEX_HPP__

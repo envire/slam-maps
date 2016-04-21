@@ -7,7 +7,7 @@
 
 #include <utility>
 
-namespace maps
+namespace maps { namespace geometric
 {
     /**@brief Point class IEEE 1873 standard
      * adapted to point in D-space.
@@ -29,5 +29,5 @@ namespace maps
     typedef Point<double, 3> Point3d;
     typedef Point<float, 2> Point2f;
     typedef Point<float, 3> Point3f;
-}
+}}
 #endif /* __MAPS_POINT_HPP__ */

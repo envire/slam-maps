@@ -9,7 +9,7 @@
 #include "ElevationMapVisualization.hpp"
 #include <vizkit3d/GridVisualization.hpp>
 
-using namespace ::maps;
+using namespace ::maps::grid;
 
 static void showElevationMap(const ElevationMap &elev_map)
 {

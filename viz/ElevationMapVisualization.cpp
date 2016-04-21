@@ -9,13 +9,12 @@
 #include <osg/Material>
 
 using namespace vizkit3d;
-using namespace ::maps;
 
 struct ElevationMapVisualization::Data {
     // Copy of the value given to updateDataIntern.
     //
     // Making a copy is required because of how OSG works
-    ::maps::ElevationMap data;
+    ::maps::grid::ElevationMap data;
 };
 
 
@@ -78,7 +77,7 @@ void ElevationMapVisualization::updateMainNode ( osg::Node* node )
 osg::HeightField* ElevationMapVisualization::createHeighField()
 {
     // create height field
-    ElevationMap& elev_map = p->data;    
+    maps::grid::ElevationMap& elev_map = p->data;    
 
     osg::HeightField* heightField = new osg::HeightField();
     heightField->allocate(elev_map.getNumCells().x(), elev_map.getNumCells().y());
@@ -91,13 +90,13 @@ osg::HeightField* ElevationMapVisualization::createHeighField()
     heightField->setSkirtHeight(0.0f); 
 
     std::pair<double, double> elev_range = elev_map.getElevationRange();
-    double default_value = ElevationMap::ELEVATION_DEFAULT;
+    double default_value = maps::grid::ElevationMap::ELEVATION_DEFAULT;
 
     for (unsigned int r = 0; r < heightField->getNumRows(); r++) 
     {
         for (unsigned int c = 0; c < heightField->getNumColumns(); c++) 
         {
-            double cell_value = elev_map.at(Index(c, r));
+            double cell_value = elev_map.at(maps::grid::Index(c, r));
 
             if( cell_value !=  default_value)
                 heightField->setHeight(c, r, cell_value);
@@ -111,7 +110,7 @@ osg::HeightField* ElevationMapVisualization::createHeighField()
 
 osg::Image* ElevationMapVisualization::createTextureImage()
 {
-    ElevationMap& elev_map = p->data; 
+    maps::grid::ElevationMap& elev_map = p->data; 
 
     osg::Image* image = new osg::Image(); 
 
@@ -134,7 +133,7 @@ osg::Image* ElevationMapVisualization::createTextureImage()
         for (unsigned int x = 0; x < elev_map.getNumCells().x(); ++x)
         {
             /** Get the cell value **/
-            double cell_value = elev_map.at(Index(x, y));
+            double cell_value = elev_map.at(maps::grid::Index(x, y));
 
             double normalize_value = (cell_value-elev_range.first)/scaling;
             osg::Vec4f col(1.0,1.0,0.6,1.0);
@@ -163,7 +162,7 @@ osg::Image* ElevationMapVisualization::createTextureImage()
 }
 
 
-void ElevationMapVisualization::updateDataIntern(::maps::ElevationMap const& value)
+void ElevationMapVisualization::updateDataIntern(::maps::grid::ElevationMap const& value)
 {
     p->data = value;
 }

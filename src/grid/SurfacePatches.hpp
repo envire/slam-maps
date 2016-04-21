@@ -10,8 +10,8 @@
 #include "MLSConfig.hpp"
 
 
-namespace maps {
-
+namespace maps { namespace grid
+{
 //! global typedef for all SurfacePatches. Only float seems to be useful.
 typedef float SPScalar;
 typedef Eigen::Matrix<SPScalar, 3, 1> Vector3;
@@ -247,6 +247,7 @@ public:
 
 
 
+}  // namespace grid
 }  // namespace maps
 
 

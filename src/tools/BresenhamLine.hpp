@@ -3,7 +3,8 @@
 
 #include <Eigen/Core>
 
-namespace maps {
+namespace maps { namespace tools
+{
 
 
 /**
@@ -44,7 +45,7 @@ private:
 };
 
 
-}  // namespace maps
+}}  // namespace maps
 
 
 #endif

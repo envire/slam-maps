@@ -22,7 +22,7 @@ namespace vizkit3d
 {
 
     class ContourMapVisualization
-    : public vizkit3d::Vizkit3DPlugin<::maps::ContourMap>
+    : public vizkit3d::Vizkit3DPlugin<::maps::geometric::ContourMap>
     , boost::noncopyable
     {
         Q_OBJECT
@@ -33,9 +33,9 @@ namespace vizkit3d
         ContourMapVisualization();
         virtual ~ContourMapVisualization();
 
-        Q_INVOKABLE void updateData(::maps::ContourMap const &sample)
+        Q_INVOKABLE void updateData(::maps::geometric::ContourMap const &sample)
         {
-            vizkit3d::Vizkit3DPlugin<::maps::ContourMap>::updateData(sample);
+            vizkit3d::Vizkit3DPlugin<::maps::geometric::ContourMap>::updateData(sample);
         }
 
         void setColor(const base::Vector3d& color);
@@ -50,11 +50,11 @@ namespace vizkit3d
     protected:
         virtual osg::ref_ptr<osg::Node> createMainNode();
 	virtual void updateMainNode( osg::Node* node );
-	virtual void updateDataIntern( const ::maps::ContourMap & data );
+	virtual void updateDataIntern( const ::maps::geometric::ContourMap & data );
 
     private:
         /** Internal storage **/
-        maps::ContourMap contour_lines;
+        ::maps::geometric::ContourMap contour_lines;
 
         /** OSG drawable storage **/
         osg::ref_ptr<osg::Vec3Array> line_points;

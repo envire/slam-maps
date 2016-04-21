@@ -5,7 +5,7 @@
 
 #include <chrono>
 
-using namespace ::maps;
+using namespace ::maps::grid;
 
 double default_value = std::numeric_limits<double>::quiet_NaN();
 //double default_value = std::numeric_limits<double>::infinity();

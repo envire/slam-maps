@@ -2,7 +2,7 @@
 
 #include <vector>
 
-namespace maps
+namespace vizkit3d
 {
 
     class ColorGradient

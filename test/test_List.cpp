@@ -4,7 +4,7 @@
 
 #include <chrono>
 
-using namespace ::maps;
+using namespace ::maps::grid;
 
 class Element : public boost::intrusive::list_base_hook<auto_unlink_mode>
 {

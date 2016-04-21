@@ -9,7 +9,7 @@
 
 #include <maps/grid/Index.hpp>
 
-namespace maps
+namespace maps { namespace grid
 {
 
     template <typename T>
@@ -181,4 +181,4 @@ namespace maps
         }          
     };
     
-}
+}}

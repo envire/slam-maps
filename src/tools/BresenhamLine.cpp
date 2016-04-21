@@ -1,6 +1,7 @@
 #include "BresenhamLine.hpp"
 
-namespace maps {
+namespace maps { namespace tools
+{
 
 
 Bresenham::Bresenham(const Eigen::Vector2i& start, const Eigen::Vector2i& end)
@@ -48,4 +49,5 @@ bool Bresenham::getNextPoint(Point & next)
 
 
 
+}  // namespace tools
 }  // namespace maps

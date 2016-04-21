@@ -1,5 +1,5 @@
 #ifndef __MAPS_GRIDINTERPOLATION_HPP__
-#define __GMAPS_GRIDINTERPOLATION_HPP__
+#define __MAPS_GRIDINTERPOLATION_HPP__
 
 #include "../GridMap.hpp"
 
@@ -7,7 +7,7 @@
 #include <CGAL/Projection_traits_xy_3.h>
 #include <CGAL/Delaunay_triangulation_2.h>
 
-namespace maps 
+namespace maps { namespace operations
 {
     class GridInterpolation
     {
@@ -95,6 +95,6 @@ namespace maps
     private:
 
     };
-}
+}}
 
 #endif // __MAPS_GRIDINTERPOLATION_HPP__

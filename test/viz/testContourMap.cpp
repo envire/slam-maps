@@ -14,7 +14,7 @@
 /** Std **/
 #include <cmath>
 
-using namespace ::maps;
+using namespace ::maps::geometric;
 
 static void showContourMap(const ContourMap &contour_map)
 {

@@ -1,7 +1,7 @@
 #ifndef __MAPS_MLS_CONFIG_HPP__
 #define __MAPS_MLS_CONFIG_HPP__
 
-namespace maps 
+namespace maps { namespace grid
 {
 
     /**
@@ -32,6 +32,6 @@ namespace maps
         bool useNegativeInformation;
     };
 
-}
+}}
 
 #endif // __MAPS_MLS_CONFIG_HPP__

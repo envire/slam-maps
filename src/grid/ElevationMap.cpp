@@ -1,6 +1,6 @@
 #include "ElevationMap.hpp"
 
-namespace maps
+namespace maps { namespace grid
 {
 
 const double ElevationMap::ELEVATION_DEFAULT = std::numeric_limits<double>::infinity();
@@ -106,4 +106,4 @@ std::pair<double, double> ElevationMap::getElevationRange() const
     return std::pair<double, double>(min, max);
 }
 
-}
+}}

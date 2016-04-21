@@ -8,7 +8,7 @@
 
 #include <chrono>
 
-using namespace ::maps;
+using namespace ::maps::geometric;
 
 BOOST_AUTO_TEST_CASE(test_contour_map_constructor)
 {

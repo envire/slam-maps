@@ -13,7 +13,7 @@
 #include <maps/grid/MLSMapI.hpp>
 
 using namespace vizkit3d;
-using namespace ::maps;
+using namespace ::maps::grid;
 
 template <class T>
 osg::Vec3 Vec3( const Eigen::Matrix<T,3,1>& v )
@@ -126,7 +126,8 @@ void MLSMap::visualize(vizkit3d::PatchesGeode& geode) const
     }
 }
 #endif
-namespace maps {
+namespace maps { namespace grid
+{
 
 
 struct PatchVisualizer
@@ -155,6 +156,7 @@ struct PatchVisualizer
 };
 
 } // namespace maps
+} // namespace grid
 
 template<enum MLSConfig::update_model Type>
 void DataHold<Type>::visualize(vizkit3d::PatchesGeode& geode) const
@@ -184,11 +186,11 @@ void DataHold<Type>::visualize(vizkit3d::PatchesGeode& geode) const
 }  // namespace maps
 
 
-void MLSMapVisualization::updateDataIntern(::maps::MLSMapKalman const& value)
+void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMapKalman const& value)
 {
     p.reset(new DataHold<MLSConfig::KALMAN>( value ));
 }
-void MLSMapVisualization::updateDataIntern(::maps::MLSMapSloped const& value)
+void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMapSloped const& value)
 {
     p.reset(new DataHold<MLSConfig::SLOPE>( value ));
 }

@@ -3,12 +3,16 @@
 #include <boost/archive/polymorphic_binary_iarchive.hpp>
 #include <boost/archive/polymorphic_binary_oarchive.hpp>
 
+/** Based local map **/
 #include <maps/LocalMap.hpp>
+
+/** Grid maps **/
 #include <maps/grid/GridMap.hpp>
 #include <maps/grid/LevelList.hpp>
 #include <maps/grid/MLGrid.hpp>
 
 using namespace ::maps;
+using namespace ::maps::grid;
 
 BOOST_AUTO_TEST_CASE(test_localmap_data_serialization)
 {

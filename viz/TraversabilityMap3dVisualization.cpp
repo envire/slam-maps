@@ -4,10 +4,10 @@
 #include <osg/ShapeDrawable>
 #include <osg/Material>
 
-using namespace ::maps;
+using namespace ::maps::grid;
 using namespace vizkit3d;
 
-vizkit3d::TraversabilityMap3dVisualization::TraversabilityMap3dVisualization(): Vizkit3DPlugin< ::maps::TraversabilityMap3d >()
+vizkit3d::TraversabilityMap3dVisualization::TraversabilityMap3dVisualization(): Vizkit3DPlugin< ::maps::grid::TraversabilityMap3d >()
 {
 
 }
@@ -25,7 +25,7 @@ osg::ref_ptr< osg::Node > vizkit3d::TraversabilityMap3dVisualization::createMain
 }
 
 
-void vizkit3d::TraversabilityMap3dVisualization::updateDataIntern(const ::maps::TraversabilityMap3d& data)
+void vizkit3d::TraversabilityMap3dVisualization::updateDataIntern(const ::maps::grid::TraversabilityMap3d& data)
 {
     map = data;
 }

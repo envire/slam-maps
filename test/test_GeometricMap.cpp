@@ -11,7 +11,7 @@
 
 #include <chrono>
 
-using namespace ::maps;
+using namespace ::maps::geometric;
 
 BOOST_AUTO_TEST_CASE(test_geometric_map_constructor)
 {

@@ -48,13 +48,13 @@ void ContourMapVisualization::updateMainNode( osg::Node* node )
     line_points->clear();
 
     /** From the internal storage to the drawable OSG data **/
-    for (maps::ContourMap::const_iterator it = this->contour_lines.begin();
+    for (::maps::geometric::ContourMap::const_iterator it = this->contour_lines.begin();
         it != this->contour_lines.end(); ++it)
     {
-        maps::Point3d const &psi_a = (*it).psi_a();
+        ::maps::geometric::Point3d const &psi_a = (*it).psi_a();
         line_points->push_back(osg::Vec3(psi_a.x(), psi_a.y(), psi_a.z()));
 
-        maps::Point3d const &psi_b = (*it).psi_b();
+        ::maps::geometric::Point3d const &psi_b = (*it).psi_b();
         line_points->push_back(osg::Vec3(psi_b.x(), psi_b.y(), psi_b.z()));
     }
 
@@ -62,7 +62,7 @@ void ContourMapVisualization::updateMainNode( osg::Node* node )
     draw_arrays->setCount(line_points->size());
 }
 
-void ContourMapVisualization::updateDataIntern(const ::maps::ContourMap & data)
+void ContourMapVisualization::updateDataIntern(const ::maps::geometric::ContourMap & data)
 {
     this->contour_lines = data;
 }

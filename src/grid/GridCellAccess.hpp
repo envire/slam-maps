@@ -3,7 +3,7 @@
 #include "GridCellAccessInterface.hpp"
 
 
-namespace maps
+namespace maps { namespace grid
 {
     template <typename T, typename TBASE>
     class GridCellAccess : public GridCellAccessInterface<TBASE>
@@ -79,4 +79,4 @@ namespace maps
             storage->clear();
         };
     };    
-}
+}}

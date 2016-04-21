@@ -8,7 +8,7 @@
 
 
 
-namespace maps
+namespace maps { namespace grid
 {
 
 class StandaloneVisualizer::Impl
@@ -61,4 +61,5 @@ bool StandaloneVisualizer::wait(int usecs)
     return impl->app.isRunning() && (!usleep(usecs));
 }
 
+} /* namespace grid */
 } /* namespace maps */

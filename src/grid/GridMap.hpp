@@ -19,7 +19,7 @@
 #include <boost/serialization/nvp.hpp>
 
 
-namespace maps
+namespace maps { namespace grid
 {
     /**@brief GridMap class IEEE 1873 standard
      * This map is a Grid structure for a raster metric (Cartesian) map
@@ -390,6 +390,6 @@ namespace maps
             ar & BOOST_SERIALIZATION_NVP(resolution);
         }
     };
-}
+}}
 
 #endif /* __MAPS_GRIDMAP_HPP_ */

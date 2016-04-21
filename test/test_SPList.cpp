@@ -4,11 +4,11 @@
 
 #include <chrono>
 
-using ::maps::MLSConfig;
-typedef ::maps::SurfacePatchT<MLSConfig::SLOPE> SurfacePatch;
-using ::maps::List;
+using ::maps::grid::MLSConfig;
+typedef ::maps::grid::SurfacePatchT<MLSConfig::SLOPE> SurfacePatch;
+using ::maps::grid::List;
 
-typedef ::maps::SPList<SurfacePatch> SPList;
+typedef ::maps::grid::SPList<SurfacePatch> SPList;
 
 BOOST_AUTO_TEST_CASE(test_sp_list_basic)
 {

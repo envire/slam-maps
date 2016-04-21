@@ -2,7 +2,7 @@
 #include <maps/grid/Index.hpp>
 #include <iostream>
 
-using namespace ::maps;
+using namespace ::maps::grid;
 
 BOOST_AUTO_TEST_CASE(test_index)
 {

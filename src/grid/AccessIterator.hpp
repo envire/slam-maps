@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <iostream>
 
-namespace maps 
+namespace maps { namespace grid
 {
 
 template <class T>
@@ -262,4 +262,4 @@ public:
     };
 };
 
-}
+}}

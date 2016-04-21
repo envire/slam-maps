@@ -3,8 +3,8 @@
 #include "LevelList.hpp"
 #include "GridMap.hpp"
 
-namespace maps {
-    
+namespace maps { namespace grid
+{
 
 template <class P>
 class MLGrid : public GridMap<LevelList<P> >
@@ -85,4 +85,4 @@ public:
 
 };
 
-}
+}}

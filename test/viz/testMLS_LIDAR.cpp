@@ -7,7 +7,7 @@
 #include <maps/grid/MLSMap.hpp>
 
 #include "../tools/GeneratePointclouds.hpp"
-using namespace ::maps;
+using namespace ::maps::grid;
 
 
 BOOST_AUTO_TEST_CASE(mls_simulate_LIDAR)
@@ -32,8 +32,8 @@ BOOST_AUTO_TEST_CASE(mls_simulate_LIDAR)
     //mls->translate(offset_grid);
 
     typedef Eigen::Hyperplane<double, 3> Plane;
-    LIDARSimulator lidar(Eigen::VectorXd::LinSpaced(32, -16*M_PI/180, +16*M_PI/180), Eigen::VectorXd::LinSpaced(360, -M_PI, +M_PI));
-    //    LIDARSimulator lidar(Eigen::VectorXd::Constant(2, 0.0), Eigen::VectorXd::LinSpaced(30, -M_PI, +M_PI));
+    maps::LIDARSimulator lidar(Eigen::VectorXd::LinSpaced(32, -16*M_PI/180, +16*M_PI/180), Eigen::VectorXd::LinSpaced(360, -M_PI, +M_PI));
+    //    maps::LIDARSimulator lidar(Eigen::VectorXd::Constant(2, 0.0), Eigen::VectorXd::LinSpaced(30, -M_PI, +M_PI));
     std::vector<Plane> scene;
     {
         Eigen::Quaterniond q; q.coeffs().setRandom(); q.normalize();

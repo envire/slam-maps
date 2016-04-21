@@ -6,7 +6,7 @@
 #include "StandaloneVisualizer.hpp"
 #include <maps/grid/MLSMap.hpp>
 
-using namespace ::maps;
+using namespace ::maps::grid;
 
 template<class MLSMap>
 static void show_MLS(const MLSMap& mls)

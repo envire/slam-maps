@@ -11,7 +11,7 @@
 #include <math.h>
 #include <utility>
 
-namespace maps
+namespace maps { namespace geometric
 {
     /**@brief LineSegment class IEEE 1873 standard
      * adapted to lines in D-space.
@@ -121,5 +121,5 @@ namespace maps
     typedef LineSegment<double, 3> LineSegment3d;
     typedef LineSegment<float, 2> LineSegment2f;
     typedef LineSegment<float, 3> LineSegment3f;
-}
+}}
 #endif /* __MAPS_LINESEGMENT_HPP__ */
