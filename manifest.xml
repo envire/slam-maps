@@ -6,13 +6,16 @@
     <maintainer>Anna Born/anna.born@dfki.de</maintainer>
     <license>BSD</license>
     <url>http://rock-robotics.org/</url>
-    <depend package="base/cmake" />
-    <depend package="base/types" />
-    <depend package="base/numeric" />
-    <depend package="boost" />
-    <depend package="gui/vizkit3d" optional="1"/>
-    <depend package="slam/pcl" />
+    <depend package="base/cmake"/>
+    <depend package="base/types"/>
+    <depend package="base/numeric"/>
     <depend package="base/boost_serialization" />
-    <rosdep package="cgal" />
+    <depend package="slam/pcl"/>
+    <depend package="gui/vizkit3d" optional="1"/>
+
+    <rosdep package="boost"/>
+    <rosdep package="boost-serialization"/>
+    <rosdep package="cgal"/>
+    <rosdep package="gdal" optional="1"/>
    <tags>debug</tags>
 </package>

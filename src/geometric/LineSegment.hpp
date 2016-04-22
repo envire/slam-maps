@@ -1,13 +1,18 @@
 #ifndef __MAPS_LINESEGMENT_HPP__
 #define __MAPS_LINESEGMENT_HPP__
 
-/** Base types **/
-#include <base/Float.hpp>
+/** Boost serialization **/
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/nvp.hpp>
 
 /** Eigen **/
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
+/** Base types **/
+#include <base/Float.hpp>
+
+/** Std **/
 #include <math.h>
 #include <utility>
 
@@ -22,7 +27,7 @@ namespace maps { namespace geometric
     class LineSegment: public Eigen::ParametrizedLine<T, D>
     {
     public:
-        typedef typename Eigen::Matrix<T, D, 1> VectorType;
+        typedef typename Eigen::ParametrizedLine<T, D>::VectorType VectorType;
 
     private:
         /**  Origin (psi_a) and End (psi_b) point of the line 
@@ -30,11 +35,17 @@ namespace maps { namespace geometric
         VectorType _psi_b;
 
     public:
+        inline LineSegment() {}
+
+        LineSegment(const LineSegment<T, D>& other)
+            : Eigen::ParametrizedLine<T, D>(other.origin(), other.direction()),
+            _psi_b(other.psi_b())
+        {}
+
         LineSegment(const VectorType &psi_a, const VectorType &psi_b)
             : Eigen::ParametrizedLine<T, D>(psi_a, (psi_b-psi_a).normalized()),
             _psi_b(psi_b)
-        {
-        }
+        {}
 
         inline const VectorType& psi_a() const
         {
@@ -113,6 +124,19 @@ namespace maps { namespace geometric
                 return (alpha > 2.0*M_PI ? alpha - (2.0*M_PI): alpha);
             }
             return base::NaN<T>();
+        }
+
+    protected:
+        /** Grants access to boost serialization */
+        friend class boost::serialization::access;
+
+        /** Serializes the members of this class*/
+        template <typename Archive>
+        void serialize(Archive &ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_NVP(this->m_origin);
+            ar & BOOST_SERIALIZATION_NVP(this->m_direction);
+            ar & BOOST_SERIALIZATION_NVP(this->_psi_b);
         }
 
     };

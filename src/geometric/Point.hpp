@@ -2,7 +2,6 @@
 #define __MAPS_POINT_HPP__
 
 /** Boost serialization **/
-#include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 
 /** Eigen **/
