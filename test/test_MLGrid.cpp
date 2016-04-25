@@ -238,7 +238,7 @@ BOOST_AUTO_TEST_CASE(test_mapAccess2)
 
 }
 
-BOOST_AUTO_TEST_CASE(test_base_class)
+/*BOOST_AUTO_TEST_CASE(test_base_class)
 {
 
     
@@ -308,6 +308,6 @@ BOOST_AUTO_TEST_CASE(test_base_class)
     
     BOOST_CHECK_EQUAL((*it)->getMin(), 55);
     }
-}
+}*/
 
 
