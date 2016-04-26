@@ -21,7 +21,6 @@ namespace maps { namespace grid
         enum update_model
         {
             KALMAN,
-            SUM,
             SLOPE
         };
 

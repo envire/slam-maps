@@ -10,7 +10,6 @@
 
 #include <base/TimeMark.hpp>
 
-#include <maps/grid/MLSMapI.hpp>
 
 using namespace vizkit3d;
 using namespace ::maps::grid;
@@ -35,8 +34,8 @@ struct MLSMapVisualization::Data {
 template<enum MLSConfig::update_model Type>
 struct DataHold : public MLSMapVisualization::Data
 {
-    MLSMapI<Type> mls;
-    DataHold(const MLSMapI<Type> mls_) : mls(mls_) {}
+    MLSMap<Type> mls;
+    DataHold(const MLSMap<Type> mls_) : mls(mls_) {}
     Eigen::Vector2d getResolution() const { return mls.getResolution(); }
     void visualize(vizkit3d::PatchesGeode& geode) const;
 };
@@ -151,7 +150,7 @@ void DataHold<Type>::visualize(vizkit3d::PatchesGeode& geode) const
     {
         for (size_t y = 0; y < num_cell.y(); y++)
         {
-            typedef typename MLSMapI<Type>::SPListST SPListST;
+            typedef typename MLSMap<Type>::SPListST SPListST;
             const SPListST &list = mls.at(x, y);
 
             Vector3d pos(0.00, 0.00, 0.00);

@@ -8,8 +8,6 @@
 namespace maps{ namespace grid
 {
 
-class MLSMap;
-
 class StandaloneVisualizer
 {
     class Impl;

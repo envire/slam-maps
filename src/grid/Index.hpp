@@ -4,8 +4,13 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+
 namespace maps { namespace grid
 {
+    typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
+
     /**@brief type for the number of cells
      */
     typedef Eigen::Matrix<unsigned int, 2, 1> Vector2ui;
