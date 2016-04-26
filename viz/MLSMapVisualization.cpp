@@ -150,13 +150,13 @@ void DataHold<Type>::visualize(vizkit3d::PatchesGeode& geode) const
     {
         for (size_t y = 0; y < num_cell.y(); y++)
         {
-            typedef typename MLSMap<Type>::SPListST SPListST;
-            const SPListST &list = mls.at(x, y);
+            typedef typename MLSMap<Type>::PList PList;
+            const PList &list = mls.at(x, y);
 
             Vector3d pos(0.00, 0.00, 0.00);
             mls.fromGrid(Index(x,y), pos);
             geode.setPosition(pos.x(), pos.y());
-            for (typename SPListST::const_iterator it = list.begin(); it != list.end(); it++)
+            for (typename PList::const_iterator it = list.begin(); it != list.end(); it++)
             {
                 PatchVisualizer::visualize(geode, *it);
             } // for(SPList ...)
@@ -177,49 +177,6 @@ void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMapSloped const& val
 {
     p.reset(new DataHold<MLSConfig::SLOPE>( value ));
 }
-
-#if 0
-osg::Vec3 MLSMapVisualization::estimateNormal(const MLSMap &grid, const SurfacePatch &patch, const Index &patch_idx) const
-{
-    Vector3d patch_pos;
-    if(!grid.fromGrid(patch_idx, patch_pos))
-        return osg::Vec3(0,0,0);
-
-    Vector3d patch_center(patch_pos.x(), patch_pos.y(), patch.getMean());
-
-    Vector3d d[2] = { Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero() };
-
-    for( int n = 0; n < 2; n++ )
-    {
-        for( int i = -1; i < 2; i += 2 )
-        {
-            Index idx = patch_idx + Index(n * i, (n - 1) * i );
-            if (grid.inGrid(idx))
-            {
-                // instead stddeviation of the patch use (grid.getScaleX() * 2)
-                SPList::const_iterator it = grid.at(idx).getPatchByZ(patch.getMean(), grid.getResolution().sum());
-                if( it != grid.at(idx).end() )
-                {
-                    Vector3d pos(-1, -1, 0);
-                    grid.fromGrid(idx, pos);
-
-                    Eigen::Vector3d v(pos.x(), pos.y(), it->getMean());
-                    d[n] += (v - patch_center)*i;
-                }
-            }
-        }
-    }
-
-    Eigen::Vector3d n = d[0].cross( d[1] );
-    if( n.norm() > 0.0 )
-    {
-        n.normalize();
-        return osg::Vec3(n.x(), n.y(), n.z());
-    }
-    else
-        return osg::Vec3(0,0,1.0);
-}
-#endif
 
 
 bool MLSMapVisualization::isUncertaintyShown() const

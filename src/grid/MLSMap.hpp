@@ -21,12 +21,10 @@ namespace maps { namespace grid
     template<enum MLSConfig::update_model  SurfaceType>
     class MLSMap : public MLGrid<SurfacePatch<SurfaceType> >
     {
-    public:
-        typedef SurfacePatch<SurfaceType> Patch;
-        typedef MLGrid<Patch> Base;
-        typedef LevelList<Patch> SPListST; // TODO rename        
-        
-        MLSConfig config;
+        public:    
+            typedef SurfacePatch<SurfaceType> Patch;
+            typedef MLGrid<Patch> Base;
+            typedef LevelList<Patch> PList; 
 
         MLSMap(
                 const Vector2ui &num_cells,
@@ -43,7 +41,7 @@ namespace maps { namespace grid
             // empty
         }
 
-        void merge(const MLSMap& other)
+        void mergeMLS(const MLSMap& other)
         {
             // TODO
         }
@@ -74,10 +72,10 @@ namespace maps { namespace grid
                 // TODO toGrid is expensive (involves applying another Transformation)
                 if(Base::toGrid(pos, idx, pos_diff))
                 {
-                    if(useNegative && isCovered(Base::at(idx), pos_diff.z(), stdev))
+                    if(useNegative && isCovered(idx, pos_diff.z(), stdev))
                         continue;
 
-                    workGrid.update(idx, Patch(pos_diff.cast<float>(), stdev), config);
+                    workGrid.mergePatch(idx, Patch(pos_diff.cast<float>(), stdev));
                     if(useNegative)
                         coveredCells.insert(idx);
                 }
@@ -91,11 +89,11 @@ namespace maps { namespace grid
                 maps::tools::Bresenham::Point orig = origin.cast<int>(); // Origin in Bresenham compatible format
                 for(IndexSet::const_iterator it = coveredCells.begin(); it != coveredCells.end(); ++it)
                 {
-                    const SPListST &cell = workGrid.at(*it);
-                    for(typename SPListST::const_iterator cit = cell.begin(); cit != cell.end(); ++cit)
+                    const PList &cell = workGrid.at(*it);
+                    for(typename PList::const_iterator cit = cell.begin(); cit != cell.end(); ++cit)
                     {
                         // Merge cell into main grid
-                        update(*it, *cit, config);
+                        mergePatch(*it, *cit);
 
                         // This block does actually the same for all cit:
                         maps::tools::Bresenham bresLine(orig, it->cast<int>());
@@ -124,7 +122,7 @@ namespace maps { namespace grid
                             // TODO set update_idx of np?
 
                             // merge negative patch:
-                            update(Index(next.cast<Index::Scalar>()), np, config);
+                            mergePatch(Index(next.cast<Index::Scalar>()), np);
                         }
                     }
                 }
@@ -132,11 +130,11 @@ namespace maps { namespace grid
         }
 
 
-        void update(const Index &idx, const Patch& o, const MLSConfig& conf)
+        void mergePatch(const Index &idx, const Patch& o)
         {
-            LevelList<Patch> &list = Base::at(idx);
+            PList &list = Base::at(idx);
 
-            typedef typename LevelList<Patch>::iterator iterator;
+            typedef typename PList::iterator iterator;
             iterator it = list.begin(), end = list.end(), it_prev = end;
             if(it==end)
             {
@@ -153,30 +151,30 @@ namespace maps { namespace grid
             if(it_prev == end)
             {
                 // new patch is smaller than first patch
-                if(!merge(*it, o, conf))
+                if(!merge(*it, o))
                     list.insert(o);
             }
             else if(it==end)
             {
                 // new patch is larger than last patch
-                if(!merge(*it_prev, o, conf))
+                if(!merge(*it_prev, o))
                     list.insert(o);
             }
             else
             {
                 // new patch lies between it_prev and it
                 // try to merge with previous patch:
-                if(merge(*it_prev, o, conf))
+                if(merge(*it_prev, o))
                 {
                     // this might make this patch merge-able with the next patch
-                    if(merge(*it_prev, *it, conf))
+                    if(merge(*it_prev, *it))
                     {
                         // erase the second patch, since it was merged with the first
                         list.erase(it);
                     }
                 }
                 // otherwise, try to merge with the next patch
-                else if(!merge(*it, o, conf))
+                else if(!merge(*it, o))
                 {
                     // if it is not merge-able, insert as a new patch between existing patches
                     list.insert(it, o);
@@ -193,33 +191,33 @@ namespace maps { namespace grid
             if(Base::toGrid(point, idx, pos))
             {
                 // TODO get stddev from config or by function parameter
-                update(idx, Patch(pos.cast<float>(), 0.1), config);
+                mergePatch(idx, Patch(pos.cast<float>(), 0.1));
             }
         }
 
-        bool merge(Patch& a, const Patch& b, const MLSConfig& config)
+    private:
+        MLSConfig config;    
+
+        bool merge(Patch& a, const Patch& b)
         {
             return a.merge(b, config);
         }
 
-        bool isCovered(const LevelList<Patch> &list, float zPos, const float gapSize = 0.0)
+        bool isCovered(const Index &idx, float zPos, const float gapSize = 0.0)
         {
-            for(typename LevelList<Patch>::const_iterator it = list.begin(); it!= list.end(); ++it)
+            PList &list = Base::at(idx);
+
+            for(typename PList::const_iterator it = list.begin(); it!= list.end(); ++it)
             {
                 if(it->isCovered(zPos, gapSize)) return true;
             }
             return false;
-        }        
+        }            
 
     };
 
-
-    // TODO move this typedef somewhere more globally
-
-
     typedef MLSMap<MLSConfig::SLOPE> MLSMapSloped;
     typedef MLSMap<MLSConfig::KALMAN> MLSMapKalman;
-
 
 } /* namespace grid */
 } /* namespace maps */
