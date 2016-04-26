@@ -27,7 +27,6 @@ typedef Eigen::Matrix<SPScalar, 3, 3> Matrix33;
 class SurfacePatchBase
 {
 protected:
-    size_t update_idx; // TODO is this really useful?
     float min, max;
 
 public:
@@ -41,19 +40,16 @@ public:
 
     // TODO set default value properly
     SurfacePatchBase()
-        : update_idx(0),
-          min(0),
+        : min(0),
           max(0)
     {}
 
     explicit SurfacePatchBase(const float &z, const size_t& updateIdx = 0)
-    : update_idx(updateIdx)
-    , min(z), max(z)
+    : min(z), max(z)
     {}
 
     explicit SurfacePatchBase(const float &mean, const float &height, const size_t& updateIdx = 0)
-    : update_idx(updateIdx)
-    , min(mean - height), max(mean)
+    : min(mean - height), max(mean)
     {}
 
     bool merge(const SurfacePatchBase& other, const float& gapSize=0.0f)
@@ -61,7 +57,6 @@ public:
         if(!isCovered(other, gapSize)) return false;
         min = std::min(min, other.min);
         max = std::max(max, other.max);
-        update_idx = std::max(update_idx, other.update_idx);
         return true;
     }
 
@@ -92,11 +87,6 @@ public:
         return false; // base patch does not allow negative patches
     }
 
-    size_t getUpdateIdx()
-    {
-        return update_idx;
-    }
-
 protected:
     /** Grants access to boost serialization */
     friend class boost::serialization::access;
@@ -105,7 +95,6 @@ protected:
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int version)
     {
-        ar & BOOST_SERIALIZATION_NVP(update_idx);
         ar & BOOST_SERIALIZATION_NVP(min);
         ar & BOOST_SERIALIZATION_NVP(max);
     }
