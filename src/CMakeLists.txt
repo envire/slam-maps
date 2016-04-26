@@ -11,13 +11,13 @@ rock_library(maps
         LocalMap.hpp
         grid/Index.hpp
         grid/GridMap.hpp
-        grid/MultilayerGridMap.hpp
+        grid/LevelList.hpp        
+        grid/LayeredGridMap.hpp
+        grid/MultiLevelGridMap.hpp        
         grid/ElevationMap.hpp
         grid/SurfacePatches.hpp
-        grid/LevelList.hpp
         grid/MLSConfig.hpp
         grid/MLSMap.hpp
-        grid/MLGrid.hpp
         grid/TraversabilityMap3d.hpp
         grid/AccessIterator.hpp
         grid/GridCell.hpp

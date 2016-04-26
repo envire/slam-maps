@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include <maps/grid/MLGrid.hpp>
+#include <maps/grid/MultiLevelGridMap.hpp>
 
 #include <maps/grid/GridCellAccessInterface.hpp>
 #include <maps/grid/GridCellAccess.hpp>

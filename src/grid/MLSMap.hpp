@@ -9,7 +9,7 @@
 
 #include <boost/scoped_ptr.hpp>
 
-#include "MLGrid.hpp"
+#include "MultiLevelGridMap.hpp"
 #include "MLSConfig.hpp"
 #include "SurfacePatches.hpp"
 
@@ -19,11 +19,11 @@ namespace maps { namespace grid
 {
 
     template<enum MLSConfig::update_model  SurfaceType>
-    class MLSMap : public MLGrid<SurfacePatch<SurfaceType> >
+    class MLSMap : public MultiLevelGridMap<SurfacePatch<SurfaceType> >
     {
         public:    
             typedef SurfacePatch<SurfaceType> Patch;
-            typedef MLGrid<Patch> Base;
+            typedef MultiLevelGridMap<Patch> Base;
             typedef LevelList<Patch> PList; 
 
         MLSMap(

@@ -1,5 +1,5 @@
-#ifndef __MAPS_GRIDMAP_HPP__
-#define __MAPS_GRIDMAP_HPP__
+#ifndef __MAPS_LAYEREDGRIDMAP_HPP__
+#define __MAPS_LAYEREDGRIDMAP_HPP__
 
 #include <map>
 #include <iostream>
@@ -11,9 +11,9 @@
 
 namespace maps { namespace grid
 {
-    class MultilayerGridMap : public Grid {
+    class LayeredGridMap : public Grid {
     public:
-        MultilayerGridMap() : Grid() {}
+        LayeredGridMap() : Grid() {}
 
         /**
          * @brief creat an empty grid of specific size and resolution
@@ -26,10 +26,10 @@ namespace maps { namespace grid
         // initialize the structure of grid
         // no layers will be created
         // call createLayer to add some layers to grid
-        MultilayerGridMap(const Vector2ui &num_cells, const Vector2d &resolution) 
+        LayeredGridMap(const Vector2ui &num_cells, const Vector2d &resolution) 
             : Grid(num_cells, resolution){}
 
-        virtual ~MultilayerGridMap() 
+        virtual ~LayeredGridMap() 
         {
             removeAllLayers();
         }
@@ -51,7 +51,7 @@ namespace maps { namespace grid
         {
             if (hasLayer(key) == true)
             {
-                throw std::out_of_range("MultilayerGridMap::addLayer: The grid with the key '" + key + "' exists already.");
+                throw std::out_of_range("LayeredGridMap::addLayer: The grid with the key '" + key + "' exists already.");
             }
 
             GridMap<T> *new_grid = new GridMap<T>(getNumCells(), resolution, default_value, getLocalMapData());
@@ -175,4 +175,4 @@ namespace maps { namespace grid
     };
 }}
 
-#endif // __MAPS_GRIDMAP_HPP__
+#endif // __MAPS_LAYEREDGRIDMAP_HPP__

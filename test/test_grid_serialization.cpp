@@ -6,7 +6,7 @@
 /** Grid maps **/
 #include <maps/grid/GridMap.hpp>
 #include <maps/grid/LevelList.hpp>
-#include <maps/grid/MLGrid.hpp>
+#include <maps/grid/MultiLevelGridMap.hpp>
 
 using namespace ::maps::grid;
 
@@ -160,7 +160,7 @@ BOOST_AUTO_TEST_CASE(test_mlgrid_serialization)
 {
     Vector2ui size(100, 200);
     Vector2d res(0.25, 0.125);
-    MLGrid<int> grid(size, res), grid2;
+    MultiLevelGridMap<int> grid(size, res), grid2;
 
     Eigen::Vector2d gridSize = grid.getSize();
 
@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE(test_mlgrid_serialization)
         for(size_t y=0; y<size.y(); ++y)
         {
             Index idx(x,y);
-            typedef MLGrid<int>::CellType Cell;
+            typedef MultiLevelGridMap<int>::CellType Cell;
             const Cell &cell1 = grid.at(idx), &cell2=grid2.at(idx);
             BOOST_CHECK_EQUAL(cell1.size(), cell2.size());
             Cell::const_iterator it1=cell1.begin(), it2=cell2.begin(), end1=cell1.end(), end2 = cell2.end();
