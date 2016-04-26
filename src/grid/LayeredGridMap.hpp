@@ -6,15 +6,20 @@
 #include <string>
 
 #include <boost/multi_array.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "GridMap.hpp"
 
 namespace maps { namespace grid
 {
-    class LayeredGridMap : public Grid {
+    class LayeredGridMap : public LocalMap
+    {
     public:
-        LayeredGridMap() : Grid() {}
-
+        LayeredGridMap()
+        : LocalMap(maps::LocalMapType::GRID_MAP),
+          num_cells(0,0),
+          resolution(0,0)
+        {}
         /**
          * @brief creat an empty grid of specific size and resolution
          * @details Create an empty grid of specific size and resolution. 
@@ -27,7 +32,10 @@ namespace maps { namespace grid
         // no layers will be created
         // call createLayer to add some layers to grid
         LayeredGridMap(const Vector2ui &num_cells, const Vector2d &resolution) 
-            : Grid(num_cells, resolution){}
+            : LocalMap(maps::LocalMapType::GRID_MAP),
+              num_cells(num_cells), 
+              resolution(resolution)
+        {}
 
         virtual ~LayeredGridMap() 
         {
@@ -49,12 +57,13 @@ namespace maps { namespace grid
         template <typename T>
         GridMap<T>& addLayer(const std::string &key, const T &default_value)
         {
+
             if (hasLayer(key) == true)
             {
                 throw std::out_of_range("LayeredGridMap::addLayer: The grid with the key '" + key + "' exists already.");
             }
 
-            GridMap<T> *new_grid = new GridMap<T>(getNumCells(), resolution, default_value, getLocalMapData());
+            GridMap<T> *new_grid = new GridMap<T>(num_cells, resolution, default_value, this->getLocalMapData());
             layers[key] = new_grid;
 
             return *new_grid;
@@ -123,38 +132,11 @@ namespace maps { namespace grid
             return keys;
         }
 
-        void write(const std::string &key, const std::string &path) const
-        {
-            std::cout << "not implemented: " << __PRETTY_FUNCTION__ << std::endl;
-        }
+    private:
+        Vector2ui num_cells;
+        Vector2d resolution;
 
-        void write(const std::string &key, std::ostream &os)
-        {
-            std::cout << "not implemented: " << __PRETTY_FUNCTION__ << std::endl;
-        }
-
-        void read(const std::string &key, const std::string &path)
-        {
-            std::cout << "not implemented: " << __PRETTY_FUNCTION__ << std::endl;
-        }
-
-        void read(const std::string &key, std::istream &is)
-        {
-            std::cout << "not implemented: " << __PRETTY_FUNCTION__ << std::endl;
-        }
-
-        void copy()
-        {
-            std::cout << "not implemented: " << __PRETTY_FUNCTION__ << std::endl;
-        }
-
-        void cloneTo()
-        {
-            std::cout << "not implemented: " << __PRETTY_FUNCTION__ << std::endl;
-        }
-
-    protected:
-        typedef std::map<std::string, Grid*> LayerType;
+        typedef std::map<std::string, LocalMap*> LayerType;
         LayerType layers;
 
         template <typename T>
@@ -172,6 +154,8 @@ namespace maps { namespace grid
 
             return grid;
         }
+
+
     };
 }}
 

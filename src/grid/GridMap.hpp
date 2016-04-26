@@ -92,7 +92,7 @@ namespace maps { namespace grid
          * @param default_value - default value
          */
         GridMap(const Vector2ui &num_cells,
-                const Eigen::Vector2d &resolution,
+                const Vector2d &resolution,
                 const T& default_value)
             : LocalMap(maps::LocalMapType::GRID_MAP),
               R(num_cells, default_value),
@@ -101,7 +101,7 @@ namespace maps { namespace grid
         }
 
         GridMap(const Vector2ui &num_cells,
-                const Eigen::Vector2d &resolution,
+                const Vector2d &resolution,
                 const T& default_value,
                 const boost::shared_ptr<LocalMapData> &data)
             : LocalMap(data),

@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include <maps/grid/MultilayerGridMap.hpp>
+#include <maps/grid/LayeredGridMap.hpp>
 
 using namespace ::maps::grid;
 
@@ -12,11 +12,7 @@ double offsetY = 25;
 
 BOOST_AUTO_TEST_CASE(test_mlgridmap_default_constructor)
 {
-    MultilayerGridMap *grid_map = new MultilayerGridMap();   
-
-    BOOST_CHECK_EQUAL(grid_map->getNumCells(), Vector2ui(0, 0));
-    BOOST_CHECK_EQUAL(grid_map->getResolution(), Vector2d(0, 0));    
-    BOOST_CHECK_EQUAL(grid_map->getSize(), Vector2d(0, 0));     
+    LayeredGridMap *grid_map = new LayeredGridMap();       
 
     BOOST_CHECK_EQUAL(grid_map->getLocalFrame().matrix().isApprox(base::Transform3d::Identity().matrix()), true); 
 
@@ -25,14 +21,10 @@ BOOST_AUTO_TEST_CASE(test_mlgridmap_default_constructor)
 
 BOOST_AUTO_TEST_CASE(test_mlgridmap_constructor)
 {
-    MultilayerGridMap *grid_map = new MultilayerGridMap(num_cells, resolution);
+    LayeredGridMap *grid_map = new LayeredGridMap(num_cells, resolution);
 
     Eigen::Vector3d translation = Eigen::Vector3d::Random(3);
-    grid_map->getLocalFrame().translate(translation);
-
-    BOOST_CHECK_EQUAL(grid_map->getNumCells(), num_cells);
-    BOOST_CHECK_EQUAL(grid_map->getResolution(), resolution);    
-    BOOST_CHECK_EQUAL(grid_map->getSize(), Vector2d(20, 50));     
+    grid_map->getLocalFrame().translate(translation);   
 
     BOOST_CHECK_EQUAL(grid_map->getLocalFrame().translation().isApprox(translation), true); 
 
@@ -41,24 +33,25 @@ BOOST_AUTO_TEST_CASE(test_mlgridmap_constructor)
 
 BOOST_AUTO_TEST_CASE(test_mlgridmap_share_properties)
 {
-    MultilayerGridMap *grid_map = new MultilayerGridMap(num_cells, resolution);
+    LayeredGridMap *grid_map = new LayeredGridMap(num_cells, resolution);
 
     grid_map->getId() = "first";
 
     Eigen::Vector3d translation = Eigen::Vector3d::Random(3);
     grid_map->getLocalFrame().translate(translation);
 
-    // the underlying layers should share the properties with MultilayerGridMap
+    // the underlying layers should share the properties with LayeredGridMap
     grid_map->addLayer<double>("double_grid", std::numeric_limits<double>::infinity());
 
     GridMap<double> &grid = grid_map->getLayer<double>("double_grid");
 
-    BOOST_CHECK_EQUAL(grid_map->getNumCells(), grid.getNumCells());
-    BOOST_CHECK_EQUAL(grid_map->getResolution(), grid.getResolution());       
+    BOOST_CHECK_EQUAL(num_cells, grid.getNumCells());
+    BOOST_CHECK_EQUAL(resolution, grid.getResolution());    
+    BOOST_CHECK_EQUAL(grid.getSize(), Vector2d(20, 50));
     BOOST_CHECK_EQUAL(grid_map->getId(), grid.getId());      
     BOOST_CHECK_EQUAL(grid_map->getLocalFrame().matrix().isApprox(grid.getLocalFrame().matrix()), true);     
 
-    // change of the properties should apply to MultilayerGridMap
+    // change of the properties should apply to LayeredGridMap
     // and its underlying layers
     grid_map->getId() = "grid_map";
 
@@ -74,7 +67,7 @@ BOOST_AUTO_TEST_CASE(test_mlgridmap_share_properties)
 
 BOOST_AUTO_TEST_CASE(test_gridmap_has)
 {   
-    MultilayerGridMap *grid_map = new MultilayerGridMap(num_cells, resolution);
+    LayeredGridMap *grid_map = new LayeredGridMap(num_cells, resolution);
      
     // check if the not existed grid exists: false
     BOOST_CHECK_EQUAL(grid_map->hasLayer("double_grid"), false);
@@ -88,14 +81,14 @@ BOOST_AUTO_TEST_CASE(test_gridmap_has)
     // check if the existence of the grid after it was removed
     grid_map->removeLayer("double_grid"); 
     BOOST_CHECK_EQUAL(grid_map->hasLayer("double_grid"), false);
-    BOOST_CHECK_EQUAL(grid.getId(), UNKNOWN_MAP_ID);
+    BOOST_CHECK_EQUAL(grid.getId(),  maps::UNKNOWN_MAP_ID);
 
     delete grid_map;
 }
 
 BOOST_AUTO_TEST_CASE(test_gridmap_add)
 {   
-    MultilayerGridMap *grid_map = new MultilayerGridMap(num_cells, resolution);
+    LayeredGridMap *grid_map = new LayeredGridMap(num_cells, resolution);
 
     // add grid that does not exist until now: OK
     BOOST_CHECK_NO_THROW(grid_map->addLayer<double>("double_grid", std::numeric_limits<double>::infinity())); 
@@ -116,7 +109,7 @@ BOOST_AUTO_TEST_CASE(test_gridmap_add)
 
 BOOST_AUTO_TEST_CASE(test_gridmap_get)
 {
-    MultilayerGridMap *grid_map = new MultilayerGridMap(num_cells, resolution);
+    LayeredGridMap *grid_map = new LayeredGridMap(num_cells, resolution);
 
     GridMap<double> &grid = grid_map->addLayer<double>("double_grid", std::numeric_limits<double>::infinity());      
 
@@ -138,7 +131,7 @@ BOOST_AUTO_TEST_CASE(test_gridmap_get)
 
 BOOST_AUTO_TEST_CASE(test_gridmap_remove)
 {
-    MultilayerGridMap *grid_map = new MultilayerGridMap(num_cells, resolution);
+    LayeredGridMap *grid_map = new LayeredGridMap(num_cells, resolution);
 
     grid_map->addLayer<double>("double_grid", std::numeric_limits<double>::infinity());       
 
@@ -153,7 +146,7 @@ BOOST_AUTO_TEST_CASE(test_gridmap_remove)
 
 BOOST_AUTO_TEST_CASE(test_gridmap_removeall)
 {
-    MultilayerGridMap *grid_map = new MultilayerGridMap(num_cells, resolution);
+    LayeredGridMap *grid_map = new LayeredGridMap(num_cells, resolution);
 
     grid_map->addLayer<double>("double_grid", std::numeric_limits<double>::infinity());       
     grid_map->addLayer<int>("int_grid", std::numeric_limits<int>::infinity());        
@@ -171,7 +164,7 @@ BOOST_AUTO_TEST_CASE(test_gridmap_removeall)
 
 BOOST_AUTO_TEST_CASE(test_gridmap_keys)
 {
-    MultilayerGridMap *grid_map = new MultilayerGridMap(num_cells, resolution);
+    LayeredGridMap *grid_map = new LayeredGridMap(num_cells, resolution);
 
     grid_map->addLayer<double>("double_grid", std::numeric_limits<double>::infinity());       
     grid_map->addLayer<int>("int_grid", std::numeric_limits<int>::infinity());        
