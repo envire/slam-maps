@@ -17,83 +17,14 @@
 
 namespace maps { namespace grid
 {
-    template<class Patch>
-    bool isCovered(const LevelList<Patch> &list, float zPos, const float gapSize = 0.0)
-    {
-        for(typename LevelList<Patch>::const_iterator it = list.begin(); it!= list.end(); ++it)
-        {
-            if(it->isCovered(zPos, gapSize)) return true;
-        }
-        return false;
-    }
-
-    template<class Patch>
-    bool merge(Patch& a, const Patch& b, const MLSConfig& config)
-    {
-        return a.merge(b, config);
-    }
-
-
-    template<class Patch>
-    void LevelList<Patch>::update(const Patch& o, const MLSConfig& conf)
-    {
-        typedef typename LevelList<Patch>::iterator iterator;
-        iterator it = this->begin(), end = this->end(), it_prev = end;
-        if(it==end)
-        {
-            // insert into empty list
-            this->insert(o);
-            return;
-        }
-        // Find iterators so that *it_prev < o < *it
-        while(it != end && *it < o)
-        {
-            it_prev=it;
-            ++it;
-        }
-        if(it_prev == end)
-        {
-            // new patch is smaller than first patch
-            if(!merge(*it, o, conf))
-                this->insert(o);
-        }
-        else if(it==end)
-        {
-            // new patch is larger than last patch
-            if(!merge(*it_prev, o, conf))
-                this->insert(o);
-        }
-        else
-        {
-            // new patch lies between it_prev and it
-            // try to merge with previous patch:
-            if(merge(*it_prev, o, conf))
-            {
-                // this might make this patch merge-able with the next patch
-                if(merge(*it_prev, *it, conf))
-                {
-                    // erase the second patch, since it was merged with the first
-                    this->erase(it);
-                }
-            }
-            // otherwise, try to merge with the next patch
-            else if(!merge(*it, o, conf))
-            {
-                // if it is not merge-able, insert as a new patch between existing patches
-                this->insert(it, o);
-            }
-        }
-
-    }
-
 
     template<enum MLSConfig::update_model  SurfaceType>
-    struct MLSMap : public MLGrid<SurfacePatch<SurfaceType> >
+    class MLSMap : public MLGrid<SurfacePatch<SurfaceType> >
     {
     public:
         typedef SurfacePatch<SurfaceType> Patch;
-        typedef LevelList<Patch>SPListST; // TODO rename
         typedef MLGrid<Patch> Base;
+        typedef LevelList<Patch> SPListST; // TODO rename        
         
         MLSConfig config;
 
@@ -146,7 +77,7 @@ namespace maps { namespace grid
                     if(useNegative && isCovered(Base::at(idx), pos_diff.z(), stdev))
                         continue;
 
-                    workGrid.at(idx).update(Patch(pos_diff.cast<float>(), stdev), config);
+                    workGrid.update(idx, Patch(pos_diff.cast<float>(), stdev), config);
                     if(useNegative)
                         coveredCells.insert(idx);
                 }
@@ -164,7 +95,7 @@ namespace maps { namespace grid
                     for(typename SPListST::const_iterator cit = cell.begin(); cit != cell.end(); ++cit)
                     {
                         // Merge cell into main grid
-                        Base::at(*it).update(*cit, config);
+                        update(*it, *cit, config);
 
                         // This block does actually the same for all cit:
                         maps::tools::Bresenham bresLine(orig, it->cast<int>());
@@ -193,11 +124,65 @@ namespace maps { namespace grid
                             // TODO set update_idx of np?
 
                             // merge negative patch:
-                            Base::at(Index(next.cast<Index::Scalar>())).update(np, config);
+                            update(Index(next.cast<Index::Scalar>()), np, config);
                         }
                     }
                 }
             }
+        }
+
+
+        void update(const Index &idx, const Patch& o, const MLSConfig& conf)
+        {
+            LevelList<Patch> &list = Base::at(idx);
+
+            typedef typename LevelList<Patch>::iterator iterator;
+            iterator it = list.begin(), end = list.end(), it_prev = end;
+            if(it==end)
+            {
+                // insert into empty list
+                list.insert(o);
+                return;
+            }
+            // Find iterators so that *it_prev < o < *it
+            while(it != end && *it < o)
+            {
+                it_prev=it;
+                ++it;
+            }
+            if(it_prev == end)
+            {
+                // new patch is smaller than first patch
+                if(!merge(*it, o, conf))
+                    list.insert(o);
+            }
+            else if(it==end)
+            {
+                // new patch is larger than last patch
+                if(!merge(*it_prev, o, conf))
+                    list.insert(o);
+            }
+            else
+            {
+                // new patch lies between it_prev and it
+                // try to merge with previous patch:
+                if(merge(*it_prev, o, conf))
+                {
+                    // this might make this patch merge-able with the next patch
+                    if(merge(*it_prev, *it, conf))
+                    {
+                        // erase the second patch, since it was merged with the first
+                        list.erase(it);
+                    }
+                }
+                // otherwise, try to merge with the next patch
+                else if(!merge(*it, o, conf))
+                {
+                    // if it is not merge-able, insert as a new patch between existing patches
+                    list.insert(it, o);
+                }
+            }
+
         }
 
 
@@ -208,9 +193,24 @@ namespace maps { namespace grid
             if(Base::toGrid(point, idx, pos))
             {
                 // TODO get stddev from config or by function parameter
-                Base::at(idx).update(Patch(pos.cast<float>(), 0.1), config);
+                update(idx, Patch(pos.cast<float>(), 0.1), config);
             }
         }
+
+        bool merge(Patch& a, const Patch& b, const MLSConfig& config)
+        {
+            return a.merge(b, config);
+        }
+
+        bool isCovered(const LevelList<Patch> &list, float zPos, const float gapSize = 0.0)
+        {
+            for(typename LevelList<Patch>::const_iterator it = list.begin(); it!= list.end(); ++it)
+            {
+                if(it->isCovered(zPos, gapSize)) return true;
+            }
+            return false;
+        }        
+
     };
 
 

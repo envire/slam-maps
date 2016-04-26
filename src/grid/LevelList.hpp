@@ -26,7 +26,6 @@ public:
     {
     };    
 
-    void update(const S&, const MLSConfig&);
 protected:
             /** Grants access to boost serialization */
     friend class boost::serialization::access;
