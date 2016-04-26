@@ -41,6 +41,7 @@ namespace maps { namespace grid
         Vector2d resolution;
 
     public:
+        typedef R GridCellType;
         typedef T CellType;
 
         GridMap() 
