@@ -4,8 +4,14 @@
 #include <numeric/PlaneFitting.hpp>
 
 #include <base/Eigen.hpp>
+
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
+
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/nvp.hpp>
+
+#include <boost_serialization/BaseNumeric.hpp>
 
 #include "MLSConfig.hpp"
 
@@ -23,6 +29,7 @@ class SurfacePatchBase
 protected:
     size_t update_idx; // TODO is this really useful?
     float min, max;
+
 public:
     // TODO TYPE is for compatibility with old Patches -- probably should be made optional
     enum TYPE
@@ -32,15 +39,22 @@ public:
         NEGATIVE = 2
     };
 
+    // TODO set default value properly
+    SurfacePatchBase()
+        : update_idx(0),
+          min(0),
+          max(0)
+    {}
+
     explicit SurfacePatchBase(const float &z, const size_t& updateIdx = 0)
     : update_idx(updateIdx)
     , min(z), max(z)
-    { }
+    {}
 
     explicit SurfacePatchBase(const float &mean, const float &height, const size_t& updateIdx = 0)
     : update_idx(updateIdx)
     , min(mean - height), max(mean)
-    { }
+    {}
 
     bool merge(const SurfacePatchBase& other, const float& gapSize=0.0f)
     {
@@ -61,6 +75,7 @@ public:
     {
         return min - gapSize < z && z < max + gapSize;
     }
+
     bool isCovered(const SurfacePatchBase& other, const float& gapSize) const
     {
         // This is equivalent to the old overlap function.
@@ -77,7 +92,23 @@ public:
         return false; // base patch does not allow negative patches
     }
 
+    size_t getUpdateIdx()
+    {
+        return update_idx;
+    }
 
+protected:
+    /** Grants access to boost serialization */
+    friend class boost::serialization::access;
+
+    /** Serializes the members of this class*/
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(update_idx);
+        ar & BOOST_SERIALIZATION_NVP(min);
+        ar & BOOST_SERIALIZATION_NVP(max);
+    }
 };
 
 /**
@@ -99,16 +130,20 @@ class SurfacePatch<MLSConfig::SLOPE> : public SurfacePatchBase
     float n;
     TYPE type;
 public:
+    // TODO set default parameter
+    SurfacePatch()
+    {}
+
     SurfacePatch(const Eigen::Vector3f& point, const float& cov)
         : Base(point.z())
         , plane(point, 1.0f/cov)
         , n(1), type(TYPE::HORIZONTAL)
-    { }
+    {}
 
     SurfacePatch(const float& mean, const float& stdev, const float& height = 0, TYPE type_=TYPE::HORIZONTAL)
         : Base(mean, height)
         , n(1), type(type_)
-    { }
+    {}
 
 
     /**
@@ -169,11 +204,20 @@ public:
         return false;
     }
 
+protected:
+    /** Grants access to boost serialization */
+    friend class boost::serialization::access;
+
+    /** Serializes the members of this class*/
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(SurfacePatchBase);
+        ar & BOOST_SERIALIZATION_NVP(plane);
+        ar & BOOST_SERIALIZATION_NVP(n);
+        ar & BOOST_SERIALIZATION_NVP(type);
+    }    
 }; // SurfacePatch<MLSConfig::SLOPE>
-
-
-
-
 
 template<>
 class SurfacePatch<MLSConfig::KALMAN>: public SurfacePatchBase
@@ -193,15 +237,20 @@ public:
 
 
 public:
+    // TODO set default parameter
+    SurfacePatch()
+    {}
+
     SurfacePatch(const Eigen::Vector3f& point, const float& cov)
         : Base(point.z())
         , mean(point.z()), var(cov), height(0)
-    { }
+    {}
 
     SurfacePatch(const float& mean, const float& stdev, const float& height = 0, TYPE type_=TYPE::HORIZONTAL)
         : Base(mean, height)
         , mean(mean), var(stdev*stdev), height(height)
-    { }
+    {}
+
     bool merge(const SurfacePatch& other, const MLSConfig& config)
     {
         if( !Base::merge(other, config.gapSize))
@@ -227,6 +276,7 @@ public:
 
         return true;
     }
+
     Eigen::Vector3f getCenter() const
     {
         Eigen::Vector3f center(0.0f, 0.0f, mean);
@@ -243,9 +293,21 @@ public:
         return Eigen::Vector3f::UnitZ();
     }
 
+protected:
+    /** Grants access to boost serialization */
+    friend class boost::serialization::access;
+
+    /** Serializes the members of this class*/
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(SurfacePatchBase);
+        ar & BOOST_SERIALIZATION_NVP(mean);
+        ar & BOOST_SERIALIZATION_NVP(var);
+        ar & BOOST_SERIALIZATION_NVP(height);
+    }        
+
 }; // SurfacePatch<MLSConfig::KALMAN>
-
-
 
 }  // namespace grid
 }  // namespace maps
