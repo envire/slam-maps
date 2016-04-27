@@ -9,6 +9,9 @@
 
 #include <boost/scoped_ptr.hpp>
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/nvp.hpp>
+
 #include "MultiLevelGridMap.hpp"
 #include "MLSConfig.hpp"
 #include "SurfacePatches.hpp"
@@ -24,7 +27,7 @@ namespace maps { namespace grid
         public:    
             typedef SurfacePatch<SurfaceType> Patch;
             typedef MultiLevelGridMap<Patch> Base;
-            typedef LevelList<Patch> PList; 
+            typedef LevelList<Patch> CellType; 
 
         MLSMap(
                 const Vector2ui &num_cells,
@@ -40,6 +43,11 @@ namespace maps { namespace grid
         {
             // empty
         }
+
+        const MLSConfig& getConfig() const
+        { 
+            return config;
+        }        
 
         void mergeMLS(const MLSMap& other)
         {
@@ -89,8 +97,8 @@ namespace maps { namespace grid
                 maps::tools::Bresenham::Point orig = origin.cast<int>(); // Origin in Bresenham compatible format
                 for(IndexSet::const_iterator it = coveredCells.begin(); it != coveredCells.end(); ++it)
                 {
-                    const PList &cell = workGrid.at(*it);
-                    for(typename PList::const_iterator cit = cell.begin(); cit != cell.end(); ++cit)
+                    const CellType &cell = workGrid.at(*it);
+                    for(typename CellType::const_iterator cit = cell.begin(); cit != cell.end(); ++cit)
                     {
                         // Merge cell into main grid
                         mergePatch(*it, *cit);
@@ -132,9 +140,9 @@ namespace maps { namespace grid
 
         void mergePatch(const Index &idx, const Patch& o)
         {
-            PList &list = Base::at(idx);
+            CellType &list = Base::at(idx);
 
-            typedef typename PList::iterator iterator;
+            typedef typename CellType::iterator iterator;
             iterator it = list.begin(), end = list.end(), it_prev = end;
             if(it==end)
             {
@@ -205,15 +213,26 @@ namespace maps { namespace grid
 
         bool isCovered(const Index &idx, float zPos, const float gapSize = 0.0)
         {
-            PList &list = Base::at(idx);
+            CellType &list = Base::at(idx);
 
-            for(typename PList::const_iterator it = list.begin(); it!= list.end(); ++it)
+            for(typename CellType::const_iterator it = list.begin(); it!= list.end(); ++it)
             {
                 if(it->isCovered(zPos, gapSize)) return true;
             }
             return false;
-        }            
+        }        
 
+    protected:
+        /** Grants access to boost serialization */
+        friend class boost::serialization::access;
+
+        /** Serializes the members of this class*/
+        template <typename Archive>
+        void serialize(Archive &ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(MultiLevelGridMap<SurfacePatch<SurfaceType>>);
+            ar & BOOST_SERIALIZATION_NVP(config);
+        }         
     };
 
     typedef MLSMap<MLSConfig::SLOPE> MLSMapSloped;

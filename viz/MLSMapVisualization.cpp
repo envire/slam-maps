@@ -150,13 +150,13 @@ void DataHold<Type>::visualize(vizkit3d::PatchesGeode& geode) const
     {
         for (size_t y = 0; y < num_cell.y(); y++)
         {
-            typedef typename MLSMap<Type>::PList PList;
-            const PList &list = mls.at(x, y);
+            typedef typename MLSMap<Type>::CellType Cell;
+            const Cell &list = mls.at(x, y);
 
             Vector3d pos(0.00, 0.00, 0.00);
             mls.fromGrid(Index(x,y), pos);
             geode.setPosition(pos.x(), pos.y());
-            for (typename PList::const_iterator it = list.begin(); it != list.end(); it++)
+            for (typename Cell::const_iterator it = list.begin(); it != list.end(); it++)
             {
                 PatchVisualizer::visualize(geode, *it);
             } // for(SPList ...)
