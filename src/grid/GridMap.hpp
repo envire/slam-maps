@@ -391,6 +391,11 @@ namespace maps { namespace grid
             ar & BOOST_SERIALIZATION_NVP(resolution);
         }
     };
+
+    typedef GridMap<char> GridMapC;
+    typedef GridMap<int> GridMapI;
+    typedef GridMap<float> GridMapF;
+    typedef GridMap<double> GridMapD;    
 }}
 
 #endif /* __MAPS_GRIDMAP_HPP_ */
