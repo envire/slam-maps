@@ -4,6 +4,7 @@
 
 #include <boost/container/flat_set.hpp>
 #include <boost/serialization/split_member.hpp>
+#include <boost/version.hpp>
 
 namespace maps { namespace grid
 {
@@ -24,7 +25,16 @@ class LevelList : public boost::container::flat_set<S>
 public:
     LevelList()
     {
-    };    
+    };
+#if BOOST_VERSION < 105500
+    // Custom copy constructor to work around boost bug:
+    // https://svn.boost.org/trac/boost/ticket/9166
+    // Note: This is fixed in version 1.55
+    LevelList(const LevelList& other) {
+        if(other.size() > 0)
+            *this = other;
+    }
+#endif
 
 protected:
             /** Grants access to boost serialization */
@@ -90,30 +100,28 @@ public:
 };
 
 template <class S, class SBase = S>
-class DerivableLevelList : public DerivableLevelList<SBase, SBase>, public boost::container::flat_set<S>
+class DerivableLevelList : public DerivableLevelList<SBase, SBase>, public LevelList<S>
 {
 protected:
     virtual ConstAccessIterator<SBase> getBegin()
     {
-        return ConstAccessIteratorImpl<S, SBase, boost::container::flat_set<S> >(boost::container::flat_set<S>::begin());
+        return ConstAccessIteratorImpl<S, SBase, LevelList<S> >(LevelList<S>::begin());
     };
     
     virtual ConstAccessIterator<SBase> getEnd()
     {
-        return ConstAccessIteratorImpl<S, SBase, boost::container::flat_set<S> >(boost::container::flat_set<S>::end());
+        return ConstAccessIteratorImpl<S, SBase, LevelList<S> >(LevelList<S>::end());
     };
     
     virtual size_t getSize() const
     {
-        return boost::container::flat_set<S>::size();
+        return LevelList<S>::size();
     };
 public:
-    using boost::container::flat_set<S>::begin;
-    using boost::container::flat_set<S>::end;
-
-    using boost::container::flat_set<S>::find;
-    
-    using boost::container::flat_set<S>::size;
+    using LevelList<S>::begin;
+    using LevelList<S>::end;
+    using LevelList<S>::find;
+    using LevelList<S>::size;
     
     DerivableLevelList()
     {

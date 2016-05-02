@@ -234,7 +234,9 @@ BOOST_AUTO_TEST_CASE(test_mapAccess2)
     BOOST_CHECK_EQUAL(it->getMin(), 38);
     it++;
     BOOST_CHECK_EQUAL(it->getMin(), 55);
+
     }
+    delete test;
 
 }
 
