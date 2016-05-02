@@ -17,5 +17,5 @@
     <rosdep package="boost-serialization"/>
     <rosdep package="cgal"/>
     <rosdep package="gdal" optional="1"/>
-   <tags>debug</tags>
+   <tags>needs_opt</tags>
 </package>
