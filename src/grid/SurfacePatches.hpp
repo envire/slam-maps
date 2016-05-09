@@ -82,6 +82,11 @@ public:
 
     }
 
+    bool operator<(const SurfacePatchBase& other) const
+    {
+        return min < other.min;
+    }
+    
     bool isNegative() const
     {
         return false; // base patch does not allow negative patches
