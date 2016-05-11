@@ -1,8 +1,7 @@
-#ifndef TRAVERSABILITYMAP3D_H
-#define TRAVERSABILITYMAP3D_H
+#pragma once
 
 #include <list>
-#include "GridMap.hpp"
+#include "MultiLevelGridMap.hpp"
 #include "SurfacePatches.hpp"
 #include <map>
 
@@ -11,12 +10,6 @@ namespace maps { namespace grid
 
     class TraversabilityNodeBase
     {
-    protected:
-        std::vector<TraversabilityNodeBase *> connections;
-        float height;
-        ::maps::grid::Index idx;
-
-
     public:
         enum TYPE
         {
@@ -24,6 +17,7 @@ namespace maps { namespace grid
             TRAVERSABLE,
             UNKNOWN,
             HOLE,
+            UNSET,
         };
 
         TraversabilityNodeBase(float height, const Index &idx);
@@ -38,67 +32,80 @@ namespace maps { namespace grid
         void addConnection(TraversabilityNodeBase *node);
 
         const std::vector<TraversabilityNodeBase *> &getConnections() const;
+        
+        bool operator<(const TraversabilityNodeBase& other) const
+        {
+            return height < other.height;
+        }
+        
+        bool isExpanded() const
+        {
+            return mIsExpanded;
+        }
+        
+        void setExpanded()
+        {
+            mIsExpanded = true;
+        }
+        
+        void setType(TYPE t)
+        {
+            type = t;
+        }
+        
+        TYPE getType() const
+        {
+            return type;
+        }
+        
+    protected:
+        std::vector<TraversabilityNodeBase *> connections;
+        float height;
+        ::maps::grid::Index idx;
+        enum TYPE type;
+        ///detemines wether this node is a candidate or a final node
+        bool mIsExpanded;
+    
+        
     };
 
     template <class T>
     class TraversabilityNode : public TraversabilityNodeBase
     {
-        const T *userData;
+        T userData;
     public:
-        TraversabilityNode(float height, const Index& idx ,const T *userDatap) : 
-            TraversabilityNodeBase(height, idx), userData(userDatap) 
+        TraversabilityNode(float height, const Index& idx) : 
+            TraversabilityNodeBase(height, idx)
         {
+        };
+        
+        T &getUserData()
+        {
+            return userData;
         };
 
         const T &getUserData() const
         {
-            return *userData;
-        };
-    };
-
-    class TraversabilityNodeListBase
-    {
-        typedef std::multimap<float, TraversabilityNodeBase *> List;
-        List nodeList;
-     public:
-        TraversabilityNodeListBase();
-        const List &getNodes() const;
-
-        bool hasNodeforHeight(double height) const;
-        void addNode(TraversabilityNodeBase *node)
-        {
-            nodeList.insert(std::make_pair(node->getHeight(), node));
+            return userData;
         };
     };
 
     template <class T>
-    class TraversabilityNodeList
+    class TraversabilityMap3d : public ::maps::grid::MultiLevelGridMap<T>
     {
-        TraversabilityNodeListBase *base;
     public:
-
-        TraversabilityNodeList(TraversabilityNodeListBase *base);
-
-        const std::list<TraversabilityNodeBase *> &getNodes() const;
-
-        bool hasNodeforHeight(double height) const;
-        TraversabilityNode<T> *getNodeforHeight(double height) const;
-
-        TraversabilityNode<T> *addNode(const T* userData, const Index &idx, float height)
+        Eigen::Vector3f getNodePosition(const TraversabilityNodeBase *node) const
         {
-            TraversabilityNode<T> *newNode = new TraversabilityNode<T>(height, idx, userData);
-            base->addNode(newNode);
-        };
-    };
-
-
-    class TraversabilityMap3d : public ::maps::grid::GridMap<TraversabilityNodeListBase>
-    {
-    public:
-        Eigen::Vector3f getNodePosition(const TraversabilityNodeBase *node) const;
+            Eigen::Vector3d pos;
+            if(!this->fromGrid(node->getIndex(), pos))
+                throw std::runtime_error("Internal error, could not calculate position from index");
+            
+            pos.z() += node->getHeight();
+            
+            return pos.cast<float>();
+        }
 
     };
 
 }}
 
-#endif // TRAVERSABILITYMAP3D_H

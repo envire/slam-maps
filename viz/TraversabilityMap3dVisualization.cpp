@@ -7,7 +7,7 @@
 using namespace ::maps::grid;
 using namespace vizkit3d;
 
-vizkit3d::TraversabilityMap3dVisualization::TraversabilityMap3dVisualization(): Vizkit3DPlugin< ::maps::grid::TraversabilityMap3d >()
+vizkit3d::TraversabilityMap3dVisualization::TraversabilityMap3dVisualization(): Vizkit3DPlugin< ::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase> >()
 {
 
 }
@@ -25,7 +25,7 @@ osg::ref_ptr< osg::Node > vizkit3d::TraversabilityMap3dVisualization::createMain
 }
 
 
-void vizkit3d::TraversabilityMap3dVisualization::updateDataIntern(const ::maps::grid::TraversabilityMap3d& data)
+void vizkit3d::TraversabilityMap3dVisualization::updateDataIntern(const ::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase>& data)
 {
     map = data;
 }
@@ -92,11 +92,11 @@ void TraversabilityMap3dVisualization::visualizeConnection(const TraversabilityN
     connectionGroup->addChild(getCylinder(fromPos, toPos));
 }
 
-void vizkit3d::TraversabilityMap3dVisualization::addNodeList(const TraversabilityNodeListBase& l, osg::Group* group)
+void vizkit3d::TraversabilityMap3dVisualization::addNodeList(const LevelList<TraversabilityNodeBase>& l, osg::Group* group)
 {
-    for(const auto &entry: l.getNodes())
+    for(const auto &entry: l)
     {
-        visualizeNode(entry.second);
+        visualizeNode(&entry);
     }
 }
 
@@ -111,7 +111,7 @@ void vizkit3d::TraversabilityMap3dVisualization::updateMainNode(osg::Node* node)
     {
         for(size_t x = 0; x < map.getNumCells().x(); x++)
         {
-            const TraversabilityNodeListBase &l(map.at(x, y));
+            const LevelList<TraversabilityNodeBase> &l(map.at(x, y));
             addNodeList(l, group);
         }
         

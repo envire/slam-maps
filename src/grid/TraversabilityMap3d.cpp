@@ -3,18 +3,8 @@
 namespace maps { namespace grid
 {
 
-Eigen::Vector3f TraversabilityMap3d::getNodePosition(const TraversabilityNodeBase* node) const
-{
-    Eigen::Vector3d pos;
-    if(!fromGrid(node->getIndex(), pos))
-        throw std::runtime_error("Internal error, could not calculate position from index");
-    
-    pos.z() += node->getHeight();
-    
-    return pos.cast<float>();
-}
 
-TraversabilityNodeBase::TraversabilityNodeBase(float height, const Index& idx) : height(height), idx(idx)
+TraversabilityNodeBase::TraversabilityNodeBase(float height, const Index &idx) : height(height), idx(idx), type(UNSET), mIsExpanded(false)
 {
 
 }
@@ -38,17 +28,5 @@ const Index& TraversabilityNodeBase::getIndex() const
 {
     return idx;
 }
-
-TraversabilityNodeListBase::TraversabilityNodeListBase()
-{
-
-}
-
-const TraversabilityNodeListBase::List& TraversabilityNodeListBase::getNodes() const
-{
-    return nodeList;
-}
-
-
 
 }}
