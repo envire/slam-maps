@@ -43,7 +43,7 @@ namespace maps { namespace grid
                 ((a1 <= b1) && (a2 >= b1));
         }
     
-        View intersectCuboid(const Eigen::AlignedBox3f& box) const
+        View intersectCuboid(const Eigen::AlignedBox3d& box) const
         {
             double minHeight = box.min().z();
             double maxHeight = box.max().z();
@@ -52,11 +52,12 @@ namespace maps { namespace grid
             Index minIdx;
             Index maxIdx;
             
-            if(!this->toGrid(box.min().cast<double>(), minIdx))
+            if(!this->toGrid(box.min(), minIdx))
             {
                 return View();
             }
-            if(!this->toGrid(box.max().cast<double>(), maxIdx))
+
+            if(!this->toGrid(box.max(), maxIdx))
             {
                 return View();
             }
