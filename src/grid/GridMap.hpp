@@ -129,6 +129,15 @@ namespace maps { namespace grid
             return resolution;
         }
 
+        void setResolution(const Vector2d& newRes)
+        {
+            if(newRes.isApprox(resolution, 0.00001))
+                return;
+            
+            resolution = newRes;
+            this->clear();
+        }
+        
         Vector2d getSize() const
         {
             return resolution.array() * Vector2ui(getNumCells()).cast<double>().array();
