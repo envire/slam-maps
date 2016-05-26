@@ -23,6 +23,8 @@ namespace vizkit3d
         showNormals = true;
         showExtents = false;
 
+        geom->setUseVertexBufferObjects(true);
+
         geom->setVertexArray(vertices);
         geom->setNormalArray(normals);
         geom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
