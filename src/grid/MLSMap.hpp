@@ -30,7 +30,7 @@ namespace maps { namespace grid
             typedef LevelList<Patch> CellType; 
 
         MLSMap(
-                const Vector2ui &num_cells,
+                const Index &num_cells,
                 const Vector2d &resolution,
                 const MLSConfig &config_)
         : Base(num_cells, resolution)

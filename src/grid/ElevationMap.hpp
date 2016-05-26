@@ -13,7 +13,7 @@ namespace maps { namespace grid
     public:
         ElevationMap();
 
-        ElevationMap(const Vector2ui &num_cells, const Vector2d &resolution);
+        ElevationMap(const Index &num_cells, const Vector2d &resolution);
 
         ~ElevationMap();
 

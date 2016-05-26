@@ -31,7 +31,7 @@ namespace maps { namespace grid
         // initialize the structure of grid
         // no layers will be created
         // call createLayer to add some layers to grid
-        LayeredGridMap(const Vector2ui &num_cells, const Vector2d &resolution) 
+        LayeredGridMap(const Index &num_cells, const Vector2d &resolution)
             : LocalMap(maps::LocalMapType::GRID_MAP),
               num_cells(num_cells), 
               resolution(resolution)
@@ -133,7 +133,7 @@ namespace maps { namespace grid
         }
 
     private:
-        Vector2ui num_cells;
+        Index num_cells;
         Vector2d resolution;
 
         typedef std::map<std::string, LocalMap*> LayerType;

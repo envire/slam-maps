@@ -19,7 +19,7 @@ namespace maps { namespace grid
         std::vector<T> cells;
 
         /** Number of cells in X-axis and Y-axis **/
-        Vector2ui num_cells;
+        Index num_cells;
 
         /** Default value **/
         T default_value;
@@ -29,16 +29,16 @@ namespace maps { namespace grid
         typedef typename std::vector<T>::iterator iterator;
         typedef typename std::vector<T>::const_iterator const_iterator;
 
-        GridCell(Vector2ui size, T default_value) : num_cells(size), default_value(default_value)
+        GridCell(Index size, T default_value) : num_cells(size), default_value(default_value)
         {
             resize(size);
         }
 
-        GridCell(Vector2ui size) : GridCell(size, T())
+        GridCell(Index size) : GridCell(size, T())
         {
         }
 
-        GridCell() : GridCell(Vector2ui(0,0), T())
+        GridCell() : GridCell(Index(0,0), T())
         {
         }
 
@@ -71,7 +71,7 @@ namespace maps { namespace grid
             return cells.end();
         }
 
-        void resize(const Vector2ui &new_number_cells)
+        void resize(const Index &new_number_cells)
         {
             this->num_cells = new_number_cells;
             cells.resize(new_number_cells.prod(), default_value);
@@ -84,7 +84,7 @@ namespace maps { namespace grid
          */
         void moveBy(const Vector2i &idx)
         {
-            const Vector2ui num_cells(this->num_cells);
+            const Index num_cells(this->num_cells);
 
             // if all grid values should be moved outside
             if (abs(idx.x()) >= num_cells.x()
@@ -149,7 +149,7 @@ namespace maps { namespace grid
             return cells[x + y * num_cells.x()];
         }
         
-        const Vector2ui &getNumCells() const
+        const Index &getNumCells() const
         {
             return num_cells;
         };
@@ -176,7 +176,7 @@ namespace maps { namespace grid
         void serialize(Archive &ar, const unsigned int version)
         {
             ar & BOOST_SERIALIZATION_NVP(cells);
-            ar & BOOST_SERIALIZATION_NVP(num_cells);
+            ar & BOOST_SERIALIZATION_NVP(num_cells.derived());
             ar & BOOST_SERIALIZATION_NVP(default_value);
         }          
     };

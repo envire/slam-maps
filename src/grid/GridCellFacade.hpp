@@ -42,7 +42,7 @@ namespace maps { namespace grid
             return impl->end();
         }
 
-        void resize(const Vector2ui &new_number_cells)
+        void resize(const Index &new_number_cells)
         {
             impl->resize(new_number_cells);
         };
@@ -77,7 +77,7 @@ namespace maps { namespace grid
             return impl->at(Index(x,y));
         }
         
-        const Vector2ui &getNumCells() const
+        const Index &getNumCells() const
         {
             return impl->getNumCells();
         };

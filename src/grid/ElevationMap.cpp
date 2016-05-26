@@ -9,7 +9,7 @@ ElevationMap::ElevationMap()
    : GridMap<double>() 
 {}
 
-ElevationMap::ElevationMap(const Vector2ui &num_cells, const Vector2d &resolution)
+ElevationMap::ElevationMap(const Index &num_cells, const Vector2d &resolution)
    : GridMap<double>(num_cells, resolution, ELEVATION_DEFAULT)
 {}
 

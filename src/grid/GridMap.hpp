@@ -92,7 +92,7 @@ namespace maps { namespace grid
          * @param num_cell - number of cells in x and y direction
          * @param default_value - default value
          */
-        GridMap(const Vector2ui &num_cells,
+        GridMap(const Index &num_cells,
                 const Vector2d &resolution,
                 const T& default_value)
             : LocalMap(maps::LocalMapType::GRID_MAP),
@@ -101,7 +101,7 @@ namespace maps { namespace grid
         {
         }
 
-        GridMap(const Vector2ui &num_cells,
+        GridMap(const Index &num_cells,
                 const Vector2d &resolution,
                 const T& default_value,
                 const boost::shared_ptr<LocalMapData> &data)
@@ -140,14 +140,14 @@ namespace maps { namespace grid
         
         Vector2d getSize() const
         {
-            return resolution.array() * Vector2ui(getNumCells()).cast<double>().array();
+            return resolution.array() * getNumCells().template cast<double>().array();
         }
 
         bool inGrid(const Index& idx) const
         {
             // do not need to check idx against (0,0),
             // until idx is of type unsigned int
-            return idx.isInside(Index(getNumCells()));
+            return idx.isInside(getNumCells());
         }
 
         /** @brief get a position of an index from the Grid
@@ -201,7 +201,6 @@ namespace maps { namespace grid
             Vector2d pos_grid = Vector3d(this->getLocalFrame() * pos).head<2>();
 
             // Get the index for the pos_grid
-            // cast to float due to position which lies on the border between two cells
             Eigen::Vector2d idx_double = pos_grid.array() / resolution.array();
             Index idx_temp(std::floor(idx_double.x()), std::floor(idx_double.y()));
 
@@ -274,10 +273,10 @@ namespace maps { namespace grid
         const typename std::enable_if<std::is_arithmetic<Q>::value, Q>::type&
         getMax(const bool include_default_value = true) const
         {
-            Vector2ui numCells(getNumCells());
+            Index numCells(getNumCells());
 
             std::cout << "Num Cells is " << numCells.transpose() << std::endl;
-            if(numCells == Vector2ui(0,0))
+            if(numCells == Index(0,0))
                 throw std::runtime_error("Tried to compute max on empty map");
 
             auto it = this->begin();
@@ -331,10 +330,10 @@ namespace maps { namespace grid
         const typename std::enable_if<std::is_arithmetic<Q>::value, Q>::type&
         getMin(const bool include_default_value = true) const
         {
-            Vector2ui numCells(getNumCells());
+            Index numCells(getNumCells());
 
             std::cout << "Num Cells is " << numCells.transpose() << std::endl;
-            if(numCells == Vector2ui(0,0))
+            if(numCells == Index(0,0))
                 throw std::runtime_error("Tried to compute max on empty map");
 
             auto it = this->begin();
@@ -387,9 +386,9 @@ namespace maps { namespace grid
             }
         }
 
-        void extend(const Vector2ui &minSize)
+        void extend(const Index &minSize)
         {
-            Vector2ui newSize;
+            Index newSize;
             newSize.x() = std::max(minSize.x(), getNumCells().x());
             newSize.y() = std::max(minSize.y(), getNumCells().y());
             

@@ -43,7 +43,7 @@ namespace maps { namespace grid
             return ConstAccessIteratorImpl<T, TBASE, std::vector<T> >(storage->end());
         }
 
-        virtual void resize(Vector2ui new_number_cells)
+        virtual void resize(Index new_number_cells)
         {
             storage->resize(new_number_cells);
         };
@@ -73,7 +73,7 @@ namespace maps { namespace grid
             return static_cast<TBASE &>(storage->at(x, y));
         }
 
-        virtual const Vector2ui &getNumCells() const
+        virtual const Index &getNumCells() const
         {
             return storage->getNumCells();
         };
