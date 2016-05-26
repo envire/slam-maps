@@ -2,6 +2,7 @@
 
 #include "LevelList.hpp"
 #include "GridMap.hpp"
+#include "../tools/Overlap.hpp"
 
 namespace maps { namespace grid
 {
@@ -35,13 +36,6 @@ namespace maps { namespace grid
             {
             };
         };
-        
-        bool overlap( double a1, double a2, double b1, double b2 ) const
-        {
-            return 
-                ((a1 <= b2) && (a2 >= b2)) ||
-                ((a1 <= b1) && (a2 >= b1));
-        }
     
         View intersectCuboid(const Eigen::AlignedBox3d& box) const
         {
@@ -74,8 +68,10 @@ namespace maps { namespace grid
                     
                     for(const P &p: this->at(curIdx))
                     {
-                        if(overlap(p.getMin(), p.getMax(), minHeight, maxHeight))
+                        if(::maps::tools::overlap(p.getMin(), p.getMax(), minHeight, maxHeight))
+                        {
                             retList.insert(&p);
+                        }
                     }
                 }
             }
