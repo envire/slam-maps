@@ -6,7 +6,6 @@
 #include <base/Eigen.hpp>
 
 #include <Eigen/Core>
-#include <Eigen/Eigenvalues>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
@@ -172,18 +171,7 @@ public:
     Eigen::Vector3f getNormal() const
     {
         if(n<=1.0f) return Eigen::Vector3f::UnitZ();
-        typedef numeric::PlaneFitting<float>::Matrix3 Mat3;
-        Mat3 moments;
-        moments << plane.xx, plane.xy, plane.xz,
-                   plane.xy, plane.yy, plane.yz,
-                   plane.xz, plane.yz, plane.zz;
-        moments *= 1.0/plane.n;
-        Eigen::Vector3f mu = getCenter();
-
-        moments -= mu * mu.transpose();
-        Eigen::SelfAdjointEigenSolver<Mat3> eig;
-        eig.computeDirect(moments, Eigen::ComputeEigenvectors);
-        return eig.eigenvectors().col(0);
+        return plane.getNormal();
     }
 
     bool merge(const SurfacePatch& other, const MLSConfig& config)
