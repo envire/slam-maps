@@ -23,6 +23,10 @@ namespace maps { namespace grid
         TraversabilityNodeBase(float height, const Index &idx);
 
         float getHeight() const;
+        void setHeight(float newHeight)
+        {
+            height = newHeight;
+        }
 
         /**
          * Returns the index of this cell
@@ -94,6 +98,13 @@ namespace maps { namespace grid
     class TraversabilityMap3d : public ::maps::grid::MultiLevelGridMap<T>
     {
     public:
+        TraversabilityMap3d() {};
+        
+        TraversabilityMap3d(const Vector2ui &num_cells,
+                    const Eigen::Vector2d &resolution,
+                    const boost::shared_ptr<LocalMapData> &data) : MultiLevelGridMap<T>(num_cells, resolution, data)
+        {}
+
         Eigen::Vector3f getNodePosition(const TraversabilityNodeBase *node) const
         {
             Eigen::Vector3d pos;
