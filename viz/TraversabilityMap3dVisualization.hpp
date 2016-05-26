@@ -13,23 +13,25 @@ namespace vizkit3d
 {
 
 class TraversabilityMap3dVisualization        
-    : public vizkit3d::Vizkit3DPlugin<::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase>>
+    : public vizkit3d::Vizkit3DPlugin<::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase *>>
     , boost::noncopyable
 {
     Q_OBJECT
 
 protected:
-    virtual void updateDataIntern(const ::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase>& data);
+    virtual void updateDataIntern(const ::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase *>& data);
     virtual void updateMainNode(osg::Node* node);
     
     virtual osg::ref_ptr< osg::Node > createMainNode();
     
-    ::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase> map;
+    ::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase *> map;
 
-    void addNodeList(const ::maps::grid::LevelList<::maps::grid::TraversabilityNodeBase> &l, osg::Group* group);
+    void addNodeList(const ::maps::grid::LevelList<::maps::grid::TraversabilityNodeBase *> &l, osg::Group* group);
     
     void visualizeNode(const ::maps::grid::TraversabilityNodeBase *node);
     void visualizeConnection(const ::maps::grid::TraversabilityNodeBase *from, const ::maps::grid::TraversabilityNodeBase *to);
+    
+    osg::ref_ptr<osg::Geode> nodeGeode;
     
     osg::Group* nodeGroup;
     osg::Group* connectionGroup;
@@ -38,13 +40,10 @@ public:
     TraversabilityMap3dVisualization();
     virtual ~TraversabilityMap3dVisualization();
     
-    Q_INVOKABLE void updateData(::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase> const &sample)
+    Q_INVOKABLE void updateData(::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase *> const &sample)
     {
-        vizkit3d::Vizkit3DPlugin<::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase>>::updateData(sample);
+        vizkit3d::Vizkit3DPlugin<::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase *>>::updateData(sample);
     }
-
-    
-
 };
 
 }

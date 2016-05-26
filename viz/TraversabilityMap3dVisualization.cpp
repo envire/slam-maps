@@ -3,11 +3,12 @@
 #include <osg/Geode>
 #include <osg/ShapeDrawable>
 #include <osg/Material>
+#include "PatchesGeode.hpp"
 
 using namespace ::maps::grid;
 using namespace vizkit3d;
 
-vizkit3d::TraversabilityMap3dVisualization::TraversabilityMap3dVisualization(): Vizkit3DPlugin< ::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase> >()
+vizkit3d::TraversabilityMap3dVisualization::TraversabilityMap3dVisualization(): Vizkit3DPlugin< ::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase *> >()
 {
 
 }
@@ -25,7 +26,7 @@ osg::ref_ptr< osg::Node > vizkit3d::TraversabilityMap3dVisualization::createMain
 }
 
 
-void vizkit3d::TraversabilityMap3dVisualization::updateDataIntern(const ::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase>& data)
+void vizkit3d::TraversabilityMap3dVisualization::updateDataIntern(const maps::grid::TraversabilityMap3d< TraversabilityNodeBase* >& data)
 {
     map = data;
 }
@@ -64,39 +65,61 @@ osg::ref_ptr<osg::Geode> getCylinder(const Eigen::Vector3f &from, const Eigen::V
 }
 
 
-osg::ref_ptr<osg::Geode> getSphere(const Eigen::Vector3f &position)
+void addSphere(const Eigen::Vector3f &position, osg::ref_ptr<osg::Geode> geode)
 {
-    osg::ref_ptr<osg::Geode> geode = new osg::Geode();
-    osg::ref_ptr<osg::Sphere> sp = new osg::Sphere(eigenVectorToOsgVec3(position.cast<double>()), 0.01);
+    osg::ref_ptr<osg::Sphere> sp = new osg::Sphere(eigenVectorToOsgVec3(position.cast<double>()), 0.05);
+    
     osg::ref_ptr<osg::ShapeDrawable> spd = new osg::ShapeDrawable(sp);
     spd->setColor(osg::Vec4f(0, 1, 0, 1.0));
     geode->addDrawable(spd);
-    return geode;
 };
+
 
 void TraversabilityMap3dVisualization::visualizeNode(const TraversabilityNodeBase* node)
 {
     Eigen::Vector3f curNodePos = map.getNodePosition(node);
-    nodeGroup->addChild(getSphere(curNodePos));
+//     addSphere(curNodePos, nodeGeode);
+//     nodeGroup->addChild(sphere);
 
-    for(const TraversabilityNodeBase *conNode: node->getConnections())
+    PatchesGeode *geode = dynamic_cast<PatchesGeode *>(nodeGeode.get());
+    geode->setPosition(curNodePos.x(), curNodePos.y());
+//     std::cout << "Drawing Plane " << std::endl;
+    
+//     curNodePos.z() -= node->getHeight();
+    
+    if(fabs(node->getHeight()) > 30000)
     {
-        visualizeConnection(node, conNode);
+        std::cout << "TraversabilityMap3dVisualization:: Warning, ignoring node with height above +-30000 " << std::endl; 
+        return;
     }
+    
+    if(std::isnan(node->getHeight()))
+        throw std::runtime_error("FOOOOOOOO");
+    
+    geode->drawPlane(node->getHeight(), 0.5, osg::Vec3d(0,0,0), osg::Vec3d(0,0,1));
+    
+    
+//     std::cout << "Updating Node " << node->getIndex().transpose() << std::endl;
+
+//     for(const TraversabilityNodeBase *conNode: node->getConnections())
+//     {
+//         
+//         visualizeConnection(node, conNode);
+//     }
 }
 
 void TraversabilityMap3dVisualization::visualizeConnection(const TraversabilityNodeBase* from, const TraversabilityNodeBase* to)
 {
     Eigen::Vector3f toPos = map.getNodePosition(to);
     Eigen::Vector3f fromPos = map.getNodePosition(from);
-    connectionGroup->addChild(getCylinder(fromPos, toPos));
+//     connectionGroup->addChild(getCylinder(fromPos, toPos));
 }
 
-void vizkit3d::TraversabilityMap3dVisualization::addNodeList(const LevelList<TraversabilityNodeBase>& l, osg::Group* group)
+void vizkit3d::TraversabilityMap3dVisualization::addNodeList(const maps::grid::LevelList< TraversabilityNodeBase* >& l, osg::Group* group)
 {
     for(const auto &entry: l)
     {
-        visualizeNode(&entry);
+        visualizeNode(entry);
     }
 }
 
@@ -104,17 +127,34 @@ void vizkit3d::TraversabilityMap3dVisualization::updateMainNode(osg::Node* node)
 {
     osg::Group* group = static_cast<osg::Group*>(node);    
 
+    nodeGroup = group;
+    
     //clear old data
     group->removeChildren(0, group->getNumChildren());
 
+    std::cout << "Map resolution " << map.getResolution().transpose() << std::endl;
+//     nodeGeode = new osg::Geode();
+    nodeGeode = new PatchesGeode(map.getResolution().x(), map.getResolution().y());
+    group->addChild(nodeGeode);
+
+    
+    PatchesGeode *geode = dynamic_cast<PatchesGeode *>(nodeGeode.get());
+    geode->setColor(osg::Vec4d(1,0,0,1));
+    geode->setShowExtents(true);
+    geode->setShowNormals(true);
+    
+//     addSphere(Eigen::Vector3f(0,0,0), geode);
+    
     for(size_t y = 0; y < map.getNumCells().y(); y++)
     {
         for(size_t x = 0; x < map.getNumCells().x(); x++)
         {
-            const LevelList<TraversabilityNodeBase> &l(map.at(x, y));
+//             std::cout << "Cur Idx " << x << " " << y << std::endl;
+            const LevelList<TraversabilityNodeBase *> &l(map.at(x, y));
             addNodeList(l, group);
         }
         
     }
     
+//     geode->drawLines();
 }
