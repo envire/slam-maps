@@ -120,7 +120,7 @@ template<>
 class SurfacePatch<MLSConfig::SLOPE> : public SurfacePatchBase
 {
     typedef SurfacePatchBase Base;
-    base::PlaneFitting<float> plane;
+    numeric::PlaneFitting<float> plane;
     float n;
     TYPE type;
 public:
@@ -172,7 +172,7 @@ public:
     Eigen::Vector3f getNormal() const
     {
         if(n<=1.0f) return Eigen::Vector3f::UnitZ();
-        typedef base::PlaneFitting<float>::Matrix3 Mat3;
+        typedef numeric::PlaneFitting<float>::Matrix3 Mat3;
         Mat3 moments;
         moments << plane.xx, plane.xy, plane.xz,
                    plane.xy, plane.yy, plane.yz,
