@@ -67,7 +67,7 @@ namespace vizkit3d
         osg::Vec3 prev_p;
         enum { NONE, LOW, BOX, HIGH } prev_pos = NONE, pos;
         // calculate intersections in direction k:
-        for(int n=0; n<5; ++n)
+        for(int n=0; n<4; ++n)
         {
             osg::Vec3 p(0,0,0);
             float dotp = 0.0f;
