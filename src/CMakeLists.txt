@@ -29,6 +29,7 @@ rock_library(maps
         geometric/GeometricMap.hpp
         geometric/ContourMap.hpp
         tools/BresenhamLine.hpp
+        tools/Overlap.hpp
         operations/GridInterpolation.hpp
     DEPS_CMAKE
         Boost
