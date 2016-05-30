@@ -6,11 +6,20 @@ namespace maps { namespace grid
 const double ElevationMap::ELEVATION_DEFAULT = std::numeric_limits<double>::infinity();
 
 ElevationMap::ElevationMap() 
-   : GridMap<double>() 
+   : GridMapD() 
+{}
+
+ElevationMap::ElevationMap(const GridMapD &grid_map) 
+    : GridMapD(grid_map)
+{}
+
+
+ElevationMap::ElevationMap(const ElevationMap &elevation_map) 
+   : GridMapD(elevation_map) 
 {}
 
 ElevationMap::ElevationMap(const Index &num_cells, const Vector2d &resolution)
-   : GridMap<double>(num_cells, resolution, ELEVATION_DEFAULT)
+   : GridMapD(num_cells, resolution, ELEVATION_DEFAULT)
 {}
 
 ElevationMap::~ElevationMap()

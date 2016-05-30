@@ -16,6 +16,8 @@ namespace maps { namespace grid
         static const double  ELEVATION_DEFAULT;
     public:
         ElevationMap();
+        ElevationMap(const ElevationMap &elevation_map);
+        ElevationMap(const GridMapD &grid_map);
 
         ElevationMap(const Index &num_cells, const Vector2d &resolution);
 
