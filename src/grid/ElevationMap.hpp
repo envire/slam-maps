@@ -5,7 +5,11 @@
 
 namespace maps { namespace grid
 {
-    class ElevationMap : public GridMap<double>
+
+    /**@brief ElevationMap class
+     * It extends the typedef GridMapD with some convinient methods
+     */
+    class ElevationMap : public GridMapD
     {
     public:
         typedef boost::shared_ptr<double> Ptr;
