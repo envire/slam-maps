@@ -22,6 +22,10 @@ ElevationMap::ElevationMap(const Index &num_cells, const Vector2d &resolution)
    : GridMapD(num_cells, resolution, ELEVATION_DEFAULT)
 {}
 
+ElevationMap::ElevationMap(const Index &num_cells, const Vector2d &resolution, const double &default_value)
+   : GridMapD(num_cells, resolution, default_value)
+{}
+
 ElevationMap::~ElevationMap()
 {}
 
