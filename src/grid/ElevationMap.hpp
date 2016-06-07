@@ -7,19 +7,19 @@ namespace maps { namespace grid
 {
 
     /**@brief ElevationMap class
-     * It extends the typedef GridMapD with some convinient methods
+     * It extends the typedef GridMapF with some convinient methods
      */
-    class ElevationMap : public GridMapD
+    class ElevationMap : public GridMapF
     {
     public:
-        typedef boost::shared_ptr<double> Ptr;
-        static const double  ELEVATION_DEFAULT;
+        typedef boost::shared_ptr<float> Ptr;
+        static const float  ELEVATION_DEFAULT;
     public:
         ElevationMap();
         ElevationMap(const ElevationMap &elevation_map);
-        ElevationMap(const GridMapD &grid_map);
+        ElevationMap(const GridMapF &grid_map);
         ElevationMap(const Index &num_cells, const Vector2d &resolution);
-        ElevationMap(const Index &num_cells, const Vector2d &resolution, const double &default_value);
+        ElevationMap(const Index &num_cells, const Vector2d &resolution, const float &default_value);
 
         ~ElevationMap();
 
@@ -36,9 +36,9 @@ namespace maps { namespace grid
         * using the getNormal. The Height value is the value of the
         * plane at that point.
         */
-        double getMeanElevation(const Vector3d& pos) const;
+        float getMeanElevation(const Vector3d& pos) const;
 
-        std::pair<double, double> getElevationRange() const;   
+        std::pair<float, float> getElevationRange() const;   
     };
 }}
 

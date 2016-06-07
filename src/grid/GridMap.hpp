@@ -412,8 +412,8 @@ namespace maps { namespace grid
     /** Typedef Grid Map types **/
     typedef GridMap<char> GridMapC; /* Char type of grid maps **/
     typedef GridMap<int> GridMapI;  /* Integer type of grid maps **/
-    typedef GridMap<float> GridMapF; /* Float type of grid maps **/
-    typedef GridMap<double> GridMapD; /* double type of grid map. NOTE: use Eleveation Map for this type **/
+    typedef GridMap<float> GridMapF; /* Float type of grid maps NOTE: use Elevation Map for this type **/
+    typedef GridMap<double> GridMapD; /* double type of grid maps **/
 }}
 
 #endif /* __MAPS_GRIDMAP_HPP_ */
