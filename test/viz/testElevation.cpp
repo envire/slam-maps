@@ -68,8 +68,8 @@ BOOST_AUTO_TEST_CASE(elevviz_loop)
     for(unsigned int x=0; x< elev_map.getNumCells().x(); ++x )
         for(unsigned int y=0; y<elev_map.getNumCells().y(); ++y)
         {
-            double R = Eigen::Vector2d(x-75.,y-125.).cwiseProduct(elev_map.getResolution()).norm();
-            double r2 = 2*2 - std::pow(R-5.0, 2);
+            float R = Eigen::Vector2d(x-75.,y-125.).cwiseProduct(elev_map.getResolution()).norm();
+            float r2 = 2*2 - std::pow(R-5.0, 2);
             if(r2 >= 0)
             {
                 elev_map.at(x,y) = std::sqrt(r2);
