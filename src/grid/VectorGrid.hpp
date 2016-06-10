@@ -12,41 +12,48 @@
 namespace maps { namespace grid
 {
 
-    template <typename T>
-    class GridCell
+    template <typename CellT>
+    class VectorGrid
     {
-        /** The cells storage element **/
-        std::vector<T> cells;
+        /** The cells grid element **/
+        std::vector<CellT> cells;
 
         /** Number of cells in X-axis and Y-axis **/
         Index num_cells;
 
         /** Default value **/
-        T default_value;
+        CellT default_value;
 
     public:
 
-        typedef typename std::vector<T>::iterator iterator;
-        typedef typename std::vector<T>::const_iterator const_iterator;
+        typedef typename std::vector<CellT>::iterator iterator;
+        typedef typename std::vector<CellT>::const_iterator const_iterator;
 
-        GridCell(Index size, T default_value) : num_cells(size), default_value(default_value)
+        VectorGrid(Index size, CellT default_value) 
+            : num_cells(size), 
+              default_value(default_value)
         {
             resize(size);
         }
 
-        GridCell(Index size) : GridCell(size, T())
+        VectorGrid(Index size) 
+            : VectorGrid(size, CellT())
         {
         }
 
-        GridCell() : GridCell(Index(0,0), T())
+        VectorGrid() 
+            : VectorGrid(Index(0,0), CellT())
         {
         }
 
-        GridCell(const GridCell &other) : cells(other.cells), num_cells(other.num_cells), default_value(other.default_value)
+        VectorGrid(const VectorGrid &other) 
+            : cells(other.cells), 
+              num_cells(other.num_cells), 
+              default_value(other.default_value)
         {
         }
 
-        const T &getDefaultValue() const
+        const CellT &getDefaultValue() const
         {
             return default_value;
         }
@@ -94,7 +101,7 @@ namespace maps { namespace grid
                 return;
             }
 
-            std::vector<T> tmp;
+            std::vector<CellT> tmp;
             tmp.resize(num_cells.prod(), default_value);
 
             //copy pointers to new grid at new position
@@ -121,28 +128,28 @@ namespace maps { namespace grid
             moveBy(Eigen::Vector2i(idx.x(), idx.y()));
         }
 
-        const T& at(const Index &idx) const
+        const CellT& at(const Index &idx) const
         {
             if(idx.x() >= num_cells.x() || idx.y() >= num_cells.y())
                 throw std::runtime_error("Provided index is out of the grid");
             return cells[idx.x() + idx.y() * num_cells.x()];
         }
 
-        T& at(const Index &idx)
+        CellT& at(const Index &idx)
         {
             if(idx.x() >= num_cells.x() || idx.y() >= num_cells.y())
                 throw std::runtime_error("Provided index is out of the grid");
             return cells[idx.x() + idx.y() * num_cells.x()];
         }
 
-        const T& at(size_t x, size_t y) const
+        const CellT& at(size_t x, size_t y) const
         {
             if(x >= num_cells.x() || y >= num_cells.y())
                 throw std::runtime_error("Provided index is out of the grid");
             return cells[x + y * num_cells.x()];
         }
 
-        T& at(size_t x, size_t y)
+        CellT& at(size_t x, size_t y)
         {
             if(x >= num_cells.x() || y >= num_cells.y())
                 throw std::runtime_error("Provided index is out of the grid");
@@ -156,7 +163,7 @@ namespace maps { namespace grid
         
         void clear()
         {
-            for(T &e : cells)
+            for(CellT &e : cells)
             {
                 e = default_value;
             }

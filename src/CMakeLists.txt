@@ -20,10 +20,10 @@ rock_library(maps
         grid/MLSMap.hpp
         grid/TraversabilityMap3d.hpp
         grid/AccessIterator.hpp
-        grid/GridCell.hpp
-        grid/GridCellAccessInterface.hpp
-        grid/GridCellAccess.hpp
-        grid/GridCellFacade.hpp
+        grid/GridAccessInterface.hpp
+        grid/GridFacade.hpp        
+        grid/VectorGrid.hpp        
+        grid/VectorGridAccess.hpp
         geometric/Point.hpp
         geometric/LineSegment.hpp
         geometric/GeometricMap.hpp

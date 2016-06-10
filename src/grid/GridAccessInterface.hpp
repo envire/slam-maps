@@ -5,23 +5,19 @@
 
 namespace maps { namespace grid
 {
-    template <typename T>
-    class GridCellAccessInterface
+    template <typename CellBaseT>
+    class GridAccessInterface
     {
     public:
 
-        typedef AccessIterator<T> iterator;
-        typedef ConstAccessIterator<T> const_iterator;
+        typedef AccessIterator<CellBaseT> iterator;
+        typedef ConstAccessIterator<CellBaseT> const_iterator;
 
-        GridCellAccessInterface()
-        {
-        }
+        GridAccessInterface() {}
 
-        virtual ~GridCellAccessInterface()
-        {
-        }
+        virtual ~GridAccessInterface() {}
 
-        virtual const T &getDefaultValue() const = 0;
+        virtual const CellBaseT &getDefaultValue() const = 0;
 
         virtual iterator begin() = 0;
 
@@ -35,9 +31,9 @@ namespace maps { namespace grid
 
         virtual void moveBy(Index idx) = 0;
 
-        virtual const T& at(Index idx) const = 0;
+        virtual const CellBaseT& at(Index idx) const = 0;
 
-        virtual T& at(Index idx) = 0;
+        virtual CellBaseT& at(Index idx) = 0;
 
         virtual const Index &getNumCells() const = 0;
 

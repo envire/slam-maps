@@ -1,23 +1,17 @@
-#ifndef __MAPS_GRIDMAP_HPP_
-#define __MAPS_GRIDMAP_HPP_
-
 #pragma once
-
-#include <maps/LocalMap.hpp>
-#include <maps/grid/GridCell.hpp>
 
 /** std **/
 #include <iostream>
 #include <type_traits>
 
-
 /** Boost **/
 #include <boost/shared_ptr.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
-
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 
+#include <maps/LocalMap.hpp>
+#include <maps/grid/VectorGrid.hpp>
 
 namespace maps { namespace grid
 {
@@ -25,8 +19,8 @@ namespace maps { namespace grid
      * This map is a Grid structure for a raster metric (Cartesian) map
      * This map offers a template class for all maps that are regular grids
      */
-    template <typename T, typename R = GridCell<T> >
-    class GridMap: public LocalMap, public R
+    template <typename CellT, typename GridT = VectorGrid<CellT> >
+    class GridMap: public LocalMap, public GridT
     {
 
     private:
@@ -41,27 +35,27 @@ namespace maps { namespace grid
         Vector2d resolution;
 
     public:
-        typedef R GridCellType;
-        typedef T CellType;
+        typedef boost::shared_ptr<GridMap<CellT, GridT> > Ptr;
+        typedef const boost::shared_ptr<GridMap<CellT, GridT> > ConstPtr;
 
         GridMap() 
             : LocalMap(maps::LocalMapType::GRID_MAP),
-              R(),
+              GridT(),
               resolution(0,0)
         {
         }
 
         GridMap(const GridMap& other)
             : LocalMap(other), 
-              R(other),
+              GridT(other),
               resolution(other.resolution)
         {
         }
 
-        template<class T2, class R2>
-        GridMap(const GridMap<T2, R2>& other, const R& storage)
+        template<class CellT2, class GridStorageT2>
+        GridMap(const GridMap<CellT2, GridStorageT2>& other, const GridT& storage)
             : LocalMap(other)
-            , R(storage)
+            , GridT(storage)
             , resolution(other.getResolution())
         {
         }
@@ -94,19 +88,19 @@ namespace maps { namespace grid
          */
         GridMap(const Index &num_cells,
                 const Vector2d &resolution,
-                const T& default_value)
+                const CellT& default_value)
             : LocalMap(maps::LocalMapType::GRID_MAP),
-              R(num_cells, default_value),
+              GridT(num_cells, default_value),
               resolution(resolution)
         {
         }
 
         GridMap(const Index &num_cells,
                 const Vector2d &resolution,
-                const T& default_value,
+                const CellT& default_value,
                 const boost::shared_ptr<LocalMapData> &data)
             : LocalMap(data),
-              R(num_cells, default_value),
+              GridT(num_cells, default_value),
               resolution(resolution)
         {}
 
@@ -117,7 +111,7 @@ namespace maps { namespace grid
         }
 
     public:
-        using R::getNumCells;
+        using GridT::getNumCells;
 
         size_t getNumElements() const
         {
@@ -242,7 +236,7 @@ namespace maps { namespace grid
         }
 
 
-        const T& at(const Vector3d& pos) const
+        const CellT& at(const Vector3d& pos) const
         {
             Index idx;
             if (!this->toGrid(pos, idx))
@@ -250,7 +244,7 @@ namespace maps { namespace grid
             return at(idx);
         }
 
-        T& at(const Vector3d& pos)
+        CellT& at(const Vector3d& pos)
         {
             Index idx;
             if (!this->toGrid(pos, idx))
@@ -258,7 +252,7 @@ namespace maps { namespace grid
             return at(idx);
         }
 
-        using R::at;
+        using GridT::at;
 
         /**
          * @brief [brief description]
@@ -269,7 +263,7 @@ namespace maps { namespace grid
          *
          * @return [description]
          */
-        template<class Q = T>
+        template<class Q = CellT>
         const typename std::enable_if<std::is_arithmetic<Q>::value, Q>::type&
         getMax(const bool include_default_value = true) const
         {
@@ -326,7 +320,7 @@ namespace maps { namespace grid
          *
          * @return [description]
          */
-        template<class Q = T>
+        template<class Q = CellT>
         const typename std::enable_if<std::is_arithmetic<Q>::value, Q>::type&
         getMin(const bool include_default_value = true) const
         {
@@ -374,7 +368,7 @@ namespace maps { namespace grid
             }
         }
 
-        bool isDefault(const T &value) const
+        bool isDefault(const CellT &value) const
         {
             if (boost::math::isnan(this->getDefaultValue()))
             {
@@ -404,7 +398,7 @@ namespace maps { namespace grid
         void serialize(Archive &ar, const unsigned int version)
         {
             ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(::maps::LocalMap);
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(R);
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GridT);
             ar & BOOST_SERIALIZATION_NVP(resolution);
         }
     };
@@ -415,5 +409,3 @@ namespace maps { namespace grid
     typedef GridMap<float> GridMapF; /* Float type of grid maps **/
     typedef GridMap<double> GridMapD; /* double type of grid map. NOTE: use Eleveation Map for this type **/
 }}
-
-#endif /* __MAPS_GRIDMAP_HPP_ */

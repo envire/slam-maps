@@ -47,11 +47,11 @@ protected:
     }
 };
 
-BOOST_AUTO_TEST_CASE(test_gridcell_serialization)
+BOOST_AUTO_TEST_CASE(test_grid_serialization)
 {
     A default_value(-5.5, 3);
     Vector2ui storage_size(2, 3);
-    GridCell<A> storage_o(storage_size, default_value);
+    VectorGrid<A> storage_o(storage_size, default_value);
 
     // a dv dv
     // dv a dv
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(test_gridcell_serialization)
 
     // deserialize from string stream
     boost::archive::polymorphic_binary_iarchive *ia = new boost::archive::polymorphic_binary_iarchive(stream);
-    GridCell<A> storage_i;
+    VectorGrid<A> storage_i;
     (*ia) >> storage_i; 
 
     BOOST_CHECK(storage_i.getDefaultValue() == storage_o.getDefaultValue()); 

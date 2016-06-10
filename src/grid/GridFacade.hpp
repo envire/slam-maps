@@ -1,23 +1,23 @@
 #pragma once
 
-#include "GridCellAccessInterface.hpp"
+#include "GridAccessInterface.hpp"
 
 namespace maps { namespace grid
 {
-    template <typename T>
-    class GridCellFacade
+    template <typename CellBaseT>
+    class GridFacade
     {
-        GridCellAccessInterface<T> *impl;
+        GridAccessInterface<CellBaseT> *impl;
     public:
         
-        typedef AccessIterator<T> iterator;
-        typedef ConstAccessIterator<T> const_iterator;
+        typedef AccessIterator<CellBaseT> iterator;
+        typedef ConstAccessIterator<CellBaseT> const_iterator;
         
-        GridCellFacade(GridCellAccessInterface<T> *impl) : impl(impl)
+        GridFacade(GridAccessInterface<CellBaseT> *impl) : impl(impl)
         {
         }
 
-        const T &getDefaultValue() const
+        const CellBaseT &getDefaultValue() const
         {
             return impl->getDefaultValue();
         }
@@ -57,22 +57,22 @@ namespace maps { namespace grid
 //             impl->moveBy(idx);
         }
         
-        const T& at(const Index &idx) const
+        const CellBaseT& at(const Index &idx) const
         {
             return impl->at(idx);
         }
 
-        T& at(const Index &idx)
+        CellBaseT& at(const Index &idx)
         {
             return impl->at(idx);
         }
 
-        const T& at(size_t x, size_t y) const
+        const CellBaseT& at(size_t x, size_t y) const
         {
             return impl->at(Index(x,y));
         }
 
-        T& at(size_t x, size_t y)
+        CellBaseT& at(size_t x, size_t y)
         {
             return impl->at(Index(x,y));
         }
