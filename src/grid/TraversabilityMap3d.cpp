@@ -4,7 +4,7 @@ namespace maps { namespace grid
 {
 
 
-TraversabilityNodeBase::TraversabilityNodeBase(float height, const Index &idx) : height(height), idx(idx), type(UNSET), mIsExpanded(false)
+TraversabilityNodeBase::TraversabilityNodeBase(float height, const Index &idx) : height(height), idx(idx), type(UNSET), mIsExpanded(false), distToStart(0.0)
 {
 
 }

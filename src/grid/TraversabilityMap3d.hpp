@@ -61,6 +61,16 @@ namespace maps { namespace grid
         {
             return type;
         }
+
+        double getDistToStart() const
+        {
+            return distToStart;
+        }
+        
+        void setDistToStart(double newDist)
+        {
+            distToStart = newDist;
+        }
         
     protected:
         std::vector<TraversabilityNodeBase *> connections;
@@ -70,7 +80,7 @@ namespace maps { namespace grid
         ///detemines wether this node is a candidate or a final node
         bool mIsExpanded;
     
-        
+        double distToStart;
     };
 
     template <class T>
@@ -102,7 +112,7 @@ namespace maps { namespace grid
         
         TraversabilityMap3d(const Index &num_cells,
                     const Eigen::Vector2d &resolution,
-                    const boost::shared_ptr<LocalMapData> &data) : MultiLevelGridMap<T>(num_cells, resolution, data)
+                    const boost::shared_ptr<LocalMapData> &data) : MultiLevelGridMap<T>(num_cells, resolution, data), maxDist(0.0)
         {}
 
         Eigen::Vector3f getNodePosition(const TraversabilityNodeBase *node) const
@@ -115,6 +125,8 @@ namespace maps { namespace grid
             
             return pos.cast<float>();
         }
+        
+        double maxDist;
 
     };
 
