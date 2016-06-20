@@ -87,6 +87,25 @@ void TraversabilityMap3dVisualization::visualizeNode(const TraversabilityNodeBas
     
 //     curNodePos.z() -= node->getHeight();
     
+    switch(node->getType())
+    {
+        case TraversabilityNodeBase::OBSTACLE:
+            geode->setColor(osg::Vec4d(1,0,0,1));
+            break;
+        case TraversabilityNodeBase::UNKNOWN:
+            geode->setColor(osg::Vec4d(1,0,1,1));
+            break;
+        case TraversabilityNodeBase::TRAVERSABLE:
+        {
+            double color = 1.0 / map.maxDist * node->getDistToStart();
+            
+            geode->setColor(osg::Vec4d(0,color,0,1));
+            break;
+        }
+        default:
+            geode->setColor(osg::Vec4d(0,0,1,1));
+    }
+    
     if(fabs(node->getHeight()) > 30000)
     {
         std::cout << "TraversabilityMap3dVisualization:: Warning, ignoring node with height above +-30000 " << std::endl; 
