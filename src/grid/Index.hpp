@@ -28,24 +28,24 @@ namespace maps { namespace grid
     /**@brief Internal structure used to represent a position on the grid
      * itself, as a cell index
      */
-    class Index : public Vector2ui
+    class Index : public Vector2i
     {
         public:
-            typedef Vector2ui Base;
+            typedef Vector2i Base;
 
             Index()
-                :  Vector2ui(0, 0)
+                :  Vector2i(0, 0)
             {}
 
-            Index(unsigned int x, unsigned int y) 
-                : Vector2ui(x, y)
+            Index(int x, int y) 
+                : Vector2i(x, y)
             {}
 
             /* @brief this constructor allows you to construct Index from Eigen expressions
              */
             template<typename OtherDerived>
             Index(const Eigen::MatrixBase<OtherDerived>& other)
-                : Vector2ui(other)
+                : Vector2i(other)
             {}
 
             /**
@@ -58,6 +58,18 @@ namespace maps { namespace grid
             {
                 return (x() < other.x() && y() < other.y());
             }
+
+            /**
+             * @brief Check if index is inside cell size.
+             * @details 
+             * Returns true if x and y of index are smaller the x and y of other
+             * @return [description]
+             */
+            bool isInside(const Vector2ui& other) const
+            {
+                return (x() < static_cast<int>(other.x()) && y() < static_cast<int>(other.y())) && (x() >= 0.00 && y() >= 0.00);
+            }
+
     };
 
     /** @brief Lexicographical ordering (Strict Total Ordering)

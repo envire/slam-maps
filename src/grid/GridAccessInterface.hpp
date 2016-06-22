@@ -27,7 +27,7 @@ namespace maps { namespace grid
 
         virtual const_iterator end() const = 0;
 
-        virtual void resize(Index new_number_cells) = 0;
+        virtual void resize(Vector2ui new_number_cells) = 0;
 
         virtual void moveBy(Index idx) = 0;
 
@@ -35,7 +35,7 @@ namespace maps { namespace grid
 
         virtual CellBaseT& at(Index idx) = 0;
 
-        virtual const Index &getNumCells() const = 0;
+        virtual const Vector2ui &getNumCells() const = 0;
 
         virtual void clear() = 0;
     };

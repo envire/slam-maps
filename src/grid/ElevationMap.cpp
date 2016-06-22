@@ -18,11 +18,11 @@ ElevationMap::ElevationMap(const ElevationMap &elevation_map)
    : GridMapF(elevation_map) 
 {}
 
-ElevationMap::ElevationMap(const Index &num_cells, const Vector2d &resolution)
+ElevationMap::ElevationMap(const Vector2ui &num_cells, const Vector2d &resolution)
    : GridMapF(num_cells, resolution, ELEVATION_DEFAULT)
 {}
 
-ElevationMap::ElevationMap(const Index &num_cells, const Vector2d &resolution, const float &default_value)
+ElevationMap::ElevationMap(const Vector2ui &num_cells, const Vector2d &resolution, const float &default_value)
    : GridMapF(num_cells, resolution, default_value)
 {}
 
@@ -74,7 +74,7 @@ float ElevationMap::getMeanElevation(const Vector3d& pos) const
     if (at(idx) == ELEVATION_DEFAULT)
         return ELEVATION_DEFAULT;
 
-    Vector3d pos_t;
+    Vector3d pos_t(0.00, 0.00, 0.00);
     fromGrid(idx, pos_t);
 
     //X and Y in the cell

@@ -42,7 +42,7 @@ namespace maps { namespace grid
             return impl->end();
         }
 
-        void resize(const Index &new_number_cells)
+        void resize(const Vector2ui &new_number_cells)
         {
             impl->resize(new_number_cells);
         };
@@ -52,11 +52,6 @@ namespace maps { namespace grid
             impl->moveBy(idx);
         }
 
-        void moveBy(const Eigen::Vector2i &idx)
-        {
-//             impl->moveBy(idx);
-        }
-        
         const CellBaseT& at(const Index &idx) const
         {
             return impl->at(idx);

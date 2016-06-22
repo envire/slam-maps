@@ -18,8 +18,8 @@ namespace maps { namespace grid
         ElevationMap();
         ElevationMap(const ElevationMap &elevation_map);
         ElevationMap(const GridMapF &grid_map);
-        ElevationMap(const Index &num_cells, const Vector2d &resolution);
-        ElevationMap(const Index &num_cells, const Vector2d &resolution, const float &default_value);
+        ElevationMap(const Vector2ui &num_cells, const Vector2d &resolution);
+        ElevationMap(const Vector2ui &num_cells, const Vector2d &resolution, const float &default_value);
 
         ~ElevationMap();
 

@@ -24,13 +24,13 @@ namespace maps { namespace grid
     template<enum MLSConfig::update_model  SurfaceType>
     class MLSMap : public MultiLevelGridMap<SurfacePatch<SurfaceType> >
     {
-        public:    
+        public:
             typedef SurfacePatch<SurfaceType> Patch;
             typedef MultiLevelGridMap<Patch> Base;
             typedef LevelList<Patch> CellType; 
 
         MLSMap(
-                const Index &num_cells,
+                const Vector2ui &num_cells,
                 const Vector2d &resolution,
                 const MLSConfig &config_)
         : Base(num_cells, resolution)

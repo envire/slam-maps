@@ -110,7 +110,7 @@ namespace maps { namespace grid
     public:
         TraversabilityMap3d() {};
         
-        TraversabilityMap3d(const Index &num_cells,
+        TraversabilityMap3d(const Vector2ui &num_cells,
                     const Eigen::Vector2d &resolution,
                     const boost::shared_ptr<LocalMapData> &data) : MultiLevelGridMap<T>(num_cells, resolution, data), maxDist(0.0)
         {}
