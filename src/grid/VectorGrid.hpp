@@ -19,7 +19,7 @@ namespace maps { namespace grid
         std::vector<CellT> cells;
 
         /** Number of cells in X-axis and Y-axis **/
-        Index num_cells;
+        Vector2ui num_cells;
 
         /** Default value **/
         CellT default_value;
@@ -29,20 +29,20 @@ namespace maps { namespace grid
         typedef typename std::vector<CellT>::iterator iterator;
         typedef typename std::vector<CellT>::const_iterator const_iterator;
 
-        VectorGrid(Index size, CellT default_value) 
+        VectorGrid(Vector2ui size, CellT default_value) 
             : num_cells(size), 
               default_value(default_value)
         {
             resize(size);
         }
 
-        VectorGrid(Index size) 
+        VectorGrid(Vector2ui size) 
             : VectorGrid(size, CellT())
         {
         }
 
         VectorGrid() 
-            : VectorGrid(Index(0,0), CellT())
+            : VectorGrid(Vector2ui(0,0), CellT())
         {
         }
 
@@ -57,7 +57,7 @@ namespace maps { namespace grid
         {
             return default_value;
         }
-        
+
         iterator begin()
         {
             return cells.begin();
@@ -78,7 +78,7 @@ namespace maps { namespace grid
             return cells.end();
         }
 
-        void resize(const Index &new_number_cells)
+        void resize(const Vector2ui &new_number_cells)
         {
             this->num_cells = new_number_cells;
             cells.resize(new_number_cells.prod(), default_value);
@@ -89,9 +89,9 @@ namespace maps { namespace grid
          * @details by the offset described in the argument
          * @return void
          */
-        void moveBy(const Vector2i &idx)
+        void moveBy(const Index &idx)
         {
-            const Index num_cells(this->num_cells);
+            const Vector2ui num_cells(this->num_cells);
 
             // if all grid values should be moved outside
             if (abs(idx.x()) >= num_cells.x()
@@ -123,11 +123,6 @@ namespace maps { namespace grid
             cells.swap(tmp);
         }
 
-        void moveBy(const Index &idx)
-        {
-            moveBy(Eigen::Vector2i(idx.x(), idx.y()));
-        }
-
         const CellT& at(const Index &idx) const
         {
             if(idx.x() >= num_cells.x() || idx.y() >= num_cells.y())
@@ -156,7 +151,7 @@ namespace maps { namespace grid
             return cells[x + y * num_cells.x()];
         }
         
-        const Index &getNumCells() const
+        const Vector2ui &getNumCells() const
         {
             return num_cells;
         };

@@ -19,7 +19,7 @@ BOOST_AUTO_TEST_CASE(test_index)
     BOOST_CHECK_EQUAL(index2.y(), 4);
 
     // Check constructor using Eigen expressions
-    Index index3(Eigen::Matrix<unsigned int, 2, 1>(3, 4));
+    Index index3(Eigen::Matrix<int, 2, 1>(3, 4));
     BOOST_CHECK_EQUAL(index3.x(), 3);
     BOOST_CHECK_EQUAL(index3.y(), 4);
 

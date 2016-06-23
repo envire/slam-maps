@@ -86,7 +86,7 @@ namespace maps { namespace grid
          * @param num_cell - number of cells in x and y direction
          * @param default_value - default value
          */
-        GridMap(const Index &num_cells,
+        GridMap(const Vector2ui &num_cells,
                 const Vector2d &resolution,
                 const CellT& default_value)
             : LocalMap(maps::LocalMapType::GRID_MAP),
@@ -95,7 +95,7 @@ namespace maps { namespace grid
         {
         }
 
-        GridMap(const Index &num_cells,
+        GridMap(const Vector2ui &num_cells,
                 const Vector2d &resolution,
                 const CellT& default_value,
                 const boost::shared_ptr<LocalMapData> &data)
@@ -267,10 +267,10 @@ namespace maps { namespace grid
         const typename std::enable_if<std::is_arithmetic<Q>::value, Q>::type&
         getMax(const bool include_default_value = true) const
         {
-            Index numCells(getNumCells());
+            Vector2ui num_cells(getNumCells());
 
-            std::cout << "Num Cells is " << numCells.transpose() << std::endl;
-            if(numCells == Index(0,0))
+            std::cout << "Num Cells is " << num_cells.transpose() << std::endl;
+            if(num_cells == Vector2ui(0,0))
                 throw std::runtime_error("Tried to compute max on empty map");
 
             auto it = this->begin();
@@ -324,10 +324,10 @@ namespace maps { namespace grid
         const typename std::enable_if<std::is_arithmetic<Q>::value, Q>::type&
         getMin(const bool include_default_value = true) const
         {
-            Index numCells(getNumCells());
+            Vector2ui num_cells(getNumCells());
 
-            std::cout << "Num Cells is " << numCells.transpose() << std::endl;
-            if(numCells == Index(0,0))
+            std::cout << "Num Cells is " << num_cells.transpose() << std::endl;
+            if(num_cells == Vector2ui(0,0))
                 throw std::runtime_error("Tried to compute max on empty map");
 
             auto it = this->begin();
@@ -380,15 +380,15 @@ namespace maps { namespace grid
             }
         }
 
-        void extend(const Index &minSize)
+        void extend(const Vector2ui &minSize)
         {
-            Index newSize;
+            Vector2ui newSize;
             newSize.x() = std::max(minSize.x(), getNumCells().x());
-            newSize.y() = std::max(minSize.y(), getNumCells().y());
-            
+            newSize.x() = std::max(minSize.y(), getNumCells().y());
+
             this->resize(newSize);
         }
-        
+
     protected:
         /** Grants access to boost serialization */
         friend class boost::serialization::access;

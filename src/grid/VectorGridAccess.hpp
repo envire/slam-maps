@@ -42,7 +42,7 @@ namespace maps { namespace grid
             return ConstAccessIteratorImpl<CellT, CellBaseT, std::vector<CellT> >(grid->end());
         }
 
-        virtual void resize(Index new_number_cells)
+        virtual void resize(Vector2ui new_number_cells)
         {
             grid->resize(new_number_cells);
         };
@@ -72,7 +72,7 @@ namespace maps { namespace grid
             return static_cast<CellBaseT &>(grid->at(x, y));
         }
 
-        virtual const Index &getNumCells() const
+        virtual const Vector2ui &getNumCells() const
         {
             return grid->getNumCells();
         };
