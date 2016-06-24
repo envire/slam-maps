@@ -56,7 +56,9 @@ namespace maps { namespace grid
                 return View();
             }
             
-            View ret(maxIdx-minIdx, this->getResolution());
+            Index newSize(maxIdx-minIdx);
+            
+            View ret(Vector2ui(newSize.x(), newSize.y()) , this->getResolution());
             
             for(size_t x = minIdx.x();x < maxIdx.x(); x++)
             {
