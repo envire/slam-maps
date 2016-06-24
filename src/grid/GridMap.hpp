@@ -145,11 +145,17 @@ namespace maps { namespace grid
         }
 
         /** @brief get a position of an index from the Grid
+         * 
+         *  By default this function checks, if the index is within the grid,
+         *  and returns false if the index is out of the grid.
+         * 
+         *  If the index is inside the grid, or checkIndex is set to false,
+         *  this function will convert the given position into frame coordinates.
          * */
-        bool fromGrid(const Index& idx, Vector3d& pos) const
+        bool fromGrid(const Index& idx, Vector3d& pos, bool checkIndex = true) const
         {
             /** Index inside the grid **/
-            if (inGrid(idx))
+            if (!checkIndex || (checkIndex && inGrid(idx)))
             {
                 // position at the cell center without offset transformation
                 Vector2d center = (idx.cast<double>() + Vector2d(0.5, 0.5)).array() * resolution.array();
@@ -190,25 +196,16 @@ namespace maps { namespace grid
          * */
         bool toGrid(const Vector3d& pos, Index& idx, Vector3d &pos_diff) const
         {
-            // Get the 2D position without the offset (in grid_frame)
-            // pos_grid = Tgrid_local pos_local
-            Vector2d pos_grid = Vector3d(this->getLocalFrame() * pos).head<2>();
-
-            // Get the index for the pos_grid
-            Eigen::Vector2d idx_double = pos_grid.array() / resolution.array();
-            Index idx_temp(std::floor(idx_double.x()), std::floor(idx_double.y()));
-
-            Vector3d center;
-            if(inGrid(idx_temp) && fromGrid(idx_temp, center))
+            if(toGrid(pos, idx))
             {
-                idx = idx_temp;
-                pos_diff = pos - center;
-                return true;
+                Vector3d center;
+                if(inGrid(idx) && fromGrid(idx, center))
+                {
+                    pos_diff = pos - center;
+                    return true;
+                }
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         /** @brief get an index of a position in the map applying an offset set
@@ -225,16 +222,29 @@ namespace maps { namespace grid
             /** pos_in_map = Tmap_frame * pos_in_frame **/
             Eigen::Vector3d pos_in_map = frame_in_map * pos_in_frame;
 
-            Eigen::Vector3d pos_diff;
-            return toGrid(pos_in_map, idx, pos_diff);
+            return toGrid(pos_in_map, idx);
         }
 
-        bool toGrid(const Vector3d& pos, Index& idx) const 
+        bool toGrid(const Vector3d& pos, Index& idx, bool checkIndex = true) const 
         {
-            Vector3d pos_diff;
-            return toGrid(pos, idx, pos_diff);
-        }
+            // Get the 2D position without the offset (in grid_frame)
+            // pos_grid = Tgrid_local pos_local
+            Vector2d pos_grid = Vector3d(this->getLocalFrame() * pos).head<2>();
 
+            // Get the index for the pos_grid
+            Eigen::Vector2d idx_double = pos_grid.array() / resolution.array();
+            
+            Index idx_temp(std::floor(idx_double.x()), std::floor(idx_double.y()));
+
+            if(checkIndex && !inGrid(idx_temp))
+            {
+                return false;
+            }
+            
+            idx = idx_temp;
+            
+            return true;
+        }
 
         const CellT& at(const Vector3d& pos) const
         {

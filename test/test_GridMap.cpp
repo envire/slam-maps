@@ -99,6 +99,28 @@ BOOST_AUTO_TEST_CASE(test_grid_index_in_grid)
     BOOST_CHECK_EQUAL(grid.inGrid(Index(2, -1)), false);        // outside
 }
 
+BOOST_AUTO_TEST_CASE(test_from_grid_no_check)
+{
+    //Grid of 10x100
+    GridMap<double> grid(Vector2ui(100, 200), Vector2d(0.1, 0.5), -5.5);
+
+    Eigen::Vector3d pos;
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(0, 0), pos), true);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.05, 0.25, 0.), 0.0001), true);
+    BOOST_TEST_MESSAGE("Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
+
+    BOOST_CHECK_EQUAL(grid.fromGrid(Index(-1, -1), pos, false), true);
+    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(-0.05, -0.25, 0.), 0.0001), true);
+    BOOST_TEST_MESSAGE("Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
+    
+    Index idx;
+    BOOST_CHECK_EQUAL(grid.toGrid(pos, idx, false), true);
+    BOOST_CHECK_EQUAL(Index(-1, -1) == idx, true);
+    BOOST_TEST_MESSAGE("Position from grid: "<<pos[0]<<","<<pos[1]<<","<<pos[2]);
+    
+    
+}
+
 BOOST_AUTO_TEST_CASE(test_grid_copy)
 {
     Vector2ui num_cells(100, 200);
