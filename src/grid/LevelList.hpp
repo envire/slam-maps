@@ -41,11 +41,7 @@ protected:
     friend class boost::serialization::access;
 
     /** Serializes the members of this class*/
-    template <typename Archive>
-    void serialize(Archive &ar, const unsigned int version)
-    {
-        boost::serialization::split_member(ar, *this, version);
-    }
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
     template<class Archive>
     void load(Archive &ar, const unsigned int version)
     {
