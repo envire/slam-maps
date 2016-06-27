@@ -392,10 +392,7 @@ namespace maps { namespace grid
 
         void extend(const Vector2ui &minSize)
         {
-            Vector2ui newSize;
-            newSize.x() = std::max(minSize.x(), getNumCells().x());
-            newSize.y() = std::max(minSize.y(), getNumCells().y());
-
+            Vector2ui newSize = minSize.cwiseMax(getNumCells());
             this->resize(newSize);
         }
 
