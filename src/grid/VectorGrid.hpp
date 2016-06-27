@@ -26,6 +26,7 @@ namespace maps { namespace grid
 
     public:
 
+        typedef CellT CellType;
         typedef typename std::vector<CellT>::iterator iterator;
         typedef typename std::vector<CellT>::const_iterator const_iterator;
 
