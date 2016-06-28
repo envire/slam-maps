@@ -1,3 +1,4 @@
+#define BOOST_TEST_MODULE GeometricTest
 #include <boost/test/unit_test.hpp>
 
 /** Geometric Contour Map **/

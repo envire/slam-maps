@@ -1,4 +1,6 @@
+#define BOOST_TEST_MODULE GridTest
 #include <boost/test/unit_test.hpp>
+
 #include <maps/LocalMap.hpp>
 
 #include <iostream>

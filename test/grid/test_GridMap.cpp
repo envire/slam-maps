@@ -1,4 +1,6 @@
+#define BOOST_TEST_MODULE GridTest
 #include <boost/test/unit_test.hpp>
+
 #include <maps/grid/GridMap.hpp>
 
 #include <boost/math/special_functions/fpclassify.hpp>

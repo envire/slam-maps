@@ -1,7 +1,7 @@
-
+#define BOOST_TEST_MODULE ToolsTest
 #include <boost/test/unit_test.hpp>
 
-#include "tools/GeneratePointclouds.hpp"
+#include "GeneratePointclouds.hpp"
 
 
 using namespace ::maps;
