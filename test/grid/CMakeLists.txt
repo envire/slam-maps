@@ -12,7 +12,7 @@ rock_testsuite(test_gridmap
    test_GridMap.cpp
    DEPS maps)
 
-rock_testsuite(test_mlGrid
+rock_testsuite(test_mlgrid
    test_MLGrid.cpp
    DEPS maps)
 
@@ -21,6 +21,6 @@ rock_testsuite(test_layeredgridmap
    DEPS maps)
 
 
-#rock_testsuite(test_sp_list
+#rock_testsuite(test_splist
 #   test_SPList.cpp
 #   DEPS maps)
