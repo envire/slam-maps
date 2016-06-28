@@ -59,6 +59,12 @@ BOOST_AUTO_TEST_CASE(test_index)
     // check the sum operator
     BOOST_CHECK((index2 + Index(3, 5)) == Index(5, 9));     //(2,4) + (3,5) = (5,9)
 
+    // check the sum operator
+    BOOST_CHECK((index2 + Index(-3, -5)) == Index(-1, -1)); //(2,4) + (-3, -5) = (-1,-1)
+
     // check the subtract operator
     BOOST_CHECK((Index(5, 9) - index2) == Index(3, 5));     //(5,9) - (2,4) = (3,5)
+
+    // check the subtract operator
+    BOOST_CHECK((index2 - Index(5, 9)) == Index(-3, -5));   //(2,4) - (5,9) = (-3, -5)    
 }

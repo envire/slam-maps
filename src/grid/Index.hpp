@@ -34,7 +34,7 @@ namespace maps { namespace grid
             typedef Vector2i Base;
 
             Index()
-                :  Vector2i(0, 0)
+                : Vector2i(0, 0)
             {}
 
             Index(int x, int y) 
