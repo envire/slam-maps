@@ -12,6 +12,9 @@
 
 #include <maps/grid/ElevationMap.hpp>
 
+// TODO: should be replace by GridMapVisualization,
+// since the ElevationMap is specification of GridMap
+
 namespace vizkit3d
 {
     class ElevationMapVisualization

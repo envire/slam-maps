@@ -20,6 +20,11 @@ rock_testsuite(test_viz_countourmap
     DEPS maps-viz
     DEPS_PKGCONFIG vizkit3d  vizkit3d-viz)
 
+rock_testsuite(test_viz_gridmap
+    test_viz_GridMap.cpp
+    DEPS maps-viz
+    DEPS_PKGCONFIG vizkit3d  vizkit3d-viz)
+
 rock_executable(deserialize_test 
     DeserializeVizTest.cpp
     DEPS_CMAKE Boost

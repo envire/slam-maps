@@ -1,5 +1,7 @@
 // Code available at: http://www.andrewnoske.com/wiki/Code_-_heatmaps_and_color_gradients
 
+// TODO: this can be moved to vizkit3d
+
 #include <vector>
 
 namespace vizkit3d

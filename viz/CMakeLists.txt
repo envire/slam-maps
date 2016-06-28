@@ -1,4 +1,5 @@
 rock_vizkit_plugin(maps-viz
+        GridMapVisualization.cpp
         ElevationMapVisualization.cpp
         MLSMapVisualization.cpp
         PatchesGeode.cpp
@@ -10,11 +11,13 @@ rock_vizkit_plugin(maps-viz
     DEPS_PKGCONFIG 
         base-viz vizkit3d  vizkit3d-viz
     MOC 
+        GridMapVisualization.hpp
         ElevationMapVisualization.hpp
         MLSMapVisualization.hpp
         TraversabilityMap3dVisualization.hpp
         ContourMapVisualization.hpp
     HEADERS 
+        GridMapVisualization.hpp
         ElevationMapVisualization.hpp
         MLSMapVisualization.hpp
         TraversabilityMap3dVisualization.hpp
