@@ -11,6 +11,7 @@ rock_vizkit_plugin(maps-viz
     DEPS_PKGCONFIG 
         base-viz vizkit3d  vizkit3d-viz
     MOC 
+        ColorGradient.hpp
         GridMapVisualization.hpp
         ElevationMapVisualization.hpp
         MLSMapVisualization.hpp
@@ -22,7 +23,6 @@ rock_vizkit_plugin(maps-viz
         MLSMapVisualization.hpp
         TraversabilityMap3dVisualization.hpp
         PatchesGeode.hpp
-        ColorGradient.hpp
         StandaloneVisualizer.hpp
         ContourMapVisualization.hpp
 )

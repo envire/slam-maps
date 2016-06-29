@@ -17,7 +17,6 @@ struct GridMapVisualization::Data {
     ::maps::grid::GridMapD data;
 };
 
-
 GridMapVisualization::GridMapVisualization()
     : p(new Data)
 {
@@ -161,7 +160,6 @@ osg::Image* GridMapVisualization::createTextureImage()
     return image;
 }
 
-
 void GridMapVisualization::updateDataIntern(::maps::grid::GridMapD const& value)
 {
     p->data = value;
@@ -169,4 +167,3 @@ void GridMapVisualization::updateDataIntern(::maps::grid::GridMapD const& value)
 
 //Macro that makes this plugin loadable in ruby, this is optional.
 //VizkitQtPlugin(ElevationMapVisualization)
-
