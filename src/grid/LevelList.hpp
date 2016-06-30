@@ -5,6 +5,7 @@
 #include <boost/container/flat_set.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/version.hpp>
+#include <boost_serialization/DynamicSizeSerialization.hpp>
 
 namespace maps { namespace grid
 {
@@ -45,8 +46,9 @@ protected:
     template<class Archive>
     void load(Archive &ar, const unsigned int version)
     {
-        size_t count;
-        ar >> count;
+        uint64_t count;
+        loadSizeValue(ar, count);
+
         Base::clear();
         Base::reserve(count);
         for(size_t i=0; i<count; ++i)
@@ -59,8 +61,9 @@ protected:
     template<class Archive>
     void save(Archive& ar, const unsigned int version) const
     {
-        size_t size = Base::size();
-        ar << size;
+        uint64_t size = (uint64_t)Base::size();
+        saveSizeValue(ar, size);
+
         for(typename Base::const_iterator it = Base::begin(); it!= Base::end(); ++it)
         {
             ar << *it;
