@@ -394,6 +394,125 @@ namespace maps { namespace grid
         {
             Vector2ui newSize = minSize.cwiseMax(getNumCells());
             this->resize(newSize);
+            cell_extents.setEmpty();
+        }
+
+        CellExtents calculateCellExtents()
+        {
+            // set the cell_extents to maximal grid size
+            if (cell_extents.isEmpty())
+            {
+                // set the cell_extents to initial size
+                cell_extents.extend(Vector2ui(0, 0));
+                cell_extents.extend(getNumCells());
+            }
+
+            Vector2ui num_cells = getNumCells();
+
+            CellExtents new_cell_extents;
+            bool has_value = false;
+
+            // ------------ Left border
+            // 1. check the current column of x_min and outside of it (range: 0 - x_min)
+            int x_min = cell_extents.corner(CellExtents::BottomLeft).x();
+            while (x_min >= 0)
+            {
+                // go through columns until at least one of the cells has value
+                if (addCellForX(new_cell_extents, x_min) == true)
+                    has_value = true;
+                x_min--;
+            }
+
+            // 2. check inside columns, only if no values was found outside
+            if (has_value == false)
+            {
+                x_min = cell_extents.corner(CellExtents::BottomLeft).x() + 1;
+                while (x_min < num_cells.x() && has_value == false)
+                {
+                    // go through columns until at least one of the cells has value
+                    if (addCellForX(new_cell_extents, x_min) == true)
+                        has_value = true;
+                    x_min++;                  
+                }
+            }
+
+            // ------------- Right Border
+            has_value = false;
+            // 1. check the current column of x_min and outside of it (range: x_max - width)
+            int x_max = cell_extents.corner(CellExtents::BottomRight).x();
+            while (x_max < num_cells.x())
+            {
+                // go through columns until at least one of the cells has value
+                if (addCellForX(new_cell_extents, x_max) == true)
+                    has_value = true;
+                x_max++;
+            }            
+
+            // 2. check inside columns, only if no values was found outside
+            if (has_value == false)
+            {
+                x_max = cell_extents.corner(CellExtents::TopRight).x() - 1;
+                while (x_max >= 0 && has_value == false)
+                {
+                    // go through columns until at least one of the cells has value
+                    if (addCellForX(new_cell_extents, x_max) == true)
+                        has_value = true;  
+                    x_max--;                  
+                }
+            }         
+
+            // ------------ Lower border   
+            has_value = false;
+            // 1. check the current column of x_min and outside of it (range: 0 - y_min)
+            int y_min = cell_extents.corner(CellExtents::BottomLeft).y();
+            while (y_min >= 0)
+            {
+                // go through columns until at least one of the cells has value
+                if (addCellForY(new_cell_extents, y_min) == true)
+                    has_value = true;
+                y_min--;
+            }
+
+            // 2. check inside columns, only if no values was found outside
+            if (has_value == false)
+            {
+                y_min = cell_extents.corner(CellExtents::BottomLeft).y() + 1;
+                while (y_min < num_cells.y() && has_value == false)
+                {
+                    // go through columns until at least one of the cells has value
+                    if (addCellForY(new_cell_extents, y_min) == true)
+                        has_value = true;
+                    y_min++;                  
+                }
+            }
+
+            // ------------- Upper Border
+            has_value = false;
+            // 1. check the current column of x_min and outside of it (range: y_max - height)
+            int y_max = cell_extents.corner(CellExtents::TopRight).y();
+            while (y_max < num_cells.y())
+            {
+                // go through columns until at least one of the cells has value
+                if (addCellForY(new_cell_extents, y_max) == true)
+                    has_value = true;
+                y_max++;
+            }            
+
+            // 2. check inside columns, only if no values was found outside
+            if (has_value == false)
+            {
+                y_max = cell_extents.corner(CellExtents::TopRight).y() - 1;
+                while (y_max >= 0 && has_value == false)
+                {
+                    // go through columns until at least one of the cells has value
+                    if (addCellForY(new_cell_extents, y_max) == true)
+                        has_value = true;
+                    y_max--;                  
+                }
+            }                    
+
+            cell_extents = new_cell_extents;
+            return cell_extents;
         }
 
     protected:
@@ -407,6 +526,39 @@ namespace maps { namespace grid
             ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(::maps::LocalMap);
             ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GridT);
             ar & BOOST_SERIALIZATION_NVP(resolution);
+        }
+
+    private:
+        CellExtents cell_extents;
+
+        bool addCellForX(CellExtents &new_cell_extents, int x)
+        {
+            unsigned int y = 0;
+            while (y < getNumCells().y())
+            {
+                if (isDefault(at(x, y)) == false)
+                {
+                    new_cell_extents.extend(Vector2ui(x, y));                  
+                    return true;
+                }                      
+                y++;
+            }
+            return false;
+        }
+
+        bool addCellForY(CellExtents &new_cell_extents, int y)
+        {
+            unsigned int x = 0;
+            while (x < getNumCells().x())
+            {
+                if (isDefault(at(x, y)) == false)
+                {
+                    new_cell_extents.extend(Vector2ui(x, y));
+                    return true;
+                }                      
+                x++;
+            }
+            return false;
         }
     };
 

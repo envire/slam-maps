@@ -1114,7 +1114,7 @@ BOOST_AUTO_TEST_CASE(test_grid_to_grid_in_specific_frame)
     grid.getLocalFrame().translate(Vector3d(5, 50, 0));
 
 
-    /** Index and Position **/
+    /** Index and Position **/  
     Index idx;
     Eigen::Vector3d pos;
 
@@ -1161,4 +1161,244 @@ BOOST_AUTO_TEST_CASE(test_grid_to_grid_in_specific_frame)
     BOOST_CHECK_EQUAL(grid.toGrid(Vector3d(10, 50, 0.5), idx, frame_in_grid), false);
     BOOST_CHECK_EQUAL(idx, Index(0, 0));
 
+}
+
+BOOST_AUTO_TEST_CASE(test_cell_extents)
+{
+    // size: 10 x 50
+    double default_value = 0;
+    GridMap<double> grid(Vector2ui(7, 5), Vector2d(1, 1), default_value);
+
+    // grid is empty => extents should be empty
+    CellExtents extents = grid.calculateCellExtents();
+    BOOST_CHECK_EQUAL(extents.isEmpty(), true);
+
+    //Y
+    //^  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  0 0 0 8 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //O - - - - - - - -> X    
+    // value by (3, 2)
+    grid.at(3, 2) = 8;
+    extents = grid.calculateCellExtents();
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::BottomLeft), Vector2ui(3, 2));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::BottomRight), Vector2ui(3, 2));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::TopLeft), Vector2ui(3, 2));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::TopRight), Vector2ui(3, 2));  
+
+    //Y
+    //^  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  0 0 0 0 8 0 0
+    //|  0 0 0 0 0 0 0
+    //O - - - - - - - -> X    
+    // value by (3, 2)
+    grid.at(3, 2) = 0;
+    grid.at(4, 1) = 8;
+    extents = grid.calculateCellExtents();
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::BottomLeft), Vector2ui(4, 1));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::BottomRight), Vector2ui(4, 1));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::TopLeft), Vector2ui(4, 1));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::TopRight), Vector2ui(4, 1));      
+
+    //Y
+    //^  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  8 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //O - - - - - - - -> X    
+    // value by (0, 0)      
+    // in comparison to previous example, the value was moved to left (outside)
+    grid.at(4, 1) = default_value;
+    grid.at(0, 1) = 8;
+    extents = grid.calculateCellExtents();
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::BottomLeft), Vector2ui(0, 1));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::BottomRight), Vector2ui(0, 1));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::TopLeft), Vector2ui(0, 1));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::TopRight), Vector2ui(0, 1)); 
+
+    //Y
+    //^  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 8
+    //|  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //O - - - - - - - -> X    
+    // value by (1, 1)      
+    // in comparison to previous example, the value was moved to right
+    grid.at(0, 1) = default_value;
+    grid.at(6, 3) = 8;
+    extents = grid.calculateCellExtents();
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::BottomLeft), Vector2ui(6, 3));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::BottomRight), Vector2ui(6, 3));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::TopLeft), Vector2ui(6, 3));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::TopRight), Vector2ui(6, 3));
+
+    //Y
+    //^  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 8
+    //|  0 0 0 0 0 0 0
+    //|  8 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //O - - - - - - - -> X     
+    // in comparison to previous example, two values defined left and right borders
+    grid.at(0, 1) = 8;
+    extents = grid.calculateCellExtents();
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::BottomLeft), Vector2ui(0, 1));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::BottomRight), Vector2ui(6, 1));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::TopLeft), Vector2ui(0, 3));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::TopRight), Vector2ui(6, 3));    
+
+    //Y
+    //^  0 0 0 0 0 0 0
+    //|  0 8 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  0 0 8 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //O - - - - - - - -> X     
+    // in comparison to previous example, two values define left and right borders
+    grid.at(0, 1) = default_value;
+    grid.at(6, 3) = default_value;
+    grid.at(1, 3) = 8;
+    grid.at(2, 1) = 8;    
+    extents = grid.calculateCellExtents();
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::BottomLeft), Vector2ui(1, 1));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::BottomRight), Vector2ui(2, 1));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::TopLeft), Vector2ui(1, 3));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::TopRight), Vector2ui(2, 3));      
+
+    //Y
+    //^  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  0 0 0 8 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //O - - - - - - - -> X     
+    // in comparison to previous example, one value defines all borders
+    grid.at(1, 3) = default_value;
+    grid.at(2, 1) = default_value;    
+    grid.at(3, 2) = 8;    
+    extents = grid.calculateCellExtents();
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::BottomLeft), Vector2ui(3, 2));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::BottomRight), Vector2ui(3, 2));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::TopLeft), Vector2ui(3, 2));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::TopRight), Vector2ui(3, 2));  
+
+    //Y
+    //^  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  8 0 0 0 0 0 0
+    //O - - - - - - - -> X     
+    // in comparison to previous example, one value defines all borders  
+    grid.at(3, 2) = default_value;    
+    grid.at(0, 0) = 8;    
+    extents = grid.calculateCellExtents();
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::BottomLeft), Vector2ui(0, 0));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::BottomRight), Vector2ui(0, 0));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::TopLeft), Vector2ui(0, 0));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::TopRight), Vector2ui(0, 0));             
+
+    //Y
+    //^  0 0 0 0 0 0 8
+    //|  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  8 0 0 0 0 0 0
+    //O - - - - - - - -> X     
+    // in comparison to previous example, one value defines all borders     
+    grid.at(6, 4) = 8;    
+    extents = grid.calculateCellExtents();
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::BottomLeft), Vector2ui(0, 0));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::BottomRight), Vector2ui(6, 0));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::TopLeft), Vector2ui(0, 4));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::TopRight), Vector2ui(6, 4));     
+
+    //Y
+    //^  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  0 0 0 0 8 0 0
+    //|  0 0 8 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //O - - - - - - - -> X     
+    // in comparison to previous example, one value defines all borders  
+    grid.at(0, 0) = default_value;    
+    grid.at(6, 4) = default_value;
+    grid.at(2, 1) = 8;    
+    grid.at(4, 2) = 8; 
+    extents = grid.calculateCellExtents();
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::BottomLeft), Vector2ui(2, 1));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::BottomRight), Vector2ui(4, 1));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::TopLeft), Vector2ui(2, 2));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::TopRight), Vector2ui(4, 2)); 
+
+    //Y
+    //^  0 0 8 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  0 8 0 0 0 0 0
+    //O - - - - - - - -> X     
+    // in comparison to previous example, one value defines all borders  
+    grid.at(2, 1) = default_value;    
+    grid.at(4, 2) = default_value; 
+    grid.at(1, 0) = 8;    
+    grid.at(2, 4) = 8;     
+    extents = grid.calculateCellExtents();
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::BottomLeft), Vector2ui(1, 0));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::BottomRight), Vector2ui(2, 0));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::TopLeft), Vector2ui(1, 4));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::TopRight), Vector2ui(2, 4));  
+
+    //Y
+    //^  0 8 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  0 8 0 0 0 0 0
+    //O - - - - - - - -> X     
+    // in comparison to previous example, one value defines all borders  
+    grid.at(2, 4) = default_value;    
+    grid.at(1, 4) = 8;     
+    extents = grid.calculateCellExtents();
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::BottomLeft), Vector2ui(1, 0));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::BottomRight), Vector2ui(1, 0));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::TopLeft), Vector2ui(1, 4));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::TopRight), Vector2ui(1, 4));       
+
+    //Y
+    //^  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  8 0 0 0 0 0 8
+    //|  0 0 0 0 0 0 0
+    //O - - - - - - - -> X     
+    // in comparison to previous example, one value defines all borders  
+    grid.at(1, 4) = default_value;    
+    grid.at(1, 0) = default_value; 
+    grid.at(0, 1) = 8;     
+    grid.at(6, 1) = 8;    
+    extents = grid.calculateCellExtents();
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::BottomLeft), Vector2ui(0, 1));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::BottomRight), Vector2ui(6, 1));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::TopLeft), Vector2ui(0, 1));
+    BOOST_CHECK_EQUAL(extents.corner(CellExtents::TopRight), Vector2ui(6, 1));    
+
+    //Y
+    //^  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //|  0 0 0 0 0 0 0
+    //O - - - - - - - -> X     
+    // in comparison to previous example, one value defines all borders  
+    grid.at(0, 1) = default_value;     
+    grid.at(6, 1) = default_value;    
+    extents = grid.calculateCellExtents();
+    BOOST_CHECK_EQUAL(extents.isEmpty(), true);           
 }

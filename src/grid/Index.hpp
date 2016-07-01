@@ -25,6 +25,8 @@ namespace maps { namespace grid
      */
     typedef Eigen::Vector3d Vector3d;
 
+    typedef Eigen::AlignedBox<unsigned int, 2> CellExtents;
+
     /**@brief Internal structure used to represent a position on the grid
      * itself, as a cell index
      */
