@@ -2,6 +2,8 @@
 
 // TODO: this can be moved to vizkit3d
 
+#pragma once
+
 #include <vector>
 
 namespace vizkit3d
