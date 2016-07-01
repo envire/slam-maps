@@ -169,11 +169,11 @@ void DataHold<Type>::visualize(vizkit3d::PatchesGeode& geode) const
 }  // namespace maps
 
 
-void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMapKalman const& value)
+void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::KALMAN> const& value)
 {
     p.reset(new DataHold<MLSConfig::KALMAN>( value ));
 }
-void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMapSloped const& value)
+void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::SLOPE> const& value)
 {
     p.reset(new DataHold<MLSConfig::SLOPE>( value ));
 }
