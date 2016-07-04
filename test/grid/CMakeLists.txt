@@ -4,6 +4,10 @@ rock_testsuite(test_index
    test_Index.cpp
    DEPS maps)
 
+rock_testsuite(test_vectorgrid
+   test_VectorGrid.cpp
+   DEPS maps)      
+
 rock_testsuite(test_localmap
    test_LocalMap.cpp
    DEPS maps)
