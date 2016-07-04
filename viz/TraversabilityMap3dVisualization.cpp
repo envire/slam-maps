@@ -159,7 +159,7 @@ void vizkit3d::TraversabilityMap3dVisualization::updateMainNode(osg::Node* node)
     
     PatchesGeode *geode = dynamic_cast<PatchesGeode *>(nodeGeode.get());
     geode->setColor(osg::Vec4d(1,0,0,1));
-    geode->setShowExtents(true);
+    geode->setShowPatchExtents(true);
     geode->setShowNormals(true);
     
 //     addSphere(Eigen::Vector3f(0,0,0), geode);

@@ -22,7 +22,7 @@ namespace vizkit3d
 
         Q_PROPERTY(bool show_uncertainty READ isUncertaintyShown WRITE setShowUncertainty)
         Q_PROPERTY(bool show_negative READ isNegativeShown WRITE setShowNegative)
-        Q_PROPERTY(bool show_extents READ areExtentsShown WRITE setShowExtents)        
+        Q_PROPERTY(bool show_patch_extents READ arePatchExtentsShown WRITE setShowPatchExtents)        
         Q_PROPERTY(bool estimate_normals READ areNormalsEstimated WRITE setEstimateNormals)
         Q_PROPERTY(bool show_normals READ areNormalsShown WRITE setShowNormals)
         Q_PROPERTY(bool cycle_height_color READ isHeightColorCycled WRITE setCycleHeightColor)
@@ -83,8 +83,8 @@ namespace vizkit3d
             QColor getUncertaintyColor() const;
             void setUncertaintyColor(QColor color);
 
-            void setShowExtents( bool value );
-            bool areExtentsShown() const;        
+            void setShowPatchExtents( bool value );
+            bool arePatchExtentsShown() const;        
 
         protected:
             osg::Vec4 horizontalCellColor;
@@ -98,7 +98,7 @@ namespace vizkit3d
             bool showNormals;
             bool cycleHeightColor;
             double cycleColorInterval;
-            bool showExtents;
+            bool showPatchExtents;
 
 #if 0
             osg::Vec3 estimateNormal(

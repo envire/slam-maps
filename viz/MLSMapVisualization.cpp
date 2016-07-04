@@ -52,7 +52,7 @@ MLSMapVisualization::MLSMapVisualization()
     estimateNormals(false),
     cycleHeightColor(false),
     cycleColorInterval(1.0),
-    showExtents(true)
+    showPatchExtents(true)
 {
 }
 
@@ -82,7 +82,6 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
     osg::ref_ptr<PatchesGeode> geode = new PatchesGeode(res.x(), res.y());
     group->setChild( 0, geode );
 
-
     if(cycleHeightColor)
     {
         geode->showCycleColor(true);
@@ -91,13 +90,13 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
     }
     else
         geode->setColor(horizontalCellColor);
-    geode->setShowExtents(showExtents);
+    geode->setShowPatchExtents(showPatchExtents);
     geode->setShowNormals(showNormals);
 
     base::TimeMark timer("MLS_VIZ::updateMainNode");
     p->visualize(*geode);
 
-    if( showUncertainty || showNormals || showExtents)
+    if( showUncertainty || showNormals || showPatchExtents)
     {
         geode->drawLines();
     }
@@ -322,16 +321,16 @@ void MLSMapVisualization::setUncertaintyColor(QColor color)
     setDirty();
 }
 
-void MLSMapVisualization::setShowExtents( bool value ) 
+void MLSMapVisualization::setShowPatchExtents( bool value ) 
 {
-    showExtents = value;
-    emit propertyChanged("show_extents");
+    showPatchExtents = value;
+    emit propertyChanged("show_patch_extents");
     setDirty();
 }
 
-bool MLSMapVisualization::areExtentsShown() const
+bool MLSMapVisualization::arePatchExtentsShown() const
 {
-    return showExtents;
+    return showPatchExtents;
 }
 
 //Macro that makes this plugin loadable in ruby, this is optional.

@@ -49,7 +49,7 @@ namespace vizkit3d {
         void showCycleColor(bool cycle_color);
         void setCycleColorInterval(float cycle_color_interval);
 
-        void setShowExtents(bool enable = true) { showExtents = enable; };
+        void setShowPatchExtents(bool enable = true) { showPatchExtents = enable; };
         void setShowNormals(bool enable = true) { showNormals = enable; };
         void drawLines();
 
@@ -75,7 +75,7 @@ namespace vizkit3d {
         osg::Vec4 color; 
 
         bool showNormals;
-        bool showExtents;
+        bool showPatchExtents;
         bool cycle_color;
         float cycle_color_interval;       
 

@@ -21,7 +21,7 @@ namespace vizkit3d
         var_vertices = new osg::Vec3Array;
 
         showNormals = true;
-        showExtents = false;
+        showPatchExtents = false;
 
         geom->setUseVertexBufferObjects(true);
 
@@ -123,7 +123,7 @@ namespace vizkit3d
             var_vertices->push_back(center);
             var_vertices->push_back(center+normal*0.1);
         }
-        if(showExtents)
+        if(showPatchExtents)
         {
             var_vertices->push_back(osg::Vec3(position.x(), position.y(), position.z() - extents.z()));
             var_vertices->push_back(osg::Vec3(position.x(), position.y(), position.z() + extents.z()));
