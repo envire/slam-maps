@@ -1402,3 +1402,63 @@ BOOST_AUTO_TEST_CASE(test_cell_extents)
     extents = grid.calculateCellExtents();
     BOOST_CHECK_EQUAL(extents.isEmpty(), true);           
 }
+
+/*
+BOOST_AUTO_TEST_CASE(test_vector_grid)
+{
+    VectorGrid<double> vector_grid(Vector2ui(2, 3), -5);
+
+    std::pair<VectorGrid<double>::const_iterator, VectorGrid<double>::const_iterator> range;
+
+    // No elements
+    range = vector_grid.getRange();
+
+    BOOST_CHECK_EQUAL(range.first == vector_grid.end(), true);
+    BOOST_CHECK_EQUAL(range.second == vector_grid.end(), true);
+
+    // First element 
+    vector_grid.at(0, 0) = 0;
+
+    range = vector_grid.getRange();
+
+    BOOST_CHECK_EQUAL(*range.first, 0);
+    BOOST_CHECK_EQUAL(*range.second, 0);
+    BOOST_CHECK_EQUAL(range.first == range.second, true);
+    BOOST_CHECK_EQUAL(range.first == vector_grid.begin(), true);
+
+    // Last element
+    vector_grid.at(0, 0) = -5;
+    vector_grid.at(1, 2) = 5;
+
+    range = vector_grid.getRange();
+
+    BOOST_CHECK_EQUAL(*range.first, 5);
+    BOOST_CHECK_EQUAL(*range.second, 5);
+    BOOST_CHECK_EQUAL(range.first == range.second, true);  
+    BOOST_CHECK_EQUAL(range.first == (vector_grid.end() - 1), true);   
+
+    // First and last element
+    vector_grid.at(0, 0) = 0;
+
+    range = vector_grid.getRange();
+
+    BOOST_CHECK_EQUAL(*range.first, 0);
+    BOOST_CHECK_EQUAL(*range.second, 5);  
+    BOOST_CHECK_EQUAL(range.first == vector_grid.begin(), true); 
+    BOOST_CHECK_EQUAL(range.second == (vector_grid.end() - 1), true); 
+
+    // In the middle
+    vector_grid.at(0, 0) = -5;
+    vector_grid.at(1, 2) = -5;
+
+    vector_grid.at(1, 0) = 1;
+    vector_grid.at(0, 2) = 4;
+
+    range = vector_grid.getRange();
+
+    BOOST_CHECK_EQUAL(*range.first, 1);
+    BOOST_CHECK_EQUAL(*range.second, 4);  
+    BOOST_CHECK_EQUAL(range.first == (vector_grid.begin() + 1), true); 
+    BOOST_CHECK_EQUAL(range.second == (vector_grid.end() - 2), true);    
+}
+*/

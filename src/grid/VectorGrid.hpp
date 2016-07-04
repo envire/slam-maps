@@ -163,13 +163,34 @@ namespace maps { namespace grid
             {
                 e = default_value;
             }
-        };
+        };      
         
     protected:
         size_t toIdx(size_t x, size_t y) const
         {
             return x  +  y * num_cells.x();
         }
+
+        std::pair<const_iterator, const_iterator> getRange()
+        {
+            const_iterator start_range = std::find_if(cells.begin(), cells.end(), 
+                std::bind1st(std::not_equal_to<CellT>(), default_value));
+
+            typename std::vector<CellT>::const_reverse_iterator r_end_range = 
+                std::find_if(cells.crbegin(), cells.crend(),
+                    std::bind1st(std::not_equal_to<CellT>(), default_value));
+
+            const_iterator end_range;            
+            if (r_end_range == cells.crend())
+            {
+                end_range = cells.end();
+            } else 
+            {
+                end_range = r_end_range.base() - 1;
+            }
+
+            return std::pair<const_iterator, const_iterator>(start_range, end_range);
+        }          
 
         /** Grants access to boost serialization */
         friend class boost::serialization::access;  
