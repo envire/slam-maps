@@ -394,124 +394,81 @@ namespace maps { namespace grid
         {
             Vector2ui newSize = minSize.cwiseMax(getNumCells());
             this->resize(newSize);
-            cell_extents.setEmpty();
         }
 
         CellExtents calculateCellExtents()
         {
-            // set the cell_extents to maximal grid size
-            if (cell_extents.isEmpty())
-            {
-                // set the cell_extents to initial size
-                cell_extents.extend(Vector2ui(0, 0));
-                cell_extents.extend(getNumCells());
-            }
-
             Vector2ui num_cells = getNumCells();
 
-            CellExtents new_cell_extents;
+            CellExtents cell_extents;
             bool has_value = false;
 
             // ------------ Left border
-            // 1. check the current column of x_min and outside of it (range: 0 - x_min)
-            int x_min = cell_extents.corner(CellExtents::BottomLeft).x();
-            while (x_min >= 0)
+            // x: from 0 until first value is found
+            // y: from 0 to getNumCells().y()
+            int x_min = -1;
+            while (has_value == false && x_min < int(num_cells.x() - 1))
             {
+                x_min++;
                 // go through columns until at least one of the cells has value
-                if (addCellForX(new_cell_extents, x_min) == true)
-                    has_value = true;
-                x_min--;
-            }
-
-            // 2. check inside columns, only if no values was found outside
-            if (has_value == false)
-            {
-                x_min = cell_extents.corner(CellExtents::BottomLeft).x() + 1;
-                while (x_min < num_cells.x() && has_value == false)
+                if (addCellForX(cell_extents, x_min, 0, num_cells.y() - 1) == true)
                 {
-                    // go through columns until at least one of the cells has value
-                    if (addCellForX(new_cell_extents, x_min) == true)
-                        has_value = true;
-                    x_min++;                  
+                    has_value = true;
                 }
             }
 
-            // ------------- Right Border
+            // if no value was found until this point,
+            // there is no data except default value in the grid
+            if (has_value == false)
+            {
+                return cell_extents;
+            }
+
+            // ---------- Upper border
+            // y: from 0 until first value is found
+            // x : from x_min to getNumCells().x() 
             has_value = false;
-            // 1. check the current column of x_min and outside of it (range: x_max - width)
-            int x_max = cell_extents.corner(CellExtents::BottomRight).x();
-            while (x_max < num_cells.x())
+            int y_min = -1;
+            while (has_value == false)
             {
+                y_min++;
                 // go through columns until at least one of the cells has value
-                if (addCellForX(new_cell_extents, x_max) == true)
-                    has_value = true;
-                x_max++;
-            }            
-
-            // 2. check inside columns, only if no values was found outside
-            if (has_value == false)
-            {
-                x_max = cell_extents.corner(CellExtents::TopRight).x() - 1;
-                while (x_max >= 0 && has_value == false)
+                if (addCellForY(cell_extents, y_min, x_min, num_cells.x() - 1) == true)
                 {
-                    // go through columns until at least one of the cells has value
-                    if (addCellForX(new_cell_extents, x_max) == true)
-                        has_value = true;  
-                    x_max--;                  
-                }
-            }         
-
-            // ------------ Lower border   
-            has_value = false;
-            // 1. check the current column of x_min and outside of it (range: 0 - y_min)
-            int y_min = cell_extents.corner(CellExtents::BottomLeft).y();
-            while (y_min >= 0)
-            {
-                // go through columns until at least one of the cells has value
-                if (addCellForY(new_cell_extents, y_min) == true)
                     has_value = true;
-                y_min--;
+                }                
             }
 
-            // 2. check inside columns, only if no values was found outside
-            if (has_value == false)
+            // ------------ Right border 
+            // x: from getNumCells().x() - 1 until first value is found
+            // y: from y_min until getNumCells().y()
+            has_value = false;
+            int x_max = num_cells.x();
+            while (has_value == false)
             {
-                y_min = cell_extents.corner(CellExtents::BottomLeft).y() + 1;
-                while (y_min < num_cells.y() && has_value == false)
+                x_max--;
+                // go through columns until at least one of the cells has value
+                if (addCellForX(cell_extents, x_max, y_min, num_cells.y() - 1) == true)
                 {
-                    // go through columns until at least one of the cells has value
-                    if (addCellForY(new_cell_extents, y_min) == true)
-                        has_value = true;
-                    y_min++;                  
+                    has_value = true;
                 }
             }
 
-            // ------------- Upper Border
+            // ---------- Bottom border
+            // y: from getNumCells().y() - 1 until first value is found
+            // x : from x_min to x_max
             has_value = false;
-            // 1. check the current column of x_min and outside of it (range: y_max - height)
-            int y_max = cell_extents.corner(CellExtents::TopRight).y();
-            while (y_max < num_cells.y())
+            int y_max = num_cells.y();
+            while (has_value == false)
             {
+                y_max--;
                 // go through columns until at least one of the cells has value
-                if (addCellForY(new_cell_extents, y_max) == true)
-                    has_value = true;
-                y_max++;
-            }            
-
-            // 2. check inside columns, only if no values was found outside
-            if (has_value == false)
-            {
-                y_max = cell_extents.corner(CellExtents::TopRight).y() - 1;
-                while (y_max >= 0 && has_value == false)
+                if (addCellForY(cell_extents, y_max, x_min, x_max) == true)
                 {
-                    // go through columns until at least one of the cells has value
-                    if (addCellForY(new_cell_extents, y_max) == true)
-                        has_value = true;
-                    y_max--;                  
-                }
-            }                    
+                    has_value = true;
+                }               
+            }          
 
-            cell_extents = new_cell_extents;
             return cell_extents;
         }
 
@@ -529,16 +486,14 @@ namespace maps { namespace grid
         }
 
     private:
-        CellExtents cell_extents;
-
-        bool addCellForX(CellExtents &new_cell_extents, int x)
+        bool addCellForX(CellExtents &cell_extents, unsigned int x, unsigned int y_start, unsigned int y_end) 
         {
-            unsigned int y = 0;
-            while (y < getNumCells().y())
+            unsigned int y = y_start;
+            while (y <= y_end)
             {
                 if (isDefault(at(x, y)) == false)
                 {
-                    new_cell_extents.extend(Vector2ui(x, y));                  
+                    cell_extents.extend(Vector2ui(x, y));                  
                     return true;
                 }                      
                 y++;
@@ -546,14 +501,14 @@ namespace maps { namespace grid
             return false;
         }
 
-        bool addCellForY(CellExtents &new_cell_extents, int y)
+        bool addCellForY(CellExtents &cell_extents, unsigned int y, unsigned int x_start, unsigned int x_end)
         {
-            unsigned int x = 0;
-            while (x < getNumCells().x())
+            unsigned int x = x_start;
+            while (x <= x_end)
             {
                 if (isDefault(at(x, y)) == false)
                 {
-                    new_cell_extents.extend(Vector2ui(x, y));
+                    cell_extents.extend(Vector2ui(x, y));
                     return true;
                 }                      
                 x++;

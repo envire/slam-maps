@@ -1400,5 +1400,29 @@ BOOST_AUTO_TEST_CASE(test_cell_extents)
     grid.at(0, 1) = default_value;     
     grid.at(6, 1) = default_value;    
     extents = grid.calculateCellExtents();
-    BOOST_CHECK_EQUAL(extents.isEmpty(), true);           
+    BOOST_CHECK_EQUAL(extents.isEmpty(), true);  
+
+    std::cout << "Time" << std::endl;
+    // test time performance
+    // empty map
+    GridMap<double> grid_empty(Vector2ui(5000, 5000), Vector2d(1, 1), default_value);
+
+    auto start = std::chrono::system_clock::now();
+    extents = grid_empty.calculateCellExtents();
+    auto end = std::chrono::system_clock::now();
+
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
+    std::cout << "Grid 5000x5000 empty: " << elapsed.count() << std::endl;
+
+    // value is in the center
+    grid_empty.at(2500, 2500) = 1;
+
+    start = std::chrono::system_clock::now();
+    extents = grid_empty.calculateCellExtents();
+    end = std::chrono::system_clock::now();
+
+    elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
+    std::cout << "Grid 5000x5000 center: " << elapsed.count() << std::endl;    
 }
