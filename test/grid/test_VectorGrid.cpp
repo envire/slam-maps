@@ -26,8 +26,8 @@ BOOST_AUTO_TEST_CASE(test_get_range)
     // No elements
     range = vector_grid.getRangeTest();
 
-    BOOST_CHECK_EQUAL(range.first == vector_grid.end(), true);
-    BOOST_CHECK_EQUAL(range.second == vector_grid.end(), true);
+    BOOST_CHECK(range.first == vector_grid.end());
+    BOOST_CHECK(range.second == vector_grid.end());
 
     // First element 
     vector_grid.at(0, 0) = 0;
@@ -35,9 +35,9 @@ BOOST_AUTO_TEST_CASE(test_get_range)
     range = vector_grid.getRangeTest();
 
     BOOST_CHECK_EQUAL(*range.first, 0);
-    BOOST_CHECK_EQUAL(*range.second, 0);
-    BOOST_CHECK_EQUAL(range.first == range.second, true);
-    BOOST_CHECK_EQUAL(range.first == vector_grid.begin(), true);
+    BOOST_CHECK_EQUAL(*(range.second-1), 0);
+    BOOST_CHECK(range.first == vector_grid.begin());
+    BOOST_CHECK(range.second == vector_grid.begin() + 1);
 
     // Last element
     vector_grid.at(0, 0) = -5;
@@ -46,9 +46,9 @@ BOOST_AUTO_TEST_CASE(test_get_range)
     range = vector_grid.getRangeTest();
 
     BOOST_CHECK_EQUAL(*range.first, 5);
-    BOOST_CHECK_EQUAL(*range.second, 5);
-    BOOST_CHECK_EQUAL(range.first == range.second, true);  
-    BOOST_CHECK_EQUAL(range.first == (vector_grid.end() - 1), true);   
+    BOOST_CHECK_EQUAL(*(range.second-1), 5);
+    BOOST_CHECK(range.first == (vector_grid.end() - 1));
+    BOOST_CHECK(range.second == vector_grid.end());
 
     // First and last element
     vector_grid.at(0, 0) = 0;
@@ -56,9 +56,9 @@ BOOST_AUTO_TEST_CASE(test_get_range)
     range = vector_grid.getRangeTest();
 
     BOOST_CHECK_EQUAL(*range.first, 0);
-    BOOST_CHECK_EQUAL(*range.second, 5);  
-    BOOST_CHECK_EQUAL(range.first == vector_grid.begin(), true); 
-    BOOST_CHECK_EQUAL(range.second == (vector_grid.end() - 1), true); 
+    BOOST_CHECK_EQUAL(*(range.second-1), 5);
+    BOOST_CHECK(range.first == vector_grid.begin());
+    BOOST_CHECK(range.second == vector_grid.end());
 
     // In the middle
     vector_grid.at(0, 0) = -5;
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(test_get_range)
     range = vector_grid.getRangeTest();
 
     BOOST_CHECK_EQUAL(*range.first, 1);
-    BOOST_CHECK_EQUAL(*range.second, 4);  
-    BOOST_CHECK_EQUAL(range.first == (vector_grid.begin() + 1), true); 
-    BOOST_CHECK_EQUAL(range.second == (vector_grid.end() - 2), true);    
+    BOOST_CHECK_EQUAL(*(range.second-1), 4);
+    BOOST_CHECK(range.first == (vector_grid.begin() + 1));
+    BOOST_CHECK(range.second == (vector_grid.end() - 1)); 
 }
