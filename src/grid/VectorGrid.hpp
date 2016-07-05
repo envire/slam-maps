@@ -193,16 +193,48 @@ namespace maps { namespace grid
         }
 
         /** Grants access to boost serialization */
-        friend class boost::serialization::access;  
+        friend class boost::serialization::access;
 
-        /** Serializes the members of this class*/
-        template <typename Archive>
-        void serialize(Archive &ar, const unsigned int version)
+        BOOST_SERIALIZATION_SPLIT_MEMBER()
+
+        /** serialize members */
+        template<class Archive>
+        void save(Archive & ar, const unsigned int version) const
         {
-            ar & BOOST_SERIALIZATION_NVP(cells);
-            ar & BOOST_SERIALIZATION_NVP(num_cells.derived());
-            ar & BOOST_SERIALIZATION_NVP(default_value);
-        }          
+            ar << BOOST_SERIALIZATION_NVP(num_cells.derived());
+            ar << BOOST_SERIALIZATION_NVP(default_value);
+
+            std::pair<const_iterator, const_iterator> ranges = getRange();
+            u_int32_t first_idx = std::distance(begin(), ranges.first);
+            u_int32_t last_idx = std::distance(begin(), ranges.second);
+            ar << first_idx;
+            ar << last_idx;
+            while(ranges.first != ranges.second)
+            {
+                ar << *ranges.first;
+                ranges.first++;
+            }
+        }
+
+        /** deserialize members */
+        template<class Archive>
+        void load(Archive & ar, const unsigned int version)
+        {
+            ar >> BOOST_SERIALIZATION_NVP(num_cells.derived());
+            ar >> BOOST_SERIALIZATION_NVP(default_value);
+            cells.clear();
+            cells.resize(num_cells.x() * num_cells.y(), default_value);
+
+            u_int32_t first_idx;
+            u_int32_t last_idx;
+            ar >> first_idx;
+            ar >> last_idx;
+            while(first_idx != last_idx)
+            {
+                ar >> cells[first_idx];
+                first_idx++;
+            }
+        }
     };
     
 }}
