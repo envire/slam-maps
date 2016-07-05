@@ -147,6 +147,17 @@ public:
         return plane.z * other.plane.n < other.plane.z * plane.n;
     }
 
+    bool operator==(const SurfacePatch& other) const
+    {
+        return min == other.min && max == other.max &&
+                plane.n == other.plane.n && plane.x == other.plane.x &&
+                plane.y == other.plane.y && plane.z == other.plane.z &&
+                plane.xx == other.plane.xx && plane.xy == other.plane.xy &&
+                plane.xz == other.plane.xz && plane.yy == other.plane.yy &&
+                plane.yz == other.plane.yz && plane.zz == other.plane.zz &&
+                n == other.n && type == other.type;
+    }
+
     /**
      * returns the top most
      */
@@ -268,6 +279,11 @@ public:
     bool operator<(const SurfacePatch& other) const
     {
         return mean < other.mean;
+    }
+
+    bool operator==(const SurfacePatch& other) const
+    {
+        return min == other.min && max == other.max && mean == other.mean && var == other.var && height == other.height;
     }
 
     Eigen::Vector3f getNormal() const

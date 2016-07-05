@@ -27,6 +27,11 @@ public:
             return false;
     }
 
+    bool operator!=(const A &other) const
+    {
+        return !(*this == other);
+    }
+
     void test()
     {
         std::cout << min << " " << max << std::endl;
