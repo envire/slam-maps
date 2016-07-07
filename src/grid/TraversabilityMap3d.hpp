@@ -51,6 +51,11 @@ namespace maps { namespace grid
         {
             mIsExpanded = true;
         }
+
+        void setNotExpanded()
+        {
+            mIsExpanded = false;
+        }
         
         void setType(TYPE t)
         {
