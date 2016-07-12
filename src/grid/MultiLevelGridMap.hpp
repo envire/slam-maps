@@ -39,9 +39,17 @@ namespace maps { namespace grid
     
         View intersectCuboid(const Eigen::AlignedBox3d& box) const
         {
+            size_t ignore;
+            return intersectCuboid(box, ignore);
+        }
+        
+        /** @param outNumIntersections contains the number of mls patches that
+                                       intersected the @p box*/
+        View intersectCuboid(const Eigen::AlignedBox3d& box, size_t& outNumIntersections) const
+        {
             double minHeight = box.min().z();
             double maxHeight = box.max().z();
-
+            outNumIntersections = 0;
             
             Index minIdx;
             Index maxIdx;
@@ -73,6 +81,7 @@ namespace maps { namespace grid
                         if(::maps::tools::overlap(p.getMin(), p.getMax(), minHeight, maxHeight))
                         {
                             retList.insert(&p);
+                            ++outNumIntersections;
                         }
                     }
                 }
