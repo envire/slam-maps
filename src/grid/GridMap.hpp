@@ -396,7 +396,7 @@ namespace maps { namespace grid
             this->resize(newSize);
         }
 
-        CellExtents calculateCellExtents()
+        CellExtents calculateCellExtents() const
         {
             Vector2ui num_cells = getNumCells();
 
@@ -486,7 +486,7 @@ namespace maps { namespace grid
         }
 
     private:
-        bool addCellForX(CellExtents &cell_extents, unsigned int x, unsigned int y_start, unsigned int y_end) 
+        bool addCellForX(CellExtents &cell_extents, unsigned int x, unsigned int y_start, unsigned int y_end) const
         {
             unsigned int y = y_start;
             while (y <= y_end)
@@ -501,7 +501,7 @@ namespace maps { namespace grid
             return false;
         }
 
-        bool addCellForY(CellExtents &cell_extents, unsigned int y, unsigned int x_start, unsigned int x_end)
+        bool addCellForY(CellExtents &cell_extents, unsigned int y, unsigned int x_start, unsigned int x_end) const
         {
             unsigned int x = x_start;
             while (x <= x_end)

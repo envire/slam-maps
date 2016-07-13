@@ -24,6 +24,8 @@ namespace vizkit3d
             GridMapVisualization();
             ~GridMapVisualization();
 
+            Q_PROPERTY(bool show_map_extents READ areMapExtentsShown WRITE setShowMapExtents)
+
             Q_INVOKABLE void updateData(::maps::grid::GridMapD const &sample)
             {vizkit3d::Vizkit3DPlugin<::maps::grid::GridMapD>::updateData(sample);}
 
@@ -31,6 +33,9 @@ namespace vizkit3d
             virtual osg::ref_ptr<osg::Node> createMainNode();
             virtual void updateMainNode(osg::Node* node);
             virtual void updateDataIntern(::maps::grid::GridMapD const& plan);
+
+            void setShowMapExtents(bool value);
+            bool areMapExtentsShown() const;             
 
         private:
             struct Data;
@@ -41,6 +46,8 @@ namespace vizkit3d
             osg::Image* createTextureImage();
 
             ColorGradient heatMapGradient;
+
+            bool showMapExtents;
 
         public slots:
     };

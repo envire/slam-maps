@@ -8,6 +8,8 @@
 #include <osg/ShapeDrawable>
 #include <osg/Material>
 
+#include "ExtentsRectangle.hpp"
+
 using namespace vizkit3d;
 
 struct GridMapVisualization::Data {
@@ -18,7 +20,8 @@ struct GridMapVisualization::Data {
 };
 
 GridMapVisualization::GridMapVisualization()
-    : p(new Data)
+    : p(new Data),
+      showMapExtents(true)
 {
     this->heatMapGradient.createDefaultHeatMapGradient();
 }
@@ -32,16 +35,24 @@ osg::ref_ptr<osg::Node> GridMapVisualization::createMainNode()
 {
     // Geode is a common node used for vizkit3d plugins. It allows to display
     // "arbitrary" geometries
-    return new osg::Geode();
+    osg::ref_ptr<osg::Group> group = new osg::Group();
+    osg::ref_ptr<osg::Geode> geode = new osg::Geode();
+    group->addChild(geode.get());
+
+    return group.release();
 }
 
 void GridMapVisualization::updateMainNode ( osg::Node* node )
 {
+    osg::Group* group = static_cast<osg::Group*>(node);   
+
     // create height field
     osg::ref_ptr<osg::HeightField> heightField = createHeighField();
 
     // remove old drawables
-    osg::Geode* geode = static_cast<osg::Geode*>(node);    
+    osg::Geode* geode = new osg::Geode();    
+    group->setChild( 0, geode );
+
     while(geode->removeDrawables(0));
     // add height field to geode
     osg::ShapeDrawable *drawable = new osg::ShapeDrawable(heightField);
@@ -69,6 +80,28 @@ void GridMapVisualization::updateMainNode ( osg::Node* node )
     tex->setWrap(osg::Texture::WRAP_T, osg::Texture::REPEAT);
     state->setTextureAttributeAndModes(0, tex);    
 
+    // ----------- DRAW EXTENTS
+    group->removeChild( 1 );
+    if (showMapExtents == true) {
+        // get the color as a function of the group
+        float scale = ((long)group%1000)/1000.0;
+        osg::Vec4 col(0,0,0,1);
+        vizkit3d::hslToRgb( scale, 1.0, 0.6, col.x(), col.y(), col.z() );
+
+        maps::grid::GridMapD& elev_map = p->data;    
+        maps::grid::CellExtents extents = elev_map.calculateCellExtents();
+
+        Eigen::Vector2d min = extents.min().cast<double>().cwiseProduct(elev_map.getResolution());
+        Eigen::Vector2d max = extents.max().cast<double>().cwiseProduct(elev_map.getResolution());
+
+        Eigen::Vector3d min_d = elev_map.getLocalFrame().inverse() * Eigen::Vector3d(min.x(), min.y(), 0.);
+        Eigen::Vector3d max_d = elev_map.getLocalFrame().inverse() * Eigen::Vector3d(max.x(), max.y(), 0.);
+
+        group->addChild( 
+            new ExtentsRectangle( Eigen::Vector2d(min_d.x(), min_d.y()),
+                Eigen::Vector2d(max_d.x(), max_d.y())));
+    }
+ 
     //state->removeTextureAttribute(0, osg::StateAttribute::TEXTURE);
 }
 
@@ -158,6 +191,18 @@ osg::Image* GridMapVisualization::createTextureImage()
             1);      
 
     return image;
+}
+
+void GridMapVisualization::setShowMapExtents(bool value)
+{
+    showMapExtents = value;
+    emit propertyChanged("show_map_extents");
+    setDirty();
+}
+
+bool GridMapVisualization::areMapExtentsShown() const
+{
+    return showMapExtents;
 }
 
 void GridMapVisualization::updateDataIntern(::maps::grid::GridMapD const& value)

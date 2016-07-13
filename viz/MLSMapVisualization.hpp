@@ -20,6 +20,7 @@ namespace vizkit3d
     {
         Q_OBJECT
 
+        Q_PROPERTY(bool show_map_extents READ areMapExtentsShown WRITE setShowMapExtents)
         Q_PROPERTY(bool show_uncertainty READ isUncertaintyShown WRITE setShowUncertainty)
         Q_PROPERTY(bool show_negative READ isNegativeShown WRITE setShowNegative)
         Q_PROPERTY(bool show_patch_extents READ arePatchExtentsShown WRITE setShowPatchExtents)        
@@ -84,7 +85,10 @@ namespace vizkit3d
             void setUncertaintyColor(QColor color);
 
             void setShowPatchExtents( bool value );
-            bool arePatchExtentsShown() const;        
+            bool arePatchExtentsShown() const; 
+
+            void setShowMapExtents(bool value);
+            bool areMapExtentsShown() const;       
 
         protected:
             osg::Vec4 horizontalCellColor;
@@ -92,6 +96,7 @@ namespace vizkit3d
             osg::Vec4 negativeCellColor;
             osg::Vec4 uncertaintyColor;
 
+            bool showMapExtents;
             bool showUncertainty;
             bool showNegative;
             bool estimateNormals;

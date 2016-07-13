@@ -1,15 +1,18 @@
 #include <iostream>
 
-#include "MLSMapVisualization.hpp"
-
-#include "PatchesGeode.hpp"
-
 #include <osg/Geode>
 #include <osg/ShapeDrawable>
 #include <osg/Material>
 
 #include <base/TimeMark.hpp>
 
+#include <vizkit3d/ColorConversionHelper.hpp>
+
+#include "MLSMapVisualization.hpp"
+
+#include "PatchesGeode.hpp"
+
+#include "ExtentsRectangle.hpp"
 
 using namespace vizkit3d;
 using namespace ::maps::grid;
@@ -20,7 +23,6 @@ osg::Vec3 Vec3( const Eigen::Matrix<T,3,1>& v )
     return osg::Vec3( v.x(), v.y(), v.z() );
 }
 
-
 struct MLSMapVisualization::Data {
     // Copy of the value given to updateDataIntern.
     //
@@ -28,7 +30,7 @@ struct MLSMapVisualization::Data {
     virtual ~Data() { }
     virtual Eigen::Vector2d getResolution() const = 0;
     virtual void visualize(vizkit3d::PatchesGeode& geode) const = 0;
-
+    virtual void visualizeExtents(osg::Group* group) const = 0;
 };
 
 template<enum MLSConfig::update_model Type>
@@ -38,11 +40,13 @@ struct DataHold : public MLSMapVisualization::Data
     DataHold(const MLSMap<Type> mls_) : mls(mls_) {}
     Eigen::Vector2d getResolution() const { return mls.getResolution(); }
     void visualize(vizkit3d::PatchesGeode& geode) const;
+    void visualizeExtents(osg::Group* group) const;
 };
 
 
 MLSMapVisualization::MLSMapVisualization()
     : p(0),
+    showMapExtents(false),
     horizontalCellColor(osg::Vec4(0.1,0.5,0.9,1.0)), 
     verticalCellColor(osg::Vec4(0.8,0.9,0.5,1.0)), 
     negativeCellColor(osg::Vec4(0.1,0.5,0.9,0.2)), 
@@ -81,6 +85,13 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
 
     osg::ref_ptr<PatchesGeode> geode = new PatchesGeode(res.x(), res.y());
     group->setChild( 0, geode );
+
+    // draw the extents of the mls
+    group->removeChild( 1 );
+    if( showMapExtents )
+    {
+        p->visualizeExtents(group);
+    }
 
     if(cycleHeightColor)
     {
@@ -161,11 +172,28 @@ void DataHold<Type>::visualize(vizkit3d::PatchesGeode& geode) const
             } // for(SPList ...)
         } // for(y ...)
     } // for(x ...)
+}  
 
+template<enum MLSConfig::update_model Type>
+void DataHold<Type>::visualizeExtents(osg::Group* group) const
+{
+    // get the color as a function of the group
+    float scale = ((long)group%1000)/1000.0;
+    osg::Vec4 col(0,0,0,1);
+    vizkit3d::hslToRgb( scale, 1.0, 0.6, col.x(), col.y(), col.z() );
+  
+    CellExtents extents = mls.calculateCellExtents();
 
+    Eigen::Vector2d min = extents.min().cast<double>().cwiseProduct(mls.getResolution());
+    Eigen::Vector2d max = extents.max().cast<double>().cwiseProduct(mls.getResolution());
 
+    Eigen::Vector3d min_d = mls.getLocalFrame().inverse() * Eigen::Vector3d(min.x(), min.y(), 0.);
+    Eigen::Vector3d max_d = mls.getLocalFrame().inverse() * Eigen::Vector3d(max.x(), max.y(), 0.);
 
-}  // namespace maps
+    group->addChild( 
+        new ExtentsRectangle( Eigen::Vector2d(min_d.x(), min_d.y()),
+            Eigen::Vector2d(max_d.x(), max_d.y())));
+}  
 
 
 void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::KALMAN> const& value)
@@ -175,6 +203,18 @@ void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMap<::maps::grid::ML
 void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::SLOPE> const& value)
 {
     p.reset(new DataHold<MLSConfig::SLOPE>( value ));
+}
+
+void MLSMapVisualization::setShowMapExtents(bool value)
+{
+    showMapExtents = value;
+    emit propertyChanged("show_map_extents");
+    setDirty();
+}
+
+bool MLSMapVisualization::areMapExtentsShown() const
+{
+    return showMapExtents;
 }
 
 

@@ -10,6 +10,7 @@ rock_vizkit_plugin(maps-viz
         ContourMapVisualization.cpp
     HEADERS
         ColorGradient.hpp
+        ExtentsRectangle.hpp
         GridMapVisualization.hpp
         ElevationMapVisualization.hpp
         MLSMapVisualization.hpp
