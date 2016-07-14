@@ -37,6 +37,18 @@ namespace maps { namespace grid
 
         const std::vector<TraversabilityNodeBase *> &getConnections() const;
         
+        TraversabilityNodeBase *getConnectedNode(const Index &toIdx) const
+        {
+            for(maps::grid::TraversabilityNodeBase *con: connections)
+            {
+                if(toIdx == con->getIndex())
+                {
+                    return con;
+                }
+            }
+            return nullptr;
+        }
+        
         bool operator<(const TraversabilityNodeBase& other) const
         {
             return height < other.height;
@@ -107,6 +119,11 @@ namespace maps { namespace grid
         {
             return userData;
         };
+        
+        TraversabilityNode<T> *getConnectedNode(const Index &toIdx) const
+        {
+            return static_cast<TraversabilityNode<T> *>(TraversabilityNodeBase::getConnectedNode(toIdx));
+        }
     };
 
     template <class T>
