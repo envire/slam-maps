@@ -43,6 +43,40 @@ namespace maps { namespace grid
             return intersectCuboid(box, ignore);
         }
         
+        /** Intersects @p box with the mls map.
+         * @return A list of patches and their grid indices that intersect the @p box.
+         * @throw std::runtime_error if any part of @p box is outside the grid*/
+        std::vector<std::pair<Index, const P*>> intersectAABB(const Eigen::AlignedBox3d& box) const
+        {
+            std::vector<std::pair<Index, const P*>> ret;
+            double minHeight = box.min().z();
+            double maxHeight = box.max().z();
+            
+            Index minIdx;
+            Index maxIdx;
+            
+            if(!this->toGrid(box.min(), minIdx) || !this->toGrid(box.max(), maxIdx))
+            {
+                throw std::runtime_error("box outside map");
+            }
+            
+            for(size_t x = minIdx.x();x < maxIdx.x(); x++)
+            {
+                for(size_t y = minIdx.y(); y < maxIdx.y(); y++)
+                {
+                    const Index curIdx(x,y);
+                    for(const P &p: this->at(curIdx))
+                    {
+                        if(::maps::tools::overlap(p.getMin(), p.getMax(), minHeight, maxHeight))
+                        {
+                            ret.emplace_back(curIdx, &p);
+                        }
+                    }
+                }
+            }
+            return ret;
+        }
+        
         /** @param outNumIntersections contains the number of mls patches that
                                        intersected the @p box*/
         View intersectCuboid(const Eigen::AlignedBox3d& box, size_t& outNumIntersections) const
