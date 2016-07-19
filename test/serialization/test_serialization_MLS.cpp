@@ -1,8 +1,8 @@
 #define BOOST_TEST_MODULE SerializationTest
 #include <boost/test/unit_test.hpp>
 
-#include <boost/archive/polymorphic_binary_iarchive.hpp>
-#include <boost/archive/polymorphic_binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
 
 /** Based local map **/
 #include <maps/grid/MLSMap.hpp>
@@ -14,11 +14,11 @@ BOOST_AUTO_TEST_CASE(test_mls_surfacepatchbase_serialization)
     SurfacePatchBase sp_o(0.5, 1.3, 23);
 
     std::stringstream stream;
-    boost::archive::polymorphic_binary_oarchive oa(stream);
+    boost::archive::binary_oarchive oa(stream);
     oa << sp_o;
 
     // deserialize from string stream
-    boost::archive::polymorphic_binary_iarchive *ia = new boost::archive::polymorphic_binary_iarchive(stream);
+    boost::archive::binary_iarchive *ia = new boost::archive::binary_iarchive(stream);
     SurfacePatchBase sp_i;
     (*ia) >> sp_i;
 
@@ -35,11 +35,11 @@ BOOST_AUTO_TEST_CASE(test_mls_surfacepatchslope_serialization)
     SurfacePatch<MLSConfig::SLOPE> sp_o(Eigen::Vector3f(-3.2, 2.5, -4.5), 4.6);
 
     std::stringstream stream;
-    boost::archive::polymorphic_binary_oarchive oa(stream);
+    boost::archive::binary_oarchive oa(stream);
     oa << sp_o;
 
     // deserialize from string stream
-    boost::archive::polymorphic_binary_iarchive *ia = new boost::archive::polymorphic_binary_iarchive(stream);
+    boost::archive::binary_iarchive *ia = new boost::archive::binary_iarchive(stream);
     SurfacePatch<MLSConfig::SLOPE> sp_i;
     (*ia) >> sp_i;
 
@@ -58,11 +58,11 @@ BOOST_AUTO_TEST_CASE(test_mls_surfacepatchkalman_serialization)
     SurfacePatch<MLSConfig::KALMAN> sp_o(Eigen::Vector3f(-3.2, 2.5, -4.5), 4.6);
 
     std::stringstream stream;
-    boost::archive::polymorphic_binary_oarchive oa(stream);
+    boost::archive::binary_oarchive oa(stream);
     oa << sp_o;
 
     // deserialize from string stream
-    boost::archive::polymorphic_binary_iarchive *ia = new boost::archive::polymorphic_binary_iarchive(stream);
+    boost::archive::binary_iarchive *ia = new boost::archive::binary_iarchive(stream);
     SurfacePatch<MLSConfig::KALMAN> sp_i;
     (*ia) >> sp_i;
 
@@ -105,10 +105,10 @@ BOOST_AUTO_TEST_CASE(test_mls_serialization)
     }
 
     std::stringstream stream;
-    boost::archive::polymorphic_binary_oarchive oa(stream);
+    boost::archive::binary_oarchive oa(stream);
     oa << mls_o;  
 
-    boost::archive::polymorphic_binary_iarchive *ia = new boost::archive::polymorphic_binary_iarchive(stream);
+    boost::archive::binary_iarchive *ia = new boost::archive::binary_iarchive(stream);
     MLSMapSloped mls_i;
     (*ia) >> mls_i;
 

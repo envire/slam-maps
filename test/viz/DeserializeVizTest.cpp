@@ -1,7 +1,7 @@
 #include <vizkit3d/StandaloneVisualizer.hpp>
 
 #include <fstream>
-#include <boost/archive/polymorphic_binary_iarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
 
 int main(int argc, char **argv) {
 	if(argc < 2)
@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
 	}
 
 	std::ifstream input(argv[1],  std::ios::binary);
-	boost::archive::polymorphic_binary_iarchive  ia(input);
+	boost::archive::binary_iarchive  ia(input);
 	maps::grid::MLSMapSloped mls;
 
 	ia >> mls;

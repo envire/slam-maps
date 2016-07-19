@@ -1,8 +1,8 @@
 #define BOOST_TEST_MODULE SerializationTest
 #include <boost/test/unit_test.hpp>
 
-#include <boost/archive/polymorphic_binary_iarchive.hpp>
-#include <boost/archive/polymorphic_binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
 
 /** Grid maps **/
 #include <maps/grid/GridMap.hpp>
@@ -65,11 +65,11 @@ BOOST_AUTO_TEST_CASE(test_grid_serialization)
     storage_o.at(1, 1) = A(1, 1);
 
     std::stringstream stream;
-    boost::archive::polymorphic_binary_oarchive oa(stream);
+    boost::archive::binary_oarchive oa(stream);
     oa << storage_o;
 
     // deserialize from string stream
-    boost::archive::polymorphic_binary_iarchive *ia = new boost::archive::polymorphic_binary_iarchive(stream);
+    boost::archive::binary_iarchive *ia = new boost::archive::binary_iarchive(stream);
     VectorGrid<A> storage_i;
     (*ia) >> storage_i; 
 
@@ -109,11 +109,11 @@ BOOST_AUTO_TEST_CASE(test_gridmap_serialization)
     grid_map_o.at(1, 1) = A(1, 1);
 
     std::stringstream stream;
-    boost::archive::polymorphic_binary_oarchive oa(stream);
+    boost::archive::binary_oarchive oa(stream);
     oa << grid_map_o;
 
     // deserialize from string stream
-    boost::archive::polymorphic_binary_iarchive *ia = new boost::archive::polymorphic_binary_iarchive(stream);
+    boost::archive::binary_iarchive *ia = new boost::archive::binary_iarchive(stream);
     GridMap<A> grid_map_i;
     (*ia) >> grid_map_i; 
 
@@ -148,11 +148,11 @@ BOOST_AUTO_TEST_CASE(test_levellist_serialization)
     list.insert(42);
     list.insert(-1337);
     std::stringstream stream;
-    boost::archive::polymorphic_binary_oarchive oa(stream);
+    boost::archive::binary_oarchive oa(stream);
     oa << list;
 
     // deserialize from string stream
-    boost::archive::polymorphic_binary_iarchive ia(stream);
+    boost::archive::binary_iarchive ia(stream);
     LevelList<int> list_out;
     ia >> list_out;
 
@@ -178,12 +178,12 @@ BOOST_AUTO_TEST_CASE(test_mlgrid_serialization)
     }
 
     std::stringstream stream;
-    boost::archive::polymorphic_binary_oarchive oa(stream);
+    boost::archive::binary_oarchive oa(stream);
     std::cout << stream.str().size() << std::endl;
     oa << grid;
     std::cout << stream.str().size() << std::endl;
     // deserialize from string stream
-    boost::archive::polymorphic_binary_iarchive ia(stream);
+    boost::archive::binary_iarchive ia(stream);
     ia >> grid2;
 
 

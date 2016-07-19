@@ -1,8 +1,8 @@
 #define BOOST_TEST_MODULE SerializationTest
 #include <boost/test/unit_test.hpp>
 
-#include <boost/archive/polymorphic_binary_iarchive.hpp>
-#include <boost/archive/polymorphic_binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
 
 /** Element type **/
 #include <maps/geometric/Point.hpp>
@@ -19,13 +19,13 @@ BOOST_AUTO_TEST_CASE(test_2d_point_serialization)
 
     /** Serialization **/
     std::stringstream stream;
-    boost::archive::polymorphic_binary_oarchive oa(stream);
+    boost::archive::binary_oarchive oa(stream);
     //std::cout << stream.str().size() << std::endl;
     oa << p_a_original;
 
     /** De-serialize **/
     Point<double, 2> p_a_copy;
-    boost::archive::polymorphic_binary_iarchive ia(stream);
+    boost::archive::binary_iarchive ia(stream);
     ia >> p_a_copy;
 
     BOOST_CHECK_EQUAL(p_a_original.x(), p_a_copy.x());
@@ -39,13 +39,13 @@ BOOST_AUTO_TEST_CASE(test_3d_point_serialization)
 
     /** Serialization **/
     std::stringstream stream;
-    boost::archive::polymorphic_binary_oarchive oa(stream);
+    boost::archive::binary_oarchive oa(stream);
     //std::cout << stream.str().size() << std::endl;
     oa << p_a_original;
 
     /** De-serialize **/
     Point<double, 3> p_a_copy;
-    boost::archive::polymorphic_binary_iarchive ia(stream);
+    boost::archive::binary_iarchive ia(stream);
     ia >> p_a_copy;
 
     BOOST_CHECK_EQUAL(p_a_original.x(), p_a_copy.x());
@@ -61,12 +61,12 @@ BOOST_AUTO_TEST_CASE(test_2d_line_serialization)
 
     /** Serialization **/
     std::stringstream stream;
-    boost::archive::polymorphic_binary_oarchive oa(stream);
+    boost::archive::binary_oarchive oa(stream);
     oa << line_original;
 
     /** De-serialize **/
     LineSegment<double, 2> line_copy;
-    boost::archive::polymorphic_binary_iarchive ia(stream);
+    boost::archive::binary_iarchive ia(stream);
     ia >> line_copy;
 
     BOOST_CHECK_EQUAL(line_original.psi_a(), line_copy.psi_a());
@@ -84,12 +84,12 @@ BOOST_AUTO_TEST_CASE(test_3d_line_serialization)
 
     /** Serialization **/
     std::stringstream stream;
-    boost::archive::polymorphic_binary_oarchive oa(stream);
+    boost::archive::binary_oarchive oa(stream);
     oa << line_original;
 
     /** De-serialize **/
     LineSegment<double, 3> line_copy;
-    boost::archive::polymorphic_binary_iarchive ia(stream);
+    boost::archive::binary_iarchive ia(stream);
     ia >> line_copy;
 
     BOOST_CHECK_EQUAL(line_original.psi_a(), line_copy.psi_a());
@@ -112,13 +112,13 @@ BOOST_AUTO_TEST_CASE(test_geometric_2d_point_map_serialization)
 
     /** Serialization **/
     std::stringstream stream;
-    boost::archive::polymorphic_binary_oarchive oa(stream);
+    boost::archive::binary_oarchive oa(stream);
     //std::cout << stream.str().size() << std::endl;
     oa << geometric;
 
     /** De-serialize **/
     GeometricMap< Point<double, 2> > geometric_copy;
-    boost::archive::polymorphic_binary_iarchive ia(stream);
+    boost::archive::binary_iarchive ia(stream);
     ia >> geometric_copy;
 
     /** Verification **/
@@ -144,13 +144,13 @@ BOOST_AUTO_TEST_CASE(test_geometric_3d_point_map_serialization)
 
     /** Serialization **/
     std::stringstream stream;
-    boost::archive::polymorphic_binary_oarchive oa(stream);
+    boost::archive::binary_oarchive oa(stream);
     //std::cout << stream.str().size() << std::endl;
     oa << geometric;
 
     /** De-serialize **/
     GeometricMap< Point<double, 3> > geometric_copy;
-    boost::archive::polymorphic_binary_iarchive ia(stream);
+    boost::archive::binary_iarchive ia(stream);
     ia >> geometric_copy;
 
     /** Verification **/

@@ -1,8 +1,8 @@
 #define BOOST_TEST_MODULE SerializationTest
 #include <boost/test/unit_test.hpp>
 
-#include <boost/archive/polymorphic_binary_iarchive.hpp>
-#include <boost/archive/polymorphic_binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
 
 /** Based local map **/
 #include <maps/LocalMap.hpp>
@@ -20,11 +20,11 @@ BOOST_AUTO_TEST_CASE(test_localmap_data_serialization)
 
     // serialize
     std::stringstream stream;
-    boost::archive::polymorphic_binary_oarchive oa(stream);
+    boost::archive::binary_oarchive oa(stream);
     oa << local_map_data_o;
 
     // deserialize from string stream
-    boost::archive::polymorphic_binary_iarchive ia(stream);
+    boost::archive::binary_iarchive ia(stream);
     LocalMapData local_map_data_i;
     ia >> local_map_data_i;
 
@@ -49,11 +49,11 @@ BOOST_AUTO_TEST_CASE(test_localmap_serialization)
 
     // serialize
     std::stringstream stream;
-    boost::archive::polymorphic_binary_oarchive oa(stream);
+    boost::archive::binary_oarchive oa(stream);
     oa << local_map_o;
 
     // deserialize from string stream
-    boost::archive::polymorphic_binary_iarchive *ia = new boost::archive::polymorphic_binary_iarchive(stream);
+    boost::archive::binary_iarchive *ia = new boost::archive::binary_iarchive(stream);
     LocalMap local_map_i;
     (*ia) >> local_map_i;
 
