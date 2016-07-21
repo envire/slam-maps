@@ -68,17 +68,17 @@ namespace vizkit3d
 
         //-- Inputs a (value) between 0 and 1 and outputs the (red), (green) and (blue)
         //-- values representing that position in the gradient.
-        void getColorAtValue(const float value, float &red, float &green, float &blue)
+        void getColorAtValue(const float value, float &red, float &green, float &blue) const
         {
             if(color.size() == 0)
                 return;
 
             for(int i = 0; i < static_cast<int>(color.size()); i++)
             {
-                ColorPoint &currC = color[i];
+                const ColorPoint &currC = color[i];
                 if(value < currC.val)
                 {
-                    ColorPoint &prevC  = color[ std::max(0, i - 1) ];
+                    const ColorPoint &prevC  = color[ std::max(0, i - 1) ];
                     float valueDiff    = (prevC.val - currC.val);
                     float fractBetween = (valueDiff == 0) ? 0 : (value - currC.val) / valueDiff;
                     red   = (prevC.r - currC.r) * fractBetween + currC.r;

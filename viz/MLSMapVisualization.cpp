@@ -23,6 +23,33 @@ osg::Vec3 Vec3( const Eigen::Matrix<T,3,1>& v )
     return osg::Vec3( v.x(), v.y(), v.z() );
 }
 
+namespace vizkit3d {
+struct PatchVisualizer
+{
+    static void visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::SLOPE>& p)
+    {
+        if( !p.isNegative() )
+        {
+            float minZ, maxZ;
+            p.getRange(minZ, maxZ);
+//                        float stdev = p.getStdev() + 1e-4f;
+            float zp= (maxZ+minZ)*0.5f;
+            float height = (maxZ - minZ) + 1e-3f;
+            osg::Vec3 mean = Vec3(p.getCenter());
+            mean.z() -= zp;
+            osg::Vec3 normal = Vec3(p.getNormal());
+            geode.drawPlane(zp, height, mean, normal);
+        }
+    }
+    static void visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::KALMAN>& p)
+    {
+        {
+            geode.drawBox(p.mean, p.height, Vec3(p.getNormal()));
+        }
+    }
+};
+}
+
 struct MLSMapVisualization::Data {
     // Copy of the value given to updateDataIntern.
     //
@@ -37,12 +64,52 @@ template<enum MLSConfig::update_model Type>
 struct DataHold : public MLSMapVisualization::Data
 {
     MLSMap<Type> mls;
-    DataHold(const MLSMap<Type> mls_) : mls(mls_) {}
-    Eigen::Vector2d getResolution() const { return mls.getResolution(); }
-    void visualize(vizkit3d::PatchesGeode& geode) const;
-    void visualizeExtents(osg::Group* group) const;
-};
 
+    DataHold(const MLSMap<Type> mls_) : mls(mls_) {}
+
+    Eigen::Vector2d getResolution() const { return mls.getResolution(); }
+    void visualize(vizkit3d::PatchesGeode& geode) const
+    {
+        //const GridMap<SPListST> &mls = *this;
+        Vector2ui num_cell = mls.getNumCells();
+        for (size_t x = 0; x < num_cell.x(); x++)
+        {
+            for (size_t y = 0; y < num_cell.y(); y++)
+            {
+                typedef typename MLSMap<Type>::CellType Cell;
+                const Cell &list = mls.at(x, y);
+
+                Vector3d pos(0.00, 0.00, 0.00);
+                mls.fromGrid(Index(x,y), pos);
+                geode.setPosition(pos.x(), pos.y());
+                for (typename Cell::const_iterator it = list.begin(); it != list.end(); it++)
+                {
+                    PatchVisualizer::visualize(geode, *it);
+                } // for(SPList ...)
+            } // for(y ...)
+        } // for(x ...)        
+    };
+    
+    void visualizeExtents(osg::Group* group) const
+    {
+        // get the color as a function of the group
+        float scale = ((long)group%1000)/1000.0;
+        osg::Vec4 col(0,0,0,1);
+        vizkit3d::hslToRgb( scale, 1.0, 0.6, col.x(), col.y(), col.z() );
+      
+        CellExtents extents = mls.calculateCellExtents();
+
+        Eigen::Vector2d min = extents.min().cast<double>().cwiseProduct(mls.getResolution());
+        Eigen::Vector2d max = extents.max().cast<double>().cwiseProduct(mls.getResolution());
+
+        Eigen::Vector3d min_d = mls.getLocalFrame().inverse() * Eigen::Vector3d(min.x(), min.y(), 0.);
+        Eigen::Vector3d max_d = mls.getLocalFrame().inverse() * Eigen::Vector3d(max.x(), max.y(), 0.);
+
+        group->addChild( 
+            new ExtentsRectangle( Eigen::Vector2d(min_d.x(), min_d.y()),
+                Eigen::Vector2d(max_d.x(), max_d.y())));
+    };
+};
 
 MLSMapVisualization::MLSMapVisualization()
     : p(0),
@@ -118,83 +185,6 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
     std::cout << timer << std::endl;
 
 }
-
-namespace maps { namespace grid
-{
-
-
-struct PatchVisualizer
-{
-    static void visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::SLOPE>& p)
-    {
-        if( !p.isNegative() )
-        {
-            float minZ, maxZ;
-            p.getRange(minZ, maxZ);
-//                        float stdev = p.getStdev() + 1e-4f;
-            float zp= (maxZ+minZ)*0.5f;
-            float height = (maxZ - minZ) + 1e-3f;
-            osg::Vec3 mean = Vec3(p.getCenter());
-            mean.z() -= zp;
-            osg::Vec3 normal = Vec3(p.getNormal());
-            geode.drawPlane(zp, height, mean, normal);
-        }
-    }
-    static void visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::KALMAN>& p)
-    {
-        {
-            geode.drawBox(p.mean, p.height, Vec3(p.getNormal()));
-        }
-    }
-};
-
-} // namespace maps
-} // namespace grid
-
-template<enum MLSConfig::update_model Type>
-void DataHold<Type>::visualize(vizkit3d::PatchesGeode& geode) const
-{
-    //const GridMap<SPListST> &mls = *this;
-    Vector2ui num_cell = mls.getNumCells();
-    for (size_t x = 0; x < num_cell.x(); x++)
-    {
-        for (size_t y = 0; y < num_cell.y(); y++)
-        {
-            typedef typename MLSMap<Type>::CellType Cell;
-            const Cell &list = mls.at(x, y);
-
-            Vector3d pos(0.00, 0.00, 0.00);
-            mls.fromGrid(Index(x,y), pos);
-            geode.setPosition(pos.x(), pos.y());
-            for (typename Cell::const_iterator it = list.begin(); it != list.end(); it++)
-            {
-                PatchVisualizer::visualize(geode, *it);
-            } // for(SPList ...)
-        } // for(y ...)
-    } // for(x ...)
-}  
-
-template<enum MLSConfig::update_model Type>
-void DataHold<Type>::visualizeExtents(osg::Group* group) const
-{
-    // get the color as a function of the group
-    float scale = ((long)group%1000)/1000.0;
-    osg::Vec4 col(0,0,0,1);
-    vizkit3d::hslToRgb( scale, 1.0, 0.6, col.x(), col.y(), col.z() );
-  
-    CellExtents extents = mls.calculateCellExtents();
-
-    Eigen::Vector2d min = extents.min().cast<double>().cwiseProduct(mls.getResolution());
-    Eigen::Vector2d max = extents.max().cast<double>().cwiseProduct(mls.getResolution());
-
-    Eigen::Vector3d min_d = mls.getLocalFrame().inverse() * Eigen::Vector3d(min.x(), min.y(), 0.);
-    Eigen::Vector3d max_d = mls.getLocalFrame().inverse() * Eigen::Vector3d(max.x(), max.y(), 0.);
-
-    group->addChild( 
-        new ExtentsRectangle( Eigen::Vector2d(min_d.x(), min_d.y()),
-            Eigen::Vector2d(max_d.x(), max_d.y())));
-}  
-
 
 void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::KALMAN> const& value)
 {
