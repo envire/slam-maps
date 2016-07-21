@@ -35,6 +35,6 @@ rock_library(maps
         Boost
     DEPS_PKGCONFIG 
         base-types 
-        pcl_registration-1.7
+        pcl_registration-1.8
     DEPS_PLAIN
         CGAL)
