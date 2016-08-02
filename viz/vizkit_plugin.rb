@@ -15,8 +15,6 @@ Vizkit::UiLoader.register_3d_plugin_for('GridMapVisualization', "/envire/core/Sp
     end
     plugin.updateData(sample.data)
 end
-
-Vizkit::UiLoader.register_3d_plugin('GridMapVisualization', 'maps', 'GridMapVisualization')
 Vizkit::UiLoader.register_3d_plugin_for('GridMapVisualization', "/maps/GridMap<float>", :updateData )
 Vizkit::UiLoader.register_3d_plugin_for('GridMapVisualization', "/envire/core/SpatioTemporal</maps/GridMap<float>>") do |plugin,sample,_|
     if plugin.getVisualizationFrames.include? sample.frame_id
@@ -24,8 +22,6 @@ Vizkit::UiLoader.register_3d_plugin_for('GridMapVisualization', "/envire/core/Sp
     end
     plugin.updateData(sample.data)
 end
-
-Vizkit::UiLoader.register_3d_plugin('GridMapVisualization', 'maps', 'GridMapVisualization')
 Vizkit::UiLoader.register_3d_plugin_for('GridMapVisualization', "/maps/GridMap<int>", :updateData )
 Vizkit::UiLoader.register_3d_plugin_for('GridMapVisualization', "/envire/core/SpatioTemporal</maps/GridMap<int>>") do |plugin,sample,_|
     if plugin.getVisualizationFrames.include? sample.frame_id
@@ -33,8 +29,6 @@ Vizkit::UiLoader.register_3d_plugin_for('GridMapVisualization', "/envire/core/Sp
     end
     plugin.updateData(sample.data)
 end
-
-Vizkit::UiLoader.register_3d_plugin('GridMapVisualization', 'maps', 'GridMapVisualization')
 Vizkit::UiLoader.register_3d_plugin_for('GridMapVisualization', "/maps/GridMap<char>", :updateData )
 Vizkit::UiLoader.register_3d_plugin_for('GridMapVisualization', "/envire/core/SpatioTemporal</maps/GridMap<char>>") do |plugin,sample,_|
     if plugin.getVisualizationFrames.include? sample.frame_id
