@@ -33,8 +33,8 @@ rock_library(maps
         operations/GridInterpolation.hpp
     DEPS_CMAKE
         Boost
+        PCL
     DEPS_PKGCONFIG 
         base-types 
-        pcl_registration-1.8
     DEPS_PLAIN
         CGAL)
