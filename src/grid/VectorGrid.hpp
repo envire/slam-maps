@@ -6,6 +6,8 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost_serialization/ClassVersion.hpp>
+#include <boost_serialization/DynamicSizeSerialization.hpp>
 
 #include <maps/grid/Index.hpp>
 
@@ -204,15 +206,29 @@ namespace maps { namespace grid
             ar << BOOST_SERIALIZATION_NVP(num_cells.derived());
             ar << BOOST_SERIALIZATION_NVP(default_value);
 
-            std::pair<const_iterator, const_iterator> ranges = getRange();
-            u_int32_t first_idx = std::distance(begin(), ranges.first);
-            u_int32_t last_idx = std::distance(begin(), ranges.second);
-            ar << first_idx;
-            ar << last_idx;
-            while(ranges.first != ranges.second)
+            const_iterator block_start_cell = cells.begin();
+            const_iterator block_end_cell;
+            uint64_t block_size;
+            bool block_occupied;
+            while (block_start_cell != cells.end())
             {
-                ar << *ranges.first;
-                ranges.first++;
+                // identify the next block of occupied or non-occupied cells
+                nextBlock(block_start_cell, block_size, block_occupied, block_end_cell);
+
+                // save bock header
+                ar << block_occupied;
+                saveSizeValue(ar, block_size);
+
+                // set start cell equal to end cell if the block is not occupied
+                if (!block_occupied)
+                    block_start_cell = block_end_cell;
+
+                // write cells
+                while (block_start_cell != block_end_cell)
+                {
+                    ar << *block_start_cell;
+                    block_start_cell++;
+                }
             }
         }
 
@@ -225,16 +241,72 @@ namespace maps { namespace grid
             cells.clear();
             cells.resize(num_cells.x() * num_cells.y(), default_value);
 
-            u_int32_t first_idx;
-            u_int32_t last_idx;
-            ar >> first_idx;
-            ar >> last_idx;
-            while(first_idx != last_idx)
+            if (version == 0)
             {
-                ar >> cells[first_idx];
-                first_idx++;
+                // deserialization of version 0 of VectorGrid
+                u_int32_t first_idx;
+                u_int32_t last_idx;
+                ar >> first_idx;
+                ar >> last_idx;
+                while(first_idx != last_idx)
+                {
+                    ar >> cells[first_idx];
+                    first_idx++;
+                }
+            }
+            else
+            {
+                // return of cells are empty
+                if (cells.empty())
+                    return;
+
+                bool block_occupied;
+                uint64_t block_size;
+                size_t current_cell = 0;
+                size_t block_end;
+                while (current_cell < cells.size())
+                {
+                    // receive block header
+                    ar >> block_occupied;
+                    loadSizeValue(ar, block_size);
+                    block_end = current_cell + block_size;
+
+                    // skip, if cells of this block are not occupied
+                    if (!block_occupied)
+                        current_cell = block_end;
+
+                    // read cells
+                    while (current_cell < block_end)
+                    {
+                        ar >> cells[current_cell];
+                        current_cell++;
+                    }
+                }
             }
         }
+
+    private:
+
+        /**
+         * Identifies the next occupied or non-occupied block from a given start cell.
+         * If the start cell is equal to the default cell value the block is considered
+         * non-occupied and vice versa.
+         */
+        void nextBlock(const_iterator start_cell, uint64_t &block_size, bool &block_occupied, const_iterator &end_cell) const
+        {
+            // check if the start cell is occupied
+            block_occupied = *start_cell != default_value;
+            // find next either occupied or non-occupied cell
+            if (block_occupied)
+                end_cell = std::find_if_not(start_cell+1, cells.end(),
+                                                     std::bind1st(std::not_equal_to<CellT>(), default_value));
+            else
+                end_cell = std::find_if_not(start_cell+1, cells.end(),
+                                                     std::bind1st(std::equal_to<CellT>(), default_value));
+            // compute block size
+            block_size = std::distance(start_cell, end_cell);
+        }
     };
-    
 }}
+
+BOOST_TEMPLATED_CLASS_VERSION(maps::grid::VectorGrid, 1)
