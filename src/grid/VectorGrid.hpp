@@ -128,16 +128,12 @@ namespace maps { namespace grid
 
         const CellT& at(const Index &idx) const
         {
-            if(idx.x() >= num_cells.x() || idx.y() >= num_cells.y())
-                throw std::runtime_error("Provided index is out of the grid");
-            return cells[idx.x() + idx.y() * num_cells.x()];
+            return this->at(idx.x(), idx.y());
         }
 
         CellT& at(const Index &idx)
         {
-            if(idx.x() >= num_cells.x() || idx.y() >= num_cells.y())
-                throw std::runtime_error("Provided index is out of the grid");
-            return cells[idx.x() + idx.y() * num_cells.x()];
+            return this->at(idx.x(), idx.y());
         }
 
         const CellT& at(size_t x, size_t y) const
