@@ -1,5 +1,6 @@
 #define BOOST_TEST_MODULE VizTest
 #include <boost/test/included/unit_test.hpp>
+#include <boost/archive/polymorphic_binary_oarchive.hpp>
 
 #include <Eigen/Geometry>
 
@@ -20,16 +21,17 @@ static void show_MLS(const MLSMap& mls)
     }
 }
 
-BOOST_AUTO_TEST_CASE( mlsviz_test )
+template<MLSConfig::update_model mlsType>
+void mls_waves(const std::string& filename)
 {
     //    GridConfig conf(300, 300, 0.05, 0.05, -7.5, -7.5);
     Vector2d res(0.05, 0.05);
     Vector2ui numCells(300, 300);
 
     MLSConfig mls_config;
-    mls_config.updateModel = MLSConfig::SLOPE;
-    //mls_config.updateModel = MLSConfig::KALMAN;
-    MLSMapSloped *mls = new MLSMapSloped(numCells, res, mls_config);
+    typedef MLSMap<mlsType> MLSMap;
+    mls_config.updateModel = mlsType;
+    MLSMap *mls = new MLSMap(numCells, res, mls_config);
 
     /** Translate the local frame (offset) **/
     mls->getLocalFrame().translation() << 0.5*mls->getSize(), 0;
@@ -55,7 +57,21 @@ BOOST_AUTO_TEST_CASE( mlsviz_test )
         }
     }
 
+    if(!filename.empty())
+    {
+        std::ofstream of(filename.c_str(), std::ios::binary);
+        boost::archive::polymorphic_binary_oarchive oa(of);
+        oa << *mls;
+    }
+
     show_MLS(*mls);
+
+}
+
+BOOST_AUTO_TEST_CASE( mlsviz_test )
+{
+    mls_waves<MLSConfig::SLOPE>("MLSMapSloped_waves.bin");
+    mls_waves<MLSConfig::KALMAN>("MLSMapKalman_waves.bin");
 }
 
 BOOST_AUTO_TEST_CASE(mls_loop)
