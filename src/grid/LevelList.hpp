@@ -188,6 +188,7 @@ public:
     {
     };
     
+    virtual ~LevelListAccessImpl() {}
 };
 
 }} // namespace maps

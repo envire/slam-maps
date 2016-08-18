@@ -1,6 +1,9 @@
 #define BOOST_TEST_MODULE GridTest
 #include <boost/test/unit_test.hpp>
 
+// This warning is slightly annoying (and likely only occurs because all values are known at compile time here):
+#pragma GCC diagnostic ignored "-Wstrict-overflow"
+
 #include <maps/grid/Index.hpp>
 #include <iostream>
 

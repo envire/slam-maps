@@ -57,7 +57,7 @@ namespace maps
             std::string id;
 
             /** 
-             * @brief Offest of the local map frame
+             * @brief Offset of the local map frame
              * @details
              * The map uses the Cartesian coordinate system. Initially it is defined as follows:
              *    - the initial origin (0,0,0) of the map is placed in the bottom left corner

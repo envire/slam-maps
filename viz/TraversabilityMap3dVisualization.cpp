@@ -131,6 +131,8 @@ void TraversabilityMap3dVisualization::visualizeConnection(const TraversabilityN
 {
     Eigen::Vector3f toPos = map.getNodePosition(to);
     Eigen::Vector3f fromPos = map.getNodePosition(from);
+    // FIXME Implement
+    (void) toPos; (void) fromPos;
 //     connectionGroup->addChild(getCylinder(fromPos, toPos));
 }
 
