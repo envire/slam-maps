@@ -215,6 +215,8 @@ namespace maps { namespace grid
          * frame expressed with respect to the map_frame.
          * map_frame is the local_frame in case there is an offset or grid_map
          * in case there is not offset
+         *
+         * @note Prefer using \c prepareToGridOptimized and \c toGridOptimized
          * */
         bool toGrid(const Vector3d& pos_in_frame, Index& idx, const base::Transform3d &frame_in_map) const
         {
@@ -244,6 +246,33 @@ namespace maps { namespace grid
             idx = idx_temp;
             
             return true;
+        }
+        /**
+         * Returns a Transform3d object which transform from a local frame to the grid frame and scales to the grid resolution.
+         * The return value of this shall be passed to \c toGridOptimized.
+         */
+        base::Transform3d prepareToGridOptimized(const base::Transform3d& frame2world)
+        {
+            base::Transform3d trafo = Eigen::DiagonalMatrix<double,3>(1.0/resolution.x(), 1.0/resolution.y(), 1.0) * this->getLocalFrame() * frame2world;
+            trafo.translation().head<2>().array()-=0.5; // x and y coordinates shall be rounded down
+
+            return trafo;
+
+        }
+
+        bool toGridOptimized(const Vector3d& pos, Index& idx, Vector3d& pos_diff, const base::Transform3d& trafo)
+        {
+            Vector3d pos_in_grid = trafo * pos;
+
+            Index idx_temp(std::round(pos_in_grid.x()), std::round(pos_in_grid.y()));
+
+            if(inGrid(idx_temp))
+            {
+                idx = idx_temp;
+                pos_diff << (pos_in_grid.head<2>() - idx.cast<double>()).cwiseProduct(resolution), pos_in_grid.z();
+                return true;
+            }
+            return false;
         }
 
         const CellT& at(const Vector3d& pos) const

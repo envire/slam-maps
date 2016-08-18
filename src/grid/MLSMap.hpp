@@ -56,29 +56,26 @@ namespace maps { namespace grid
 
         void mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& pc2grid, bool withUncertainty = false)
         {
-            // TODO change everything to float, if possible (requires refactoring Grid)
-
+            // FIXME useNegative does not really work
             const bool useNegative = false && config.useNegativeInformation; // TODO also check that grid is not empty?
             MLSMap tempGrid = useNegative
                             ? MLSMap(Base::getNumCells(), Base::getResolution(), config)
                             : MLSMap();
             MLSMap &workGrid = useNegative ? tempGrid : *this;
 
-        //    const std::vector<Eigen::Vector3d> & points = pc.vertices;
             // TODO uncertainty and color are ignored for now
             const double p_var = 0.01; // default uncertainty
             const double stdev = std::sqrt(p_var);
             typedef std::set<Index> IndexSet;
             IndexSet coveredCells;
+            base::Transform3d trafo = Base::prepareToGridOptimized(pc2grid);
 
             for(PointCloud::const_iterator it=pc.begin(); it != pc.end(); ++it)
             {
                 Eigen::Vector3d point = it->getArray3fMap().cast<double>();
-                Eigen::Vector3d pos = pc2grid * point;
                 Eigen::Vector3d pos_diff;
                 Index idx;
-                // TODO toGrid is expensive (involves applying another Transformation)
-                if(Base::toGrid(pos, idx, pos_diff))
+                if(Base::toGridOptimized(point, idx, pos_diff, trafo))
                 {
                     if(useNegative && isCovered(idx, pos_diff.z(), stdev))
                         continue;
