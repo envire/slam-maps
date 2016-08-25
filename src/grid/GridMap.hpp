@@ -154,15 +154,28 @@ namespace maps { namespace grid
          * */
         bool fromGrid(const Index& idx, Vector3d& pos, bool checkIndex = true) const
         {
+            return fromGrid(idx, pos, 0.0, checkIndex);
+        }
+
+        /** @brief get a position of an index and a given height z inside the Grid
+         *
+         *  By default this function checks, if the index is within the grid,
+         *  and returns false if the index is out of the grid.
+         *
+         *  If the index is inside the grid, or checkIndex is set to false,
+         *  this function will convert the given position into frame coordinates.
+         * */
+        bool fromGrid(const Index& idx, Vector3d& pos, double z, bool checkIndex = true) const
+        {
             /** Index inside the grid **/
-            if (!checkIndex || (checkIndex && inGrid(idx)))
+            if (!checkIndex || inGrid(idx))
             {
                 // position at the cell center without offset transformation
                 Vector2d center = (idx.cast<double>() + Vector2d(0.5, 0.5)).array() * resolution.array();
 
                 // Apply the offset transformation to the obtained position
                 // pos_local = (Tgrid_local)^-1 * pos_grid
-                pos = this->getLocalFrame().inverse() * Vector3d(center.x(), center.y(), 0.);
+                pos = this->getLocalFrame().inverse(Eigen::Isometry) * Vector3d(center.x(), center.y(), z);
                 return true;
             } else
             {
@@ -187,7 +200,7 @@ namespace maps { namespace grid
 
             /** Transform the position by the offset form the argument **/
             /** pos_in_frame = (Tmap_frame)^inverse * pos_in_map **/
-            pos_in_frame = frame_in_map.inverse() * pos_in_map;
+            pos_in_frame = frame_in_map.inverse(Eigen::Isometry) * pos_in_map;
 
             return true;
         }
