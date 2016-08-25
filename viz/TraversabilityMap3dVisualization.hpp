@@ -17,6 +17,7 @@ class TraversabilityMap3dVisualization
     , boost::noncopyable
 {
     Q_OBJECT
+    Q_PROPERTY(double isoline_interval READ getIsolineInterval WRITE setIsolineInterval)
 
 protected:
     virtual void updateDataIntern(const ::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase *>& data);
@@ -36,6 +37,8 @@ protected:
     osg::Group* nodeGroup;
     osg::Group* connectionGroup;
     
+    double isoline_interval;
+
 public:
     TraversabilityMap3dVisualization();
     virtual ~TraversabilityMap3dVisualization();
@@ -44,6 +47,9 @@ public:
     {
         vizkit3d::Vizkit3DPlugin<::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase *>>::updateData(sample);
     }
+
+    double getIsolineInterval() const { return isoline_interval; }
+    void setIsolineInterval(const double& val);
 };
 
 }
