@@ -2,6 +2,8 @@ find_package(Boost REQUIRED COMPONENTS system filesystem serialization)
 
 find_package(CGAL REQUIRED COMPONENTS Core)
 
+find_package(PCL 1.7 REQUIRED COMPONENTS common)
+
 rock_library(maps
     SOURCES
         grid/ElevationMap.cpp
@@ -33,8 +35,8 @@ rock_library(maps
         operations/GridInterpolation.hpp
     DEPS_CMAKE
         Boost
-        PCL
     DEPS_PKGCONFIG 
         base-types 
+        pcl_common-${PCL_VERSION_MAJOR}.${PCL_VERSION_MINOR}
     DEPS_PLAIN
         CGAL)
