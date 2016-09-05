@@ -17,9 +17,13 @@
 #include "SurfacePatches.hpp"
 
 #include <maps/tools/BresenhamLine.hpp>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+
 
 namespace maps { namespace grid
 {
+    typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 
     template<enum MLSConfig::update_model  SurfaceType>
     class MLSMap : public MultiLevelGridMap<SurfacePatch<SurfaceType> >
