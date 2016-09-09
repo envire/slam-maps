@@ -48,6 +48,12 @@ namespace maps { namespace grid
             // empty
         }
 
+        template<enum MLSConfig::update_model OtherSurfaceType>
+        MLSMap(const MLSMap<OtherSurfaceType>& other) : Base(other)
+        {
+
+        }
+
         const MLSConfig& getConfig() const
         { 
             return config;

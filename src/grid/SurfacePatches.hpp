@@ -72,20 +72,19 @@ public:
 
     bool isCovered(const SurfacePatchBase& other, const float& gapSize) const
     {
-        // This is equivalent to the old overlap function.
-        // TODO Some overlapping cases are not covered by this!
-        return
-//                (min - gapSize < other.max && max + gapSize > other.max) ||
-//                (min - gapSize < other.min && max + gapSize > other.min);
-                isCovered(other.max, gapSize) || isCovered(other.min, gapSize);
-
+        return min - gapSize < other.max && other.min - gapSize < max;
     }
 
     bool operator<(const SurfacePatchBase& other) const
     {
         return min < other.min;
     }
-    
+
+    bool operator==(const SurfacePatchBase& other) const
+    {
+        return min == other.min && max == other.max;
+    }
+
     bool isNegative() const
     {
         return false; // base patch does not allow negative patches
@@ -121,10 +120,10 @@ class SurfacePatch<MLSConfig::SLOPE> : public SurfacePatchBase
     typedef SurfacePatchBase Base;
     numeric::PlaneFitting<float> plane;
     float n;
+    // FIXME type is useless at the moment (but removing it will break compatibility with serialized maps)
     TYPE type;
 public:
-    // TODO set default parameter
-    SurfacePatch()
+    SurfacePatch() : n(0), type(TYPE::HORIZONTAL)
     {}
 
     SurfacePatch(const Eigen::Vector3f& point, const float& cov)
@@ -149,7 +148,7 @@ public:
 
     bool operator==(const SurfacePatch& other) const
     {
-        return min == other.min && max == other.max &&
+        return Base::operator ==(other) &&
                 plane.n == other.plane.n && plane.x == other.plane.x &&
                 plane.y == other.plane.y && plane.z == other.plane.z &&
                 plane.xx == other.plane.xx && plane.xy == other.plane.xy &&
@@ -230,8 +229,7 @@ public:
 
 
 public:
-    // TODO set default parameter
-    SurfacePatch()
+    SurfacePatch() : mean(0), var(0), height(0)
     {}
 
     SurfacePatch(const Eigen::Vector3f& point, const float& cov)
@@ -283,7 +281,7 @@ public:
 
     bool operator==(const SurfacePatch& other) const
     {
-        return min == other.min && max == other.max && mean == other.mean && var == other.var && height == other.height;
+        return Base::operator ==(other) && mean == other.mean && var == other.var && height == other.height;
     }
 
     Eigen::Vector3f getNormal() const
@@ -306,6 +304,58 @@ protected:
     }        
 
 }; // SurfacePatch<MLSConfig::KALMAN>
+
+
+/**
+ * SurfacePatch type for data exchange
+ */
+template<>
+class SurfacePatch<MLSConfig::PRECALCULATED> : public SurfacePatchBase
+{
+    typedef SurfacePatchBase Base;
+    Eigen::Vector3f center, normal;
+public:
+    template<MLSConfig::update_model model>
+    SurfacePatch(const SurfacePatch<model>& other) : SurfacePatchBase(other), center(other.getCenter()), normal(other.getNormal())
+    {
+        // empty
+    }
+    template<MLSConfig::update_model model>
+    SurfacePatch& operator=(const SurfacePatch<model>& other)
+    {
+        new(this) SurfacePatch(other);
+        return *this;
+    }
+
+    const Eigen::Vector3f& getCenter() const { return center; }
+    Eigen::Vector3f& getCenter() { return center; }
+    const Eigen::Vector3f& getNormal() const { return normal; }
+    Eigen::Vector3f& getNormal() { return normal; }
+
+    bool operator<(const SurfacePatch& other) const
+    {
+        return center.z() < other.center.z();
+    }
+
+    bool operator==(const SurfacePatch& other) const
+    {
+        return Base::operator ==(other) && center == other.center && normal == other.normal;
+    }
+
+
+protected:
+    /** Grants access to boost serialization */
+    friend class boost::serialization::access;
+
+    /** Serializes the members of this class*/
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(SurfacePatchBase);
+        ar & BOOST_SERIALIZATION_NVP(center);
+        ar & BOOST_SERIALIZATION_NVP(normal);
+    }
+}; // SurfacePatch<MLSConfig::PRECALCULATED>
 
 }  // namespace grid
 }  // namespace maps

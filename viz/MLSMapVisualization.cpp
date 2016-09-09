@@ -26,7 +26,7 @@ osg::Vec3 Vec3( const Eigen::Matrix<T,3,1>& v )
 namespace vizkit3d {
 struct PatchVisualizer
 {
-    static void visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::SLOPE>& p)
+    static void visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::PRECALCULATED>& p)
     {
         if( !p.isNegative() )
         {
@@ -193,6 +193,10 @@ void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMap<::maps::grid::ML
 void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::SLOPE> const& value)
 {
     p.reset(new DataHold<MLSConfig::SLOPE>( value ));
+}
+void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::PRECALCULATED> const& value)
+{
+    p.reset(new DataHold<MLSConfig::PRECALCULATED>( value ));
 }
 
 void MLSMapVisualization::setShowMapExtents(bool value)

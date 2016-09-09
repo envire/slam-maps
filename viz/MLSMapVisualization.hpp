@@ -16,6 +16,7 @@ namespace vizkit3d
     class MLSMapVisualization
         : public vizkit3d::Vizkit3DPlugin< ::maps::grid::MLSMap<::maps::grid::MLSConfig::KALMAN> >
         , public vizkit3d::VizPluginAddType< ::maps::grid::MLSMap<::maps::grid::MLSConfig::SLOPE> >
+        , public vizkit3d::VizPluginAddType< ::maps::grid::MLSMap<::maps::grid::MLSConfig::PRECALCULATED> >
         , boost::noncopyable
     {
         Q_OBJECT
@@ -45,8 +46,9 @@ namespace vizkit3d
         protected:
             virtual osg::ref_ptr<osg::Node> createMainNode();
             virtual void updateMainNode(osg::Node* node);
-            virtual void updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::KALMAN> const& plan);
-            virtual void updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::SLOPE> const& plan);
+            virtual void updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::KALMAN> const& mls);
+            virtual void updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::SLOPE> const& mls);
+            virtual void updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::PRECALCULATED> const& mls);
             
         private:
             struct Data;

@@ -24,6 +24,11 @@ namespace maps { namespace grid
         
         MultiLevelGridMap() {}
         
+        template<class Q>
+        MultiLevelGridMap(const MultiLevelGridMap<Q> &other) : GridMap<CellType>(other, other)
+        {
+        }
+
         class View : public GridMap<LevelList<const P *> >
         {
         public:
