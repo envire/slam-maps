@@ -244,6 +244,7 @@ namespace maps { namespace grid
 
     typedef MLSMap<MLSConfig::SLOPE> MLSMapSloped;
     typedef MLSMap<MLSConfig::KALMAN> MLSMapKalman;
+    typedef MLSMap<MLSConfig::PRECALCULATED> MLSMapPrecalculated;
 
 } /* namespace grid */
 } /* namespace maps */

@@ -37,6 +37,10 @@ public:
     }
 #endif
 
+    template<class S2>
+    LevelList(const LevelList<S2>& other) : Base(other.begin(), other.end())
+    { }
+
 protected:
             /** Grants access to boost serialization */
     friend class boost::serialization::access;

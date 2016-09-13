@@ -58,9 +58,9 @@ namespace maps { namespace grid
 
         template<class CellT2>
         VectorGrid(const VectorGrid<CellT2>& other)
-            : cells(other.cells.begin(), other.cells.end())
-            , num_cells(other.num_cells)
-            , default_value(other.default_value)
+            : cells(other.begin(), other.end())
+            , num_cells(other.getNumCells())
+            , default_value(other.getDefaultValue())
         {
         }
 
