@@ -51,40 +51,41 @@ namespace maps { namespace grid
         typedef std::vector<std::pair<Index, const P*>> PatchVector;
 
         /** Intersects @p box with the mls map.
+         * The box is in local grid coordinates (i.e., starting at (0,0))
          * @return A list of patches and their grid indices that intersect the @p box.
          * @throw std::runtime_error if any part of @p box is outside the grid*/
         PatchVector intersectAABB(const Eigen::AlignedBox3d& box) const
         {
             PatchVector ret;
             intersectAABB_callback(box,
-                    [&ret](Index idx, const P* p) { ret.emplace_back(idx, p); }
+                    [&ret](Index idx, const P& p) { ret.emplace_back(idx, &p); }
             );
             return ret;
         }
+
+        // TODO compiling this can get rather expensive
         template<class CallBack>
         void intersectAABB_callback(const Eigen::AlignedBox3d& box, CallBack&& cb) const
         {
             double minHeight = box.min().z();
             double maxHeight = box.max().z();
-            
-            Index minIdx;
-            Index maxIdx;
-            
-            if(!this->toGrid(box.min(), minIdx) || !this->toGrid(box.max(), maxIdx))
+
+            Index minIdx = (box.min().head<2>().cwiseQuotient(this->getResolution())).template cast<int>();
+            Index maxIdx = (box.max().head<2>().cwiseQuotient(this->getResolution())).template cast<int>();
+
+            minIdx = minIdx.cwiseMax(0);
+            maxIdx = maxIdx.cwiseMin(this->getNumCells().template cast<int>());
+
+            for(int x = minIdx.x();x < maxIdx.x(); x++)
             {
-                throw std::runtime_error("box outside map");
-            }
-            
-            for(size_t x = minIdx.x();x < maxIdx.x(); x++)
-            {
-                for(size_t y = minIdx.y(); y < maxIdx.y(); y++)
+                for(int y = minIdx.y(); y < maxIdx.y(); y++)
                 {
                     const Index curIdx(x,y);
                     for(const P &p: this->at(curIdx))
                     {
                         if(::maps::tools::overlap(p.getMin(), p.getMax(), minHeight, maxHeight))
                         {
-                            cb(curIdx, &p);
+                            cb(curIdx, p);
                         }
                     }
                 }

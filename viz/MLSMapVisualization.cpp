@@ -80,6 +80,7 @@ struct DataHold : public MLSMapVisualization::Data
                 const Cell &list = mls.at(x, y);
 
                 Vector3d pos(0.00, 0.00, 0.00);
+                // FIXME this does not work properly for non-trivial local frames
                 mls.fromGrid(Index(x,y), pos);
                 geode.setPosition(pos.x(), pos.y());
                 for (typename Cell::const_iterator it = list.begin(); it != list.end(); it++)
