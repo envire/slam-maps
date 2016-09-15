@@ -357,6 +357,123 @@ protected:
     }
 }; // SurfacePatch<MLSConfig::PRECALCULATED>
 
+
+/**
+ * Given the width of the cells, this outputs the bounding polygon points when intersecting
+ * the fitting plane with the cell boundaries.
+ * Optionally, it returns the normal vector, as well.
+ */
+template<MLSConfig::update_model S>
+void getPolygon(std::vector<Eigen::Vector3f>& points, const SurfacePatch<S> &sp, const Eigen::Vector2f& posi, const Eigen::Vector2f& cell_size, Eigen::Vector3f * normal_out = 0)
+{
+    Eigen::Vector3f normal = sp.getNormal();
+    if(normal_out) *normal_out = normal;
+    float mn, mx;
+    sp.getRange(mn,mx);
+    Eigen::Vector3f extents, position;
+    extents << 0.5f*cell_size, 0.5f*(mx-mn);
+    position << posi, 0.5f*(mn+mx);
+
+    Eigen::Vector3f mean = sp.getCenter();
+    mean.z() -= position.z();
+
+#ifndef NDEBUG
+    // Sanity check (disabled in release mode)
+    for(int i=0; i<3; ++i)
+    {
+        if( std::abs(mean[i]) > extents[i])
+        {
+            std::cerr << "Mean of SurfacePatch is outside of its extents! {";
+            for(int j=0; j<3; ++j) std::cerr << mean[j] << (j==2? "}   {" : ", ");
+            for(int j=0; j<3; ++j) std::cerr << extents[j] << (j==2? "}\n" : ", ");
+            break;
+        }
+    }
+#endif
+
+
+    points.clear(); points.reserve(6);
+
+    // first calculate the intersections of the plane with the borders of the box
+    // Here, `extents` and `mean` are relative to the origin of the box
+    float dist = mean.dot(normal); // scalar product gives the signed distance from the origin
+
+    // find the max coefficient of the normal:
+    int i=0, j=1, k=2;
+    if(std::abs(normal[i]) < std::abs(normal[j])) std::swap(i,j);
+    if(std::abs(normal[i]) < std::abs(normal[k])) std::swap(i,k);
+
+    float dotj = extents[j]*normal[j];
+    float dotk = extents[k]*normal[k];
+
+    Eigen::Vector3f prev_p;
+    enum { NONE, LOW, BOX, HIGH } prev_pos = NONE, pos;
+    // calculate intersections in direction k:
+    for(int n=0; n<5; ++n)
+    {
+        Eigen::Vector3f p(0,0,0);
+        float dotp = 0.0f;
+        if((n+1)&2)
+            dotp += dotj, p[j] = extents[j];
+        else
+            dotp -= dotj, p[j] = -extents[j];
+        if(n&2)
+            dotp += dotk, p[k] = extents[k];
+        else
+            dotp -= dotk, p[k] = -extents[k];
+
+        p[i] = (dist - dotp) / normal[i];
+
+        if( p[i] < -extents[i])
+            pos = LOW;
+        else if( p[i] > extents[i])
+            pos = HIGH;
+        else
+            pos = BOX;
+
+        if( (prev_pos == LOW || prev_pos == HIGH) && pos != prev_pos )
+        {
+            // clipping in
+            float h = prev_pos == LOW ? -extents[i] : extents[i];
+            float s = (h - prev_p[i]) / (p[i] - prev_p[i]);
+            Eigen::Vector3f cp = prev_p + (p - prev_p) * s;
+            points.push_back(position + cp);
+        }
+        if( pos == BOX )
+        {
+            // plane intersected with outer square
+            // for mostly horizontal patches this is the standard case
+            if(n!=4) // do not push again, if we started here
+                points.push_back(position + p);
+        }
+        else if( pos != prev_pos && prev_pos != NONE )
+        {
+            // clipping out
+            float h = pos == LOW ? -extents[i] : extents[i];
+            float s = (h - prev_p[i]) / (p[i] - prev_p[i]);
+            Eigen::Vector3f cp = prev_p + (p - prev_p) * s;
+            points.push_back(position + cp);
+        }
+
+        prev_pos = pos;
+        prev_p = p;
+    }
+}
+
+/**
+ * Given the width of the cells, this outputs the bounding polygon points when intersecting
+ * the fitting plane with the cell boundaries.
+ * This function calculates the cells position using the Index vector (in local grid coordinates).
+ * Optionally, it returns the normal vector, as well.
+ */
+template<MLSConfig::update_model S>
+void getPolygon(std::vector<Eigen::Vector3f>& points, const SurfacePatch<S> &sp, const Index& idx, const Eigen::Vector2f& cell_size, Eigen::Vector3f * normal_out = 0)
+{
+    Eigen::Vector2f posi(idx.x()*cell_size.x(), idx.y()*cell_size.y());
+    getPolygon(points, sp, posi, cell_size, normal_out);
+}
+
+
 }  // namespace grid
 }  // namespace maps
 
