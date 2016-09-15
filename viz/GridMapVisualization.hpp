@@ -30,13 +30,13 @@ namespace vizkit3d
 
             Q_PROPERTY(bool show_map_extents READ areMapExtentsShown WRITE setShowMapExtents)
 
-            Q_INVOKABLE void updateData(::maps::grid::GridMap<double> const &sample)
+            Q_INVOKABLE void updateData(::maps::grid::GridMapD const &sample)
             {vizkit3d::Vizkit3DPlugin<::maps::grid::GridMap<double>>::updateData(sample);}   
-            Q_INVOKABLE void updateData(::maps::grid::GridMap<float> const &sample)
+            Q_INVOKABLE void updateData(::maps::grid::GridMapF const &sample)
             {vizkit3d::Vizkit3DPlugin<::maps::grid::GridMap<double>>::updateData(sample);}    
-            Q_INVOKABLE void updateData(::maps::grid::GridMap<int> const &sample)
+            Q_INVOKABLE void updateData(::maps::grid::GridMapI const &sample)
             {vizkit3d::Vizkit3DPlugin<::maps::grid::GridMap<double>>::updateData(sample);}   
-            Q_INVOKABLE void updateData(::maps::grid::GridMap<char> const &sample)
+            Q_INVOKABLE void updateData(::maps::grid::GridMapC const &sample)
             {vizkit3d::Vizkit3DPlugin<::maps::grid::GridMap<double>>::updateData(sample);}                            
 
         protected:

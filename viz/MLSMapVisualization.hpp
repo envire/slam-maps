@@ -40,9 +40,9 @@ namespace vizkit3d
 
             Q_INVOKABLE void updateData(::maps::grid::MLSMap<::maps::grid::MLSConfig::PRECALCULATED> const &sample)
             {vizkit3d::Vizkit3DPlugin<::maps::grid::MLSMap<::maps::grid::MLSConfig::KALMAN>>::updateData(sample);}
-            Q_INVOKABLE void updateData(::maps::grid::MLSMap<::maps::grid::MLSConfig::KALMAN> const &sample)
+            Q_INVOKABLE void updateData(maps::grid::MLSMapKalman const &sample)
             {vizkit3d::Vizkit3DPlugin<::maps::grid::MLSMap<::maps::grid::MLSConfig::KALMAN>>::updateData(sample);}
-            Q_INVOKABLE void updateData(::maps::grid::MLSMap<::maps::grid::MLSConfig::SLOPE> const &sample)
+            Q_INVOKABLE void updateData(maps::grid::MLSMapSloped const &sample)
             {vizkit3d::Vizkit3DPlugin<::maps::grid::MLSMap<::maps::grid::MLSConfig::KALMAN>>::updateData(sample);}
 
         protected:
