@@ -60,7 +60,7 @@ void mls_waves(const std::string& filename)
     if(!filename.empty())
     {
         std::ofstream of(filename.c_str(), std::ios::binary);
-        boost::archive::polymorphic_binary_oarchive oa(of);
+        boost::archive::binary_oarchive oa(of);
         oa << *mls;
     }
 
@@ -104,6 +104,9 @@ BOOST_AUTO_TEST_CASE(mls_loop)
 
         }
     }
+    std::ofstream of("MLSMapSloped_loop.bin", std::ios::binary);
+    boost::archive::binary_oarchive oa(of);
+    oa << *mls;
 
     show_MLS(*mls);
 }
