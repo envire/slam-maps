@@ -13,6 +13,7 @@
 #include <boost_serialization/BaseNumeric.hpp>
 
 #include "MLSConfig.hpp"
+#include <cmath>
 
 
 namespace maps { namespace grid
@@ -469,7 +470,7 @@ void getPolygon(std::vector<Eigen::Vector3f>& points, const SurfacePatch<S> &sp,
 template<MLSConfig::update_model S>
 void getPolygon(std::vector<Eigen::Vector3f>& points, const SurfacePatch<S> &sp, const Index& idx, const Eigen::Vector2f& cell_size, Eigen::Vector3f * normal_out = 0)
 {
-    Eigen::Vector2f posi(idx.x()*cell_size.x(), idx.y()*cell_size.y());
+    Eigen::Vector2f posi((idx.x()+0.5f)*cell_size.x(), (idx.y()+0.5f)*cell_size.y());
     getPolygon(points, sp, posi, cell_size, normal_out);
 }
 
