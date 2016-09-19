@@ -35,6 +35,7 @@ namespace maps { namespace grid
         Vector2d resolution;
 
     public:
+        typedef CellT CellType;
         typedef boost::shared_ptr<GridMap<CellT, GridT> > Ptr;
         typedef const boost::shared_ptr<GridMap<CellT, GridT> > ConstPtr;
 
