@@ -82,6 +82,20 @@ public:
     LevelList()
     {
     };
+#if BOOST_VERSION < 105500
+    // Custom copy constructor to work around boost bug:
+    // https://svn.boost.org/trac/boost/ticket/9166
+    // Note: This is fixed in version 1.55
+    LevelList(const LevelList& other) {
+        if(other.size() > 0)
+            *this = other;
+    }
+#endif
+
+    template<class S2>
+    LevelList(const LevelList<S2>& other) : boost::container::flat_set<S *, myCmp<S *>>(other.begin(), other.end())
+    { 
+    }
     
     
 };
