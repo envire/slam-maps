@@ -9,6 +9,7 @@
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
+#include <boost/serialization/version.hpp>
 
 #include <boost_serialization/BaseNumeric.hpp>
 
@@ -121,16 +122,16 @@ class SurfacePatch<MLSConfig::SLOPE> : public SurfacePatchBase
     typedef SurfacePatchBase Base;
     numeric::PlaneFitting<float> plane;
     float n;
-    // FIXME type is useless at the moment (but removing it will break compatibility with serialized maps)
-    TYPE type;
+
 public:
-    SurfacePatch() : n(0), type(TYPE::HORIZONTAL)
+
+    SurfacePatch() : n(0)
     {}
 
     SurfacePatch(const Eigen::Vector3f& point, const float& cov)
         : Base(point.z())
         , plane(point, 1.0f/cov)
-        , n(1), type(TYPE::HORIZONTAL)
+        , n(1)
     {}
 
     SurfacePatch(const float& mean, const float& stdev, const float& height = 0, TYPE type_=TYPE::HORIZONTAL)
@@ -155,7 +156,7 @@ public:
                 plane.xx == other.plane.xx && plane.xy == other.plane.xy &&
                 plane.xz == other.plane.xz && plane.yy == other.plane.yy &&
                 plane.yz == other.plane.yz && plane.zz == other.plane.zz &&
-                n == other.n && type == other.type;
+                n == other.n;
     }
 
     /**
@@ -208,7 +209,11 @@ protected:
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(SurfacePatchBase);
         ar & BOOST_SERIALIZATION_NVP(plane);
         ar & BOOST_SERIALIZATION_NVP(n);
-        ar & BOOST_SERIALIZATION_NVP(type);
+        if(version == 0)
+        {
+            TYPE type;
+            ar & BOOST_SERIALIZATION_NVP(type);
+        }
     }    
 }; // SurfacePatch<MLSConfig::SLOPE>
 
@@ -477,6 +482,9 @@ void getPolygon(std::vector<Eigen::Vector3f>& points, const SurfacePatch<S> &sp,
 
 }  // namespace grid
 }  // namespace maps
+
+
+BOOST_CLASS_VERSION(maps::grid::SurfacePatch<maps::grid::MLSConfig::SLOPE>, 1);
 
 
 #endif /* __MAPS_SURFACEPATCHES_HPP_ */
