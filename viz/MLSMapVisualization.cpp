@@ -28,18 +28,15 @@ struct PatchVisualizer
 {
     static void visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::PRECALCULATED>& p)
     {
-        if( !p.isNegative() )
-        {
-            float minZ, maxZ;
-            p.getRange(minZ, maxZ);
-//                        float stdev = p.getStdev() + 1e-4f;
-            float zp= (maxZ+minZ)*0.5f;
-            float height = (maxZ - minZ) + 1e-3f;
-            osg::Vec3 mean = Vec3(p.getCenter());
-            mean.z() -= zp;
-            osg::Vec3 normal = Vec3(p.getNormal());
-            geode.drawPlane(zp, height, mean, normal);
-        }
+        float minZ, maxZ;
+        p.getRange(minZ, maxZ);
+//        float stdev = p.getStdev() + 1e-4f;
+        float zp= (maxZ+minZ)*0.5f;
+        float height = (maxZ - minZ) + 1e-3f;
+        osg::Vec3 mean = Vec3(p.getCenter());
+        mean.z() -= zp;
+        osg::Vec3 normal = Vec3(p.getNormal());
+        geode.drawPlane(zp, height, mean, normal);
     }
     static void visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::KALMAN>& p)
     {

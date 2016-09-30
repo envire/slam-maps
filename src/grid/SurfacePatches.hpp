@@ -31,14 +31,6 @@ protected:
     float min, max;
 
 public:
-    // TODO TYPE is for compatibility with old Patches -- probably should be made optional
-    enum TYPE
-    {
-        VERTICAL = 0,
-        HORIZONTAL = 1,
-        NEGATIVE = 2
-    };
-
     // TODO set default value properly
     SurfacePatchBase()
         : min(0),
@@ -87,11 +79,6 @@ public:
         return min == other.min && max == other.max;
     }
 
-    bool isNegative() const
-    {
-        return false; // base patch does not allow negative patches
-    }
-
 protected:
     /** Grants access to boost serialization */
     friend class boost::serialization::access;
@@ -102,6 +89,7 @@ protected:
     {
         ar & BOOST_SERIALIZATION_NVP(min);
         ar & BOOST_SERIALIZATION_NVP(max);
+
     }
 };
 
@@ -134,9 +122,9 @@ public:
         , n(1)
     {}
 
-    SurfacePatch(const float& mean, const float& stdev, const float& height = 0, TYPE type_=TYPE::HORIZONTAL)
+    SurfacePatch(const float& mean, const float& stdev, const float& height = 0)
         : Base(mean, height)
-        , n(1), type(type_)
+        , n(1)
     {}
 
 
@@ -202,6 +190,14 @@ protected:
     /** Grants access to boost serialization */
     friend class boost::serialization::access;
 
+    /** @deprecated type definition */
+    enum TYPE
+    {
+        VERTICAL = 0,
+        HORIZONTAL = 1,
+        NEGATIVE = 2
+    };
+
     /** Serializes the members of this class*/
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int version)
@@ -243,7 +239,7 @@ public:
         , mean(point.z()), var(cov), height(0)
     {}
 
-    SurfacePatch(const float& mean, const float& stdev, const float& height = 0, TYPE type_=TYPE::HORIZONTAL)
+    SurfacePatch(const float& mean, const float& stdev, const float& height = 0)
         : Base(mean, height)
         , mean(mean), var(stdev*stdev), height(height)
     {}
