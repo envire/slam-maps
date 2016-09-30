@@ -11,7 +11,7 @@ using namespace ::maps::grid;
 
 BOOST_AUTO_TEST_CASE(test_mls_surfacepatchbase_serialization)
 {
-    SurfacePatchBase sp_o(0.5, 1.3, 23);
+    SurfacePatchBase sp_o(0.5, 1.3);
 
     std::stringstream stream;
     boost::archive::binary_oarchive oa(stream);

@@ -45,11 +45,11 @@ public:
           max(0)
     {}
 
-    explicit SurfacePatchBase(const float &z, const size_t& updateIdx = 0)
+    explicit SurfacePatchBase(const float &z)
     : min(z), max(z)
     {}
 
-    explicit SurfacePatchBase(const float &mean, const float &height, const size_t& updateIdx = 0)
+    explicit SurfacePatchBase(const float &mean, const float &height)
     : min(mean - height), max(mean)
     {}
 
