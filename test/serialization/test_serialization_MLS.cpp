@@ -26,7 +26,6 @@ BOOST_AUTO_TEST_CASE(test_mls_surfacepatchbase_serialization)
     BOOST_CHECK(sp_i.getMax() == sp_o.getMax());
     BOOST_CHECK(sp_i.getTop() == sp_o.getTop());
     BOOST_CHECK(sp_i.getBottom() == sp_o.getBottom());
-    BOOST_CHECK(sp_i.isNegative() == sp_o.isNegative());
 }
 
 
@@ -47,7 +46,6 @@ BOOST_AUTO_TEST_CASE(test_mls_surfacepatchslope_serialization)
     BOOST_CHECK(sp_i.getMax() == sp_o.getMax());
     BOOST_CHECK(sp_i.getTop() == sp_o.getTop());
     BOOST_CHECK(sp_i.getBottom() == sp_o.getBottom());
-    BOOST_CHECK(sp_i.isNegative() == sp_o.isNegative());
 
     BOOST_CHECK(sp_i. getCenter() == sp_o. getCenter()); 
     BOOST_CHECK(sp_i.getNormal() == sp_o.getNormal());
@@ -70,7 +68,6 @@ BOOST_AUTO_TEST_CASE(test_mls_surfacepatchkalman_serialization)
     BOOST_CHECK(sp_i.getMax() == sp_o.getMax());
     BOOST_CHECK(sp_i.getTop() == sp_o.getTop());
     BOOST_CHECK(sp_i.getBottom() == sp_o.getBottom());
-    BOOST_CHECK(sp_i.isNegative() == sp_o.isNegative());
 
     BOOST_CHECK(sp_i. getCenter() == sp_o. getCenter()); 
     BOOST_CHECK(sp_i.getNormal() == sp_o.getNormal());
@@ -148,7 +145,6 @@ BOOST_AUTO_TEST_CASE(test_mls_serialization)
                 BOOST_CHECK_EQUAL(it_o->getMax(), it_i->getMax());
                 BOOST_CHECK_EQUAL(it_o->getTop(), it_i->getTop());
                 BOOST_CHECK_EQUAL(it_o->getBottom(), it_i->getBottom());
-                BOOST_CHECK_EQUAL(it_o->isNegative(), it_i->isNegative());
             }
             BOOST_CHECK(it_i == end_i);
         }
