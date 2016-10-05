@@ -99,11 +99,11 @@ void TraversabilityMap3dVisualization::visualizeNode(const TraversabilityNodeBas
             break;
         case TraversabilityNodeBase::TRAVERSABLE:
         {
-            double dist = node->getDistToStart();
-            double color = 1.0 / map.maxDist * dist;
-            double grad = isoline_interval > 0.0 ? std::fmod(dist/isoline_interval, 1.0)*0.5 : 0;
-            
-            geode->setColor(osg::Vec4d(0,color,grad,1));
+//             double dist = node->getDistToStart();
+//             double color = 1.0 / map.maxDist; // * dist;
+//             double grad = isoline_interval > 0.0 ? std::fmod(dist/isoline_interval, 1.0)*0.5 : 0;
+//             geode->setColor(osg::Vec4d(0,color,grad,1));
+            geode->setColor(osg::Vec4d(0, 0.8, 0, 1));
             break;
         }
         default:
@@ -190,3 +190,7 @@ void vizkit3d::TraversabilityMap3dVisualization::setIsolineInterval(const double
     emit propertyChanged("isoline_interval");
     setDirty();
 }
+
+
+
+

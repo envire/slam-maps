@@ -4,7 +4,8 @@ namespace maps { namespace grid
 {
 
 
-TraversabilityNodeBase::TraversabilityNodeBase(float height, const Index &idx) : height(height), idx(idx), type(UNSET), mIsExpanded(false), distToStart(0.0)
+TraversabilityNodeBase::TraversabilityNodeBase(float height, const Index &idx) :
+    height(height), idx(idx), type(UNSET), mIsExpanded(false)
 {
 
 }
@@ -28,5 +29,53 @@ const Index& TraversabilityNodeBase::getIndex() const
 {
     return idx;
 }
+
+void TraversabilityNodeBase::setHeight(float newHeight)
+{
+    height = newHeight;
+}
+
+bool TraversabilityNodeBase::operator<(const TraversabilityNodeBase& other) const
+{
+    return height < other.height;
+}
+
+bool TraversabilityNodeBase::isExpanded() const
+{
+    return mIsExpanded;
+}
+
+void TraversabilityNodeBase::setExpanded()
+{
+    mIsExpanded = true;
+}
+
+void TraversabilityNodeBase::setNotExpanded()
+{
+    mIsExpanded = false;
+}
+
+void TraversabilityNodeBase::setType(TraversabilityNodeBase::TYPE t)
+{
+    type = t;
+}
+
+TraversabilityNodeBase::TYPE TraversabilityNodeBase::getType() const
+{
+    return type;
+}
+
+TraversabilityNodeBase *TraversabilityNodeBase::getConnectedNode(const Index &toIdx) const
+{
+    for(maps::grid::TraversabilityNodeBase *con: connections)
+    {
+        if(toIdx == con->getIndex())
+        {
+            return con;
+        }
+    }
+    return nullptr;
+}
+
 
 }}

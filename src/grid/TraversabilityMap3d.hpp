@@ -23,10 +23,7 @@ namespace maps { namespace grid
         TraversabilityNodeBase(float height, const Index &idx);
 
         float getHeight() const;
-        void setHeight(float newHeight)
-        {
-            height = newHeight;
-        }
+        void setHeight(float newHeight);
 
         /**
          * Returns the index of this cell
@@ -34,60 +31,19 @@ namespace maps { namespace grid
         const Index &getIndex() const;
 
         void addConnection(TraversabilityNodeBase *node);
-
+        
         const std::vector<TraversabilityNodeBase *> &getConnections() const;
         
-        TraversabilityNodeBase *getConnectedNode(const Index &toIdx) const
-        {
-            for(maps::grid::TraversabilityNodeBase *con: connections)
-            {
-                if(toIdx == con->getIndex())
-                {
-                    return con;
-                }
-            }
-            return nullptr;
-        }
+        TraversabilityNodeBase *getConnectedNode(const Index &toIdx) const;
         
-        bool operator<(const TraversabilityNodeBase& other) const
-        {
-            return height < other.height;
-        }
+        bool operator<(const TraversabilityNodeBase& other) const;
         
-        bool isExpanded() const
-        {
-            return mIsExpanded;
-        }
+        bool isExpanded() const;
+        void setExpanded();
+        void setNotExpanded();
         
-        void setExpanded()
-        {
-            mIsExpanded = true;
-        }
-
-        void setNotExpanded()
-        {
-            mIsExpanded = false;
-        }
-        
-        void setType(TYPE t)
-        {
-            type = t;
-        }
-        
-        TYPE getType() const
-        {
-            return type;
-        }
-
-        double getDistToStart() const
-        {
-            return distToStart;
-        }
-        
-        void setDistToStart(double newDist)
-        {
-            distToStart = newDist;
-        }
+        void setType(TYPE t);
+        TYPE getType() const;
         
     protected:
         std::vector<TraversabilityNodeBase *> connections;
@@ -96,8 +52,6 @@ namespace maps { namespace grid
         enum TYPE type;
         ///detemines wether this node is a candidate or a final node
         bool mIsExpanded;
-    
-        double distToStart;
     };
 
     template <class T>
@@ -134,7 +88,7 @@ namespace maps { namespace grid
         
         TraversabilityMap3d(const Vector2ui &num_cells,
                     const Eigen::Vector2d &resolution,
-                    const boost::shared_ptr<LocalMapData> &data) : MultiLevelGridMap<T>(num_cells, resolution, data), maxDist(0.0)
+                    const boost::shared_ptr<LocalMapData> &data) : MultiLevelGridMap<T>(num_cells, resolution, data)
         {}
 
         Eigen::Vector3f getNodePosition(const TraversabilityNodeBase *node) const
@@ -147,9 +101,6 @@ namespace maps { namespace grid
             
             return pos.cast<float>();
         }
-        
-        double maxDist;
-
     };
 
 }}
