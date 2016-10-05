@@ -25,7 +25,8 @@ namespace vizkit3d {
             const float& z,
             const float& height,
             const osg::Vec3& mean,
-            const osg::Vec3& normal);
+            const osg::Vec3& normal,
+            const float & stdev = 0.f);
 
         void drawPlane(
             const osg::Vec3& position, 
@@ -38,7 +39,8 @@ namespace vizkit3d {
         void drawBox(
             const float& top,
             const float& height,
-            const osg::Vec3& c_normal );
+            const osg::Vec3& c_normal,
+            const float & stdev = 0.f);
 
         void setColor(const osg::Vec4& color);
         void setColorHSVA(float hue, float sat, float lum, float alpha);
@@ -48,9 +50,11 @@ namespace vizkit3d {
 
         void showCycleColor(bool cycle_color);
         void setCycleColorInterval(float cycle_color_interval);
+        void setUncertaintyScale(double uncertainty_scale);
 
         void setShowPatchExtents(bool enable = true) { showPatchExtents = enable; };
         void setShowNormals(bool enable = true) { showNormals = enable; };
+        void setShowUncertainty(bool enable = true) { showUncertainty = enable; }
         void drawLines();
 
 
@@ -76,10 +80,12 @@ namespace vizkit3d {
 
         bool showNormals;
         bool showPatchExtents;
+        bool showUncertainty;
         bool cycle_color;
-        float cycle_color_interval;       
+        float cycle_color_interval;
+        double uncertaintyScale;
 
-        void addVertex(const osg::Vec3& p, const osg::Vec3& n);
+        void addVertex(const osg::Vec3& p, const osg::Vec3& n, const float & stdev = 0.f);
         void updateColor();
         
         void closePolygon();

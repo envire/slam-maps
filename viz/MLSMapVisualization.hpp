@@ -29,10 +29,11 @@ namespace vizkit3d
         Q_PROPERTY(bool show_normals READ areNormalsShown WRITE setShowNormals)
         Q_PROPERTY(bool cycle_height_color READ isHeightColorCycled WRITE setCycleHeightColor)
         Q_PROPERTY(double cycle_color_interval READ getCycleColorInterval WRITE setCycleColorInterval)
+        Q_PROPERTY(double uncertainty_scale READ getUncertaintyScale WRITE setUncertaintyScale)
         Q_PROPERTY(QColor horizontal_cell_color READ getHorizontalCellColor WRITE setHorizontalCellColor)
         Q_PROPERTY(QColor vertical_cell_color READ getVerticalCellColor WRITE setVerticalCellColor)
         Q_PROPERTY(QColor negative_cell_color READ getNegativeCellColor WRITE setNegativeCellColor)
-        Q_PROPERTY(QColor uncertainty_color READ getUncertaintyColor WRITE setUncertaintyColor)        
+        Q_PROPERTY(QColor uncertainty_color READ getUncertaintyColor WRITE setUncertaintyColor)
 
         public:
             MLSMapVisualization();
@@ -92,7 +93,10 @@ namespace vizkit3d
             bool arePatchExtentsShown() const; 
 
             void setShowMapExtents(bool value);
-            bool areMapExtentsShown() const;       
+            bool areMapExtentsShown() const;
+
+            double getUncertaintyScale() const;
+            void setUncertaintyScale(double scaling);
 
         protected:
             osg::Vec4 horizontalCellColor;
@@ -108,6 +112,7 @@ namespace vizkit3d
             bool cycleHeightColor;
             double cycleColorInterval;
             bool showPatchExtents;
+            double uncertaintyScale;
 
 #if 0
             osg::Vec3 estimateNormal(

@@ -12,7 +12,8 @@ namespace vizkit3d
           sat(1.0),
           alpha(1.0),
           lum(1.0),
-          cycle_color(false)
+          cycle_color(false),
+          uncertaintyScale(1.0)
     {
         colors = new osg::Vec4Array;
         vertices = new osg::Vec3Array;
@@ -37,7 +38,8 @@ namespace vizkit3d
             const float & zp,
             const float & height,
             const osg::Vec3& mean,
-            const osg::Vec3& normal)
+            const osg::Vec3& normal,
+            const float & stdev)
     {
         const osg::Vec3 position(xp, yp, zp);
         const osg::Vec3 extents(xs*0.5f, ys*0.5f, height*0.5f);
@@ -95,11 +97,11 @@ namespace vizkit3d
                 float h = prev_pos == LOW ? -extents[i] : extents[i];
                 float s = (h - prev_p[i]) / (p[i] - prev_p[i]);
                 osg::Vec3 cp = prev_p + (p - prev_p) * s;
-                addVertex( position + cp, normal );
+                addVertex( position + cp, normal, stdev );
             }
             if( pos == BOX && n!=4 )
             {
-                addVertex( position + p, normal );
+                addVertex( position + p, normal, stdev );
             }
             else if( pos != prev_pos && prev_pos != NONE )
             {
@@ -107,7 +109,7 @@ namespace vizkit3d
                 float h = pos == LOW ? -extents[i] : extents[i];
                 float s = (h - prev_p[i]) / (p[i] - prev_p[i]);
                 osg::Vec3 cp = prev_p + (p - prev_p) * s;
-                addVertex( position + cp, normal );
+                addVertex( position + cp, normal, stdev );
             }
 
             prev_pos = pos;
@@ -123,10 +125,15 @@ namespace vizkit3d
             var_vertices->push_back(center);
             var_vertices->push_back(center+normal*0.1);
         }
-        if(showPatchExtents)
+        else if(showPatchExtents)
         {
             var_vertices->push_back(osg::Vec3(position.x(), position.y(), position.z() - extents.z()));
             var_vertices->push_back(osg::Vec3(position.x(), position.y(), position.z() + extents.z()));
+        }
+        else if(showUncertainty)
+        {
+            var_vertices->push_back(center-normal*stdev);
+            var_vertices->push_back(center+normal*stdev);
         }
 
     }
@@ -137,7 +144,7 @@ namespace vizkit3d
             const osg::Vec3& extents,
             const osg::Vec3& normal,
             double min,
-            double max )
+            double max)
     {
         const double xp = position.x();
         const double yp = position.y();
@@ -196,7 +203,8 @@ namespace vizkit3d
     void PatchesGeode::drawBox(
             const float& top,
             const float& height,
-            const osg::Vec3& c_normal )
+            const osg::Vec3& c_normal,
+            const float & stdev )
     {
 //        const double xp = position.x();
 //        const double yp = position.y();
@@ -209,48 +217,67 @@ namespace vizkit3d
         const osg::Vec4 h( osg::Vec4(zp,zp,zp,zp) );
         osg::Vec3 normal( c_normal );
 
-        addVertex(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[0]+zs*0.5), normal);
-        addVertex(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[1]+zs*0.5), normal);
-        addVertex(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[2]+zs*0.5), normal);
-        addVertex(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[3]+zs*0.5), normal);
+        addVertex(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[0]+zs*0.5), normal, stdev);
+        addVertex(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[1]+zs*0.5), normal, stdev);
+        addVertex(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[2]+zs*0.5), normal, stdev);
+        addVertex(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[3]+zs*0.5), normal, stdev);
 
         if( zs > 0.0 )
         {
             normal = osg::Vec3(0,-1.0,0);
-            addVertex(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[0]+zs*0.5), normal);
-            addVertex(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[1]+zs*0.5), normal);
-            addVertex(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[2]-zs*0.5), normal);
-            addVertex(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[3]-zs*0.5), normal);
+            addVertex(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[0]+zs*0.5), normal, stdev);
+            addVertex(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[1]+zs*0.5), normal, stdev);
+            addVertex(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[2]-zs*0.5), normal, stdev);
+            addVertex(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[3]-zs*0.5), normal, stdev);
 
             normal = osg::Vec3(1.0,0,0);
-            addVertex(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[0]+zs*0.5), normal);
-            addVertex(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[1]+zs*0.5), normal);
-            addVertex(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[2]-zs*0.5), normal);
-            addVertex(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[3]-zs*0.5), normal);
+            addVertex(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[0]+zs*0.5), normal, stdev);
+            addVertex(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[1]+zs*0.5), normal, stdev);
+            addVertex(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[2]-zs*0.5), normal, stdev);
+            addVertex(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[3]-zs*0.5), normal, stdev);
 
             normal = osg::Vec3(0,1.0,0);
-            addVertex(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[0]+zs*0.5), normal);
-            addVertex(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[1]+zs*0.5), normal);
-            addVertex(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[2]-zs*0.5), normal);
-            addVertex(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[3]-zs*0.5), normal);
+            addVertex(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[0]+zs*0.5), normal, stdev);
+            addVertex(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[1]+zs*0.5), normal, stdev);
+            addVertex(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[2]-zs*0.5), normal, stdev);
+            addVertex(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[3]-zs*0.5), normal, stdev);
 
             normal = osg::Vec3(-1.0,0,0);
-            addVertex(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[0]+zs*0.5), normal);
-            addVertex(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[1]+zs*0.5), normal);
-            addVertex(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[2]-zs*0.5), normal);
-            addVertex(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[3]-zs*0.5), normal);
+            addVertex(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[0]+zs*0.5), normal, stdev);
+            addVertex(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[1]+zs*0.5), normal, stdev);
+            addVertex(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[2]-zs*0.5), normal, stdev);
+            addVertex(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[3]-zs*0.5), normal, stdev);
 
             normal = osg::Vec3(0,0,-1.0);
-            addVertex(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[0]-zs*0.5), normal);
-            addVertex(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[1]-zs*0.5), normal);
-            addVertex(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[2]-zs*0.5), normal);
-            addVertex(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[3]-zs*0.5), normal);
+            addVertex(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[0]-zs*0.5), normal, stdev);
+            addVertex(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[1]-zs*0.5), normal, stdev);
+            addVertex(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[2]-zs*0.5), normal, stdev);
+            addVertex(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[3]-zs*0.5), normal, stdev);
         }
 
         closeQuads();
+
+        const osg::Vec3 min(xp,yp,top-height);
+        const osg::Vec3 max(xp,yp,top);
+
+        if(showNormals)
+        {
+            var_vertices->push_back(max);
+            var_vertices->push_back(max+normal*0.1);
+        }
+        else if(showPatchExtents)
+        {
+            var_vertices->push_back(osg::Vec3(min.x(), min.y(), min.z()));
+            var_vertices->push_back(osg::Vec3(max.x(), max.y(), max.z()));
+        }
+        else if(showUncertainty)
+        {
+            var_vertices->push_back(min-normal*stdev);
+            var_vertices->push_back(max+normal*stdev);
+        }
     }
 
-    void PatchesGeode::addVertex(const osg::Vec3& p, const osg::Vec3& n)
+    void PatchesGeode::addVertex(const osg::Vec3& p, const osg::Vec3& n, const float & stdev)
     {
         vertices->push_back( p );
         normals->push_back( n );
@@ -258,6 +285,7 @@ namespace vizkit3d
         if( cycle_color )
         {
             hue = (p.z() - std::floor(p.z() / cycle_color_interval) * cycle_color_interval) / cycle_color_interval;
+            alpha = std::max( 0.0, (uncertaintyScale - stdev) / uncertaintyScale);
             updateColor();
         }
 
@@ -320,6 +348,11 @@ namespace vizkit3d
     void PatchesGeode::showCycleColor(bool cycle_color)
     {
         this->cycle_color = cycle_color;
+    }
+
+    void PatchesGeode::setUncertaintyScale(double uncertainty_scale)
+    {
+        this->uncertaintyScale = uncertainty_scale;
     }
 
     void PatchesGeode::drawLines()
