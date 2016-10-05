@@ -21,6 +21,8 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 
+#include <base/TransformWithCovariance.hpp>
+
 
 namespace maps { namespace grid
 {
@@ -83,6 +85,24 @@ namespace maps { namespace grid
             }
         }
 
+        void mergePointCloud(const PointCloud& pc, const base::TransformWithCovariance& pc2mls, double measurement_variance = 0.01)
+        {
+            base::Transform3d pc2grid = Base::prepareToGridOptimized(pc2mls.getTransform());
+            for(PointCloud::const_iterator it=pc.begin(); it != pc.end(); ++it)
+            {
+                try
+                {
+                    Eigen::Vector3d point = it->getArray3fMap().cast<double>();
+                    std::pair<Eigen::Vector3d, Eigen::Matrix3d> point_with_cov = pc2mls.composePointWithCovariance(point, Eigen::Matrix3d::Zero());
+                    mergePoint(point, pc2grid, measurement_variance + point_with_cov.second(2,2));
+                }
+                catch(const std::runtime_error& e)
+                {
+                    // TODO use glog or base log for all out prints of this library
+                    std::cerr << e.what() << std::endl;
+                }
+            }
+        }
 
         void mergePatch(const Index &idx, const Patch& o)
         {
