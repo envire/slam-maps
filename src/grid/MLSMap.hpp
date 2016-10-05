@@ -8,6 +8,7 @@
 #include <Eigen/Geometry>
 
 #include <boost/scoped_ptr.hpp>
+#include <boost/format.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
@@ -55,33 +56,29 @@ namespace maps { namespace grid
         }
 
         const MLSConfig& getConfig() const
-        { 
+        {
             return config;
-        }        
+        }
 
         void mergeMLS(const MLSMap& other)
         {
-            // TODO
+            // TODO implement
+            throw std::runtime_error("mergeMLS is not yet implemented!");
         }
 
-        void mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& pc2grid, bool withUncertainty = false)
+        void mergePointCloud(const PointCloud& pc, const base::Transform3d& pc2mls, double measurement_variance = 0.01)
         {
-            // TODO uncertainty and color are ignored for now
-            const double p_var = 0.01; // default uncertainty
-            base::Transform3d trafo = Base::prepareToGridOptimized(pc2grid);
-
+            base::Transform3d pc2grid = Base::prepareToGridOptimized(pc2mls);
             for(PointCloud::const_iterator it=pc.begin(); it != pc.end(); ++it)
             {
-                Eigen::Vector3d point = it->getArray3fMap().cast<double>();
-                Eigen::Vector3d pos_diff;
-                Index idx;
-                if(Base::toGridOptimized(point, idx, pos_diff, trafo))
+                try
                 {
-                    mergePatch(idx, Patch(pos_diff.cast<float>(), std::sqrt(p_var)));
+                    mergePoint(it->getArray3fMap().cast<double>(), pc2grid, measurement_variance);
                 }
-                else
+                catch(const std::runtime_error& e)
                 {
-                    std::cerr << "point " << point.transpose() << " is out of grid!" << std::endl;
+                    // TODO use glog or base log for all out prints of this library
+                    std::cerr << e.what() << std::endl;
                 }
             }
         }
@@ -141,19 +138,35 @@ namespace maps { namespace grid
         }
 
 
-        void mergePoint(const Eigen::Vector3d& point)
+        void mergePoint(const Eigen::Vector3d& point, double measurement_variance = 0.01)
         {
-            Eigen::Vector3d pos;
+            Eigen::Vector3d pos_diff;
             Index idx;
-            if(Base::toGrid(point, idx, pos))
+            if(Base::toGrid(point, idx, pos_diff))
+                mergePatch(idx, Patch(pos_diff.cast<float>(), measurement_variance));
+            else
+                throw std::runtime_error((boost::format("Point %1% is outside of the grid! Can't add to grid.") % point.transpose()).str());
+        }
+
+        /**
+         * Adds a point with the given transformation to the grid.
+         * Note: Use \c prepareToGridOptimized to prepare the pc2gridframe transformation.
+         * The measurement variance is the uncertainty on the z axis of the point.
+         */
+        void mergePoint(const Eigen::Vector3d& point, const base::Transform3d& pc2gridframe, double measurement_variance = 0.01)
+        {
+            Eigen::Vector3d pos_diff;
+            Index idx;
+            if(Base::toGridOptimized(point, idx, pos_diff, pc2gridframe))
             {
-                // TODO get stddev from config or by function parameter
-                mergePatch(idx, Patch(pos.cast<float>(), 0.1));
+                mergePatch(idx, Patch(pos_diff.cast<float>(), measurement_variance));
             }
+            else
+                throw std::runtime_error((boost::format("Point %1% is outside of the grid! Can't add to grid.") % point.transpose()).str());
         }
 
     private:
-        MLSConfig config;    
+        MLSConfig config;
 
         bool merge(Patch& a, const Patch& b)
         {
@@ -169,7 +182,7 @@ namespace maps { namespace grid
                 if(it->isCovered(zPos, gapSize)) return true;
             }
             return false;
-        }        
+        }
 
     protected:
         /** Grants access to boost serialization */
