@@ -104,6 +104,27 @@ namespace maps { namespace grid
             }
         }
 
+        template<int _MatrixOptions>
+        void mergePointCloud(const std::vector< Eigen::Matrix<double, 3, 1, _MatrixOptions> >& pc,
+                             const base::TransformWithCovariance& pc2mls, double measurement_variance = 0.01)
+        {
+            base::Transform3d pc2grid = Base::prepareToGridOptimized(pc2mls.getTransform());
+            for(typename std::vector< Eigen::Matrix<double, 3, 1, _MatrixOptions> >::const_iterator it = pc.begin(); it != pc.end(); ++it)
+            {
+                try
+                {
+                    std::pair<Eigen::Vector3d, Eigen::Matrix3d> point_with_cov = pc2mls.composePointWithCovariance(*it, Eigen::Matrix3d::Zero());
+                    mergePoint(*it, pc2grid, measurement_variance + point_with_cov.second(2,2));
+                }
+                catch(const std::runtime_error& e)
+                {
+                    // TODO use glog or base log for all out prints of this library
+                    std::cerr << e.what() << std::endl;
+                }
+            }
+        }
+
+
         void mergePatch(const Index &idx, const Patch& o)
         {
             CellType &list = Base::at(idx);
