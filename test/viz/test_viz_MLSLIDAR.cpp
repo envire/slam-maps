@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(mls_simulate_LIDAR)
         lidar.getRanges(ranges, scene, trafo, &pointcloud);
 
         base::TimeMark timer("mls->mergePointCloud");
-        mls->mergePointCloud(pointcloud, trafo, false);
+        mls->mergePointCloud(pointcloud, trafo);
         std::cout << timer << std::endl;
         app.updateData(*mls);
     }
