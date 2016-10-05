@@ -122,6 +122,7 @@ public:
         , n(1)
     {}
 
+    // TODO stdev is not handled!
     SurfacePatch(const float& mean, const float& stdev, const float& height = 0)
         : Base(mean, height)
         , n(1)
@@ -234,24 +235,24 @@ public:
     SurfacePatch() : mean(0), var(0), height(0)
     {}
 
-    SurfacePatch(const Eigen::Vector3f& point, const float& cov)
+    SurfacePatch(const Eigen::Vector3f& point, const float& variance)
         : Base(point.z())
-        , mean(point.z()), var(cov), height(0)
+        , mean(point.z()), var(variance), height(0)
     {}
 
-    SurfacePatch(const float& mean, const float& stdev, const float& height = 0)
+    SurfacePatch(const float& mean, const float& variance, const float& height = 0)
         : Base(mean, height)
-        , mean(mean), var(stdev*stdev), height(height)
+        , mean(mean), var(variance), height(height)
     {}
 
     bool merge(const SurfacePatch& other, const MLSConfig& config)
     {
-        if( !Base::merge(other, config.gapSize))
+        float delta_dev = std::sqrt(var + other.var);
+
+        if(!Base::merge(other, config.gapSize + delta_dev))
             return false;
 
-
-        float delta_dev = std::sqrt(var + other.var);
-        if(height==0.0f && other.height == 0.0f
+        if(isHorizontal() && other.isHorizontal()
                 && (mean - config.thickness - delta_dev) < other.mean &&
                 (mean + config.thickness + delta_dev) > other.mean )
         {
@@ -267,6 +268,10 @@ public:
             }
         }
 
+        // update min and max after current mean and height are computed
+        min = mean - height;
+        max = mean;
+
         return true;
     }
 
@@ -278,7 +283,7 @@ public:
 
     bool operator<(const SurfacePatch& other) const
     {
-        return mean < other.mean;
+        return mean < (other.mean - other.height);
     }
 
     bool operator==(const SurfacePatch& other) const
