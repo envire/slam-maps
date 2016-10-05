@@ -40,9 +40,10 @@ struct PatchVisualizer
     }
     static void visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::KALMAN>& p)
     {
-        {
+        if(p.isHorizontal())
+            geode.drawPlane(p.mean, p.height, osg::Vec3(0.f,0.f,0.f), Vec3(p.getNormal()), std::sqrt(p.var));
+        else
             geode.drawBox(p.mean, p.height, Vec3(p.getNormal()));
-        }
     }
 };
 }
@@ -119,9 +120,10 @@ MLSMapVisualization::MLSMapVisualization()
     showUncertainty(false),
     showNegative(false),
     estimateNormals(false),
-    cycleHeightColor(false),
+    cycleHeightColor(true),
     cycleColorInterval(1.0),
-    showPatchExtents(true)
+    showPatchExtents(false),
+    uncertaintyScale(1.0)
 {
 }
 
@@ -168,6 +170,7 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
         geode->setColor(horizontalCellColor);
     geode->setShowPatchExtents(showPatchExtents);
     geode->setShowNormals(showNormals);
+    geode->setUncertaintyScale(uncertaintyScale);
 
     base::TimeMark timer("MLS_VIZ::updateMainNode");
     p->visualize(*geode);
@@ -218,6 +221,11 @@ bool MLSMapVisualization::isUncertaintyShown() const
 void MLSMapVisualization::setShowUncertainty(bool enabled)
 {
     showUncertainty = enabled;
+    if(enabled && (arePatchExtentsShown() || areNormalsShown()))
+    {
+        setShowPatchExtents(false);
+        setShowNormals(false);
+    }
     emit propertyChanged("show_uncertainty");
     setDirty();
 }
@@ -254,6 +262,11 @@ bool MLSMapVisualization::areNormalsShown() const
 void MLSMapVisualization::setShowNormals(bool enabled)
 {
     showNormals = enabled;
+    if(enabled && (arePatchExtentsShown() || isUncertaintyShown()))
+    {
+        setShowPatchExtents(false);
+        setShowUncertainty(false);
+    }
     emit propertyChanged("show_normals");
     setDirty();
 }
@@ -356,6 +369,10 @@ void MLSMapVisualization::setUncertaintyColor(QColor color)
 void MLSMapVisualization::setShowPatchExtents( bool value ) 
 {
     showPatchExtents = value;
+    if(value && (areNormalsShown() || isUncertaintyShown()))
+    {
+        setShowNormals(false);
+        setShowUncertainty(false);
     emit propertyChanged("show_patch_extents");
     setDirty();
 }
@@ -363,6 +380,19 @@ void MLSMapVisualization::setShowPatchExtents( bool value )
 bool MLSMapVisualization::arePatchExtentsShown() const
 {
     return showPatchExtents;
+}
+
+double MLSMapVisualization::getUncertaintyScale() const
+{
+    return uncertaintyScale;
+}
+
+void MLSMapVisualization::setUncertaintyScale(double scaling)
+{
+    uncertaintyScale = std::abs(scaling);
+
+    emit propertyChanged("uncertainty_scale");
+    setDirty();
 }
 
 //Macro that makes this plugin loadable in ruby, this is optional.
