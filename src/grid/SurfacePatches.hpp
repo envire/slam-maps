@@ -291,6 +291,16 @@ public:
         return Eigen::Vector3f::UnitZ();
     }
 
+    bool isVertical() const
+    {
+        return height != 0.0;
+    }
+
+    bool isHorizontal() const
+    {
+        return height == 0.0;
+    }
+
 protected:
     /** Grants access to boost serialization */
     friend class boost::serialization::access;
