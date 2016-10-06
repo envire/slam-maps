@@ -252,9 +252,9 @@ public:
         if(!Base::merge(other, config.gapSize + delta_dev))
             return false;
 
-        if(isHorizontal() && other.isHorizontal()
-                && (mean - config.thickness - delta_dev) < other.mean &&
-                (mean + config.thickness + delta_dev) > other.mean )
+        if(isHorizontal() && other.isHorizontal() &&
+            (mean - config.thickness - delta_dev) < other.mean &&
+            (mean + config.thickness + delta_dev) > other.mean )
         {
             kalman_update(mean, var, other.mean, other.var);
         }
@@ -283,7 +283,7 @@ public:
 
     bool operator<(const SurfacePatch& other) const
     {
-        return mean < (other.mean - other.height);
+        return mean < other.mean;
     }
 
     bool operator==(const SurfacePatch& other) const

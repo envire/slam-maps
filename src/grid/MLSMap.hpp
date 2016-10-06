@@ -124,60 +124,25 @@ namespace maps { namespace grid
             }
         }
 
-
-        void mergePatch(const Index &idx, const Patch& o)
+        void mergePatch(const Index &idx, const Patch& new_patch)
         {
             CellType &list = Base::at(idx);
 
-            typedef typename CellType::iterator iterator;
-            iterator it = list.begin(), end = list.end(), it_prev = end;
-            if(it==end)
+            for(typename CellType::iterator patch_it = list.begin(); patch_it != list.end(); patch_it++)
             {
-                // insert into empty list
-                list.insert(o);
-                return;
-            }
-            // Find iterators so that *it_prev < o < *it
-            while(it != end && *it < o)
-            {
-                it_prev=it;
-                ++it;
-            }
-            if(it_prev == end)
-            {
-                // new patch is smaller than first patch
-                if(!merge(*it, o))
-                    list.insert(o);
-            }
-            else if(it==end)
-            {
-                // new patch is larger than last patch
-                if(!merge(*it_prev, o))
-                    list.insert(o);
-            }
-            else
-            {
-                // new patch lies between it_prev and it
-                // try to merge with previous patch:
-                if(merge(*it_prev, o))
+                // test if it can be merged with an existing patch
+                if(merge(*patch_it, new_patch))
                 {
-                    // this might make this patch merge-able with the next patch
-                    if(merge(*it_prev, *it))
-                    {
-                        // erase the second patch, since it was merged with the first
-                        list.erase(it);
-                    }
+                    // since patch_it was changed test if it can be merged with any of the existing patches
+                    mergePatchRecursive(list, patch_it);
+                    return;
                 }
-                // otherwise, try to merge with the next patch
-                else if(!merge(*it, o))
-                {
-                    // if it is not merge-able, insert as a new patch between existing patches
-                    list.insert(it, o);
-                }
+                else if(new_patch < *patch_it)
+                    break;
             }
-
+            // insert as new patch
+            list.insert(new_patch);
         }
-
 
         void mergePoint(const Eigen::Vector3d& point, double measurement_variance = 0.01)
         {
@@ -223,6 +188,37 @@ namespace maps { namespace grid
                 if(it->isCovered(zPos, gapSize)) return true;
             }
             return false;
+        }
+
+        /**
+         * Checks if a existing patch in the current cell list can be merged with any of the other patches.
+         * Recursively resolves all possible following merge tasks.
+         * Note: Since the CellType is a boost::flat_set which invalidates all following iterators if an element
+         * is erased the implementation has to take care of the order in which patches are merged.
+         */
+        void mergePatchRecursive(CellType& list, typename CellType::iterator& patch)
+        {
+            for(typename CellType::iterator patch_it = list.begin(); patch_it != list.end(); patch_it++)
+            {
+                if(patch_it == patch)
+                    continue;
+                else if(patch_it < patch && merge(*patch_it, *patch))
+                {
+                    patch = list.erase(patch);
+                    patch = list.end();
+                    mergePatchRecursive(list, patch_it);
+                    return;
+                }
+                else if(patch < patch_it)
+                {
+                    if(merge(*patch, *patch_it))
+                    {
+                        patch_it = list.erase(patch_it);
+                        mergePatchRecursive(list, patch);
+                    }
+                    return;
+                }
+            }
         }
 
     protected:
