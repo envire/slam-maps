@@ -217,7 +217,6 @@ protected:
 template<>
 class SurfacePatch<MLSConfig::KALMAN>: public SurfacePatchBase
 {
-public:
     typedef SurfacePatchBase Base;
     float mean, var, height;
 
@@ -296,6 +295,26 @@ public:
         return Eigen::Vector3f::UnitZ();
     }
 
+    float getMean() const
+    {
+        return mean;
+    }
+
+    float getHeight() const
+    {
+        return height;
+    }
+
+    float getVariance() const
+    {
+        return var;
+    }
+
+    float getStandardDeviation() const
+    {
+        return std::sqrt(var);
+    }
+
     bool isVertical() const
     {
         return height != 0.0;
@@ -318,7 +337,7 @@ protected:
         ar & BOOST_SERIALIZATION_NVP(mean);
         ar & BOOST_SERIALIZATION_NVP(var);
         ar & BOOST_SERIALIZATION_NVP(height);
-    }        
+    }
 
 }; // SurfacePatch<MLSConfig::KALMAN>
 

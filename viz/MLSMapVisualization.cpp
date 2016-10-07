@@ -41,9 +41,9 @@ struct PatchVisualizer
     static void visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::KALMAN>& p)
     {
         if(p.isHorizontal())
-            geode.drawPlane(p.mean, p.height, osg::Vec3(0.f,0.f,0.f), Vec3(p.getNormal()), std::sqrt(p.var));
+            geode.drawPlane(p.getMean(), p.getHeight(), osg::Vec3(0.f,0.f,0.f), Vec3(p.getNormal()), p.getStandardDeviation());
         else
-            geode.drawBox(p.mean, p.height, Vec3(p.getNormal()));
+            geode.drawBox(p.getMean(), p.getHeight(), Vec3(p.getNormal()));
     }
 };
 }
