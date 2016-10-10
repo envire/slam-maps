@@ -59,12 +59,21 @@ namespace maps { namespace grid
         {
             PatchVector ret;
             intersectAABB_callback(box,
-                    [&ret](Index idx, const P& p) { ret.emplace_back(idx, &p); }
-            );
+                    [&ret](Index idx, const P& p)
+                    { 
+                        ret.emplace_back(idx, &p);
+                        return false;
+                     });
             return ret;
         }
 
         // TODO compiling this can get rather expensive
+        /** @param cb A callback that is executed for each patch that intersects.
+         *            Prototype: bool f(const maps::grid::Index&, const P&)
+         *            The return value of the the callback indicates whether
+         *            the intersection test should abort or not.
+         *            I.e. if the callback returns true, the intersection test
+         *            will be aborted.*/
         template<class CallBack>
         void intersectAABB_callback(const Eigen::AlignedBox3d& box, CallBack&& cb) const
         {
@@ -86,7 +95,8 @@ namespace maps { namespace grid
                     {
                         if(::maps::tools::overlap(p.getMin(), p.getMax(), minHeight, maxHeight))
                         {
-                            cb(curIdx, p);
+                            if(cb(curIdx, p))
+                                return;
                         }
                     }
                 }
