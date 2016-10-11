@@ -373,6 +373,7 @@ void MLSMapVisualization::setShowPatchExtents( bool value )
     {
         setShowNormals(false);
         setShowUncertainty(false);
+    }
     emit propertyChanged("show_patch_extents");
     setDirty();
 }

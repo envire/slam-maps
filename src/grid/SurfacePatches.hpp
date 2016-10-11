@@ -14,6 +14,7 @@
 #include <boost_serialization/BaseNumeric.hpp>
 
 #include "MLSConfig.hpp"
+#include "Index.hpp"
 #include <cmath>
 
 
