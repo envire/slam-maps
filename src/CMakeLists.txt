@@ -25,6 +25,7 @@ rock_library(maps
         grid/VectorGrid.hpp        
         grid/VectorGridAccess.hpp
         grid/DiscreteTree.hpp
+        grid/VoxelGridMap.hpp
         geometric/Point.hpp
         geometric/LineSegment.hpp
         geometric/GeometricMap.hpp
