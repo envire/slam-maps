@@ -6,7 +6,8 @@ rock_library(maps
     SOURCES
         grid/ElevationMap.cpp
         grid/TraversabilityMap3d.cpp
-        tools/BresenhamLine.cpp        
+        tools/BresenhamLine.cpp
+        tools/VoxelTraversal.cpp
     HEADERS
         LocalMap.hpp
         grid/Index.hpp
@@ -32,6 +33,7 @@ rock_library(maps
         geometric/ContourMap.hpp
         tools/BresenhamLine.hpp
         tools/Overlap.hpp
+        tools/VoxelTraversal.hpp
         operations/GridInterpolation.hpp
     DEPS_PKGCONFIG 
         base-types 
