@@ -22,4 +22,5 @@ rock_vizkit_plugin(maps-viz
         maps
     DEPS_PKGCONFIG 
         base-viz vizkit3d  vizkit3d-viz
+        PrimitivesFactory
 )

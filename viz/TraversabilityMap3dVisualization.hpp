@@ -6,6 +6,7 @@
 #include <osg/Geode>
 #include <osg/Shape>
 #include <osg/Texture2D>
+#include <osgViz/modules/viz/Primitives/Primitives/LinesNode.h>
 
 #include "maps/grid/TraversabilityMap3d.hpp"
 
@@ -18,6 +19,7 @@ class TraversabilityMap3dVisualization
 {
     Q_OBJECT
     Q_PROPERTY(double isoline_interval READ getIsolineInterval WRITE setIsolineInterval)
+    Q_PROPERTY(bool show_connections READ getShowConnections WRITE setShowConnections)
 
 protected:
     virtual void updateDataIntern(const ::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase *>& data);
@@ -33,11 +35,13 @@ protected:
     void visualizeConnection(const ::maps::grid::TraversabilityNodeBase *from, const ::maps::grid::TraversabilityNodeBase *to);
     
     osg::ref_ptr<osg::Geode> nodeGeode;
+    osg::ref_ptr<osgviz::LinesNode> linesNode;
     
     osg::Group* nodeGroup;
     osg::Group* connectionGroup;
     
     double isoline_interval;
+    bool show_connections;
 
 public:
     TraversabilityMap3dVisualization();
@@ -50,6 +54,9 @@ public:
 
     double getIsolineInterval() const { return isoline_interval; }
     void setIsolineInterval(const double& val);
+    
+    bool getShowConnections();
+    void setShowConnections(bool val);
 };
 
 }

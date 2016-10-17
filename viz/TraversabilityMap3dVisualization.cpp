@@ -10,7 +10,7 @@ using namespace vizkit3d;
 
 vizkit3d::TraversabilityMap3dVisualization::TraversabilityMap3dVisualization()
     : Vizkit3DPlugin< ::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase *> >()
-    , isoline_interval(16.0)
+    , isoline_interval(16.0), show_connections(false)
 {
 
 }
@@ -117,23 +117,23 @@ void TraversabilityMap3dVisualization::visualizeNode(const TraversabilityNodeBas
     
     geode->drawPlane(node->getHeight(), 0.5, osg::Vec3d(0,0,0), osg::Vec3d(0,0,1));
     
-    
-//     std::cout << "Updating Node " << node->getIndex().transpose() << std::endl;
-
-//     for(const TraversabilityNodeBase *conNode: node->getConnections())
-//     {
-//         
-//         visualizeConnection(node, conNode);
-//     }
+    if(show_connections)
+    {
+        for(const TraversabilityNodeBase *conNode: node->getConnections())
+        {
+            visualizeConnection(node, conNode);
+        }
+    }
 }
 
 void TraversabilityMap3dVisualization::visualizeConnection(const TraversabilityNodeBase* from, const TraversabilityNodeBase* to)
 {
     Eigen::Vector3f toPos = map.getNodePosition(to);
     Eigen::Vector3f fromPos = map.getNodePosition(from);
-    // FIXME Implement
-    (void) toPos; (void) fromPos;
-//     connectionGroup->addChild(getCylinder(fromPos, toPos));
+    osg::Vec3 fromOsg(fromPos.x(), fromPos.y(), fromPos.z());
+    osg::Vec3 toOsg(toPos.x(), toPos.y(), toPos.z());
+    
+    linesNode->addLine(fromOsg, toOsg);
 }
 
 void vizkit3d::TraversabilityMap3dVisualization::addNodeList(const maps::grid::LevelList< TraversabilityNodeBase* >& l, osg::Group* group)
@@ -156,7 +156,9 @@ void vizkit3d::TraversabilityMap3dVisualization::updateMainNode(osg::Node* node)
     std::cout << "Map resolution " << map.getResolution().transpose() << std::endl;
 //     nodeGeode = new osg::Geode();
     nodeGeode = new PatchesGeode(map.getResolution().x(), map.getResolution().y());
+    linesNode = new osgviz::LinesNode(osg::Vec4(1, 1, 1, 1));
     group->addChild(nodeGeode);
+    group->addChild(linesNode);
 
     
     PatchesGeode *geode = dynamic_cast<PatchesGeode *>(nodeGeode.get());
@@ -184,6 +186,18 @@ void vizkit3d::TraversabilityMap3dVisualization::setIsolineInterval(const double
 {
     isoline_interval = val;
     emit propertyChanged("isoline_interval");
+    setDirty();
+}
+
+bool TraversabilityMap3dVisualization::getShowConnections()
+{
+    return show_connections;
+}
+
+void TraversabilityMap3dVisualization::setShowConnections(bool val)
+{
+    show_connections = true;
+    emit propertyChanged("show_connections");
     setDirty();
 }
 
