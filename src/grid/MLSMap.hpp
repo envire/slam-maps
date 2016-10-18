@@ -12,12 +12,13 @@
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 
 #include "MultiLevelGridMap.hpp"
 #include "MLSConfig.hpp"
 #include "SurfacePatches.hpp"
+#include "OccupancyGridMapBase.hpp"
 
-#include <maps/tools/BresenhamLine.hpp>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 
@@ -62,6 +63,27 @@ namespace maps { namespace grid
             return config;
         }
 
+        bool setFreeSpaceMap(boost::shared_ptr<OccupancyGridMapBase> free_space_map)
+        {
+            // check that size and resolution are the same
+            if(free_space_map && free_space_map->hasSameFrame(Base::getLocalFrame(), Base::getNumCells(), Base::getResolution()))
+            {
+                this->free_space_map = free_space_map;
+                return true;
+            }
+            return false;
+        }
+
+        boost::shared_ptr<OccupancyGridMapBase> getFreeSpaceMap() const
+        {
+            return free_space_map;
+        }
+
+        bool hasFreeSpaceMap() const
+        {
+            return free_space_map.get() != NULL;
+        }
+
         void mergeMLS(const MLSMap& other)
         {
             // TODO implement
@@ -71,16 +93,42 @@ namespace maps { namespace grid
         void mergePointCloud(const PointCloud& pc, const base::Transform3d& pc2mls, double measurement_variance = 0.01)
         {
             base::Transform3d pc2grid = Base::prepareToGridOptimized(pc2mls);
-            for(PointCloud::const_iterator it=pc.begin(); it != pc.end(); ++it)
+            if(hasFreeSpaceMap())
             {
-                try
+                Eigen::Vector3d sensor_origin = pc.sensor_origin_.block(0,0,3,1).cast<double>();
+                Eigen::Vector3d sensor_origin_in_mls = pc2mls * sensor_origin;
+                for(PointCloud::const_iterator it=pc.begin(); it != pc.end(); ++it)
                 {
-                    mergePoint(it->getArray3fMap().cast<double>(), pc2grid, measurement_variance);
+                    Eigen::Vector3d measurement = it->getArray3fMap().cast<double>();
+                    Eigen::Vector3d measurement_in_map = pc2mls * measurement;
+
+                    try
+                    {
+                        if(!free_space_map->isFreeSpace(measurement_in_map))
+                            mergePoint(measurement, pc2grid, measurement_variance);
+
+                        free_space_map->mergePoint(sensor_origin_in_mls, measurement_in_map);
+                    }
+                    catch(const std::runtime_error& e)
+                    {
+                        // TODO use glog or base log for all out prints of this library
+                        std::cerr << e.what() << std::endl;
+                    }
                 }
-                catch(const std::runtime_error& e)
+            }
+            else
+            {
+                for(PointCloud::const_iterator it=pc.begin(); it != pc.end(); ++it)
                 {
-                    // TODO use glog or base log for all out prints of this library
-                    std::cerr << e.what() << std::endl;
+                    try
+                    {
+                        mergePoint(it->getArray3fMap().cast<double>(), pc2grid, measurement_variance);
+                    }
+                    catch(const std::runtime_error& e)
+                    {
+                        // TODO use glog or base log for all out prints of this library
+                        std::cerr << e.what() << std::endl;
+                    }
                 }
             }
         }
@@ -88,38 +136,90 @@ namespace maps { namespace grid
         void mergePointCloud(const PointCloud& pc, const base::TransformWithCovariance& pc2mls, double measurement_variance = 0.01)
         {
             base::Transform3d pc2grid = Base::prepareToGridOptimized(pc2mls.getTransform());
-            for(PointCloud::const_iterator it=pc.begin(); it != pc.end(); ++it)
+            if(hasFreeSpaceMap())
             {
-                try
+                Eigen::Vector3d sensor_origin = pc.sensor_origin_.block(0,0,3,1).cast<double>();
+                Eigen::Vector3d sensor_origin_in_mls = pc2mls.getTransform() * sensor_origin;
+                for(PointCloud::const_iterator it=pc.begin(); it != pc.end(); ++it)
+                {
+                    Eigen::Vector3d measurement = it->getArray3fMap().cast<double>();
+                    std::pair<Eigen::Vector3d, Eigen::Matrix3d> measurement_in_map = pc2mls.composePointWithCovariance(measurement, Eigen::Matrix3d::Zero());
+
+                    try
+                    {
+                        if(!free_space_map->isFreeSpace(measurement_in_map.first))
+                            mergePoint(measurement, pc2grid, measurement_variance + measurement_in_map.second(2,2));
+
+                        if(measurement_in_map.second(2,2) <= 0.2)
+                            free_space_map->mergePoint(sensor_origin_in_mls, measurement_in_map.first);
+                    }
+                    catch(const std::runtime_error& e)
+                    {
+                        // TODO use glog or base log for all out prints of this library
+                        std::cerr << e.what() << std::endl;
+                    }
+                }
+            }
+            else
+            {
+                for(PointCloud::const_iterator it=pc.begin(); it != pc.end(); ++it)
                 {
                     Eigen::Vector3d point = it->getArray3fMap().cast<double>();
                     std::pair<Eigen::Vector3d, Eigen::Matrix3d> point_with_cov = pc2mls.composePointWithCovariance(point, Eigen::Matrix3d::Zero());
-                    mergePoint(point, pc2grid, measurement_variance + point_with_cov.second(2,2));
-                }
-                catch(const std::runtime_error& e)
-                {
-                    // TODO use glog or base log for all out prints of this library
-                    std::cerr << e.what() << std::endl;
+                    try
+                    {
+                        mergePoint(point, pc2grid, measurement_variance + point_with_cov.second(2,2));
+                    }
+                    catch(const std::runtime_error& e)
+                    {
+                        // TODO use glog or base log for all out prints of this library
+                        std::cerr << e.what() << std::endl;
+                    }
                 }
             }
         }
 
         template<int _MatrixOptions>
-        void mergePointCloud(const std::vector< Eigen::Matrix<double, 3, 1, _MatrixOptions> >& pc,
-                             const base::TransformWithCovariance& pc2mls, double measurement_variance = 0.01)
+        void mergePointCloud(const std::vector< Eigen::Matrix<double, 3, 1, _MatrixOptions> >& pc, const base::TransformWithCovariance& pc2mls,
+                             const base::Vector3d& sensor_origin_in_pc = base::Vector3d::Zero(), double measurement_variance = 0.01)
         {
             base::Transform3d pc2grid = Base::prepareToGridOptimized(pc2mls.getTransform());
-            for(typename std::vector< Eigen::Matrix<double, 3, 1, _MatrixOptions> >::const_iterator it = pc.begin(); it != pc.end(); ++it)
+            if(hasFreeSpaceMap())
             {
-                try
+                base::Vector3d sensor_origin_in_mls = pc2mls.getTransform() * sensor_origin_in_pc;
+                for(typename std::vector< Eigen::Matrix<double, 3, 1, _MatrixOptions> >::const_iterator it = pc.begin(); it != pc.end(); ++it)
+                {
+                    std::pair<Eigen::Vector3d, Eigen::Matrix3d> measurement_in_map = pc2mls.composePointWithCovariance(*it, Eigen::Matrix3d::Zero());
+
+                    try
+                    {
+                        if(!free_space_map->isFreeSpace(measurement_in_map.first))
+                            mergePoint(*it, pc2grid, measurement_variance + measurement_in_map.second(2,2));
+
+                        if(measurement_in_map.second(2,2) <= 0.2)
+                            free_space_map->mergePoint(sensor_origin_in_mls, measurement_in_map.first);
+                    }
+                    catch(const std::runtime_error& e)
+                    {
+                        // TODO use glog or base log for all out prints of this library
+                        std::cerr << e.what() << std::endl;
+                    }
+                }
+            }
+            else
+            {
+                for(typename std::vector< Eigen::Matrix<double, 3, 1, _MatrixOptions> >::const_iterator it = pc.begin(); it != pc.end(); ++it)
                 {
                     std::pair<Eigen::Vector3d, Eigen::Matrix3d> point_with_cov = pc2mls.composePointWithCovariance(*it, Eigen::Matrix3d::Zero());
-                    mergePoint(*it, pc2grid, measurement_variance + point_with_cov.second(2,2));
-                }
-                catch(const std::runtime_error& e)
-                {
-                    // TODO use glog or base log for all out prints of this library
-                    std::cerr << e.what() << std::endl;
+                    try
+                    {
+                        mergePoint(*it, pc2grid, measurement_variance + point_with_cov.second(2,2));
+                    }
+                    catch(const std::runtime_error& e)
+                    {
+                        // TODO use glog or base log for all out prints of this library
+                        std::cerr << e.what() << std::endl;
+                    }
                 }
             }
         }
@@ -173,6 +273,7 @@ namespace maps { namespace grid
 
     private:
         MLSConfig config;
+        boost::shared_ptr<OccupancyGridMapBase> free_space_map;
 
         bool merge(Patch& a, const Patch& b)
         {
@@ -231,6 +332,7 @@ namespace maps { namespace grid
         {
             ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(MultiLevelGridMap<SurfacePatch<SurfaceType>>);
             ar & BOOST_SERIALIZATION_NVP(config);
+            ar & BOOST_SERIALIZATION_NVP(free_space_map);
         }         
     };
 
@@ -240,5 +342,9 @@ namespace maps { namespace grid
 
 } /* namespace grid */
 } /* namespace maps */
+
+BOOST_CLASS_VERSION(maps::grid::MLSMap<maps::grid::MLSConfig::SLOPE>, 1)
+BOOST_CLASS_VERSION(maps::grid::MLSMap<maps::grid::MLSConfig::KALMAN>, 1)
+BOOST_CLASS_VERSION(maps::grid::MLSMap<maps::grid::MLSConfig::PRECALCULATED>, 1)
 
 #endif // __MAPS_MLS_GRID_HPP__
