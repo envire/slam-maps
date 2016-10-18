@@ -6,6 +6,7 @@ rock_library(maps
     SOURCES
         grid/ElevationMap.cpp
         grid/TraversabilityMap3d.cpp
+        grid/OccupancyGridMap.cpp
         tools/BresenhamLine.cpp
         tools/VoxelTraversal.cpp
     HEADERS
@@ -27,6 +28,9 @@ rock_library(maps
         grid/VectorGridAccess.hpp
         grid/DiscreteTree.hpp
         grid/VoxelGridMap.hpp
+        grid/OccupancyGridMapBase.hpp
+        grid/OccupancyGridMap.hpp
+        grid/OccupancyConfiguration.hpp
         geometric/Point.hpp
         geometric/LineSegment.hpp
         geometric/GeometricMap.hpp

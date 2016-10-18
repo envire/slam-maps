@@ -16,6 +16,7 @@
 #include "MLSConfig.hpp"
 #include "Index.hpp"
 #include <cmath>
+#include <limits>
 
 
 namespace maps { namespace grid
@@ -399,6 +400,80 @@ protected:
         ar & BOOST_SERIALIZATION_NVP(normal);
     }
 }; // SurfacePatch<MLSConfig::PRECALCULATED>
+
+
+class OccupancyPatch
+{
+    float log_odds;
+
+public:
+    OccupancyPatch(double initial_probability) : log_odds(logodds(initial_probability)) {}
+    OccupancyPatch(float initial_log_odds = 0.f) : log_odds(initial_log_odds) {}
+    virtual ~OccupancyPatch() {}
+
+    double getPropability() const
+    {
+        return probability(log_odds);
+    }
+
+    float getLogOdds() const
+    {
+        return log_odds;
+    }
+
+    bool isOccupied(double occupied_tresshold = 0.8) const
+    {
+        return probability(log_odds) >= occupied_tresshold;
+    }
+
+    bool isFreeSpace(double not_occupied_tresshold = 0.3) const
+    {
+        return probability(log_odds) < not_occupied_tresshold;
+    }
+
+    void updatePropability(double update_prob, double min_prob = 0.1192, double max_prob = 0.971)
+    {
+        updateLogOdds(logodds(update_prob), logodds(min_prob), logodds(max_prob));
+    }
+
+    void updateLogOdds(float update_logodds, float min = -2.f, float max = 3.5f)
+    {
+        log_odds += update_logodds;
+        if(log_odds < min)
+            log_odds = min;
+        else if(log_odds > max)
+            log_odds = max;
+    }
+
+    bool operator==(const OccupancyPatch& other) const
+    {
+        return log_odds == other.log_odds;
+    }
+
+    // compute log-odds from probability
+    static inline float logodds(double probability)
+    {
+        return (float)log(probability / (1.0 - probability));
+    }
+
+    // compute probability from log-odds
+    static inline double probability(double logodds)
+    {
+        return 1.0 - ( 1.0 / (1.0 + exp(logodds)));
+    }
+
+protected:
+
+    /** Grants access to boost serialization */
+    friend class boost::serialization::access;
+
+    /** Serializes the members of this class*/
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(log_odds);
+    }
+};
 
 
 /**

@@ -23,7 +23,7 @@ namespace maps { namespace grid
     class GridMap: public LocalMap, public GridT
     {
 
-    private:
+    protected:
         /** 
          * @brief Resolution of the cell in local x-axis and y-axis
          * @details
