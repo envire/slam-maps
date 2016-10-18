@@ -150,7 +150,7 @@ namespace maps { namespace grid
                         if(!free_space_map->isFreeSpace(measurement_in_map.first))
                             mergePoint(measurement, pc2grid, measurement_variance + measurement_in_map.second(2,2));
 
-                        if(measurement_in_map.second(2,2) <= 0.2)
+                        if(measurement_in_map.second(2,2) <= free_space_map->getConfig().uncertainty_threshold)
                             free_space_map->mergePoint(sensor_origin_in_mls, measurement_in_map.first);
                     }
                     catch(const std::runtime_error& e)
@@ -196,7 +196,7 @@ namespace maps { namespace grid
                         if(!free_space_map->isFreeSpace(measurement_in_map.first))
                             mergePoint(*it, pc2grid, measurement_variance + measurement_in_map.second(2,2));
 
-                        if(measurement_in_map.second(2,2) <= 0.2)
+                        if(measurement_in_map.second(2,2) <= free_space_map->getConfig().uncertainty_threshold)
                             free_space_map->mergePoint(sensor_origin_in_mls, measurement_in_map.first);
                     }
                     catch(const std::runtime_error& e)
