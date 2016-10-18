@@ -45,9 +45,6 @@ namespace vizkit3d {
         void setColor(const osg::Vec4& color);
         void setColorHSVA(float hue, float sat, float lum, float alpha);
 
-        void showNegative(bool show_negative);
-        void setNegativeColor(const osg::Vec4& color);
-
         void showCycleColor(bool cycle_color);
         void setCycleColorInterval(float cycle_color_interval);
         void setUncertaintyScale(double uncertainty_scale);

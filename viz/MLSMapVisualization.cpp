@@ -7,6 +7,7 @@
 #include <base/TimeMark.hpp>
 
 #include <vizkit3d/ColorConversionHelper.hpp>
+#include <maps/grid/OccupancyGridMap.hpp>
 
 #include "MLSMapVisualization.hpp"
 
@@ -56,6 +57,7 @@ struct MLSMapVisualization::Data {
     virtual Eigen::Vector2d getResolution() const = 0;
     virtual void visualize(vizkit3d::PatchesGeode& geode) const = 0;
     virtual void visualizeExtents(osg::Group* group) const = 0;
+    virtual void visualizeNegativeInformation(vizkit3d::PatchesGeode& geode) const = 0;
 };
 
 template<enum MLSConfig::update_model Type>
@@ -108,6 +110,43 @@ struct DataHold : public MLSMapVisualization::Data
             new ExtentsRectangle( Eigen::Vector2d(min_d.x(), min_d.y()),
                 Eigen::Vector2d(max_d.x(), max_d.y())));
     };
+
+    void visualizeNegativeInformation(vizkit3d::PatchesGeode& geode) const
+    {
+        boost::shared_ptr<maps::grid::OccupancyGridMap> grid;
+        if(mls.hasFreeSpaceMap() && (grid = boost::dynamic_pointer_cast<maps::grid::OccupancyGridMap>(mls.getFreeSpaceMap())))
+        {
+            Eigen::Vector3d res = grid->getVoxelResolution();
+            maps::grid::Vector2ui num_cell = grid->getNumCells();
+            const maps::grid::OccupancyConfiguration& config = grid->getConfig();
+            for (size_t x = 0; x < num_cell.x(); x++)
+            {
+                for (size_t y = 0; y < num_cell.y(); y++)
+                {
+                    const maps::grid::OccupancyGridMap::GridMapBase::CellType &tree = grid->at(x, y);
+                    maps::grid::Vector3d pos;
+                    if(grid->fromGrid(maps::grid::Index(x,y), pos))
+                    {
+                        geode.setPosition(pos.x(), pos.y());
+                        std::vector< std::pair<int,int> > free_cells;
+                        for(maps::grid::DiscreteTree<maps::grid::OccupancyGridMap::VoxelCellType>::const_iterator cell_it = tree.begin(); cell_it != tree.end(); cell_it++)
+                        {
+                            if(cell_it->second.getLogOdds() < config.free_space_logodds)
+                            {
+                                if(free_cells.empty() || free_cells.back().second + 1 != cell_it->first)
+                                    free_cells.push_back(std::make_pair(cell_it->first, cell_it->first));
+                                else
+                                    free_cells.back().second++;
+                            }
+                        }
+
+                        for(const std::pair<int,int>& cell : free_cells)
+                            geode.drawBox(tree.getCellCenter(cell.second) + res.z() * 0.5, res.z() * (float)((cell.second-cell.first)+1), osg::Vec3(0.f,0.f,1.f));
+                    }
+                }
+            }
+        }
+    }
 };
 
 MLSMapVisualization::MLSMapVisualization()
@@ -133,28 +172,21 @@ MLSMapVisualization::~MLSMapVisualization()
 
 osg::ref_ptr<osg::Node> MLSMapVisualization::createMainNode()
 {
-    // Geode is a common node used for vizkit3d plugins. It allows to display
-    // "arbitrary" geometries
-    osg::ref_ptr<osg::Group> group = new osg::Group();
-    osg::ref_ptr<osg::Geode> geode = new osg::Geode();
-    group->addChild(geode.get());
-
-    return group.release();
+    return vizkit3d::VizPluginBase::createMainNode();
 }
 
 void MLSMapVisualization::updateMainNode ( osg::Node* node )
 {
     if(!p) return;
-    osg::Group* group = static_cast<osg::Group*>(node);    
+    osg::Group* group = static_cast<osg::Group*>(node);
+    group->removeChildren(0, group->getNumChildren());
 
-//    MLSMap &mls = p->data;
     Eigen::Vector2d res = p->getResolution();
 
     osg::ref_ptr<PatchesGeode> geode = new PatchesGeode(res.x(), res.y());
-    group->setChild( 0, geode );
+    group->addChild( geode );
 
     // draw the extents of the mls
-    group->removeChild( 1 );
     if( showMapExtents )
     {
         p->visualizeExtents(group);
@@ -172,7 +204,6 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
     geode->setShowNormals(showNormals);
     geode->setUncertaintyScale(uncertaintyScale);
 
-    base::TimeMark timer("MLS_VIZ::updateMainNode");
     p->visualize(*geode);
 
     if( showUncertainty || showNormals || showPatchExtents)
@@ -180,11 +211,13 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
         geode->drawLines();
     }
 
-//    const double xo = mls.localFrameX();
-//    const double yo = mls.localFrameY();
-
-    std::cout << timer << std::endl;
-
+    if( showNegative )
+    {
+        osg::ref_ptr<PatchesGeode> neg_geode = new PatchesGeode(res.x(), res.y());
+        neg_geode->setColor(negativeCellColor);
+        group->addChild( neg_geode );
+        p->visualizeNegativeInformation(*neg_geode);
+    }
 }
 
 void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::KALMAN> const& value)
