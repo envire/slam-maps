@@ -8,6 +8,7 @@ rock_vizkit_plugin(maps-viz
         MLSMapVisualization.cpp
         TraversabilityMap3dVisualization.cpp
         ContourMapVisualization.cpp
+        OccupancyGridMapVisualization.cpp
     HEADERS
         ColorGradient.hpp
         ExtentsRectangle.hpp
@@ -18,6 +19,7 @@ rock_vizkit_plugin(maps-viz
         PatchesGeode.hpp
         StandaloneVisualizer.hpp
         ContourMapVisualization.hpp
+        OccupancyGridMapVisualization.hpp
     DEPS 
         maps
     DEPS_PKGCONFIG 

@@ -4,6 +4,7 @@
 #include <boost/scoped_ptr.hpp>
 
 #include <maps/grid/MLSMap.hpp>
+#include <maps/grid/OccupancyGridMap.hpp>
 
 namespace maps{ namespace grid
 {
@@ -20,6 +21,7 @@ public:
 
     void updateData(const ::maps::grid::MLSMapKalman& mls);
     void updateData(const ::maps::grid::MLSMapSloped& mls);
+    void updateData(const ::maps::grid::OccupancyGridMap& grid);
 };
 
 } /* namespace grid */
