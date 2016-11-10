@@ -39,7 +39,7 @@ namespace vizkit3d
             MLSMapVisualization();
             ~MLSMapVisualization();
 
-            Q_INVOKABLE void updateData(::maps::grid::MLSMap<::maps::grid::MLSConfig::PRECALCULATED> const &sample)
+            Q_INVOKABLE void updateData(maps::grid::MLSMapPrecalculated const &sample)
             {vizkit3d::Vizkit3DPlugin<::maps::grid::MLSMap<::maps::grid::MLSConfig::KALMAN>>::updateData(sample);}
             Q_INVOKABLE void updateData(maps::grid::MLSMapKalman const &sample)
             {vizkit3d::Vizkit3DPlugin<::maps::grid::MLSMap<::maps::grid::MLSConfig::KALMAN>>::updateData(sample);}
