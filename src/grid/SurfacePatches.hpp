@@ -352,6 +352,12 @@ class SurfacePatch<MLSConfig::PRECALCULATED> : public SurfacePatchBase
     typedef SurfacePatchBase Base;
     Eigen::Vector3f center, normal;
 public:
+    
+    SurfacePatch() : center(0, 0, 0), normal(0, 0, 0)
+    {
+        // empty
+    }
+    
     template<MLSConfig::update_model model>
     SurfacePatch(const SurfacePatch<model>& other) : SurfacePatchBase(other), center(other.getCenter()), normal(other.getNormal())
     {
