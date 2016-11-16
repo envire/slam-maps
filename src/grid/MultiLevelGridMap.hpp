@@ -131,9 +131,9 @@ namespace maps { namespace grid
             
             View ret(Vector2ui(newSize.x(), newSize.y()) , this->getResolution());
             
-            for(size_t x = minIdx.x();x < maxIdx.x(); x++)
+            for(Index::Scalar x = minIdx.x();x < maxIdx.x(); x++)
             {
-                for(size_t y = minIdx.y(); y < maxIdx.y(); y++)
+                for(Index::Scalar y = minIdx.y(); y < maxIdx.y(); y++)
                 {
                     Index curIdx(x,y);
                     
