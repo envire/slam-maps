@@ -61,3 +61,11 @@ Vizkit::UiLoader.register_3d_plugin_for('ContourMapVisualization', "/envire/core
     end
     plugin.updateData(sample.data)
 end
+Vizkit::UiLoader.register_3d_plugin('OccupancyGridMapVisualization', 'maps', 'OccupancyGridMapVisualization')
+Vizkit::UiLoader.register_3d_plugin_for('OccupancyGridMapVisualization', "/maps/grid/OccupancyGridMap", :updateData )
+Vizkit::UiLoader.register_3d_plugin_for('OccupancyGridMapVisualization', "/envire/core/SpatioTemporal</maps/grid/OccupancyGridMap>") do |plugin,sample,_|
+    if plugin.getVisualizationFrames.include? sample.frame_id
+        plugin.setVisualizationFrame(sample.frame_id)
+    end
+    plugin.updateData(sample.data)
+end
