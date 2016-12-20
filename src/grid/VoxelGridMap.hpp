@@ -26,6 +26,12 @@ public:
         return false;
     }
 
+    bool hasVoxelCell(const Eigen::Vector3i &index) const
+    {
+        Index idx = index.block(0,0,2,1);
+        return _Base::at(idx).hasCell(index.z());
+    }
+
     CellT& getVoxelCell(const Eigen::Vector3i &index)
     {
         Index idx = index.block(0,0,2,1);

@@ -45,9 +45,24 @@ public:
         return TreeBase::find(getCellIndex(pos));
     }
 
+    typename TreeBase::iterator find(int32_t idx)
+    {
+        return TreeBase::find(idx);
+    }
+
+    typename TreeBase::const_iterator find(int32_t idx) const
+    {
+        return TreeBase::find(idx);
+    }
+
     bool hasCell(float pos) const
     {
         return find(pos) != TreeBase::end();
+    }
+
+    bool hasCell(int32_t idx) const
+    {
+        return find(idx) != TreeBase::end();
     }
 
     float getCellCenter(int32_t idx) const
