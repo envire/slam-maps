@@ -58,7 +58,8 @@ void OccupancyGridMap::mergePoint(const Eigen::Vector3d& sensor_origin, Eigen::V
         for(const VoxelTraversal::RayElement& element : ray)
         {
             DiscreteTree<VoxelCellType>& tree = at(element.idx);
-            for(int32_t z_idx = element.z_first; z_idx != element.z_last; z_idx += element.z_step)
+            int32_t z_end = element.z_last + element.z_step;
+            for(int32_t z_idx = element.z_first; z_idx != z_end; z_idx += element.z_step)
             {
                 tree.getCellAt(z_idx).updateLogOdds(config.miss_logodds, config.min_logodds, config.max_logodds);
             }
