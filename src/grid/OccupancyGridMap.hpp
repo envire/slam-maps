@@ -33,6 +33,32 @@ public:
 
     void mergePointCloud(const PointCloud& pc, const base::Transform3d& pc2mls);
 
+    template<int _MatrixOptions>
+    void mergePointCloud(const std::vector< Eigen::Matrix<double, 3, 1, _MatrixOptions> >& pc, const base::Transform3d& pc2grid,
+                            const base::Vector3d& sensor_origin_in_pc = base::Vector3d::Zero())
+    {
+        Eigen::Vector3d sensor_origin_in_grid = pc2grid * sensor_origin_in_pc;
+        Eigen::Vector3i sensor_origin_idx;
+        Eigen::Vector3d origin_cell_center;
+        if(!VoxelGridBase::toVoxelGrid(sensor_origin_in_grid, sensor_origin_idx) || !VoxelGridBase::fromVoxelGrid(sensor_origin_idx, origin_cell_center))
+        {
+            std::cerr << "Sensor origin (" << sensor_origin_in_grid.transpose() << ") is outside of the grid! Can't add corresponding point cloud to grid." << std::endl;
+            return;
+        }
+        for(typename std::vector< Eigen::Matrix<double, 3, 1, _MatrixOptions> >::const_iterator it = pc.begin(); it != pc.end(); ++it)
+        {
+            try
+            {
+                mergePoint(sensor_origin_in_grid, sensor_origin_idx, origin_cell_center, pc2grid * (*it));
+            }
+            catch(const std::runtime_error& e)
+            {
+                // TODO use glog or base log for all out prints of this library
+                std::cerr << e.what() << std::endl;
+            }
+        }
+    }
+
     void mergePoint(const Eigen::Vector3d& sensor_origin, const Eigen::Vector3d& measurement);
 
     void mergePoint(const Eigen::Vector3d& sensor_origin, Eigen::Vector3i sensor_origin_idx,
