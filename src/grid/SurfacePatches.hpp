@@ -4,6 +4,7 @@
 #include <numeric/PlaneFitting.hpp>
 
 #include <base/Eigen.hpp>
+#include <base/Float.hpp>
 
 #include <Eigen/Core>
 
@@ -472,6 +473,75 @@ protected:
     void serialize(Archive &ar, const unsigned int version)
     {
         ar & BOOST_SERIALIZATION_NVP(log_odds);
+    }
+};
+
+class TSDFPatch
+{
+    float distance;
+    float var;
+
+    template <class T> static inline void kalman_update( T& mean, T& var, T m_mean, T m_var )
+    {
+        float gain = var / (var + m_var);
+        if( gain != gain )
+            gain = 0.5f; // this happens when both vars are 0.
+        mean = mean + gain * (m_mean - mean);
+        var = (1.0f - gain) * var;
+    }
+
+public:
+    TSDFPatch() : distance(base::NaN<float>()), var(1.f) {}
+    TSDFPatch(float distance, float var) : distance(distance), var(var) {}
+    virtual ~TSDFPatch() {}
+
+    void update(float distance, float var, float truncation = 1.f, float min_var = 0.001f)
+    {
+        if(base::isNaN<float>(this->distance))
+            this->distance = distance;
+
+        kalman_update(this->distance, this->var, distance, var);
+
+        if(this->var < min_var)
+            this->var = min_var;
+
+        if(distance > truncation)
+            distance = truncation;
+        else if(distance < -truncation)
+            distance = -truncation;
+    }
+
+    float getDistance() const
+    {
+        return distance;
+    }
+
+    float getVariance() const
+    {
+        return var;
+    }
+
+    float getStandardDeviation() const
+    {
+        return std::sqrt(var);
+    }
+
+    bool operator==(const TSDFPatch& other) const
+    {
+        return this == &other;
+    }
+
+protected:
+
+    /** Grants access to boost serialization */
+    friend class boost::serialization::access;
+
+    /** Serializes the members of this class*/
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(distance);
+        ar & BOOST_SERIALIZATION_NVP(var);
     }
 };
 
