@@ -43,23 +43,23 @@ public:
         return _Base::at(position)[position.z()];
     }
 
-    bool fromVoxelGrid(const Eigen::Vector3i& idx, Eigen::Vector3d& position) const
+    bool fromVoxelGrid(const Eigen::Vector3i& idx, Eigen::Vector3d& position, bool checkIndex = true) const
     {
         Index idx_2d = idx.block(0,0,2,1);
-        if(_Base::fromGrid(idx_2d, position))
+        if(_Base::fromGrid(idx_2d, position, checkIndex))
         {
-            position << position.block(0,0,2,1), _Base::at(idx_2d).getCellCenter(idx.z());
+            position << position.block(0,0,2,1), _Base::getDefaultValue().getCellCenter(idx.z());
             return true;
         }
         return false;
     }
 
-    bool toVoxelGrid(const Eigen::Vector3d& position, Eigen::Vector3i& idx) const
+    bool toVoxelGrid(const Eigen::Vector3d& position, Eigen::Vector3i& idx, bool checkIndex = true) const
     {
         Index idx_2d;
-        if(_Base::toGrid(position, idx_2d))
+        if(_Base::toGrid(position, idx_2d, checkIndex))
         {
-            idx << idx_2d, _Base::at(idx_2d).getCellIndex(position.z());
+            idx << idx_2d, _Base::getDefaultValue().getCellIndex(position.z(), checkIndex);
             return true;
         }
         return false;
