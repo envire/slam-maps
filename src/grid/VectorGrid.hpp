@@ -116,9 +116,9 @@ namespace maps { namespace grid
             tmp.resize(num_cells.prod(), default_value);
 
             //copy pointers to new grid at new position
-            for (unsigned int x = 0; x < num_cells.x(); ++x)
+            for (unsigned int y = 0; y < num_cells.y(); ++y)
             {
-                for (unsigned int y = 0; y < num_cells.y(); ++y)
+                for (unsigned int x = 0; x < num_cells.x(); ++x)
                 {
                     int x_new = x + idx.x();
                     int y_new = y + idx.y();
