@@ -18,10 +18,16 @@
 using namespace vizkit3d;
 using namespace ::maps::grid;
 
-template <class T>
-osg::Vec3 Vec3( const Eigen::Matrix<T,3,1>& v )
+template <class T, int options>
+osg::Vec3 Vec3( const Eigen::Matrix<T,3,1, options>& v )
 {
     return osg::Vec3( v.x(), v.y(), v.z() );
+}
+
+template <class T, int options>
+osg::Quat Quat( const Eigen::Quaternion<T, options>& q )
+{
+    return osg::Quat( q.x(), q.y(), q.z(), q.w() );
 }
 
 namespace vizkit3d {
@@ -58,14 +64,25 @@ struct MLSMapVisualization::Data {
     virtual void visualize(vizkit3d::PatchesGeode& geode) const = 0;
     virtual void visualizeExtents(osg::Group* group) const = 0;
     virtual void visualizeNegativeInformation(vizkit3d::PatchesGeode& geode) const = 0;
+    virtual void setLocalFrame(osg::Node* node) = 0;
+    virtual void setLocalFrame(osg::PositionAttitudeTransform* local_frame) = 0;
 };
 
 template<enum MLSConfig::update_model Type>
 struct DataHold : public MLSMapVisualization::Data
 {
+private:
     MLSMap<Type> mls;
-
-    DataHold(const MLSMap<Type> mls_) : mls(mls_) {}
+    base::Transform3d local_transform;
+public:
+    DataHold(const MLSMap<Type> mls_) : mls(mls_), local_transform(mls.getLocalFrame().inverse())
+    {
+        // reset local frames since they are modelled separately in the OSG tree
+        mls.getLocalFrame() = base::Transform3d::Identity();
+        boost::shared_ptr<maps::grid::OccupancyGridMap> grid;
+        if(mls.hasFreeSpaceMap() && (grid = boost::dynamic_pointer_cast<maps::grid::OccupancyGridMap>(mls.getFreeSpaceMap())))
+            grid->getLocalFrame() = base::Transform3d::Identity();
+    }
 
     Eigen::Vector2d getResolution() const { return mls.getResolution(); }
     void visualize(vizkit3d::PatchesGeode& geode) const
@@ -80,7 +97,6 @@ struct DataHold : public MLSMapVisualization::Data
                 const Cell &list = mls.at(x, y);
 
                 Vector3d pos(0.00, 0.00, 0.00);
-                // FIXME this does not work properly for non-trivial local frames
                 mls.fromGrid(Index(x,y), pos);
                 geode.setPosition(pos.x(), pos.y());
                 for (typename Cell::const_iterator it = list.begin(); it != list.end(); it++)
@@ -103,8 +119,8 @@ struct DataHold : public MLSMapVisualization::Data
         Eigen::Vector2d min = extents.min().cast<double>().cwiseProduct(mls.getResolution());
         Eigen::Vector2d max = extents.max().cast<double>().cwiseProduct(mls.getResolution());
 
-        Eigen::Vector3d min_d = mls.getLocalFrame().inverse() * Eigen::Vector3d(min.x(), min.y(), 0.);
-        Eigen::Vector3d max_d = mls.getLocalFrame().inverse() * Eigen::Vector3d(max.x(), max.y(), 0.);
+        Eigen::Vector3d min_d = Eigen::Vector3d(min.x(), min.y(), 0.);
+        Eigen::Vector3d max_d = Eigen::Vector3d(max.x(), max.y(), 0.);
 
         group->addChild( 
             new ExtentsRectangle( Eigen::Vector2d(min_d.x(), min_d.y()),
@@ -147,6 +163,27 @@ struct DataHold : public MLSMapVisualization::Data
             }
         }
     }
+
+    void setLocalFrame(osg::Node* node)
+    {
+        osg::Transform* transform = node->asTransform();
+        if(transform)
+        {
+            osg::PositionAttitudeTransform* local_frame = transform->asPositionAttitudeTransform();
+            if(local_frame)
+            {
+                setLocalFrame(local_frame);
+                return;
+            }
+        }
+        std::cerr << "Couldn't set local transformation. The given osg::Node is not a osg::PositionAttitudeTransform" << std::endl;
+    }
+
+    void setLocalFrame(osg::PositionAttitudeTransform* local_frame)
+    {
+        local_frame->setPosition(Vec3(Eigen::Vector3d(local_transform.translation())));
+        local_frame->setAttitude(Quat(Eigen::Quaterniond(local_transform.linear())));
+    }
 };
 
 MLSMapVisualization::MLSMapVisualization()
@@ -158,6 +195,7 @@ MLSMapVisualization::MLSMapVisualization()
     showMapExtents(false),
     showUncertainty(false),
     showNegative(false),
+    showNormals(false),
     estimateNormals(false),
     cycleHeightColor(true),
     cycleColorInterval(1.0),
@@ -172,13 +210,16 @@ MLSMapVisualization::~MLSMapVisualization()
 
 osg::ref_ptr<osg::Node> MLSMapVisualization::createMainNode()
 {
-    return vizkit3d::VizPluginBase::createMainNode();
+    osg::ref_ptr<osg::PositionAttitudeTransform> local_frame(new osg::PositionAttitudeTransform);
+    return local_frame;
 }
 
 void MLSMapVisualization::updateMainNode ( osg::Node* node )
 {
     if(!p) return;
-    osg::Group* group = static_cast<osg::Group*>(node);
+    p->setLocalFrame(node);
+
+    osg::Group* group = node->asGroup();
     group->removeChildren(0, group->getNumChildren());
 
     Eigen::Vector2d res = p->getResolution();
