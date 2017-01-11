@@ -30,14 +30,14 @@ namespace vizkit3d
 
             Q_PROPERTY(bool show_map_extents READ areMapExtentsShown WRITE setShowMapExtents)
 
-            Q_INVOKABLE void updateData(::maps::grid::GridMapD const &sample)
+            Q_INVOKABLE void updateGridMapD(::maps::grid::GridMapD const &sample)
             {vizkit3d::Vizkit3DPlugin<::maps::grid::GridMap<double>>::updateData(sample);}   
-            Q_INVOKABLE void updateData(::maps::grid::GridMapF const &sample)
+            Q_INVOKABLE void updateGridMapF(::maps::grid::GridMapF const &sample)
             {vizkit3d::Vizkit3DPlugin<::maps::grid::GridMap<double>>::updateData(sample);}    
-            Q_INVOKABLE void updateData(::maps::grid::GridMapI const &sample)
+            Q_INVOKABLE void updateGridMapI(::maps::grid::GridMapI const &sample)
             {vizkit3d::Vizkit3DPlugin<::maps::grid::GridMap<double>>::updateData(sample);}   
-            Q_INVOKABLE void updateData(::maps::grid::GridMapC const &sample)
-            {vizkit3d::Vizkit3DPlugin<::maps::grid::GridMap<double>>::updateData(sample);}                            
+            Q_INVOKABLE void updateGridMapC(::maps::grid::GridMapC const &sample)
+            {vizkit3d::Vizkit3DPlugin<::maps::grid::GridMap<double>>::updateData(sample);}
 
         protected:
             virtual osg::ref_ptr<osg::Node> createMainNode();
