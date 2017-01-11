@@ -11,6 +11,7 @@ rock_library(maps
         tools/BresenhamLine.cpp
         tools/VoxelTraversal.cpp
         tools/TSDFPolygonMeshReconstruction.cpp
+        tools/TSDF_MLSMapReconstruction.cpp
     HEADERS
         LocalMap.hpp
         grid/Index.hpp
@@ -43,6 +44,7 @@ rock_library(maps
         tools/VoxelTraversal.hpp
         tools/TSDFSurfaceReconstruction.hpp
         tools/TSDFPolygonMeshReconstruction.hpp
+        tools/TSDF_MLSMapReconstruction.hpp
         operations/GridInterpolation.hpp
     DEPS_PKGCONFIG 
         base-types 
