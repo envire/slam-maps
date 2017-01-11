@@ -58,7 +58,7 @@ void StandaloneVisualizer::updateData(const MLSMapKalman& mls)
 }
 void StandaloneVisualizer::updateData(const MLSMapSloped& mls)
 {
-    impl->mls_viz->updateData(mls);
+    impl->mls_viz->updateMLSSloped(mls);
 }
 
 void StandaloneVisualizer::updateData(const OccupancyGridMap& grid)
