@@ -40,6 +40,7 @@ rock_library(maps
         tools/BresenhamLine.hpp
         tools/Overlap.hpp
         tools/VoxelTraversal.hpp
+        tools/TSDFSurfaceReconstruction.hpp
         operations/GridInterpolation.hpp
     DEPS_PKGCONFIG 
         base-types 
