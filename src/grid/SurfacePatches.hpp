@@ -125,13 +125,6 @@ public:
         , n(1)
     {}
 
-    // TODO stdev is not handled!
-    SurfacePatch(const float& mean, const float& stdev, const float& height = 0)
-        : Base(mean, height)
-        , n(1)
-    {}
-
-
     /**
      * Compares two patches by their center of mass
      */
