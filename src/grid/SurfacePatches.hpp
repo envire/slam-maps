@@ -355,9 +355,16 @@ class SurfacePatch<MLSConfig::PRECALCULATED> : public SurfacePatchBase
     Eigen::Vector3f center, normal;
 public:
     
-    SurfacePatch() : center(0, 0, 0), normal(0, 0, 0)
+    SurfacePatch() : SurfacePatchBase(), center(0, 0, 0), normal(0, 0, 0)
     {
         // empty
+    }
+
+    SurfacePatch(const Eigen::Vector3f& center, const Eigen::Vector3f& normal, const float &min, const float &max) :
+                SurfacePatchBase(), center(center), normal(normal)
+    {
+        this->min = min;
+        this->max = max;
     }
     
     template<MLSConfig::update_model model>
@@ -448,7 +455,7 @@ public:
 
     bool operator==(const OccupancyPatch& other) const
     {
-        return log_odds == other.log_odds;
+        return this == &other;
     }
 
     // compute log-odds from probability
