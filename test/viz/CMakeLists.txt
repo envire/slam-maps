@@ -30,3 +30,8 @@ rock_executable(deserialize_test
     DEPS_CMAKE Boost
     DEPS maps-viz
     DEPS_PKGCONFIG vizkit3d  vizkit3d-viz)
+
+rock_testsuite(test_viz_occupancylidar
+    test_viz_OccupancyLidar.cpp
+    DEPS maps-viz
+    DEPS_PKGCONFIG vizkit3d  vizkit3d-viz)

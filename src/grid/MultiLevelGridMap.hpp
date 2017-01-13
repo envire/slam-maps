@@ -86,9 +86,9 @@ namespace maps { namespace grid
             minIdx = minIdx.cwiseMax(0);
             maxIdx = maxIdx.cwiseMin(this->getNumCells().template cast<int>());
 
-            for(int x = minIdx.x();x < maxIdx.x(); x++)
+            for(int y = minIdx.y(); y < maxIdx.y(); y++)
             {
-                for(int y = minIdx.y(); y < maxIdx.y(); y++)
+                for(int x = minIdx.x();x < maxIdx.x(); x++)
                 {
                     const Index curIdx(x,y);
                     for(const P &p: this->at(curIdx))
@@ -131,9 +131,9 @@ namespace maps { namespace grid
             
             View ret(Vector2ui(newSize.x(), newSize.y()) , this->getResolution());
             
-            for(Index::Scalar x = minIdx.x();x < maxIdx.x(); x++)
+            for(Index::Scalar y = minIdx.y(); y < maxIdx.y(); y++)
             {
-                for(Index::Scalar y = minIdx.y(); y < maxIdx.y(); y++)
+                for(Index::Scalar x = minIdx.x();x < maxIdx.x(); x++)
                 {
                     Index curIdx(x,y);
                     

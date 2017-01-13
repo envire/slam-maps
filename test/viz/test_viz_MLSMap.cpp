@@ -24,7 +24,6 @@ static void show_MLS(const MLSMap& mls)
 template<MLSConfig::update_model mlsType>
 void mls_waves(const std::string& filename)
 {
-    //    GridConfig conf(300, 300, 0.05, 0.05, -7.5, -7.5);
     Vector2d res(0.05, 0.05);
     Vector2ui numCells(300, 300);
 
@@ -41,19 +40,15 @@ void mls_waves(const std::string& filename)
     //offset_grid << -0.5*mls->getSize(), 0.00;
     //mls->translate(offset_grid);
 
-    for (unsigned int x = 0; x < numCells.x(); ++x) for(float dx = -.5f; dx <0.49f; dx+=0.125)
+    Eigen::Vector2d max = 0.5 * mls->getSize();
+    Eigen::Vector2d min = -0.5 * mls->getSize();
+    for (double x = min.x(); x < max.x(); x += 0.00625)
     {
-        float xx = x+dx-numCells.x()/2;
-        float cs = std::cos(xx * M_PI/50);
-        for (unsigned int y = 0; y < numCells.y(); ++y) for (float dy = -0.5f; dy<0.49; dy+=0.125)
+        double cs = std::cos(x * M_PI/2.5);
+        for (double y = min.y(); y < max.y(); y += 0.00625)
         {
-            float yy = y+dy-numCells.y()/2;
-            float sn = std::sin(yy* M_PI/50);
-
-            mls->mergePoint(Eigen::Vector3d(xx*res.x(), yy*res.y(), cs*sn));
-            //mls->at(x, y).update(SurfacePatch(Eigen::Vector3f(dx*res.x(),dy*res.y(),cs*sn), 0.1));
-            //mls->at(x, y).update(SurfacePatch(cs*sn+10, 0.1, 9, SurfacePatch::NEGATIVE));
-            //            mls->at(x, y).update(SurfacePatch(height, 0.1));
+            double sn = std::sin(y * M_PI/2.5);
+            mls->mergePoint(Eigen::Vector3d(x, y, cs*sn));
         }
     }
 
