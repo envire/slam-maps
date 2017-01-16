@@ -12,6 +12,7 @@
     <depend package="base/boost_serialization" />
     <depend package="slam/pcl"/>
     <depend package="gui/vizkit3d" optional="1"/>
+    <depend package="gui/osgviz" optional="1" />
 
     <rosdep package="boost"/>
     <rosdep package="boost-serialization"/>
