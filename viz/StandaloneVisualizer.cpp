@@ -4,6 +4,7 @@
 #include <vizkit3d/QtThreadedWidget.hpp>
 #include "MLSMapVisualization.hpp"
 #include <vizkit3d/GridVisualization.hpp>
+#include <vizkit3d/OccupancyGridMapVisualization.hpp>
 #include "StandaloneVisualizer.hpp"
 
 
@@ -16,6 +17,7 @@ class StandaloneVisualizer::Impl
     friend class StandaloneVisualizer;
     QtThreadedWidget<vizkit3d::Vizkit3DWidget> app;
     vizkit3d::MLSMapVisualization *mls_viz;
+    vizkit3d::OccupancyGridMapVisualization *occ_viz;
 
     Impl()
     {
@@ -31,6 +33,9 @@ class StandaloneVisualizer::Impl
         widget->addPlugin(grid_viz);
         // add plugin
         widget->addPlugin(mls_viz);
+
+        occ_viz = new vizkit3d::OccupancyGridMapVisualization();
+        widget->addPlugin(occ_viz);
     }
 };
 
@@ -53,7 +58,12 @@ void StandaloneVisualizer::updateData(const MLSMapKalman& mls)
 }
 void StandaloneVisualizer::updateData(const MLSMapSloped& mls)
 {
-    impl->mls_viz->updateData(mls);
+    impl->mls_viz->updateMLSSloped(mls);
+}
+
+void StandaloneVisualizer::updateData(const OccupancyGridMap& grid)
+{
+    impl->occ_viz->updateData(grid);
 }
 
 bool StandaloneVisualizer::wait(int usecs)
