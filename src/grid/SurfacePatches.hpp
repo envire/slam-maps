@@ -82,6 +82,16 @@ public:
         return min == other.min && max == other.max;
     }
 
+    void getClosestContactPoint(const Vector3& pos_in_cell, Vector3& contact_point) const
+    {
+        if(pos_in_cell.z() > max)
+            contact_point << pos_in_cell.block(0,0,2,1), max;
+        else if(pos_in_cell.z() < min)
+            contact_point << pos_in_cell.block(0,0,2,1), min;
+        else
+            contact_point << pos_in_cell;
+    }
+
     float getSurfacePos(const Vector3& pos_in_cell) const
     {
         return max;
@@ -186,6 +196,12 @@ public:
         }
 
         return false;
+    }
+
+    void getClosestContactPoint(const Vector3& pos_in_cell, Vector3& contact_point) const
+    {
+        Eigen::Hyperplane<float, 3> plane(getNormal(), getCenter());
+        contact_point = plane.projection(pos_in_cell);
     }
 
     float getSurfacePos(const Vector3& pos_in_cell) const
@@ -332,6 +348,17 @@ public:
         return height == 0.0;
     }
 
+    void getClosestContactPoint(const Vector3& pos_in_cell, Vector3& contact_point) const
+    {
+        float std_dev = getStandardDeviation();
+        if(pos_in_cell.z() > max + std_dev)
+            contact_point << pos_in_cell.block(0,0,2,1), max + std_dev;
+        else if(pos_in_cell.z() < min - std_dev)
+            contact_point << pos_in_cell.block(0,0,2,1), min - std_dev;
+        else
+            contact_point << pos_in_cell;
+    }
+
     float getSurfacePos(const Vector3& pos_in_cell) const
     {
         float std_dev = getStandardDeviation();
@@ -402,6 +429,12 @@ public:
     bool operator==(const SurfacePatch& other) const
     {
         return Base::operator ==(other) && center == other.center && normal == other.normal;
+    }
+
+    void getClosestContactPoint(const Vector3& pos_in_cell, Vector3& contact_point) const
+    {
+        Eigen::Hyperplane<float, 3> plane(normal, center);
+        contact_point = plane.projection(pos_in_cell);
     }
 
     float getSurfacePos(const Vector3& pos_in_cell) const

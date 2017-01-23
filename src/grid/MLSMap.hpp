@@ -84,6 +84,33 @@ namespace maps { namespace grid
             return free_space_map.get() != NULL;
         }
 
+        bool getClosestContactPoint(const Vector3d& point, Vector3d& contact_point) const
+        {
+            Index idx;
+            Vector3 pos_diff;
+            Vector3d cell_center;
+            if(Base::toGrid(point, idx) && Base::fromGrid(idx, cell_center))
+            {
+                pos_diff = (point - cell_center).cast<float>();
+                const CellType& cell = Base::at(idx);
+                float min_dist = base::infinity<float>();
+                for(const Patch& patch : cell)
+                {
+                    Vector3 contact_point_f;
+                    patch.getClosestContactPoint(pos_diff, contact_point_f);
+                    float dist = (contact_point_f - pos_diff).norm();
+                    contact_point = contact_point_f.cast<double>() + cell_center;
+                    if(dist > min_dist)
+                        break;
+                    else
+                        min_dist = dist;
+                }
+                if(!base::isInfinity<float>(min_dist))
+                    return true;
+            }
+            return false;
+        }
+
         bool getClosestSurfacePos(const Vector3d& point, double& surface_pos) const
         {
             Index idx;
