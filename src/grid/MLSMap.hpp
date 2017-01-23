@@ -84,6 +84,34 @@ namespace maps { namespace grid
             return free_space_map.get() != NULL;
         }
 
+        bool getClosestSurfacePos(const Vector3d& point, double& surface_pos) const
+        {
+            Index idx;
+            Vector3 pos_diff;
+            Vector3d cell_center;
+            if(Base::toGrid(point, idx) && Base::fromGrid(idx, cell_center))
+            {
+                pos_diff = (point - cell_center).cast<float>();
+                const CellType& cell = Base::at(idx);
+                float min_dist = base::infinity<float>();
+                for(const Patch& patch : cell)
+                {
+                    float surface_pos_f = patch.getSurfacePos(pos_diff);
+                    float dist = std::abs(surface_pos_f - pos_diff.z());
+                    if(dist > min_dist)
+                        break;
+                    else
+                    {
+                        min_dist = dist;
+                        surface_pos = (double)surface_pos_f - this->getLocalFrame().translation().z();
+                    }
+                }
+                if(!base::isInfinity<float>(min_dist))
+                    return true;
+            }
+            return false;
+        }
+
         void mergeMLS(const MLSMap& other)
         {
             // TODO implement

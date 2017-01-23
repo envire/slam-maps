@@ -82,6 +82,11 @@ public:
         return min == other.min && max == other.max;
     }
 
+    float getSurfacePos(const Vector3& pos_in_cell) const
+    {
+        return max;
+    }
+
 protected:
     /** Grants access to boost serialization */
     friend class boost::serialization::access;
@@ -181,6 +186,12 @@ public:
         }
 
         return false;
+    }
+
+    float getSurfacePos(const Vector3& pos_in_cell) const
+    {
+        Eigen::Hyperplane<float, 3> plane(getNormal(), getCenter());
+        return (-plane.coeffs()(0) * pos_in_cell(0) - plane.coeffs()(1) * pos_in_cell(1) - plane.coeffs()(3)) / plane.coeffs()(2);
     }
 
 protected:
@@ -321,6 +332,12 @@ public:
         return height == 0.0;
     }
 
+    float getSurfacePos(const Vector3& pos_in_cell) const
+    {
+        float std_dev = getStandardDeviation();
+        return max + std_dev;
+    }
+
 protected:
     /** Grants access to boost serialization */
     friend class boost::serialization::access;
@@ -387,6 +404,11 @@ public:
         return Base::operator ==(other) && center == other.center && normal == other.normal;
     }
 
+    float getSurfacePos(const Vector3& pos_in_cell) const
+    {
+        Eigen::Hyperplane<float, 3> plane(normal, center);
+        return (-plane.coeffs()(0) * pos_in_cell(0) - plane.coeffs()(1) * pos_in_cell(1) - plane.coeffs()(3)) / plane.coeffs()(2);
+    }
 
 protected:
     /** Grants access to boost serialization */
