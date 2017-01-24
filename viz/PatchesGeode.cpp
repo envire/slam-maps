@@ -41,6 +41,13 @@ namespace vizkit3d
             const osg::Vec3& normal,
             const float & stdev)
     {
+
+        if(std::abs(normal * osg::Vec3(0.f,0.f,1.f)) < 1.e-5)
+        {
+            // FIXME drawPlane can't handle if the normal is on or close to the unit z plane.
+            return;
+        }
+
         const osg::Vec3 position(xp, yp, zp);
         const osg::Vec3 extents(xs*0.5f, ys*0.5f, height*0.5f);
 #ifndef NDEBUG
