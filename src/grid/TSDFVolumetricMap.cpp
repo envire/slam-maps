@@ -49,18 +49,8 @@ void TSDFVolumetricMap::mergePoint(const Eigen::Vector3d& sensor_origin, const E
         if(ray.empty())
             throw std::runtime_error("Ray is empty!");
 
-        // handle last cell in ray
-        try
-        {
-            VoxelCellType& cell = getVoxelCell(end_point_idx);
-            Eigen::Vector3d cell_center;
-            if(fromVoxelGrid(end_point_idx, cell_center))
-                cell.update(ray_length - (cell_center - sensor_origin).norm(), measurement_variance, truncation, min_varaince);
-        }
-        catch(const std::runtime_error& e)
-        {
-            // end point is out of grid, which is here an expected case
-        }
+        // re-add last cell in ray
+        ray.push_back(VoxelTraversal::RayElement(end_point_idx, 1));
 
         for(const VoxelTraversal::RayElement& element : ray)
         {
@@ -73,13 +63,16 @@ void TSDFVolumetricMap::mergePoint(const Eigen::Vector3d& sensor_origin, const E
                     int32_t z_end = element.z_last + element.z_step;
                     for(int32_t z_idx = element.z_first; z_idx != z_end; z_idx += element.z_step)
                     {
-                        // compute distance from ray to cell center
                         cell_center.z() = tree.getCellCenter(z_idx);
-                        float dist_to_center = (cell_center - sensor_origin).cross(cell_center - measurement).norm() / ray_length;
+
+                        // compute point on ray closest to the current cell center
+                        Eigen::Hyperplane<double, 3> plane(truncated_direction, cell_center);
+                        Eigen::Vector3d point_on_ray = plane.projection(sensor_origin);
+
                         // weight the current measurement according to the distance to the cell center with the inverse normal distribution
-                        float phi = exp(-std::pow(dist_to_center, 2.f) / res_sigma);
+                        float phi = exp(-std::pow((point_on_ray - cell_center).norm(), 2.f) / res_sigma);
                         if(phi > 0.f)
-                            tree.getCellAt(z_idx).update(ray_length - (cell_center - sensor_origin).norm(), (1.f/phi) * measurement_variance);
+                            tree.getCellAt(z_idx).update(ray_length - (point_on_ray - sensor_origin).norm(), (1.f/phi) * measurement_variance, truncation, min_varaince);
                     }
                 }
                 else
@@ -95,7 +88,7 @@ void TSDFVolumetricMap::mergePoint(const Eigen::Vector3d& sensor_origin, const E
         }
     }
     else
-        throw std::runtime_error((boost::format("Point %1% or is outside of the grid! Can't add to grid.") % measurement.transpose()).str());
+        throw std::runtime_error((boost::format("Sensor origin %1% is outside of the grid! Can't add measurement to grid.") % start_point.transpose()).str());
 }
 
 bool TSDFVolumetricMap::hasSameFrame(const base::Transform3d& local_frame, const Vector2ui& num_cells, const Vector2d& resolution) const
