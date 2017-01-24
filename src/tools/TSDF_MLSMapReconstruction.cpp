@@ -21,11 +21,16 @@ void TSDF_MLSMapReconstruction::reconstruct(MLSMapPrecalculated& output)
         p1 = surfaces[i];
         p2 = surfaces[i+1];
         p3 = surfaces[i+2];
+        normal = (p2 - p1).cross(p3 - p1);
+        normal.normalize();
+
+        // in case the vectors are zero or linearly dependent
+        if(!normal.allFinite())
+            continue;
+
         center = (p1 + p2 + p3) / 3.f;
         min_z = std::min(p1.z(), std::min(p2.z(), p3.z()));
         max_z = std::max(p1.z(), std::max(p2.z(), p3.z()));
-        normal = (p2 - p1).cross(p3 - p1);
-        normal.normalize();
 
         Eigen::Vector3d pos_diff;
         if(output.toGrid(center.cast<double>(), idx, pos_diff))
