@@ -72,7 +72,7 @@ void TSDFVolumetricMap::mergePoint(const Eigen::Vector3d& sensor_origin, const E
                         // weight the current measurement according to the distance to the cell center with the inverse normal distribution
                         float phi = exp(-std::pow((point_on_ray - cell_center).norm(), 2.f) / res_sigma);
                         if(phi > 0.f)
-                            tree.getCellAt(z_idx).update(ray_length - (point_on_ray - sensor_origin).norm(), (1.f/phi) * measurement_variance, truncation, min_varaince);
+                            tree.getCellAt(z_idx).update(ray_length - (point_on_ray - sensor_origin).norm(), (1.f/phi) * measurement_variance, truncation, min_variance);
                     }
                 }
                 else
@@ -110,10 +110,10 @@ void TSDFVolumetricMap::setTruncation(float truncation)
 
 float TSDFVolumetricMap::getMinVariance()
 {
-    return min_varaince;
+    return min_variance;
 }
 
 void TSDFVolumetricMap::setMinVariance(float min_varaince)
 {
-    this->min_varaince = min_varaince;
+    this->min_variance = min_varaince;
 }

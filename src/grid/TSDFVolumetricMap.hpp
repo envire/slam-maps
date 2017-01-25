@@ -26,10 +26,10 @@ public:
     typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 
     TSDFVolumetricMap(): VoxelGridMap<VoxelCellType>(Vector2ui::Zero(), Vector3d::Ones()),
-                         truncation(1.f), min_varaince(0.001f) {}
+                         truncation(1.f), min_variance(0.001f) {}
 
     TSDFVolumetricMap(const Vector2ui &num_cells, const Vector3d &resolution, float truncation = 1.f, float min_varaince = 0.001f) :
-                    VoxelGridMap<VoxelCellType>(num_cells, resolution), truncation(truncation), min_varaince(min_varaince) {}
+                    VoxelGridMap<VoxelCellType>(num_cells, resolution), truncation(truncation), min_variance(min_varaince) {}
     virtual ~TSDFVolumetricMap() {}
 
     void mergePointCloud(const PointCloud& pc, const base::Transform3d& pc2grid, double measurement_variance = 0.01);
@@ -62,7 +62,7 @@ protected:
     float truncation;
 
     /** lower bound of the variance of each cell */
-    float min_varaince;
+    float min_variance;
 
     /** Grants access to boost serialization */
     friend class boost::serialization::access;
@@ -73,7 +73,7 @@ protected:
     {
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(VoxelGridMap<VoxelCellType>);
         ar & BOOST_SERIALIZATION_NVP(truncation);
-        ar & BOOST_SERIALIZATION_NVP(min_varaince);
+        ar & BOOST_SERIALIZATION_NVP(min_variance);
     }
 };
 
@@ -129,7 +129,7 @@ void TSDFVolumetricMap::projectMLSMap(const maps::grid::MLSMap<SurfaceType>& mls
                         if(distance < truncation)
                         {
                             VoxelCellType& cell = getVoxelCell(idx);
-                            cell.update(std::copysign(distance, diff.z()), 0.01, truncation, min_varaince);
+                            cell.update(std::copysign(distance, diff.z()), 0.01, truncation, min_variance);
                         }
                     }
                 }
