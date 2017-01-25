@@ -44,8 +44,8 @@ void TSDFVolumetricMap::mergePoint(const Eigen::Vector3d& sensor_origin, const E
     {
         std::vector<VoxelTraversal::RayElement> ray;
         VoxelTraversal::computeRay(VoxelGridBase::getVoxelResolution(), start_point, start_point_idx, start_point_cell_center, end_point, end_point_idx, ray);
-        float res_sigma = 2.f * std::pow(VoxelGridBase::getVoxelResolution().norm() / 5.2f, 2.f);
-
+        const float res_sigma = 2.f * VoxelGridBase::getVoxelResolution().squaredNorm() / (5.2f*5.2f);
+        const float res_sigma_inv = 1.f / res_sigma;
         if(ray.empty())
             throw std::runtime_error("Ray is empty!");
 
@@ -70,7 +70,7 @@ void TSDFVolumetricMap::mergePoint(const Eigen::Vector3d& sensor_origin, const E
                         Eigen::Vector3d point_on_ray = plane.projection(sensor_origin);
 
                         // weight the current measurement according to the distance to the cell center with the inverse normal distribution
-                        float phi = exp(-std::pow((point_on_ray - cell_center).norm(), 2.f) / res_sigma);
+                        float phi = std::exp(-(point_on_ray - cell_center).squaredNorm() * res_sigma_inv);
                         if(phi > 0.f)
                             tree.getCellAt(z_idx).update(ray_length - (point_on_ray - sensor_origin).norm(), (1.f/phi) * measurement_variance, truncation, min_variance);
                     }
