@@ -8,7 +8,6 @@
 #include "StandaloneVisualizer.hpp"
 
 
-
 namespace maps { namespace grid
 {
 
@@ -44,7 +43,6 @@ StandaloneVisualizer::StandaloneVisualizer()
 : impl(new Impl())
 {
 
-
 }
 
 StandaloneVisualizer::~StandaloneVisualizer()
@@ -59,6 +57,10 @@ void StandaloneVisualizer::updateData(const MLSMapKalman& mls)
 void StandaloneVisualizer::updateData(const MLSMapSloped& mls)
 {
     impl->mls_viz->updateMLSSloped(mls);
+}
+void StandaloneVisualizer::updateData(const MLSMapPrecalculated& mls)
+{
+    impl->mls_viz->updateMLSPrecalculated(mls);
 }
 
 void StandaloneVisualizer::updateData(const OccupancyGridMap& grid)

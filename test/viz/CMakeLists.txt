@@ -31,6 +31,11 @@ rock_executable(deserialize_test
     DEPS maps-viz
     DEPS_PKGCONFIG vizkit3d  vizkit3d-viz)
 
+rock_testsuite(test_viz_tsdf_map
+    test_viz_TSDFMap.cpp
+    DEPS maps-viz
+    DEPS_PKGCONFIG vizkit3d vizkit3d-viz)
+
 rock_testsuite(test_viz_occupancylidar
     test_viz_OccupancyLidar.cpp
     DEPS maps-viz
