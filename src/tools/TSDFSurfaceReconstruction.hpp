@@ -17,20 +17,9 @@ public:
     void setTSDFMap(grid::TSDFVolumetricMap::Ptr map, float z_min = -50.f, float z_max = 50.f)
     {
         tsdf_map = map;
-
-        Eigen::Vector3d voxel_res = tsdf_map->getVoxelResolution();
-        maps::grid::Vector2ui cells = tsdf_map->getNumCells();
-
+        voxel_res = tsdf_map->getVoxelResolution().cast<float>();
         z_idx_min = (int32_t)std::floor(z_min / voxel_res.z());
         z_idx_max = (int32_t)std::floor(z_max / voxel_res.z());
-
-        Eigen::Vector2d diff_d = cells.cast<double>();
-        Eigen::Vector3i res;
-        Eigen::Vector3f max_p;
-        res << cells.cast<int>(), z_idx_max - z_idx_min;
-        max_p << diff_d.x()*voxel_res.x(), diff_d.y()*voxel_res.y(), z_max - z_min;
-
-        grid_scale = res.cast<float>().cwiseInverse().cwiseProduct(max_p);
 
         // create cell verticies
         vertices.resize(8);
@@ -38,13 +27,13 @@ public:
         {
             vertices[i] = Eigen::Vector3f::Zero();
             if(i & 0x4)
-                vertices[i][1] = max_p[1] / float(res[1]);
+                vertices[i][1] = voxel_res[1];
 
             if(i & 0x2)
-                vertices[i][2] = max_p[2] / float(res[2]);
+                vertices[i][2] = voxel_res[2];
 
             if((i & 0x1) ^ ((i >> 1) & 0x1))
-                vertices[i][0] = max_p[0] / float(res[0]);
+                vertices[i][0] = voxel_res[0];
         }
     }
 
@@ -63,9 +52,9 @@ protected:
             throw std::runtime_error("TSDF map is not set!");
 
         maps::grid::CellExtents extends = tsdf_map->calculateCellExtents();
-        for(unsigned y = extends.min().y() + 1; y < extends.max().y(); y++)
+        for(unsigned y = extends.min().y(); y < extends.max().y(); y++)
         {
-            for(unsigned x = extends.min().x() + 1; x < extends.max().x(); x++)
+            for(unsigned x = extends.min().x(); x < extends.max().x(); x++)
             {
                 const maps::grid::TSDFVolumetricMap::GridMapBase::CellType& tree = tsdf_map->at(x,y);
                 for(maps::grid::TSDFVolumetricMap::GridMapBase::CellType::const_iterator cell = tree.begin(); cell != tree.end(); cell++)
@@ -102,7 +91,7 @@ protected:
                 MarchingCubes::computeSurfaces(vertices, leaf_node, surfaces, iso_level);
 
                 // move surfaces to the current cell
-                Eigen::Vector3f cell_center = grid_scale.cwiseProduct(idx.cast<float>());
+                Eigen::Vector3f cell_center = (idx.cast<float>() + Eigen::Vector3f(0.5f, 0.5f, 0.5f)).cwiseProduct(voxel_res);
                 for(size_t i = size; i < surfaces.size(); i++)
                     surfaces[i] = cell_center + surfaces[i];
 
@@ -159,7 +148,7 @@ private:
     float iso_level;
     int32_t z_idx_min;
     int32_t z_idx_max;
-    Eigen::Vector3f grid_scale;
+    Eigen::Vector3f voxel_res;
     std::vector< Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f> > vertices;
 };
 

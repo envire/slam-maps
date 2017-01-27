@@ -10,6 +10,7 @@ void TSDF_MLSMapReconstruction::reconstruct(MLSMapPrecalculated& output)
     reconstructSurfaces(surfaces, intensities, false);
 
     output = MLSMapPrecalculated(tsdf_map->getNumCells(), tsdf_map->getResolution(), MLSConfig());
+    output.getLocalFrame().translation() << 0.5*tsdf_map->getResolution(), 0;
 
     Eigen::Vector3f p1, p2, p3;
     Index idx;
@@ -49,5 +50,5 @@ void TSDF_MLSMapReconstruction::reconstruct(MLSMapPrecalculated& output)
     }
 
     // set local frame
-    output.getLocalFrame() = tsdf_map->getLocalFrame();
+    output.getLocalFrame() = output.getLocalFrame() * tsdf_map->getLocalFrame();
 }
