@@ -45,6 +45,7 @@ rock_library(maps
         tools/TSDFSurfaceReconstruction.hpp
         tools/TSDFPolygonMeshReconstruction.hpp
         tools/TSDF_MLSMapReconstruction.hpp
+        tools/MarchingCubes.hpp
         operations/GridInterpolation.hpp
     DEPS_PKGCONFIG 
         base-types 
