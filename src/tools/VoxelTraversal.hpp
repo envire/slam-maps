@@ -21,6 +21,14 @@ public:
     };
 
     /**
+     * Computes measurement_idx and origin_cell_center before calling computeRay.
+     * If you are unsure about the cell alignment, use this method.
+     */
+    static void computeRay(const Eigen::Vector3d& grid_res, const Eigen::Vector3d& origin,
+                           const Eigen::Vector3i& origin_idx, const Eigen::Vector3d& measurement,
+                           std::vector<RayElement>& ray);
+
+    /**
      * Voxel traversal algorithm implemented according to:
      * Amanatides, John, and Andrew Woo. "A fast voxel traversal algorithm for ray tracing." Eurographics. Vol. 87. No. 3. 1987.
      */
@@ -28,6 +36,7 @@ public:
                            const Eigen::Vector3d& origin, const Eigen::Vector3i& origin_idx, const Eigen::Vector3d& origin_cell_center,
                            const Eigen::Vector3d& measurement, const Eigen::Vector3i& measurement_idx,
                            std::vector<RayElement>& ray);
+
 };
 
 

@@ -10,8 +10,7 @@ void OccupancyGridMap::mergePointCloud(const OccupancyGridMap::PointCloud& pc, c
     Eigen::Vector3d sensor_origin = pc.sensor_origin_.block(0,0,3,1).cast<double>();
     Eigen::Vector3d sensor_origin_in_grid = pc2grid * sensor_origin;
     Eigen::Vector3i sensor_origin_idx;
-    Eigen::Vector3d origin_cell_center;
-    if(!VoxelGridBase::toVoxelGrid(sensor_origin_in_grid, sensor_origin_idx) || !VoxelGridBase::fromVoxelGrid(sensor_origin_idx, origin_cell_center))
+    if(!VoxelGridBase::toVoxelGrid(sensor_origin_in_grid, sensor_origin_idx))
     {
         std::cerr << "Sensor origin (" << sensor_origin_in_grid.transpose() << ") is outside of the grid! Can't add corresponding point cloud to grid." << std::endl;
         return;
@@ -21,7 +20,7 @@ void OccupancyGridMap::mergePointCloud(const OccupancyGridMap::PointCloud& pc, c
         try
         {
             Eigen::Vector3d measurement = it->getArray3fMap().cast<double>();
-            mergePoint(sensor_origin_in_grid, sensor_origin_idx, origin_cell_center, pc2grid * measurement);
+            mergePoint(sensor_origin_in_grid, sensor_origin_idx, pc2grid * measurement);
         }
         catch(const std::runtime_error& e)
         {
@@ -34,23 +33,21 @@ void OccupancyGridMap::mergePointCloud(const OccupancyGridMap::PointCloud& pc, c
 void OccupancyGridMap::mergePoint(const Eigen::Vector3d& sensor_origin, const Eigen::Vector3d& measurement)
 {
     Eigen::Vector3i sensor_origin_idx;
-    Eigen::Vector3d origin_cell_center;
-    if(VoxelGridBase::toVoxelGrid(sensor_origin, sensor_origin_idx) && VoxelGridBase::fromVoxelGrid(sensor_origin_idx, origin_cell_center))
+    if(VoxelGridBase::toVoxelGrid(sensor_origin, sensor_origin_idx))
     {
-        mergePoint(sensor_origin, sensor_origin_idx, origin_cell_center, measurement);
+        mergePoint(sensor_origin, sensor_origin_idx, measurement);
     }
     else
         throw std::runtime_error((boost::format("Sensor origin %1% is outside of the grid! Can't add to grid.") % sensor_origin.transpose()).str());
 }
 
-void OccupancyGridMap::mergePoint(const Eigen::Vector3d& sensor_origin, Eigen::Vector3i sensor_origin_idx,
-                                  Eigen::Vector3d origin_cell_center, const Eigen::Vector3d& measurement)
+void OccupancyGridMap::mergePoint(const Eigen::Vector3d& sensor_origin, Eigen::Vector3i sensor_origin_idx, const Eigen::Vector3d& measurement)
 {
     Eigen::Vector3i measurement_idx;
     if(VoxelGridBase::toVoxelGrid(measurement, measurement_idx))
     {
         std::vector<VoxelTraversal::RayElement> ray;
-        VoxelTraversal::computeRay(VoxelGridBase::getVoxelResolution(), sensor_origin, sensor_origin_idx, origin_cell_center, measurement, measurement_idx, ray);
+        VoxelTraversal::computeRay(VoxelGridBase::getVoxelResolution(), sensor_origin, sensor_origin_idx, measurement, ray);
 
         VoxelCellType& cell = getVoxelCell(measurement_idx);
         cell.updateLogOdds(config.hit_logodds, config.min_logodds, config.max_logodds);
