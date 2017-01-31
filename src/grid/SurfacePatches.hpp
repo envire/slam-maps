@@ -207,7 +207,10 @@ public:
     float getSurfacePos(const Vector3& pos_in_cell) const
     {
         Eigen::Hyperplane<float, 3> plane(getNormal(), getCenter());
-        return (-plane.coeffs()(0) * pos_in_cell(0) - plane.coeffs()(1) * pos_in_cell(1) - plane.coeffs()(3)) / plane.coeffs()(2);
+        float z_pos = (-plane.coeffs()(0) * pos_in_cell(0) - plane.coeffs()(1) * pos_in_cell(1) - plane.coeffs()(3)) / plane.coeffs()(2);
+        if(z_pos > max) 
+            z_pos = max;
+        return z_pos;
     }
 
 protected:
@@ -440,7 +443,10 @@ public:
     float getSurfacePos(const Vector3& pos_in_cell) const
     {
         Eigen::Hyperplane<float, 3> plane(normal, center);
-        return (-plane.coeffs()(0) * pos_in_cell(0) - plane.coeffs()(1) * pos_in_cell(1) - plane.coeffs()(3)) / plane.coeffs()(2);
+        float z_pos = (-plane.coeffs()(0) * pos_in_cell(0) - plane.coeffs()(1) * pos_in_cell(1) - plane.coeffs()(3)) / plane.coeffs()(2);
+        if(z_pos > max)
+            z_pos = max;
+        return z_pos;
     }
 
 protected:
