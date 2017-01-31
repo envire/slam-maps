@@ -7,7 +7,7 @@ using namespace maps::tools;
 
 void TSDFVolumetricMap::mergePointCloud(const TSDFVolumetricMap::PointCloud& pc, const base::Transform3d& pc2grid, double measurement_variance)
 {
-    Eigen::Vector3d sensor_origin = pc.sensor_origin_.block(0,0,3,1).cast<double>();
+    Eigen::Vector3d sensor_origin = pc.sensor_origin_.head<3>().cast<double>();
     Eigen::Vector3d sensor_origin_in_grid = pc2grid * sensor_origin;
 
     // TODO add transformation uncertainty

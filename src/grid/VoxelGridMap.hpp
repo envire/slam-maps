@@ -14,7 +14,7 @@ public:
     VoxelGridMap(const Vector2ui &num_cells,
                 const Eigen::Vector3d &resolution) :
                 GridMap< DiscreteTree<CellT> >(num_cells,
-                resolution.block(0,0,2,1), DiscreteTree<CellT>(resolution.z())) {}
+                resolution.head<2>(), DiscreteTree<CellT>(resolution.z())) {}
 
     bool hasVoxelCell(const Eigen::Vector3d &position) const
     {
@@ -28,13 +28,13 @@ public:
 
     bool hasVoxelCell(const Eigen::Vector3i &index) const
     {
-        Index idx = index.block(0,0,2,1);
+        Index idx = index.head<2>();
         return _Base::at(idx).hasCell(index.z());
     }
 
     CellT& getVoxelCell(const Eigen::Vector3i &index)
     {
-        Index idx = index.block(0,0,2,1);
+        Index idx = index.head<2>();
         return _Base::at(idx).getCellAt(index.z());
     }
 
@@ -45,10 +45,10 @@ public:
 
     bool fromVoxelGrid(const Eigen::Vector3i& idx, Eigen::Vector3d& position, bool checkIndex = true) const
     {
-        Index idx_2d = idx.block(0,0,2,1);
+        Index idx_2d = idx.head<2>();
         if(_Base::fromGrid(idx_2d, position, checkIndex))
         {
-            position << position.block(0,0,2,1), _Base::getDefaultValue().getCellCenter(idx.z());
+            position << position.head<2>(), _Base::getDefaultValue().getCellCenter(idx.z());
             return true;
         }
         return false;
