@@ -2,6 +2,7 @@
 
 #include <Eigen/Core>
 #include <maps/grid/Index.hpp>
+#include <vector>
 
 namespace maps { namespace tools
 {

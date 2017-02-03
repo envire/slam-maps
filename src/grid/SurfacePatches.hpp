@@ -18,6 +18,7 @@
 #include "Index.hpp"
 #include <cmath>
 #include <limits>
+#include <vector>
 
 
 namespace maps { namespace grid
