@@ -382,13 +382,24 @@ namespace maps { namespace grid
         friend class boost::serialization::access;
 
         /** Serializes the members of this class*/
-        template <typename Archive>
-        void serialize(Archive &ar, const unsigned int version)
+        template<class Archive>
+        void save(Archive & ar, const unsigned int version) const
         {
             ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(MultiLevelGridMap<SurfacePatch<SurfaceType>>);
             ar & BOOST_SERIALIZATION_NVP(config);
             ar & BOOST_SERIALIZATION_NVP(free_space_map);
-        }         
+        }
+
+        template<class Archive>
+        void load(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(MultiLevelGridMap<SurfacePatch<SurfaceType>>);
+            ar & BOOST_SERIALIZATION_NVP(config);
+            if(version >= 1)
+                ar & BOOST_SERIALIZATION_NVP(free_space_map);
+        }
+
+        BOOST_SERIALIZATION_SPLIT_MEMBER()
     };
 
     typedef MLSMap<MLSConfig::SLOPE> MLSMapSloped;
