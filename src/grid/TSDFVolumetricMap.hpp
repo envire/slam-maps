@@ -42,7 +42,7 @@ public:
     void projectMLSMap(const maps::grid::MLSMap<SurfaceType>& mls, const base::Transform3d& mls2grid,
                        const Eigen::Vector2i& start_idx = Eigen::Vector2i(0,0),
                        const Eigen::Vector2i& end_idx = Eigen::Vector2i(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()),
-                       float z_min = -50.f, float z_max = 50.f, float truncation = 1.f);
+                       float z_min = -50.f, float z_max = 50.f, float truncation = 1.f, float variance = 0.01f);
 
     void mergePoint(const Eigen::Vector3d& sensor_origin, const Eigen::Vector3d& measurement, double measurement_variance = 0.01);
 
@@ -102,7 +102,7 @@ void TSDFVolumetricMap::mergePointCloud(const std::vector< Eigen::Matrix<double,
 template<enum MLSConfig::update_model SurfaceType>
 void TSDFVolumetricMap::projectMLSMap(const maps::grid::MLSMap<SurfaceType>& mls, const base::Transform3d& mls2grid,
                                       const Eigen::Vector2i& start_idx, const Eigen::Vector2i& end_idx,
-                                      float z_min, float z_max, float truncation)
+                                      float z_min, float z_max, float truncation, float variance)
 {
     base::Transform3d grid2mls = mls2grid.inverse();
     Eigen::Vector3d res = getVoxelResolution();
@@ -129,7 +129,7 @@ void TSDFVolumetricMap::projectMLSMap(const maps::grid::MLSMap<SurfaceType>& mls
                         if(distance < truncation)
                         {
                             VoxelCellType& cell = getVoxelCell(idx);
-                            cell.update(std::copysign(distance, diff.z()), 0.01, truncation, min_variance);
+                            cell.update(std::copysign(distance, diff.z()), variance, truncation, min_variance);
                         }
                     }
                 }
