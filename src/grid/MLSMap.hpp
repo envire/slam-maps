@@ -119,27 +119,34 @@ namespace maps { namespace grid
         bool getClosestSurfacePos(const Vector3d& point, double& surface_pos) const
         {
             Index idx;
-            Vector3 pos_diff;
-            Vector3d cell_center;
-            if(Base::toGrid(point, idx) && Base::fromGrid(idx, cell_center))
+            Vector3d pos_in_cell;
+            if(Base::toGrid(point, idx, pos_in_cell))
             {
-                pos_diff = (point - cell_center).cast<float>();
                 const CellType& cell = Base::at(idx);
+                Vector3 pos_in_cell_f = pos_in_cell.cast<float>();
                 float min_dist = base::infinity<float>();
+                float cell_surface_pos = base::NaN<float>();
                 for(const Patch& patch : cell)
                 {
-                    float surface_pos_f = patch.getSurfacePos(pos_diff);
-                    float dist = std::abs(surface_pos_f - pos_diff.z());
+                    float surface_pos_f = patch.getSurfacePos(pos_in_cell_f);
+                    float dist = std::abs(surface_pos_f - pos_in_cell_f.z());
                     if(dist > min_dist)
                         break;
                     else
                     {
                         min_dist = dist;
-                        surface_pos = (double)surface_pos_f - this->getLocalFrame().translation().z();
+                        cell_surface_pos = surface_pos_f;
                     }
                 }
                 if(!base::isInfinity<float>(min_dist))
+                {
+                    // transform from grid to map frame
+                    pos_in_cell.z() = cell_surface_pos;
+                    Vector3d surface_in_map;
+                    Base::fromGrid(idx, surface_in_map, pos_in_cell, false);
+                    surface_pos = surface_in_map.z();
                     return true;
+                }
             }
             return false;
         }
