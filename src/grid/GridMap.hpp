@@ -185,6 +185,24 @@ namespace maps { namespace grid
             }
         }
 
+
+        /** @brief The inverse function to  toGrid(const Vector3d& pos, Index& idx, Vector3d &pos_diff)
+         * Computes the original position of a point, given its Index in the map, and it position in the cell.
+         */
+        bool fromGrid(const Index& idx, Vector3d& pos, const Vector3d& pos_in_cell, bool checkIndex = true) const
+        {
+            if(checkIndex && !inGrid(idx)) return false;
+            // position at the cell center without offset transformation
+            Vector3d pos_in_grid = pos_in_cell;
+            pos_in_grid.head<2>() += (idx.cast<double>() + Vector2d(0.5,0.5)).cwiseProduct(resolution);
+//            pos_in_grid.head<2>().array() *= resolution.array();
+
+            // Apply the offset transformation to the obtained position
+            // pos_local = (Tgrid_local)^-1 * pos_grid
+            pos = this->getLocalFrame().inverse(Eigen::Isometry) * pos_in_grid;
+            return true;
+        }
+
         /** @brief get a position of an index from the Grid applying an offset
          * set in the argument of the method
          * transformation. T_offset = frame_in_map = Tmap_frame
