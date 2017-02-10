@@ -208,14 +208,14 @@ namespace maps { namespace grid
 
         /** @brief get the index to grid of a position
          * */
-        bool toGrid(const Vector3d& pos, Index& idx, Vector3d &pos_diff) const
+        bool toGrid(const Vector3d& pos, Index& idx, Vector3d &pos_in_cell) const
         {
             if(toGrid(pos, idx))
             {
                 Vector3d center;
                 if(inGrid(idx) && fromGrid(idx, center))
                 {
-                    pos_diff = pos - center;
+                    pos_in_cell = this->getLocalFrame().rotation() * (pos - center);
                     return true;
                 }
             }
@@ -274,7 +274,9 @@ namespace maps { namespace grid
 
         }
 
-        bool toGridOptimized(const Vector3d& pos, Index& idx, Vector3d& pos_diff, const base::Transform3d& trafo)
+        /** @brief optimized variant of toGrid(const Vector3d& pos, Index& idx, Vector3d &pos_in_cell)
+         */
+        bool toGridOptimized(const Vector3d& pos, Index& idx, Vector3d& pos_in_cell, const base::Transform3d& trafo)
         {
             Vector3d pos_in_grid = trafo * pos;
 
@@ -283,7 +285,7 @@ namespace maps { namespace grid
             if(inGrid(idx_temp))
             {
                 idx = idx_temp;
-                pos_diff << (pos_in_grid.head<2>() - idx.cast<double>()).cwiseProduct(resolution), pos_in_grid.z();
+                pos_in_cell << (pos_in_grid.head<2>() - idx.cast<double>()).cwiseProduct(resolution), pos_in_grid.z();
                 return true;
             }
             return false;
