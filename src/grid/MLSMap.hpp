@@ -87,26 +87,28 @@ namespace maps { namespace grid
         bool getClosestContactPoint(const Vector3d& point, Vector3d& contact_point) const
         {
             Index idx;
-            Vector3 pos_diff;
-            Vector3d cell_center;
-            if(Base::toGrid(point, idx) && Base::fromGrid(idx, cell_center))
+            Vector3d pos_in_cell;
+            if(Base::toGrid(point, idx, pos_in_cell))
             {
-                pos_diff = (point - cell_center).cast<float>();
+                Vector3 pos_in_cell_f = pos_in_cell.cast<float>();
                 const CellType& cell = Base::at(idx);
                 float min_dist = base::infinity<float>();
+                Vector3 contact_point_f; // in local cell-coordinate system
                 for(const Patch& patch : cell)
                 {
-                    Vector3 contact_point_f;
-                    patch.getClosestContactPoint(pos_diff, contact_point_f);
-                    float dist = (contact_point_f - pos_diff).norm();
-                    contact_point = contact_point_f.cast<double>() + cell_center;
+                    patch.getClosestContactPoint(pos_in_cell_f, contact_point_f);
+                    float dist = (contact_point_f - pos_in_cell_f).norm();
+                    contact_point = contact_point_f.cast<double>();
                     if(dist > min_dist)
                         break;
                     else
                         min_dist = dist;
                 }
                 if(!base::isInfinity<float>(min_dist))
+                {
+                    Base::fromGrid(idx, contact_point, contact_point_f.cast<double>(), false);
                     return true;
+                }
             }
             return false;
         }
