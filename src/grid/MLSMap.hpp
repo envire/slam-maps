@@ -93,20 +93,23 @@ namespace maps { namespace grid
                 Vector3 pos_in_cell_f = pos_in_cell.cast<float>();
                 const CellType& cell = Base::at(idx);
                 float min_dist = base::infinity<float>();
-                Vector3 contact_point_f; // in local cell-coordinate system
+                Vector3d contact_point_in_cell;
                 for(const Patch& patch : cell)
                 {
+                    Vector3 contact_point_f; // in local cell-coordinate system
                     patch.getClosestContactPoint(pos_in_cell_f, contact_point_f);
                     float dist = (contact_point_f - pos_in_cell_f).norm();
-                    contact_point = contact_point_f.cast<double>();
                     if(dist > min_dist)
                         break;
                     else
+                    {
                         min_dist = dist;
+                        contact_point_in_cell = contact_point_f.cast<double>();
+                    }
                 }
                 if(!base::isInfinity<float>(min_dist))
                 {
-                    Base::fromGrid(idx, contact_point, contact_point_f.cast<double>(), false);
+                    Base::fromGrid(idx, contact_point, contact_point_in_cell, false);
                     return true;
                 }
             }
