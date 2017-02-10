@@ -1426,3 +1426,46 @@ BOOST_AUTO_TEST_CASE(test_cell_extents)
 
     std::cout << "Grid 5000x5000 center: " << elapsed.count() << std::endl;    
 }
+
+
+BOOST_AUTO_TEST_CASE(test_to_from_grid)
+{
+    for(int i=0; i<10; ++i)
+    {
+        maps::grid::GridMap<char> map(maps::grid::Vector2ui(100, 100), Eigen::Vector2d::Random().cwiseAbs(), 0);
+
+        map.getLocalFrame().linear() = Eigen::Quaterniond(Eigen::Vector4d::Random().normalized()).toRotationMatrix();
+        map.getLocalFrame().translation() = Eigen::Vector3d::Random();
+
+        for(int j=0; j<10; ++j)
+        {
+            Eigen::Affine3d trafo(Eigen::Quaterniond(Eigen::Vector4d::Random().normalized()));
+            trafo.translation() = Eigen::Vector3d::Random();
+            base::Transform3d trafo_prep = map.prepareToGridOptimized(trafo);
+
+            for(int k=0; k<100; ++k)
+            {
+                Eigen::Vector3d p = Eigen::Vector3d::Random() * 10;
+                Eigen::Vector3d trafo_p = trafo * p;
+                maps::grid::Index idx, idx1, idx2, idx3;
+                Eigen::Vector3d pos_diff1, pos_diff2;
+                map.toGrid(trafo_p, idx, false);
+                if(!map.inGrid(idx)) continue;
+                std::cout << "test_to_from_grid " << i << ' ' << j << ' ' << k << '\n';
+                std::cout << "p: " << p.transpose() << ", trafo*p: " << trafo_p.transpose() << '\n';
+                BOOST_CHECK(map.toGrid(trafo_p, idx1, pos_diff1));
+                BOOST_CHECK(map.toGridOptimized(p, idx2, pos_diff2, trafo_prep));
+                std::cout << pos_diff1.transpose() << '\t' << pos_diff2.transpose() << '\n';
+                BOOST_CHECK(map.toGrid(p, idx3, trafo));
+                BOOST_CHECK_EQUAL(idx, idx2);
+                BOOST_CHECK_EQUAL(idx, idx3);
+                BOOST_CHECK(pos_diff1.isApprox(pos_diff2));
+
+                Eigen::Vector3d pos_in_frame;
+                map.fromGrid(idx, pos_in_frame, pos_diff1, false);
+                BOOST_CHECK(pos_in_frame.isApprox(trafo_p));
+                std::cout << "pos in frame: " << pos_in_frame.transpose() << ", trafo_p: " << trafo_p.transpose() << '\n';
+            }
+        }
+    }
+}
