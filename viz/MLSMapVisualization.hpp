@@ -14,7 +14,7 @@
 namespace vizkit3d
 {
     class MLSMapVisualization
-        : public vizkit3d::Vizkit3DPlugin< ::maps::grid::MLSMap<::maps::grid::MLSConfig::KALMAN> >
+        : public vizkit3d::Vizkit3DPlugin< ::maps::grid::MLSMapKalman >
         , public vizkit3d::VizPluginAddType< ::maps::grid::MLSMap<::maps::grid::MLSConfig::SLOPE> >
         , public vizkit3d::VizPluginAddType< ::maps::grid::MLSMap<::maps::grid::MLSConfig::PRECALCULATED> >
         , boost::noncopyable
@@ -40,22 +40,28 @@ namespace vizkit3d
             ~MLSMapVisualization();
 
             Q_INVOKABLE void updateMLSPrecalculated(maps::grid::MLSMapPrecalculated const &sample)
-            {vizkit3d::Vizkit3DPlugin<::maps::grid::MLSMap<::maps::grid::MLSConfig::KALMAN>>::updateData(sample);}
+            {vizkit3d::Vizkit3DPlugin<::maps::grid::MLSMapKalman>::updateData(sample);}
+
             Q_INVOKABLE void updateMLSSloped(maps::grid::MLSMapSloped const &sample)
-            {vizkit3d::Vizkit3DPlugin<::maps::grid::MLSMap<::maps::grid::MLSConfig::KALMAN>>::updateData(sample);}
-            Q_INVOKABLE void updateMLSKalman(maps::grid::MLSMap<maps::grid::MLSConfig::KALMAN> const &sample)
-            {vizkit3d::Vizkit3DPlugin<::maps::grid::MLSMap<::maps::grid::MLSConfig::KALMAN>>::updateData(sample);}
+            {vizkit3d::Vizkit3DPlugin<::maps::grid::MLSMapKalman>::updateData(sample);}
+
+            Q_INVOKABLE void updateMLSKalman(maps::grid::MLSMapKalman const &sample)
+            {vizkit3d::Vizkit3DPlugin<::maps::grid::MLSMapKalman>::updateData(sample);}
+
             Q_INVOKABLE void updateData(maps::grid::MLSMapPrecalculated const &sample)
-            {vizkit3d::Vizkit3DPlugin<::maps::grid::MLSMap<::maps::grid::MLSConfig::KALMAN>>::updateData(sample);}
+            {vizkit3d::Vizkit3DPlugin<::maps::grid::MLSMapKalman>::updateData(sample);}
+
             Q_INVOKABLE void updateData(maps::grid::MLSMapSloped const &sample)
-            {vizkit3d::Vizkit3DPlugin<::maps::grid::MLSMap<::maps::grid::MLSConfig::KALMAN>>::updateData(sample);}
-            Q_INVOKABLE void updateData(maps::grid::MLSMap<maps::grid::MLSConfig::KALMAN> const &sample)
-            {vizkit3d::Vizkit3DPlugin<::maps::grid::MLSMap<::maps::grid::MLSConfig::KALMAN>>::updateData(sample);}
+            {vizkit3d::Vizkit3DPlugin<::maps::grid::MLSMapKalman>::updateData(sample);}
+
+            Q_INVOKABLE void updateData(maps::grid::MLSMapKalman const &sample)
+            {vizkit3d::Vizkit3DPlugin<maps::grid::MLSMapKalman>::updateData(sample);}
+
 
         protected:
             virtual osg::ref_ptr<osg::Node> createMainNode();
             virtual void updateMainNode(osg::Node* node);
-            virtual void updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::KALMAN> const& mls);
+            virtual void updateDataIntern(maps::grid::MLSMapKalman const& mls);
             virtual void updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::SLOPE> const& mls);
             virtual void updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::PRECALCULATED> const& mls);
             

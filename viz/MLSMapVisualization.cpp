@@ -261,7 +261,7 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
     }
 }
 
-void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::KALMAN> const& value)
+void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMapKalman const& value)
 {
     p.reset(new DataHold<MLSConfig::KALMAN>( value ));
 }
