@@ -15,3 +15,7 @@ rock_testsuite(test_linesegment
 rock_testsuite(test_contourmap
    test_ContourMap.cpp
    DEPS maps)
+
+rock_testsuite(test_closest_MLS
+   test_closest_MLS.cpp
+   DEPS maps)
