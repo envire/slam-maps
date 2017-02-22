@@ -199,10 +199,12 @@ public:
         return false;
     }
 
-    void getClosestContactPoint(const Vector3& pos_in_cell, Vector3& contact_point) const
+    float getClosestContactPoint(const Vector3& pos_in_cell, Vector3& contact_point) const
     {
         Eigen::Hyperplane<float, 3> plane(getNormal(), getCenter());
+        const float distance = plane.signedDistance(pos_in_cell);
         contact_point = plane.projection(pos_in_cell);
+        return distance;
     }
 
     float getSurfacePos(const Vector3& pos_in_cell) const
@@ -352,15 +354,25 @@ public:
         return height == 0.0;
     }
 
-    void getClosestContactPoint(const Vector3& pos_in_cell, Vector3& contact_point) const
+    float getClosestContactPoint(const Vector3& pos_in_cell, Vector3& contact_point) const
     {
-        float std_dev = getStandardDeviation();
-        if(pos_in_cell.z() > max + std_dev)
-            contact_point << pos_in_cell.block(0,0,2,1), max + std_dev;
-        else if(pos_in_cell.z() < min - std_dev)
-            contact_point << pos_in_cell.block(0,0,2,1), min - std_dev;
+        const float std_dev = getStandardDeviation();
+        const float z = pos_in_cell.z();
+        if(z > max + std_dev)
+        {
+            contact_point << pos_in_cell.head<2>(), max + std_dev;
+            return z - (max+std_dev);
+        }
+        else if(z < min - std_dev)
+        {
+            contact_point << pos_in_cell.head<2>(), min - std_dev;
+            return z - (min-std_dev);
+        }
         else
-            contact_point << pos_in_cell;
+        {
+            contact_point = pos_in_cell;
+            return 0.f;
+        }
     }
 
     float getSurfacePos(const Vector3& pos_in_cell) const
@@ -435,10 +447,12 @@ public:
         return Base::operator ==(other) && center == other.center && normal == other.normal;
     }
 
-    void getClosestContactPoint(const Vector3& pos_in_cell, Vector3& contact_point) const
+    float getClosestContactPoint(const Vector3& pos_in_cell, Vector3& contact_point) const
     {
         Eigen::Hyperplane<float, 3> plane(normal, center);
+        const float distance = plane.signedDistance(pos_in_cell);
         contact_point = plane.projection(pos_in_cell);
+        return distance;
     }
 
     float getSurfacePos(const Vector3& pos_in_cell) const
