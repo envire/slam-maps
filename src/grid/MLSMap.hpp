@@ -92,17 +92,18 @@ namespace maps { namespace grid
             {
                 Vector3 pos_in_cell_f = pos_in_cell.cast<float>();
                 const CellType& cell = Base::at(idx);
-                float min_dist = base::infinity<float>();
+                float min_dist;
+                bool found_patch = false;
                 Vector3d contact_point_in_cell;
                 for(const Patch& patch : cell)
                 {
                     Vector3 contact_point_f; // in local cell-coordinate system
-                    patch.getClosestContactPoint(pos_in_cell_f, contact_point_f);
-                    float dist = (contact_point_f - pos_in_cell_f).norm();
-                    if(dist > min_dist)
-                        break;
+                    float dist = std::abs(patch.getClosestContactPoint(pos_in_cell_f, contact_point_f));
+                    if(found_patch && dist > min_dist)
+                        break; // we already found a patch and the current patch is farer away. Since patches are sorted, we can't get closer
                     else
                     {
+                        found_patch = true;
                         min_dist = dist;
                         contact_point_in_cell = contact_point_f.cast<double>();
                     }
