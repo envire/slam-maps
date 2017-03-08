@@ -3,6 +3,8 @@
 
 #include <osg/Geometry>
 #include <osg/Geode>
+#include <Eigen/Geometry>
+#include <Eigen/StdVector>
 
 #include <iostream>
 
@@ -20,6 +22,7 @@ namespace vizkit3d {
 
         /** Draws a plane inside the box given by \c position and \c extends,
          *  using \c normal and \c mean (relative to the origin of the box)
+         *  @deprecated please use drawPlane(plane, min, max, stdev)
          */
         void drawPlane(
             const float& z,
@@ -28,14 +31,20 @@ namespace vizkit3d {
             const osg::Vec3& normal,
             const float & stdev = 0.f);
 
+        /**
+         * Draws a plane inside the box given by \c min, \c max and the known
+         * grid resolution using \c plane (relative to the origin of the box).
+         * Note: \c plane must be defined in the cell center.
+         */
         void drawPlane(
-            const osg::Vec3& position, 
-            const osg::Vec4& heights,
-            const osg::Vec3& extents, 
-            const osg::Vec3& normal,
-            double min,
-            double max);
+            const Eigen::Hyperplane<float, 3> & plane,
+            const float & min,
+            const float & max,
+            const float & stdev = 0.f);
 
+        /**
+         * Draws a box with between \c top and (\c top - \c height).
+         */
         void drawBox(
             const float& top,
             const float& height,

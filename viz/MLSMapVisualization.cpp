@@ -33,17 +33,30 @@ osg::Quat Quat( const Eigen::Quaternion<T, options>& q )
 namespace vizkit3d {
 struct PatchVisualizer
 {
+    static void visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::SLOPE>& p)
+    {
+        float minZ, maxZ;
+        p.getRange(minZ, maxZ);
+        minZ -= 5e-4f;
+        maxZ += 5e-4f;
+        Eigen::Vector3f normal = p.getNormal();
+        if(normal.allFinite())
+        {
+            geode.drawPlane(Eigen::Hyperplane<float, 3>(p.getNormal(), p.getCenter()), minZ, maxZ);
+        }
+        else
+        {
+            float height = (maxZ - minZ) + 1e-3f;
+            geode.drawBox(maxZ, height, osg::Vec3(0.f,0.f,1.f));
+        }
+    }
     static void visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::PRECALCULATED>& p)
     {
         float minZ, maxZ;
         p.getRange(minZ, maxZ);
-//        float stdev = p.getStdev() + 1e-4f;
-        float zp= (maxZ+minZ)*0.5f;
-        float height = (maxZ - minZ) + 1e-3f;
-        osg::Vec3 mean = Vec3(p.getCenter());
-        mean.z() -= zp;
-        osg::Vec3 normal = Vec3(p.getNormal());
-        geode.drawPlane(zp, height, mean, normal);
+        minZ -= 5e-4f;
+        maxZ += 5e-4f;
+        geode.drawPlane(Eigen::Hyperplane<float, 3>(p.getNormal(), p.getCenter()), minZ, maxZ, 1e-4f);
     }
     static void visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::KALMAN>& p)
     {

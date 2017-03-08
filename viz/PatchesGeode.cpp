@@ -2,6 +2,8 @@
 
 #include <vizkit3d/ColorConversionHelper.hpp>
 
+#include <maps/tools/SurfaceIntersection.hpp>
+
 namespace vizkit3d
 {
     PatchesGeode::PatchesGeode(float x_res, float y_res)
@@ -145,66 +147,58 @@ namespace vizkit3d
 
     }
 
-    void PatchesGeode::drawPlane(
-            const osg::Vec3& position,
-            const osg::Vec4& heights,
-            const osg::Vec3& extents,
-            const osg::Vec3& normal,
-            double min,
-            double max)
+    template <class T, int options>
+    osg::Vec3 Vec3( const Eigen::Matrix<T,3,1, options>& v )
     {
-        const double xp = position.x();
-        const double yp = position.y();
-        //const double zp = position.z();
+        return osg::Vec3( v.x(), v.y(), v.z() );
+    }
 
-        const double xs = extents.x();
-        const double ys = extents.y();
+    void PatchesGeode::drawPlane(
+        const Eigen::Hyperplane<float, 3> & plane,
+        const float & min,
+        const float & max,
+        const float & stdev)
+    {
+        const Eigen::AlignedBox<float, 3> box(Eigen::Vector3f(-xs*0.5, -ys*0.5, min), Eigen::Vector3f(xs*0.5, ys*0.5, max));
+        std::vector< Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f> > intersections;
+        maps::tools::SurfaceIntersection::computeIntersections(plane, box, intersections);
 
-        enum { NONE, LOW, BOX, HIGH } prev_pos = NONE, pos;
-        osg::Vec3 prev_p, p;
-        for( size_t i=0; i<4; i++ )
+        // apply cell pos and compute surface mean
+        Eigen::Vector3f mean = Eigen::Vector3f::Zero();
+        for(unsigned i = 0; i < intersections.size(); ++i)
         {
-            switch( i%4 )
-            {
-            case 0: p = osg::Vec3(xp-xs*0.5, yp-ys*0.5, heights[0]); break;
-            case 1: p = osg::Vec3(xp+xs*0.5, yp-ys*0.5, heights[1]); break;
-            case 2: p = osg::Vec3(xp+xs*0.5, yp+ys*0.5, heights[2]); break;
-            case 3: p = osg::Vec3(xp-xs*0.5, yp+ys*0.5, heights[3]); break;
-            }
-
-            if( p.z() < min )
-                pos = LOW;
-            else if( p.z() > max )
-                pos = HIGH;
-            else
-                pos = BOX;
-
-            if( (prev_pos == LOW || prev_pos == HIGH) && pos != prev_pos )
-            {
-                // clipping in
-                double h = prev_pos == LOW ? min : max;
-                double s = (h - prev_p.z()) / (p.z() - prev_p.z());
-                osg::Vec3 cp = prev_p + (p - prev_p) * s;
-                addVertex( cp, normal );
-            }
-            if( pos == BOX )
-            {
-                addVertex( p, normal );
-            }
-            else if( pos != prev_pos && prev_pos != NONE )
-            {
-                // clipping out
-                double h = pos == LOW ? min : max;
-                double s = (h - prev_p.z()) / (p.z() - prev_p.z());
-                osg::Vec3 cp = prev_p + (p - prev_p) * s;
-                addVertex( cp, normal );
-            }
-
-            prev_pos = pos;
-            prev_p = p;
+            mean += intersections[i];
+            intersections[i] += Eigen::Vector3f(xp,yp,0.f);
         }
+        mean /= (double)intersections.size();
 
+        // draw polygon
+        osg::Vec3 normal = Vec3(Eigen::Vector3f(plane.normal()));
+        for(unsigned i = 0; i < intersections.size(); ++i)
+        {
+            addVertex( Vec3(intersections[i]), normal, stdev );
+        }
         closePolygon();
+
+        // draw meta information
+        const osg::Vec3 center = osg::Vec3(xp, yp, 0) + Vec3(mean);
+        if(showNormals)
+        {
+            var_vertices->push_back(center);
+            var_vertices->push_back(center+normal*0.1);
+        }
+        else if(showPatchExtents)
+        {
+            float zp = (max+min)*0.5f;
+            float extent_z = (max-min)*0.5f;
+            var_vertices->push_back(osg::Vec3(xp, yp, zp - extent_z));
+            var_vertices->push_back(osg::Vec3(xp, yp, zp + extent_z));
+        }
+        else if(showUncertainty)
+        {
+            var_vertices->push_back(center-normal*stdev);
+            var_vertices->push_back(center+normal*stdev);
+        }
     }
 
     void PatchesGeode::drawBox(
@@ -213,12 +207,8 @@ namespace vizkit3d
             const osg::Vec3& c_normal,
             const float & stdev )
     {
-//        const double xp = position.x();
-//        const double yp = position.y();
-        const float zp = top - height*0.5f;
 
-//        const double xs = extents.x();
-//        const double ys = extents.y();
+        const float zp = top - height*0.5f;
         const float zs = height;
 
         const osg::Vec4 h( osg::Vec4(zp,zp,zp,zp) );
