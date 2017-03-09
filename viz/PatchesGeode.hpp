@@ -43,6 +43,14 @@ namespace vizkit3d {
             const float & stdev = 0.f);
 
         /**
+         * Draws a plane inside the current cell at height \c z.
+         * The normal of this plane is always in the direction of the z-axis.
+         */
+        void drawHorizontalPlane(
+            const float & z,
+            const float & stdev = 0.f);
+
+        /**
          * Draws a box with between \c top and (\c top - \c height).
          */
         void drawBox(

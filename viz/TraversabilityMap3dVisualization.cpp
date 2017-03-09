@@ -115,7 +115,7 @@ void TraversabilityMap3dVisualization::visualizeNode(const TraversabilityNodeBas
     if(std::isnan(node->getHeight()))
         throw std::runtime_error("FOOOOOOOO");
     
-    geode->drawPlane(node->getHeight(), 0.5, osg::Vec3d(0,0,0), osg::Vec3d(0,0,1));
+    geode->drawHorizontalPlane(node->getHeight());
     
     if(show_connections)
     {

@@ -201,6 +201,33 @@ namespace vizkit3d
         }
     }
 
+    void PatchesGeode::drawHorizontalPlane(const float& z, const float& stdev)
+    {
+        const osg::Vec3 position(xp, yp, z);
+        const osg::Vec2 extents(xs*0.5f, ys*0.5f);
+        const osg::Vec3 normal(0.f, 0.f, 1.f);
+
+        // draw polygon
+        addVertex(osg::Vec3(xp-extents.x(), yp-extents.y(), z), normal, stdev );
+        addVertex(osg::Vec3(xp+extents.x(), yp-extents.y(), z), normal, stdev );
+        addVertex(osg::Vec3(xp+extents.x(), yp+extents.y(), z), normal, stdev );
+        addVertex(osg::Vec3(xp-extents.x(), yp+extents.y(), z), normal, stdev );
+        closePolygon();
+
+        // draw meta information
+        if(showNormals)
+        {
+            var_vertices->push_back(position);
+            var_vertices->push_back(position+normal*0.1);
+        }
+        else if(showUncertainty)
+        {
+            var_vertices->push_back(position-normal*stdev);
+            var_vertices->push_back(position+normal*stdev);
+        }
+
+    }
+
     void PatchesGeode::drawBox(
             const float& top,
             const float& height,
