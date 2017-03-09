@@ -405,23 +405,23 @@ template<>
 class SurfacePatch<MLSConfig::PRECALCULATED> : public SurfacePatchBase
 {
     typedef SurfacePatchBase Base;
-    Eigen::Vector3f center, normal;
+    Eigen::Hyperplane<float, 3> plane;
 public:
     
-    SurfacePatch() : SurfacePatchBase(), center(0, 0, 0), normal(0, 0, 0)
+    SurfacePatch() : SurfacePatchBase()
     {
         // empty
     }
 
     SurfacePatch(const Eigen::Vector3f& center, const Eigen::Vector3f& normal, const float &min, const float &max) :
-                SurfacePatchBase(), center(center), normal(normal)
+                SurfacePatchBase(), plane(normal, center)
     {
         this->min = min;
         this->max = max;
     }
     
     template<MLSConfig::update_model model>
-    SurfacePatch(const SurfacePatch<model>& other) : SurfacePatchBase(other), center(other.getCenter()), normal(other.getNormal())
+    SurfacePatch(const SurfacePatch<model>& other) : SurfacePatchBase(other), plane(other.plane)
     {
         // empty
     }
@@ -432,24 +432,25 @@ public:
         return *this;
     }
 
-    const Eigen::Vector3f& getCenter() const { return center; }
-    Eigen::Vector3f& getCenter() { return center; }
-    const Eigen::Vector3f& getNormal() const { return normal; }
-    Eigen::Vector3f& getNormal() { return normal; }
+    Eigen::Vector3f getCenter() const { return Eigen::Vector3f(0.f, 0.f, plane.offset()); }
+    Eigen::Vector3f getNormal() const { return plane.normal(); }
+    const Eigen::Vector4f& getCoeffs() const { return plane.coeffs(); }
+    Eigen::Vector4f& getCoeffs() { return plane.coeffs(); }
+    const Eigen::Hyperplane<float, 3>& getPlane() const { return plane; }
+    Eigen::Hyperplane<float, 3>& getPlane() { return plane; }
 
     bool operator<(const SurfacePatch& other) const
     {
-        return center.z() < other.center.z();
+        return plane.offset() < other.plane.offset();
     }
 
     bool operator==(const SurfacePatch& other) const
     {
-        return Base::operator ==(other) && center == other.center && normal == other.normal;
+        return Base::operator==(other) && plane.coeffs() == other.plane.coeffs();
     }
 
     float getClosestContactPoint(const Vector3& pos_in_cell, Vector3& contact_point) const
     {
-        Eigen::Hyperplane<float, 3> plane(normal, center);
         const float distance = plane.signedDistance(pos_in_cell);
         contact_point = plane.projection(pos_in_cell);
         return distance;
@@ -457,7 +458,6 @@ public:
 
     float getSurfacePos(const Vector3& pos_in_cell) const
     {
-        Eigen::Hyperplane<float, 3> plane(normal, center);
         float z_pos = (-plane.coeffs()(0) * pos_in_cell(0) - plane.coeffs()(1) * pos_in_cell(1) - plane.coeffs()(3)) / plane.coeffs()(2);
         if(z_pos > max)
             z_pos = max;
@@ -469,13 +469,32 @@ protected:
     friend class boost::serialization::access;
 
     /** Serializes the members of this class*/
-    template <typename Archive>
-    void serialize(Archive &ar, const unsigned int version)
+    template<class Archive>
+    void save(Archive & ar, const unsigned int version) const
     {
-        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(SurfacePatchBase);
-        ar & BOOST_SERIALIZATION_NVP(center);
-        ar & BOOST_SERIALIZATION_NVP(normal);
+        ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(SurfacePatchBase);
+        ar << boost::serialization::make_nvp("plane_coeffs", plane.coeffs());
     }
+
+    template<class Archive>
+    void load(Archive & ar, const unsigned int version)
+    {
+        ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(SurfacePatchBase);
+        if(version == 0)
+        {
+            Eigen::Vector3f center, normal;
+            ar >> boost::serialization::make_nvp("center", center);
+            ar >> boost::serialization::make_nvp("normal", normal);
+            plane = Eigen::Hyperplane<float, 3>(normal, center);
+        }
+        else
+        {
+            ar >> boost::serialization::make_nvp("plane_coeffs", plane.coeffs());
+        }
+
+    }
+
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
 }; // SurfacePatch<MLSConfig::PRECALCULATED>
 
 
@@ -743,6 +762,6 @@ void getPolygon(std::vector<Eigen::Vector3f>& points, const SurfacePatch<S> &sp,
 
 
 BOOST_CLASS_VERSION(maps::grid::SurfacePatch<maps::grid::MLSConfig::SLOPE>, 1);
-
+BOOST_CLASS_VERSION(maps::grid::SurfacePatch<maps::grid::MLSConfig::PRECALCULATED>, 1);
 
 #endif /* __MAPS_SURFACEPATCHES_HPP_ */

@@ -56,7 +56,7 @@ struct PatchVisualizer
         p.getRange(minZ, maxZ);
         minZ -= 5e-4f;
         maxZ += 5e-4f;
-        geode.drawPlane(Eigen::Hyperplane<float, 3>(p.getNormal(), p.getCenter()), minZ, maxZ, 1e-4f);
+        geode.drawPlane(p.getPlane(), minZ, maxZ, 1e-4f);
     }
     static void visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::KALMAN>& p)
     {
