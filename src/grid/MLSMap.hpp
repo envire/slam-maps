@@ -108,7 +108,7 @@ namespace maps { namespace grid
                         contact_point_in_cell = contact_point_f.cast<double>();
                     }
                 }
-                if(!base::isInfinity<float>(min_dist))
+                if(found_patch && !base::isInfinity<float>(min_dist))
                 {
                     Base::fromGrid(idx, contact_point, contact_point_in_cell, false);
                     return true;
