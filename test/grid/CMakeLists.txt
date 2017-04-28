@@ -24,7 +24,3 @@ rock_testsuite(test_layeredgridmap
    test_LayeredGridMap.cpp
    DEPS maps)
 
-
-#rock_testsuite(test_splist
-#   test_SPList.cpp
-#   DEPS maps)
