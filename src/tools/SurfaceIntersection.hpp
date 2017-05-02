@@ -47,17 +47,16 @@ static void computeIntersections(const Eigen::Hyperplane<Scalar, 3>& plane, cons
     typedef Eigen::Matrix<Scalar, 3, 1, MatrixOptions> Vec;
     Vec normal = plane.normal();
     Vec box_center = box.center();
-    Vec point_on_plane = plane.projection(box_center);
     Vec extents = box.max() - box_center;
-    float dist = (point_on_plane - box_center).dot(normal);
+    const Scalar dist = plane.signedDistance(box_center);
 
     // find the max coefficient of the normal:
     int i=0, j=1, k=2;
     if(std::abs(normal[i]) < std::abs(normal[j])) std::swap(i,j);
     if(std::abs(normal[i]) < std::abs(normal[k])) std::swap(i,k);
 
-    float dotj = extents[j] * normal[j];
-    float dotk = extents[k] * normal[k];
+    const Scalar dotj = extents[j] * normal[j];
+    const Scalar dotk = extents[k] * normal[k];
 
     Vec prev_p;
     enum { NONE, LOW, BOX, HIGH } prev_pos = NONE, pos;
@@ -65,7 +64,7 @@ static void computeIntersections(const Eigen::Hyperplane<Scalar, 3>& plane, cons
     for(int n=0; n<5; ++n)
     {
         Vec p(0,0,0);
-        float dotp = 0.0f;
+        Scalar dotp = Scalar(0.0);
         if((n+1)&2)
             dotp += dotj, p[j] = extents[j];
         else
@@ -87,8 +86,8 @@ static void computeIntersections(const Eigen::Hyperplane<Scalar, 3>& plane, cons
         if( (prev_pos == LOW || prev_pos == HIGH) && pos != prev_pos )
         {
             // clipping in
-            float h = prev_pos == LOW ? -extents[i] : extents[i];
-            float s = (h - prev_p[i]) / (p[i] - prev_p[i]);
+            const Scalar h = prev_pos == LOW ? -extents[i] : extents[i];
+            const Scalar s = (h - prev_p[i]) / (p[i] - prev_p[i]);
             intersections.push_back(box_center + prev_p + (p - prev_p) * s);
         }
         if( pos == BOX && n!=4 )
@@ -98,8 +97,8 @@ static void computeIntersections(const Eigen::Hyperplane<Scalar, 3>& plane, cons
         else if( pos != prev_pos && prev_pos != NONE )
         {
             // clipping out
-            float h = pos == LOW ? -extents[i] : extents[i];
-            float s = (h - prev_p[i]) / (p[i] - prev_p[i]);
+            const Scalar h = pos == LOW ? -extents[i] : extents[i];
+            const Scalar s = (h - prev_p[i]) / (p[i] - prev_p[i]);
             intersections.push_back(box_center + prev_p + (p - prev_p) * s);
         }
 
