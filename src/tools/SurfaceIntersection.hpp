@@ -48,7 +48,7 @@ static void computeIntersections(const Eigen::Hyperplane<Scalar, 3>& plane, cons
     Vec normal = plane.normal();
     Vec box_center = box.center();
     Vec extents = box.max() - box_center;
-    const Scalar dist = plane.signedDistance(box_center);
+    const Scalar dist = -plane.signedDistance(box_center);
 
     // find the max coefficient of the normal:
     int i=0, j=1, k=2;
@@ -90,8 +90,9 @@ static void computeIntersections(const Eigen::Hyperplane<Scalar, 3>& plane, cons
             const Scalar s = (h - prev_p[i]) / (p[i] - prev_p[i]);
             intersections.push_back(box_center + prev_p + (p - prev_p) * s);
         }
-        if( pos == BOX && n!=4 )
+        if( pos == BOX )
         {
+            if( n==4 ) break; // n==4 is only for clipping in
             intersections.push_back(box_center + p);
         }
         else if( pos != prev_pos && prev_pos != NONE )
