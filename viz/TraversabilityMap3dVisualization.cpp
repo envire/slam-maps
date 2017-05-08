@@ -106,14 +106,9 @@ void addSphere(const Eigen::Vector3f &position, osg::ref_ptr<osg::Geode> geode)
 void TraversabilityMap3dVisualization::visualizeNode(const TraversabilityNodeBase* node)
 {
     Eigen::Vector3f curNodePos = map.getNodePosition(node);
-//     addSphere(curNodePos, nodeGeode);
-//     nodeGroup->addChild(sphere);
 
     PatchesGeode *geode = dynamic_cast<PatchesGeode *>(nodeGeode.get());
     geode->setPosition(curNodePos.x(), curNodePos.y());
-//     std::cout << "Drawing Plane " << std::endl;
-    
-//     curNodePos.z() -= node->getHeight();
     
     switch(node->getType())
     {
@@ -124,16 +119,26 @@ void TraversabilityMap3dVisualization::visualizeNode(const TraversabilityNodeBas
             geode->setColor(osg::Vec4d(1,0,1,1));
             break;
         case TraversabilityNodeBase::TRAVERSABLE:
-        {
             geode->setColor(osg::Vec4d(0, 1, 0, 1));
             break;
-        }
+        case TraversabilityNodeBase::FRONTIER:
+            geode->setColor(osg::Vec4d(0, 0, 1, 1));
+            break;
+        case TraversabilityNodeBase::HOLE:
+            geode->setColor(osg::Vec4d(0, 1, 1, 1));
+            break;
+        case TraversabilityNodeBase::UNSET:
+            geode->setColor(osg::Vec4d(1, 1, 0, 1));
+            break;            
         default:
+            std::cout << "WARNING: unknown node type!\n";
             geode->setColor(osg::Vec4d(0,0,1,1));
     }
     
     if(fabs(node->getHeight()) > 30000)
     {
+        //FIXME if nodes are too far aways, the culling mechanism of osg breaks.
+        // I.e. verticves disappear when zooming in on them.
         std::cout << "TraversabilityMap3dVisualization:: Warning, ignoring node with height above +-30000 " << std::endl; 
         return;
     }
@@ -174,38 +179,27 @@ void vizkit3d::TraversabilityMap3dVisualization::updateMainNode(osg::Node* node)
 {
     osg::Group* group = static_cast<osg::Group*>(node);    
 
-    nodeGroup = group;
-    
     //clear old data
     group->removeChildren(0, group->getNumChildren());
 
-    std::cout << "Map resolution " << map.getResolution().transpose() << std::endl;
-//     nodeGeode = new osg::Geode();
     nodeGeode = new PatchesGeode(map.getResolution().x(), map.getResolution().y());
     linesNode = new osgviz::LinesNode(osg::Vec4(1, 1, 1, 1));
     group->addChild(nodeGeode);
     group->addChild(linesNode);
-
     
     PatchesGeode *geode = dynamic_cast<PatchesGeode *>(nodeGeode.get());
     geode->setColor(osg::Vec4d(1,0,0,1));
     geode->setShowPatchExtents(true);
     geode->setShowNormals(true);
     
-//     addSphere(Eigen::Vector3f(0,0,0), geode);
-    
     for(size_t y = 0; y < map.getNumCells().y(); y++)
     {
         for(size_t x = 0; x < map.getNumCells().x(); x++)
         {
-//             std::cout << "Cur Idx " << x << " " << y << std::endl;
             const LevelList<TraversabilityNodeBase *> &l(map.at(x, y));
             addNodeList(l, group);
         }
-        
     }
-    
-//     geode->drawLines();
 }
 
 void vizkit3d::TraversabilityMap3dVisualization::setIsolineInterval(const double& val)

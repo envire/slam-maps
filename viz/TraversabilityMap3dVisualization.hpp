@@ -63,7 +63,6 @@ protected:
     osg::ref_ptr<osg::Geode> nodeGeode;
     osg::ref_ptr<osgviz::LinesNode> linesNode;
     
-    osg::Group* nodeGroup;
     osg::Group* connectionGroup;
     
     double isoline_interval;

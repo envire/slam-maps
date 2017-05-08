@@ -44,6 +44,7 @@ namespace maps { namespace grid
             UNKNOWN,
             HOLE,
             UNSET,
+            FRONTIER, //a node that is traversable but is on the border to missing map information
         };
 
         TraversabilityNodeBase(float height, const Index &idx);
