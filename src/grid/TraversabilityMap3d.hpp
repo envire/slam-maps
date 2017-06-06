@@ -171,5 +171,7 @@ namespace maps { namespace grid
         }
     };
 
+    
+    typedef TraversabilityMap3d<TraversabilityNodeBase *> TraversabilityBaseMap3d;
 }}
 
