@@ -29,6 +29,7 @@
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+#include <boost/serialization/access.hpp>
 
 namespace maps { namespace grid
 {
@@ -53,6 +54,17 @@ namespace maps { namespace grid
      */
     class Index : public Vector2i
     {
+        /** Grants access to boost serialization */
+        friend class boost::serialization::access;
+
+        /** Serializes the members of this class*/
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version)
+        {
+            ar & x();
+            ar & y();
+        }
+
         public:
             typedef Vector2i Base;
 

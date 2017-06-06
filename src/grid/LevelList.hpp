@@ -104,6 +104,7 @@ protected:
 template <class S>
 class LevelList<S *> : public boost::container::flat_set<S *, myCmp<S *>>
 {
+    typedef boost::container::flat_set<S *, myCmp<S *> > Base;
 public:
     LevelList()
     {
@@ -117,6 +118,35 @@ public:
             *this = other;
     }
 #endif
+
+    /** Serializes the members of this class*/
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
+    template<class Archive>
+    void load(Archive &ar, const unsigned int version)
+    {
+        uint64_t count;
+        loadSizeValue(ar, count);
+
+        Base::clear();
+        Base::reserve(count);
+        for(size_t i=0; i<count; ++i)
+        {
+            S *obj;
+            ar >> obj;
+            Base::insert(Base::end(), obj);
+        }
+    }
+    template<class Archive>
+    void save(Archive& ar, const unsigned int version) const
+    {
+        uint64_t size = (uint64_t)Base::size();
+        saveSizeValue(ar, size);
+
+        for(typename Base::const_iterator it = Base::begin(); it!= Base::end(); ++it)
+        {
+            ar << *it;
+        }
+    }
 
     template<class S2>
     LevelList(const LevelList<S2>& other) : boost::container::flat_set<S *, myCmp<S *>>(other.begin(), other.end())

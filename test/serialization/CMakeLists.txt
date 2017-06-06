@@ -14,4 +14,8 @@ rock_testsuite(test_serialization_geometric
 
 rock_testsuite(test_serialization_mlsmap
    test_serialization_MLS.cpp
-   DEPS maps)   
+   DEPS maps)
+   
+rock_testsuite(test_serialization_travmap
+   test_serialization_TravMap.cpp
+   DEPS maps)

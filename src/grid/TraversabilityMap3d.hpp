@@ -73,6 +73,21 @@ namespace maps { namespace grid
         TYPE getType() const;
         
     protected:
+        TraversabilityNodeBase() {};
+        
+        /** Grants access to boost serialization */
+        friend class boost::serialization::access;
+
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version)
+        {
+            ar & connections;
+            ar & height;
+            ar & idx;
+            ar & type;
+            ar & mIsExpanded;
+        }
+
         std::vector<TraversabilityNodeBase *> connections;
         float height;
         ::maps::grid::Index idx;
@@ -84,7 +99,23 @@ namespace maps { namespace grid
     template <class T>
     class TraversabilityNode : public TraversabilityNodeBase
     {
+    protected:
+        /** Grants access to boost serialization */
+        friend class boost::serialization::access;
+        
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(TraversabilityNodeBase);
+            ar & userData;
+        }
+
         T userData;
+
+        //needed for boost serialization
+        TraversabilityNode() : TraversabilityNodeBase()
+        {
+        };
     public:
         TraversabilityNode(float height, const Index& idx) : 
             TraversabilityNodeBase(height, idx)
@@ -127,6 +158,16 @@ namespace maps { namespace grid
             pos.z() += node->getHeight();
             
             return pos.cast<float>();
+        }
+    protected:
+        /** Grants access to boost serialization */
+        friend class boost::serialization::access;
+
+        /** Serializes the members of this class*/
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(::maps::grid::MultiLevelGridMap<T>);
         }
     };
 
