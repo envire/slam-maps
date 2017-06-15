@@ -56,25 +56,25 @@ void mls_waves(const std::string& filename)
     MLSConfig mls_config;
     typedef MLSMap<mlsType> MLSMap;
     mls_config.updateModel = mlsType;
-    MLSMap *mls = new MLSMap(numCells, res, mls_config);
+    MLSMap mls(numCells, res, mls_config);
 
     /** Translate the local frame (offset) **/
-    mls->getLocalFrame().translation() << 0.5*mls->getSize(), 0;
+    mls.getLocalFrame().translation() << 0.5*mls.getSize(), 0;
 
     /** Equivalent to translate the grid in opposite direction **/
     //Eigen::Vector3d offset_grid;
-    //offset_grid << -0.5*mls->getSize(), 0.00;
-    //mls->translate(offset_grid);
+    //offset_grid << -0.5*mls.getSize(), 0.00;
+    //mls.translate(offset_grid);
 
-    Eigen::Vector2d max = 0.5 * mls->getSize();
-    Eigen::Vector2d min = -0.5 * mls->getSize();
+    Eigen::Vector2d max = 0.5 * mls.getSize();
+    Eigen::Vector2d min = -0.5 * mls.getSize();
     for (double x = min.x(); x < max.x(); x += 0.00625)
     {
         double cs = std::cos(x * M_PI/2.5);
         for (double y = min.y(); y < max.y(); y += 0.00625)
         {
             double sn = std::sin(y * M_PI/2.5);
-            mls->mergePoint(Eigen::Vector3d(x, y, cs*sn));
+            mls.mergePoint(Eigen::Vector3d(x, y, cs*sn));
         }
     }
 
@@ -82,10 +82,13 @@ void mls_waves(const std::string& filename)
     {
         std::ofstream of(filename.c_str(), std::ios::binary);
         boost::archive::binary_oarchive oa(of);
-        oa << *mls;
+        oa << mls;
     }
 
-    show_MLS(*mls);
+    show_MLS(mls);
+
+    MLSMapPrecalculated precalculated = mls; // check implicit constructor
+    precalculated = mls; // check assignment
 
 }
 
@@ -107,8 +110,8 @@ BOOST_AUTO_TEST_CASE(mls_loop)
     mls_config.gapSize = 0.05f;
     mls_config.useNegativeInformation = false;
     float R = 5.0f, r=2.05f;
-    MLSMapSloped *mls = new MLSMapSloped(numCells, res, mls_config);
-    mls->getLocalFrame().translation() << 0.5*mls->getSize(), 0;
+    MLSMapSloped mls(numCells, res, mls_config);
+    mls.getLocalFrame().translation() << 0.5*mls.getSize(), 0;
 
     for (float alpha = 0; alpha < M_PI; alpha += M_PI/1024/4)
     {
@@ -121,14 +124,14 @@ BOOST_AUTO_TEST_CASE(mls_loop)
             float y = (R+r*std::cos(beta)) * sn;
             float z = r*std::sin(beta);
 
-            mls->mergePoint(Vector3d(x,y,z));
+            mls.mergePoint(Vector3d(x,y,z));
 
         }
     }
     std::ofstream of("MLSMapSloped_loop.bin", std::ios::binary);
     boost::archive::binary_oarchive oa(of);
-    oa << *mls;
+    oa << mls;
 
-    show_MLS(*mls);
+    show_MLS(mls);
 }
 

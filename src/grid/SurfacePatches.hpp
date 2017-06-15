@@ -447,7 +447,7 @@ public:
     }
     
     template<MLSConfig::update_model model>
-    SurfacePatch(const SurfacePatch<model>& other) : SurfacePatchBase(other), plane(other.plane)
+    SurfacePatch(const SurfacePatch<model>& other) : SurfacePatchBase(other), plane(other.getNormal(), other.getCenter())
     {
         // empty
     }
@@ -458,7 +458,7 @@ public:
         return *this;
     }
 
-    Eigen::Vector3f getCenter() const { return Eigen::Vector3f(0.f, 0.f, plane.offset()); }
+    Eigen::Vector3f getCenter() const { return plane.normal() * -plane.offset(); }
     Eigen::Vector3f getNormal() const { return plane.normal(); }
     const Eigen::Vector4f& getCoeffs() const { return plane.coeffs(); }
     Eigen::Vector4f& getCoeffs() { return plane.coeffs(); }
