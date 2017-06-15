@@ -40,9 +40,11 @@ public:
 /**
  * Computes the intersection points between a plane and an axis aligned box.
  * Note: This method doesn't check if the plane intersects with the box.
+ * Note: The intersection points are appended to the vector, i.e., the caller must make sure it is empty.
  */
 template<class Scalar, int MatrixOptions, class Allocator>
-static void computeIntersections(const Eigen::Hyperplane<Scalar, 3>& plane, const Eigen::AlignedBox<Scalar, 3>& box, std::vector< Eigen::Matrix<Scalar, 3, 1, MatrixOptions>, Allocator >& intersections)
+static void computeIntersections(const Eigen::Hyperplane<Scalar, 3>& plane, const Eigen::AlignedBox<Scalar, 3>& box,
+        std::vector< Eigen::Matrix<Scalar, 3, 1, MatrixOptions>, Allocator >& intersections)
 {
     typedef Eigen::Matrix<Scalar, 3, 1, MatrixOptions> Vec;
     Vec normal = plane.normal();
