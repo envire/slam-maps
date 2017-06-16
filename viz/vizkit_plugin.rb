@@ -50,9 +50,10 @@ Vizkit::UiLoader.register_3d_plugin_for('ContourMapVisualization', "/envire/core
     plugin.setVisualizationFrame(sample.frame_id)
     plugin.updateData(sample.data)
 end
-Vizkit::UiLoader.register_3d_plugin('OccupancyGridMapVisualization', 'maps', 'OccupancyGridMapVisualization')
-Vizkit::UiLoader.register_3d_plugin_for('OccupancyGridMapVisualization', "/maps/grid/OccupancyGridMap", :updateData )
-Vizkit::UiLoader.register_3d_plugin_for('OccupancyGridMapVisualization', "/envire/core/SpatioTemporal</maps/grid/OccupancyGridMap>") do |plugin,sample,_|
+
+Vizkit::UiLoader.register_3d_plugin('TraversabilityMap3dVisualization', "maps", 'TraversabilityMap3dVisualization' )
+Vizkit::UiLoader.register_3d_plugin_for('TraversabilityMap3dVisualization', "/maps/grid/TraversabilityBaseMap3d", :updateData )
+Vizkit::UiLoader.register_3d_plugin_for('TraversabilityMap3dVisualization', "/envire/core/SpatioTemporal</maps/grid/TraversabilityBaseMap3d>") do |plugin,sample,_|
     plugin.setVisualizationFrame(sample.frame_id)
-    plugin.updateData(sample.data)
+    plugin.updateTrMap(sample.data)
 end

@@ -77,6 +77,11 @@ public:
         vizkit3d::Vizkit3DPlugin<::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase *>>::updateData(sample);
     }
 
+    Q_INVOKABLE void updateTrMap(::maps::grid::TraversabilityBaseMap3d const &sample)
+    {
+        vizkit3d::Vizkit3DPlugin<::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase *>>::updateData(sample);
+    }
+
     double getIsolineInterval() const { return isoline_interval; }
     void setIsolineInterval(const double& val);
     
