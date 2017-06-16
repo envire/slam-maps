@@ -81,7 +81,11 @@ namespace maps { namespace grid
         template<class Archive>
         void serialize(Archive & ar, const unsigned int version)
         {
-            ar & connections;
+            //we don't save the connections here, as this 
+            //would lead to a stack corupption caused by 
+            //to much recursive calls. The connections are
+            //Saved and set in the map
+            
             ar & height;
             ar & idx;
             ar & type;
@@ -163,11 +167,74 @@ namespace maps { namespace grid
         /** Grants access to boost serialization */
         friend class boost::serialization::access;
 
-        /** Serializes the members of this class*/
-        template<class Archive>
-        void serialize(Archive & ar, const unsigned int version)
+        struct SerializationHelper
         {
+            T node;
+            std::vector<TraversabilityNodeBase *> connections;
+            
+            /** Serializes the members of this class*/
+            template<class Archive>
+            void serialize(Archive & ar, const unsigned int version)
+            {
+                ar & node;
+                ar & connections;
+            }
+        };
+        
+        /** Serializes the members of this class*/
+        BOOST_SERIALIZATION_SPLIT_MEMBER()
+        template<class Archive>
+        void load(Archive &ar, const unsigned int version)
+        {
+            //load back all pointers
             ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(::maps::grid::MultiLevelGridMap<T>);
+
+            //load nr of contained values
+            uint64_t count;
+            loadSizeValue(ar, count);
+            
+            for(size_t i=0; i<count; ++i)
+            {
+                SerializationHelper helper;
+                ar >> helper;
+
+                //set back the connections. As all pointers have been loaded before, this should
+                //also apply to all objects in the MultiLevelGridMap.
+                for(TraversabilityNodeBase *n : helper.connections)
+                {
+                    helper.node->addConnection(n);
+                }
+            }
+        }
+        template<class Archive>
+        void save(Archive& ar, const unsigned int version) const
+        {
+            //first save all pointers without connections
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(::maps::grid::MultiLevelGridMap<T>);
+
+            //determine nr of nodes
+            uint64_t size = 0;
+            for(const maps::grid::LevelList<T> &ll : *this )
+            {
+                for(const T &node: ll)
+                {
+                    size += ll.size();
+                }
+            }
+            saveSizeValue(ar, size);
+
+            //save all connections together with the coresponding pointer
+            for(const maps::grid::LevelList<T> &ll : *this )
+            {
+                for(const T &node: ll)
+                {
+                    SerializationHelper helper;
+                    helper.node = node;
+                    helper.connections = node->getConnections();
+                    
+                    ar & helper;
+                }
+            }
         }
     };
 
