@@ -149,8 +149,8 @@ namespace maps { namespace grid
                     int x_new = x + idx.x();
                     int y_new = y + idx.y();
 
-                    if ((x_new >= 0 && x_new < num_cells.x())
-                        && (y_new >= 0 && y_new < num_cells.y()))
+                    if ((x_new >= 0 && unsigned(x_new) < num_cells.x())
+                        && (y_new >= 0 && unsigned(y_new) < num_cells.y()))
                     {
                         std::swap(cells[toIdx(x, y)], tmp[toIdx(x_new, y_new)]);
                     }
