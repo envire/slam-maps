@@ -216,10 +216,7 @@ namespace maps { namespace grid
             uint64_t size = 0;
             for(const maps::grid::LevelList<T> &ll : *this )
             {
-                for(const T &node: ll)
-                {
-                    size += ll.size();
-                }
+                size += ll.size();
             }
             saveSizeValue(ar, size);
 
