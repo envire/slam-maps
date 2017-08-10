@@ -29,9 +29,8 @@
 #include "AccessIterator.hpp"
 
 #include <boost/container/flat_set.hpp>
-#include <boost/serialization/split_member.hpp>
 #include <boost/version.hpp>
-#include <boost_serialization/DynamicSizeSerialization.hpp>
+#include <boost_serialization/BoostTypes.hpp>
 
 namespace maps { namespace grid
 {
@@ -70,34 +69,10 @@ public:
 protected:
             /** Grants access to boost serialization */
     friend class boost::serialization::access;
-
-    /** Serializes the members of this class*/
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
-    template<class Archive>
-    void load(Archive &ar, const unsigned int version)
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int version)
     {
-        uint64_t count;
-        loadSizeValue(ar, count);
-
-        Base::clear();
-        Base::reserve(count);
-        for(size_t i=0; i<count; ++i)
-        {
-            S obj;
-            ar >> obj;
-            Base::insert(Base::end(), std::move(obj));
-        }
-    }
-    template<class Archive>
-    void save(Archive& ar, const unsigned int version) const
-    {
-        uint64_t size = (uint64_t)Base::size();
-        saveSizeValue(ar, size);
-
-        for(typename Base::const_iterator it = Base::begin(); it!= Base::end(); ++it)
-        {
-            ar << *it;
-        }
+        boost::serialization::serialize(ar, static_cast<Base&>(*this), version);
     }
 };
 
