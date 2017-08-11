@@ -84,21 +84,28 @@ BOOST_AUTO_TEST_CASE(test_TraversabilityNode_serialization)
     checkEqual(node, node_out);
 }
 
-
-BOOST_AUTO_TEST_CASE(test_TraversabilityNodeWithPointers_serialization)
+BOOST_AUTO_TEST_CASE(test_TraversabilityMap_serialization)
 {
-     TraversabilityNode<double> *child1 = new TraversabilityNode<double>(10.0, Index(1,2));
-     TraversabilityNode<double> *child2 = new TraversabilityNode<double>(11.0, Index(1,3));
-     TraversabilityNode<double> *child3 = new TraversabilityNode<double>(12.0, Index(1,4));
+    TraversabilityMap3d<TraversabilityNode<double> *> map;
     
-    TraversabilityNode<double> *parentNode = new TraversabilityNode<double>(22.0, Index(1,20));
+    map.resize(Vector2ui(20, 20));
     
+    TraversabilityNode<double> *child1 = new TraversabilityNode<double>(10.0, Index(1,2));
+    map.at(child1->getIndex()).insert(child1);
+    TraversabilityNode<double> *child2 = new TraversabilityNode<double>(11.0, Index(1,3));
+    map.at(child2->getIndex()).insert(child2);
+    TraversabilityNode<double> *child3 = new TraversabilityNode<double>(12.0, Index(1,4));
+    map.at(child3->getIndex()).insert(child3);
+
+    TraversabilityNode<double> *parentNode = new TraversabilityNode<double>(22.0, Index(1,10));
+    map.at(parentNode->getIndex()).insert(parentNode);
+
     parentNode->getUserData() = 45;
 
     child1->getUserData() = 85;
     child2->getUserData() = 55;
     child3->getUserData() = 65;
-    
+
     parentNode->addConnection(child1);
     child1->addConnection(parentNode);
 
@@ -107,45 +114,32 @@ BOOST_AUTO_TEST_CASE(test_TraversabilityNodeWithPointers_serialization)
 
     parentNode->addConnection(child3);
     child3->addConnection(parentNode);
-    
-    std::stringstream stream;
-    boost::archive::binary_oarchive oa(stream);
-    oa << parentNode;
 
-    // deserialize from string stream
-    boost::archive::binary_iarchive *ia = new boost::archive::binary_iarchive(stream);
-    TraversabilityNode<double> *node_out = nullptr;
-    (*ia) >> node_out;
 
-    checkEqual(*parentNode, *node_out);
-    
-    BOOST_CHECK(parentNode->getConnections().size() == node_out->getConnections().size());
-    
-    TraversabilityNodeBase *childOut1 = node_out->getConnections()[0];
-    BOOST_CHECK(childOut1->getConnections().size() == 1);
-    TraversabilityNodeBase *parentOut = childOut1->getConnections()[0];
-    
-    //test that the out node points towards an new object
-    BOOST_CHECK(parentNode != parentOut);
 
-    BOOST_CHECK(node_out == parentOut);
-}
-
-BOOST_AUTO_TEST_CASE(test_TraversabilityMap_serialization)
-{
-    TraversabilityMap3d<TraversabilityNode<double> *> map;
-    
-    map.resize(Vector2ui(20, 20));
-    
-    
-    
     std::stringstream stream;
     boost::archive::binary_oarchive oa(stream);
     oa << map;
 
     // deserialize from string stream
-    boost::archive::binary_iarchive *ia = new boost::archive::binary_iarchive(stream);
+    boost::archive::binary_iarchive ia(stream);
     TraversabilityMap3d<TraversabilityNode<double> *> mapOut;
-    (*ia) >> mapOut;
+    ia >> mapOut;
 
+    BOOST_CHECK_EQUAL(mapOut.at(parentNode->getIndex()).size(), 1);
+
+    TraversabilityNode<double> *node_out = *mapOut.at(parentNode->getIndex()).begin();
+
+    checkEqual(*parentNode, *node_out);
+
+    BOOST_CHECK(parentNode->getConnections().size() == node_out->getConnections().size());
+
+    TraversabilityNodeBase *childOut1 = node_out->getConnections()[0];
+    BOOST_CHECK(childOut1->getConnections().size() == 1);
+    TraversabilityNodeBase *parentOut = childOut1->getConnections()[0];
+
+    //test that the out node points towards an new object
+    BOOST_CHECK(parentNode != parentOut);
+
+    BOOST_CHECK(node_out == parentOut);
 }
