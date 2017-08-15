@@ -83,6 +83,10 @@ namespace vizkit3d
             Q_INVOKABLE void updateData(maps::grid::MLSMapKalman const &sample)
             {vizkit3d::Vizkit3DPlugin<maps::grid::MLSMapKalman>::updateData(sample);}
 
+            // this is dirty fix to resolve typedef problem
+            Q_INVOKABLE void updateMLSKalmanFull(maps::grid::MLSMap<maps::grid::MLSConfig::KALMAN> const &sample)
+            { vizkit3d::Vizkit3DPlugin<::maps::grid::MLSMapKalman>::updateData(sample); }
+
 
         protected:
             virtual osg::ref_ptr<osg::Node> createMainNode();
