@@ -216,7 +216,7 @@ bool TraversabilityMap3dVisualization::getShowConnections()
 
 void TraversabilityMap3dVisualization::setShowConnections(bool val)
 {
-    show_connections = true;
+    show_connections = val;
     emit propertyChanged("show_connections");
     setDirty();
 }
