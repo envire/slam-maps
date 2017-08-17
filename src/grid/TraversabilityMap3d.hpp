@@ -82,7 +82,7 @@ namespace maps { namespace grid
         void serialize(Archive & ar, const unsigned int version)
         {
             //we don't save the connections here, as this 
-            //would lead to a stack corupption caused by 
+            //would lead to a stack corruption caused by
             //to much recursive calls. The connections are
             //Saved and set in the map
             
@@ -96,7 +96,7 @@ namespace maps { namespace grid
         float height;
         ::maps::grid::Index idx;
         enum TYPE type;
-        ///detemines wether this node is a candidate or a final node
+        ///determines whether this node is a candidate or a final node
         bool mIsExpanded;
     };
 
