@@ -52,6 +52,9 @@ namespace maps { namespace grid
         float getHeight() const;
         void setHeight(float newHeight);
 
+        //! Given a grid resolution, compute the 3d position of this node
+        Eigen::Vector3d getVec3(double grid_res) const;
+
         /**
          * Returns the index of this cell
          * */

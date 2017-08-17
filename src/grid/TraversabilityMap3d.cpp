@@ -61,6 +61,11 @@ void TraversabilityNodeBase::setHeight(float newHeight)
     height = newHeight;
 }
 
+Eigen::Vector3d TraversabilityNodeBase::getVec3(double grid_res) const
+{
+    return Eigen::Vector3d(idx.x() * grid_res, idx.y() * grid_res, height);
+}
+
 bool TraversabilityNodeBase::operator<(const TraversabilityNodeBase& other) const
 {
     return height < other.height;
