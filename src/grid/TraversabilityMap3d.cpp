@@ -36,6 +36,42 @@ TraversabilityNodeBase::TraversabilityNodeBase(float height, const Index &idx) :
 
 }
 
+void TraversabilityNodeBase::eachConnectedNode(std::function<void (const TraversabilityNodeBase *n, bool &explandNode, bool &stop)> f) const
+{
+    std::deque<const maps::grid::TraversabilityNodeBase*> nodes;
+    std::unordered_set<const maps::grid::TraversabilityNodeBase*> visited;
+    nodes.push_back(this);
+    do
+    {
+        const maps::grid::TraversabilityNodeBase* currentNode = nodes.front();
+        nodes.pop_front();
+        
+        for(const maps::grid::TraversabilityNodeBase* neighbor : currentNode->getConnections())
+        {
+            //check if we have already visited this node (happens because double connected graph)
+            if(visited.find(neighbor) != visited.end())
+                continue;
+
+            visited.insert(neighbor);
+                
+            bool stop = false;
+            bool expandNode = false;
+            f(neighbor, expandNode, stop);
+            
+            if(stop)
+            {
+                return;
+            }
+
+            if(expandNode)
+            {
+                //further expand node
+                nodes.push_back(neighbor);
+            }
+        }
+    }while(!nodes.empty());
+}
+
 void TraversabilityNodeBase::addConnection(TraversabilityNodeBase* node)
 {
     connections.push_back(node);

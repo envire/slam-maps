@@ -68,6 +68,8 @@ namespace maps { namespace grid
         
         bool operator<(const TraversabilityNodeBase& other) const;
         
+        void eachConnectedNode(std::function<void (const TraversabilityNodeBase *n, bool &explandNode, bool &stop)> f) const;
+        
         bool isExpanded() const;
         void setExpanded();
         void setNotExpanded();
