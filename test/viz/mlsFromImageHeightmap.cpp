@@ -56,7 +56,10 @@ int main(int argc, char *argv[])
             const QRgb pixel = img.pixel(x, y);
             const int brightness = qGray(pixel);
             const double height = maxHeight * brightness / 255.0;
-            mls.mergePoint(Vector3d(x * res.x(), y * res.y(), height));
+            
+            base::Vector3d point(res.x() / 2.0 +  x * res.x(), res.y() / 2.0 + y * res.y(), height);
+            
+            mls.mergePoint(point, height);
         }
     }
 
