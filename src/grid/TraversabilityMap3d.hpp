@@ -34,6 +34,9 @@
 namespace maps { namespace grid
 {
 
+    template <class T>
+    class TraversabilityMap3d;
+    
     class TraversabilityNodeBase
     {
     public:
@@ -71,6 +74,14 @@ namespace maps { namespace grid
         void eachConnectedNode(std::function<void (const TraversabilityNodeBase *n, bool &explandNode, bool &stop)> f) const;
         void eachConnectedNode(std::function<void (TraversabilityNodeBase *n, bool &explandNode, bool &stop)> f);
         
+        template <class T>
+        Eigen::Vector3d getPosition(const T &map) const
+        {
+            Eigen::Vector3d pos;
+            map.fromGrid(idx, pos, height, false);
+            return pos;
+        }
+
         bool isExpanded() const;
         void setExpanded();
         void setNotExpanded();
