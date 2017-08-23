@@ -5,8 +5,8 @@ rock_executable(heightmap_to_mls
     SOURCES
     mlsFromImageHeightmap.cpp
     HEADERS    
-   DEPS_PKGCONFIG QtCore QtGui maps vizkit3d vizkit3d-viz
-   DEPS maps-viz)
+   DEPS_PKGCONFIG QtCore QtGui vizkit3d vizkit3d-viz
+   DEPS maps-viz maps)
 
 
 rock_testsuite(test_viz_elevationmap 
