@@ -45,21 +45,23 @@ int main(int argc, char *argv[])
     MLSConfig mls_config;
 //     mls_config.updateModel = MLSConfig::SLOPE;
     mls_config.updateModel = MLSConfig::KALMAN;
-    mls_config.gapSize = 0.05f;
+    mls_config.gapSize = 0.3f;
     mls_config.useNegativeInformation = false;
     MLSMapKalman mls(numCells, res, mls_config);
-    
+//     
     for(int x = 0; x < width; ++x)
     {
         for(int y = 0; y < height; ++y)
         {
             const QRgb pixel = img.pixel(x, y);
             const int brightness = qGray(pixel);
-            const double height = maxHeight * brightness / 255.0;
+            const double topHeight = maxHeight * brightness / 255.0;
             
-            base::Vector3d point(res.x() / 2.0 +  x * res.x(), res.y() / 2.0 + y * res.y(), height);
-            
-            mls.mergePoint(point, height);
+            for(double height = topHeight; height > -0.3; height -= 0.2)
+            {
+                base::Vector3d point(res.x() / 2.0 +  x * res.x(), res.y() / 2.0 + y * res.y(), height);
+                mls.mergePoint(point);
+            }
         }
     }
 
