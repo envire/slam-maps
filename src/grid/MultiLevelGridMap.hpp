@@ -155,11 +155,11 @@ namespace maps { namespace grid
             
             Index newSize(maxIdx-minIdx);
             
-            View ret(Vector2ui(newSize.x(), newSize.y()) , this->getResolution());
+            View ret(Vector2ui(newSize.x() + 1, newSize.y() + 1) , this->getResolution());
             
-            for(Index::Scalar y = minIdx.y(); y < maxIdx.y(); y++)
+            for(Index::Scalar y = minIdx.y(); y <= maxIdx.y(); y++)
             {
-                for(Index::Scalar x = minIdx.x();x < maxIdx.x(); x++)
+                for(Index::Scalar x = minIdx.x();x <= maxIdx.x(); x++)
                 {
                     Index curIdx(x,y);
                     
