@@ -12,6 +12,7 @@ rock_library(maps
         tools/VoxelTraversal.cpp
         tools/TSDFPolygonMeshReconstruction.cpp
         tools/TSDF_MLSMapReconstruction.cpp
+        operations/CoverageMapGeneration.cpp
     HEADERS
         LocalMap.hpp
         grid/Index.hpp
@@ -48,6 +49,7 @@ rock_library(maps
         tools/MarchingCubes.hpp
         tools/SurfaceIntersection.hpp
         operations/GridInterpolation.hpp
+        operations/CoverageMapGeneration.hpp
     DEPS_PKGCONFIG 
         base-types 
         base-logging
