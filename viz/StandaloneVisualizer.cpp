@@ -88,6 +88,11 @@ void StandaloneVisualizer::updateData(const MLSMapPrecalculated& mls)
     impl->mls_viz->updateMLSPrecalculated(mls);
 }
 
+void StandaloneVisualizer::updateData(const MLSMapBase& mls)
+{
+    impl->mls_viz->updateMLSBase(mls);
+}
+
 void StandaloneVisualizer::updateData(const OccupancyGridMap& grid)
 {
     impl->occ_viz->updateData(grid);

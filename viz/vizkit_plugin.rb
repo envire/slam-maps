@@ -28,6 +28,11 @@ Vizkit::UiLoader.register_3d_plugin_for('GridMapVisualization', "/envire/core/Sp
 end
 
 Vizkit::UiLoader.register_3d_plugin('MLSMapVisualization', 'maps', 'MLSMapVisualization')
+Vizkit::UiLoader.register_3d_plugin_for('MLSMapVisualization', "/maps/grid/MLSMapBase", :updateMLSBase )
+Vizkit::UiLoader.register_3d_plugin_for('MLSMapVisualization', "/envire/core/SpatioTemporal</maps/grid/MLSMapBase>") do |plugin,sample,_|
+    plugin.setVisualizationFrame(sample.frame_id)
+    plugin.updateMLSKalman(sample.data)
+end
 Vizkit::UiLoader.register_3d_plugin_for('MLSMapVisualization', "/maps/grid/MLSMapKalman", :updateMLSKalman )
 Vizkit::UiLoader.register_3d_plugin_for('MLSMapVisualization', "/envire/core/SpatioTemporal</maps/grid/MLSMapKalman>") do |plugin,sample,_|
     plugin.setVisualizationFrame(sample.frame_id)

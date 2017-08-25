@@ -441,6 +441,7 @@ namespace maps { namespace grid
         BOOST_SERIALIZATION_SPLIT_MEMBER()
     };
 
+    typedef MLSMap<MLSConfig::BASE> MLSMapBase;
     typedef MLSMap<MLSConfig::SLOPE> MLSMapSloped;
     typedef MLSMap<MLSConfig::KALMAN> MLSMapKalman;
     typedef MLSMap<MLSConfig::PRECALCULATED> MLSMapPrecalculated;
@@ -448,6 +449,7 @@ namespace maps { namespace grid
 } /* namespace grid */
 } /* namespace maps */
 
+BOOST_CLASS_VERSION(maps::grid::MLSMap<maps::grid::MLSConfig::BASE>, 1)
 BOOST_CLASS_VERSION(maps::grid::MLSMap<maps::grid::MLSConfig::SLOPE>, 1)
 BOOST_CLASS_VERSION(maps::grid::MLSMap<maps::grid::MLSConfig::KALMAN>, 1)
 BOOST_CLASS_VERSION(maps::grid::MLSMap<maps::grid::MLSConfig::PRECALCULATED>, 1)

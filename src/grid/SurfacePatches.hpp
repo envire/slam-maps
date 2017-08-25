@@ -145,6 +145,30 @@ protected:
 template<MLSConfig::update_model model>
 class SurfacePatch;
 
+template<>
+class SurfacePatch<MLSConfig::BASE> : public SurfacePatchBase
+{
+    typedef SurfacePatchBase Base;
+public:
+    explicit SurfacePatch(const float &z = 0, const float height = 0) : SurfacePatchBase(z, height) {}
+
+    Eigen::Vector3f getCenter() const
+    {
+        Eigen::Vector3f center(0.0f, 0.0f, 0.5f*(max+min));
+        return center;
+    }
+
+    Eigen::Vector3f getNormal() const
+    {
+        return Eigen::Vector3f::UnitZ();
+    }
+
+    bool merge(const SurfacePatch& other, const MLSConfig& config)
+    {
+        return Base::merge(other, config.gapSize);
+    }
+};
+
 
 /**
  * SurfacePatch type for SLOPE update model.

@@ -52,6 +52,7 @@ namespace maps { namespace grid
             KALMAN,
             SLOPE
             , PRECALCULATED //! Patches with precalculated normal vector (can't be updated)
+            , BASE
         };
 
         float gapSize;

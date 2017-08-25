@@ -91,6 +91,12 @@ struct PatchVisualizer
         else
             geode.drawBox(p.getMean(), p.getHeight(), Vec3(p.getNormal()));
     }
+    static void visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::BASE>& p)
+    {
+        geode.drawBox(p.getTop(), p.getTop()-p.getBottom(), Vec3(p.getNormal()));
+    }
+
+
 };
 }
 
@@ -312,6 +318,12 @@ void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMap<::maps::grid::ML
 {
     p.reset(new DataHold<MLSConfig::PRECALCULATED>( value ));
 }
+
+void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::BASE> const& value)
+{
+    p.reset(new DataHold<MLSConfig::BASE>( value ));
+}
+
 
 void MLSMapVisualization::setShowMapExtents(bool value)
 {

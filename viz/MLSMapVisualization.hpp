@@ -43,6 +43,7 @@ namespace vizkit3d
         : public vizkit3d::Vizkit3DPlugin< ::maps::grid::MLSMapKalman >
         , public vizkit3d::VizPluginAddType< ::maps::grid::MLSMap<::maps::grid::MLSConfig::SLOPE> >
         , public vizkit3d::VizPluginAddType< ::maps::grid::MLSMap<::maps::grid::MLSConfig::PRECALCULATED> >
+        , public vizkit3d::VizPluginAddType< ::maps::grid::MLSMap<::maps::grid::MLSConfig::BASE> >
         , boost::noncopyable
     {
         Q_OBJECT
@@ -74,6 +75,9 @@ namespace vizkit3d
             Q_INVOKABLE void updateMLSKalman(maps::grid::MLSMapKalman const &sample)
             {vizkit3d::Vizkit3DPlugin<::maps::grid::MLSMapKalman>::updateData(sample);}
 
+            Q_INVOKABLE void updateMLSBase(maps::grid::MLSMapBase const &sample)
+            {vizkit3d::Vizkit3DPlugin<::maps::grid::MLSMapKalman>::updateData(sample);}
+
             Q_INVOKABLE void updateData(maps::grid::MLSMapPrecalculated const &sample)
             {vizkit3d::Vizkit3DPlugin<::maps::grid::MLSMapKalman>::updateData(sample);}
 
@@ -94,6 +98,7 @@ namespace vizkit3d
             virtual void updateDataIntern(maps::grid::MLSMapKalman const& mls);
             virtual void updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::SLOPE> const& mls);
             virtual void updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::PRECALCULATED> const& mls);
+            virtual void updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::BASE> const& mls);
             
         private:
             struct Data;

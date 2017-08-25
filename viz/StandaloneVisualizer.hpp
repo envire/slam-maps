@@ -48,6 +48,7 @@ public:
     void updateData(const ::maps::grid::MLSMapKalman& mls);
     void updateData(const ::maps::grid::MLSMapSloped& mls);
     void updateData(const ::maps::grid::MLSMapPrecalculated& mls);
+    void updateData(const ::maps::grid::MLSMapBase& mls);
     void updateData(const ::maps::grid::OccupancyGridMap& grid);
 
 };
