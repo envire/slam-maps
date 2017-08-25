@@ -14,6 +14,7 @@ bool CoverageTracker::frameChanged(const grid::MLSMapKalman& mls_) const
 
 void CoverageTracker::updateMLS(const grid::MLSMapKalman& mls_) {
     mls = &mls_;
+    return; // FIXME shift local frame?
     if(frameChanged(*mls))
     {
         std::cout << "Frame changed. Resetting coverage. New Frame\n" << mls->getLocalFrame().matrix().topRows<3>() << "\nResolution: " << mls->getResolution().transpose() << ", NumCells: " << mls->getNumCells() << "\n";
@@ -29,27 +30,27 @@ void CoverageTracker::updateMLS(const grid::MLSMapKalman& mls_) {
 
 void CoverageTracker::addCoverage(const double &radius, const base::AngleSegment& range /* ignored */, const base::Pose& pose_in_map)
 {
-    if(frameChanged(*mls) )
+    if(false && frameChanged(*mls) ) // FIXME temporarily disabled (MLS frame is irrelevant at the moment)
     {
         std::cerr << "Local Frames and resolution of coverage map and MLS map must be the same.\n";
         updateMLS(*mls); // HACK should not be necessary
 //            throw std::runtime_error( "Local Frames and resolution of coverage map and MLS map must be the same.");
     }
 
-    const Eigen::Array2d res = mls->getResolution();
-    const Eigen::Affine3d pose_in_grid = mls->getLocalFrame() * pose_in_map.toTransform();
+    const Eigen::Array2d &res = coverage.getResolution();
+    const Eigen::Affine3d pose_in_grid = coverage.getLocalFrame() * pose_in_map.toTransform();
     const Eigen::Array2d pos2d = pose_in_grid.translation().head<2>().array();
     const double z = pose_in_grid.translation().z();
 
-//    const auto config = mls.getConfig();
-
     const Eigen::Array2i minIdx = ((pos2d - radius) / res).cast<int>().max(0);
-    const Eigen::Array2i maxIdx = ((pos2d + radius) / res).cast<int>().min(mls->getNumCells().array().cast<int>());
+    const Eigen::Array2i maxIdx = ((pos2d + radius) / res).cast<int>().min(coverage.getNumCells().array().cast<int>());
 
     for(int x=minIdx.x(); x < maxIdx.x(); ++x)
     {
         for(int y=minIdx.y(); y< maxIdx.y(); ++y)
         {
+            // TODO here we need to ray-trace through the MLS and consider the angle-range
+
             Eigen::Array2i idx(x,y);
 
             const double z_diff_2 = radius*radius - (idx.cast<double>() * res - pos2d).matrix().squaredNorm();
