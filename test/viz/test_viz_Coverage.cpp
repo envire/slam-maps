@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE(mls_loop)
 
     mls.getLocalFrame().translation() << 0.5*mls.getSize(), 0;
 
-    coverage.updateMLS(mls);
+    coverage.setFrame(mls);
 
     StandaloneVisualizer app;
 
