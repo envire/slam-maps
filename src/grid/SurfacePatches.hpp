@@ -151,6 +151,8 @@ class SurfacePatch<MLSConfig::BASE> : public SurfacePatchBase
     typedef SurfacePatchBase Base;
 public:
     explicit SurfacePatch(const float &z = 0, const float height = 0) : SurfacePatchBase(z, height) {}
+    // implicit conversion from any other SurfacePatch:
+    SurfacePatch(const SurfacePatchBase& other) : SurfacePatchBase(other) { }
 
     Eigen::Vector3f getCenter() const
     {
