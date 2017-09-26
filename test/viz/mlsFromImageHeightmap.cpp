@@ -1,4 +1,3 @@
-#pragma once
 #include <QImage>
 #include "maps/grid/MLSConfig.hpp"
 #include "maps/grid/MLSMap.hpp"
