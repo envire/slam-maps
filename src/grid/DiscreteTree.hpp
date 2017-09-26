@@ -29,19 +29,18 @@
 #include <map>
 #include <cmath>
 #include <limits>
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/map.hpp>
 #include <boost/format.hpp>
+#include <boost/container/flat_map.hpp>
+#include <boost_serialization/BoostTypes.hpp>
 
 namespace maps { namespace grid
 {
 
 template<class S>
-class DiscreteTree : public std::map<int32_t, S>
+class DiscreteTree : public boost::container::flat_map<int32_t, S>
 {
 protected:
-    typedef std::map<int32_t, S> TreeBase;
+    typedef boost::container::flat_map<int32_t, S> TreeBase;
 public:
     DiscreteTree(float resolution) : resolution(resolution) {}
     virtual ~DiscreteTree() {}
