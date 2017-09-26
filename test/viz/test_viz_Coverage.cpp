@@ -51,7 +51,7 @@ static void show_MLS(const MLSMap& mls)
 
 
 
-BOOST_AUTO_TEST_CASE(mls_loop)
+BOOST_AUTO_TEST_CASE(mls_coverage)
 {
     //    GridConfig conf(150, 150, 0.1, 0.1, -7.5, -7.5);
     Eigen::Vector2d res(0.1, 0.1);
@@ -61,7 +61,6 @@ BOOST_AUTO_TEST_CASE(mls_loop)
     mls_config.updateModel = MLSConfig::KALMAN;
     mls_config.gapSize = 0.05f;
     mls_config.useNegativeInformation = false;
-    float R = 5.0f, r=2.05f;
     MLSMapKalman mls(numCells, res, mls_config);
 
     maps::operations::CoverageTracker coverage;
