@@ -213,17 +213,27 @@ namespace maps { namespace grid
             }
         }
 
+        /** @brief The inverse function to toGridLocal(const Vector3d& pos_in_grid, Index& idx, Vector3d &pos_diff)
+         * Computes the original position in the local frame of a point, given its Index in the map, and it position in the cell.
+         * This method is much faster than the corresponding fromGrid, since it saves the multiplication by the local frame.
+         */
+        bool fromGridLocal(const Index& idx, Vector3d& pos_in_grid, const Vector3d& pos_in_cell, bool checkIndex = true) const
+        {
+            if(checkIndex && !inGrid(idx)) return false;
+            // position at the cell center without offset transformation
+            pos_in_grid = pos_in_cell;
+            pos_in_grid.head<2>() += (idx.cast<double>() + Vector2d(0.5,0.5)).cwiseProduct(resolution);
+            return true;
+        }
+
 
         /** @brief The inverse function to  toGrid(const Vector3d& pos, Index& idx, Vector3d &pos_diff)
          * Computes the original position of a point, given its Index in the map, and it position in the cell.
          */
         bool fromGrid(const Index& idx, Vector3d& pos, const Vector3d& pos_in_cell, bool checkIndex = true) const
         {
-            if(checkIndex && !inGrid(idx)) return false;
-            // position at the cell center without offset transformation
             Vector3d pos_in_grid = pos_in_cell;
-            pos_in_grid.head<2>() += (idx.cast<double>() + Vector2d(0.5,0.5)).cwiseProduct(resolution);
-//            pos_in_grid.head<2>().array() *= resolution.array();
+            if(!fromGridLocal(idx, pos_in_grid, pos_in_cell, checkIndex)) return false;
 
             // Apply the offset transformation to the obtained position
             // pos_local = (Tgrid_local)^-1 * pos_grid
@@ -252,20 +262,35 @@ namespace maps { namespace grid
             return true;
         }
 
+
+        bool toGridLocal(const Vector3d& pos_in_grid, Index& idx, bool checkIndex = true) const
+        {
+            Eigen::Array2d idx_double = pos_in_grid.head<2>().array() / resolution.array();
+
+            Index idx_temp(std::floor(idx_double.x()), std::floor(idx_double.y()));
+
+            if(checkIndex && !inGrid(idx_temp))
+            {
+                return false;
+            }
+            idx = idx_temp;
+            return true;
+        }
+
+        bool toGridLocal(const Vector3d& pos_in_grid, Index& idx, Vector3d &pos_in_cell, bool checkIndex = true) const
+        {
+            if(!toGridLocal(pos_in_grid, idx, checkIndex)) return false;
+
+            pos_in_cell = pos_in_grid;
+            pos_in_cell.head<2>().array() -= (idx.cast<double>().array()+0.5) * resolution.array();
+            return true;
+        }
+
         /** @brief get the index to grid of a position
          * */
-        bool toGrid(const Vector3d& pos, Index& idx, Vector3d &pos_in_cell) const
+        bool toGrid(const Vector3d& pos, Index& idx, Vector3d &pos_in_cell, bool checkIndex = true) const
         {
-            if(toGrid(pos, idx))
-            {
-                Vector3d center;
-                if(inGrid(idx) && fromGrid(idx, center))
-                {
-                    pos_in_cell = this->getLocalFrame().rotation() * (pos - center);
-                    return true;
-                }
-            }
-            return false;
+            return toGridLocal(getLocalFrame() * pos, idx, pos_in_cell, checkIndex);
         }
 
         /** @brief get an index of a position in the map applying an offset set
