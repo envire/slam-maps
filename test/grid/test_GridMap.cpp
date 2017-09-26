@@ -869,20 +869,20 @@ BOOST_AUTO_TEST_CASE(test_grid_from_grid_with_offset)
     Vector3d pos;
 
     // bottom left (according to 1873-2015 IEEE standard)
-    BOOST_CHECK_EQUAL(grid.fromGrid(Index(0, 0), pos), true);
-    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(-4.95, -49.75, 0.), 0.0001), true);
+    BOOST_CHECK(grid.fromGrid(Index(0, 0), pos));
+    BOOST_CHECK(pos.isApprox(Vector3d(-4.95, -49.75, 0.), 0.0001));
 
     // top right (according to 1873-2015 IEEE standard)
-    BOOST_CHECK_EQUAL(grid.fromGrid(Index(99, 199), pos), true);
-    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(4.95, 49.75, 0.), 0.0001), true);
+    BOOST_CHECK(grid.fromGrid(Index(99, 199), pos));
+    BOOST_CHECK(pos.isApprox(Vector3d(4.95, 49.75, 0.), 0.0001));
 
     // middle
-    BOOST_CHECK_EQUAL(grid.fromGrid(Index(50, 100), pos), true);
-    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.05, 0.25, 0.), 0.0001), true);
+    BOOST_CHECK(grid.fromGrid(Index(50, 100), pos));
+    BOOST_CHECK(pos.isApprox(Vector3d(0.05, 0.25, 0.), 0.0001));
 
     // outside: pos should be unchanged
-    BOOST_CHECK_EQUAL(grid.fromGrid(Index(100, 200), pos), false);
-    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.05, 0.25, 0.), 0.0001), true);
+    BOOST_CHECK(! grid.fromGrid(Index(100, 200), pos));
+    BOOST_CHECK(pos.isApprox(Vector3d(0.05, 0.25, 0.), 0.0001));
 
     //TODO: write more tests with the Transform3d including rotation
 }
@@ -899,20 +899,20 @@ BOOST_AUTO_TEST_CASE(test_grid_from_grid_translate_grid)
     Vector3d pos;
 
     // bottom left (according to 1873-2015 IEEE standard)
-    BOOST_CHECK_EQUAL(grid.fromGrid(Index(0, 0), pos), true);
-    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(-4.95, -49.75, 0.), 0.0001), true);
+    BOOST_CHECK(grid.fromGrid(Index(0, 0), pos));
+    BOOST_CHECK(pos.isApprox(Vector3d(-4.95, -49.75, 0.), 0.0001));
 
     // top right (according to 1873-2015 IEEE standard)
-    BOOST_CHECK_EQUAL(grid.fromGrid(Index(99, 199), pos), true);
-    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(4.95, 49.75, 0.), 0.0001), true);
+    BOOST_CHECK(grid.fromGrid(Index(99, 199), pos));
+    BOOST_CHECK(pos.isApprox(Vector3d(4.95, 49.75, 0.), 0.0001));
 
     // middle
-    BOOST_CHECK_EQUAL(grid.fromGrid(Index(50, 100), pos), true);
-    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.05, 0.25, 0.), 0.0001), true);
+    BOOST_CHECK(grid.fromGrid(Index(50, 100), pos));
+    BOOST_CHECK(pos.isApprox(Vector3d(0.05, 0.25, 0.), 0.0001));
 
     // outside: pos should be unchanged
-    BOOST_CHECK_EQUAL(grid.fromGrid(Index(100, 200), pos), false);
-    BOOST_CHECK_EQUAL(pos.isApprox(Vector3d(0.05, 0.25, 0.), 0.0001), true);
+    BOOST_CHECK(! grid.fromGrid(Index(100, 200), pos));
+    BOOST_CHECK(pos.isApprox(Vector3d(0.05, 0.25, 0.), 0.0001));
 
     //TODO: write more tests with the Transform3d including rotation
 }
