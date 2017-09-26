@@ -65,8 +65,8 @@ namespace boost { namespace serialization
     template<class Archive, typename T, int D>
     void serialize(Archive & ar, ::maps::geometric::Point<T, D> & t, const unsigned int version)
     {
-        for(size_t i=0; i<t.size(); i++)
-            ar & BOOST_SERIALIZATION_NVP(t.data()[i]);
+        for(Eigen::Index i=0; i<t.size(); i++)
+            ar & BOOST_SERIALIZATION_NVP(t[i]);
     }
 }}
 
