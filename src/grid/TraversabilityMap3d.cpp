@@ -25,6 +25,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 #include "TraversabilityMap3d.hpp"
+#include <unordered_set>
 
 namespace maps { namespace grid
 {
