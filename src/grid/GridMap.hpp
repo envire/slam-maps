@@ -226,6 +226,16 @@ namespace maps { namespace grid
             return true;
         }
 
+        /** @brief Simpler variant of bool fromGridLocal(const Index& idx, Vector3d& pos_in_grid, const Vector3d& pos_in_cell, bool checkIndex = true) const
+         * where the position inside the cell is at the center but at a given height.
+         */
+        bool fromGridLocal(const Index& idx, Vector3d& pos_in_grid, const float& z = 0.0f, bool checkIndex = true) const
+        {
+            if(checkIndex && !inGrid(idx)) return false;
+            // position at the cell center without offset transformation
+            pos_in_grid << (idx.cast<double>() + Vector2d(0.5,0.5)).cwiseProduct(resolution), z;
+            return true;
+        }
 
         /** @brief The inverse function to  toGrid(const Vector3d& pos, Index& idx, Vector3d &pos_diff)
          * Computes the original position of a point, given its Index in the map, and it position in the cell.
