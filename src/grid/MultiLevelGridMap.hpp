@@ -108,6 +108,7 @@ namespace maps { namespace grid
 
             Index minIdx = (box.min().head<2>().cwiseQuotient(this->getResolution())).template cast<int>();
             Index maxIdx = (box.max().head<2>().cwiseQuotient(this->getResolution())).template cast<int>();
+            maxIdx.array() += 1;
 
             minIdx = minIdx.cwiseMax(0);
             maxIdx = maxIdx.cwiseMin(this->getNumCells().template cast<int>());
