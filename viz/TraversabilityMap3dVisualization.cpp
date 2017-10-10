@@ -131,7 +131,7 @@ void TraversabilityMap3dVisualization::visualizeNode(const TraversabilityNodeBas
             geode->setColor(osg::Vec4d(1, 1, 0, 1));
             break;            
         default:
-            std::cout << "WARNING: unknown node type!\n";
+            LOG_WARN_S << "Unknown node type!";
             geode->setColor(osg::Vec4d(0,0,1,1));
     }
     
@@ -139,7 +139,7 @@ void TraversabilityMap3dVisualization::visualizeNode(const TraversabilityNodeBas
     {
         //FIXME if nodes are too far aways, the culling mechanism of osg breaks.
         // I.e. verticves disappear when zooming in on them.
-        std::cout << "TraversabilityMap3dVisualization:: Warning, ignoring node with height above +-30000 " << std::endl; 
+        LOG_WARN_S << "TraversabilityMap3dVisualization:: Ignoring node with height above +-30000 "; 
         return;
     }
     

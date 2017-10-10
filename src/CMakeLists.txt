@@ -50,6 +50,7 @@ rock_library(maps
         operations/GridInterpolation.hpp
     DEPS_PKGCONFIG 
         base-types 
+        base-logging
         pcl_common-${PCL_VERSION_MAJOR}.${PCL_VERSION_MINOR}
         pcl_io-${PCL_VERSION_MAJOR}.${PCL_VERSION_MINOR}
     DEPS_PLAIN

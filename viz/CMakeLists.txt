@@ -26,6 +26,7 @@ if (vizkit3d_FOUND AND OSGVIZ_PRIMITIVES_FOUND)
         DEPS 
             maps
         DEPS_PKGCONFIG 
+	    base-logging
             base-viz vizkit3d  vizkit3d-viz
             PrimitivesFactory
     )

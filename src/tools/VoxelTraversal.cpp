@@ -27,7 +27,6 @@
 #include "VoxelTraversal.hpp"
 
 #include <base/Timeout.hpp>
-#include <iostream>
 
 using namespace maps::tools;
 
