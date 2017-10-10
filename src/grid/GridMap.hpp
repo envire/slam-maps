@@ -427,7 +427,7 @@ namespace maps { namespace grid
 
             std::cout << "Num Cells is " << num_cells.transpose() << std::endl;
             if(num_cells == Vector2ui(0,0))
-                throw std::runtime_error("Tried to compute max on empty map");
+                throw std::runtime_error("Tried to compute min on empty map");
 
             auto it = this->begin();
             auto endIt = this->end();
@@ -436,7 +436,7 @@ namespace maps { namespace grid
 //            const Q *last = &(*(this->end()));
 
 
-            /** Include the default value as a possible max value to return **/
+            /** Include the default value as a possible min value to return **/
             if (include_default_value)
             {
                 return *std::min_element(this->begin(), this->end());
