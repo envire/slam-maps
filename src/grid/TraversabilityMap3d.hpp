@@ -180,6 +180,32 @@ namespace maps { namespace grid
             
             return pos.cast<float>();
         }
+        
+        /** @return the node closest to pos.z() of all nodes at (pos.x(), pos.y()).
+         *          nullptr is returned if there are no nodes at (pos.x(), pos.y()).
+         * @param pos The position in world coordinates.*/
+        TraversabilityNodeBase* getClosestNode(const base::Vector3d& pos) const
+        {
+            Index idx;
+            if(::maps::grid::MultiLevelGridMap<T>::toGrid(pos, idx))
+            {
+                double minDist = std::numeric_limits< double >::max();
+                TraversabilityNodeBase *node = nullptr;
+                for(TraversabilityNodeBase *currNode : ::maps::grid::MultiLevelGridMap<T>::at(idx))
+                {
+                    double curDist = fabs(currNode->getHeight() - pos.z());
+                    if(curDist < minDist)
+                    {
+                        minDist = curDist;
+                        node = currNode;
+                    }
+                }
+                return node;
+            }
+
+            return nullptr;
+        }
+        
     protected:
         /** Grants access to boost serialization */
         friend class boost::serialization::access;

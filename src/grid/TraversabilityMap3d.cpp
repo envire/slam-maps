@@ -181,4 +181,6 @@ TraversabilityNodeBase *TraversabilityNodeBase::getConnectedNode(const Index &to
 }
 
 
+
+
 }}
