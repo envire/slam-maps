@@ -119,8 +119,7 @@ void TSDFVolumetricMap::mergePointCloud(const std::vector< Eigen::Matrix<double,
         }
         catch(const std::runtime_error& e)
         {
-            // TODO use glog or base log for all out prints of this library
-            std::cerr << e.what() << std::endl;
+            LOG_ERROR_S << e.what();
         }
     }
 }

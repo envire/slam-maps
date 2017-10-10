@@ -67,7 +67,7 @@ public:
         Eigen::Vector3i sensor_origin_idx;
         if(!VoxelGridBase::toVoxelGrid(sensor_origin_in_grid, sensor_origin_idx))
         {
-            std::cerr << "Sensor origin (" << sensor_origin_in_grid.transpose() << ") is outside of the grid! Can't add corresponding point cloud to grid." << std::endl;
+            LOG_ERROR_S << "Sensor origin (" << sensor_origin_in_grid.transpose() << ") is outside of the grid! Can't add corresponding point cloud to grid.";
             return;
         }
         for(typename std::vector< Eigen::Matrix<double, 3, 1, _MatrixOptions> >::const_iterator it = pc.begin(); it != pc.end(); ++it)
@@ -78,8 +78,7 @@ public:
             }
             catch(const std::runtime_error& e)
             {
-                // TODO use glog or base log for all out prints of this library
-                std::cerr << e.what() << std::endl;
+                LOG_ERROR_S << e.what();
             }
         }
     }
