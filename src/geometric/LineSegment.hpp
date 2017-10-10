@@ -136,7 +136,6 @@ namespace maps { namespace geometric
             {
                 /** Normally Alpha is the angle given by the slope m = tan(alpha) **/
                 T alpha = atan2(this->direction()[1], this->direction()[0]);
-                //std::cout<<"direction[0]: "<<this->direction()[0] <<"\tdirection[1]: "<<this->direction()[1]<<"\n";
 
                 /** Convert alpha between [0, 2pi] **/
                 alpha = (alpha >= 0 ? alpha : (2.0*M_PI + alpha));
