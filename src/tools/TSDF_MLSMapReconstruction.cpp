@@ -56,6 +56,9 @@ void TSDF_MLSMapReconstruction::reconstruct(MLSMapPrecalculated& output)
             continue;
 
         center = (p1 + p2 + p3) / 3.f;
+        if(!center.allFinite())
+            continue;
+
         min_z = std::min(p1.z(), std::min(p2.z(), p3.z()));
         max_z = std::max(p1.z(), std::max(p2.z(), p3.z()));
 
