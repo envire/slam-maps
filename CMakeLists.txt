@@ -3,7 +3,6 @@
 cmake_minimum_required(VERSION 2.6)
 set(ROCK_USE_CXX11 TRUE)
 find_package(Rock)
-set(ROCK_TEST_ENABLED ON)
 
 if(COVERAGE)
     if(CMAKE_BUILD_TYPE MATCHES Debug)
