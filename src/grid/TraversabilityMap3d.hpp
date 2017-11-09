@@ -53,6 +53,8 @@ namespace maps { namespace grid
         TraversabilityNodeBase(float height, const Index &idx);
 
         float getHeight() const;
+        float getMin() const;
+        float getMax() const;
         void setHeight(float newHeight);
 
         //! Given a grid resolution, compute the 3d position of this node
