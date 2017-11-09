@@ -34,5 +34,16 @@ namespace maps { namespace tools
             ((b_max >= a_max) && (b_min <= a_max)) ||
             ((b_max >= a_min) && (b_max <= a_max)) ;
     }
+    
+    template<class Patch >
+    inline typename std::enable_if<!std::is_pointer<Patch>::value, bool>::type overlap(const Patch p, double b_min, double b_max)
+    {
+        return overlap(p.getMin(), p.getMax(), b_min, b_max);
+    }
+    template<class Patch>
+    inline typename std::enable_if<std::is_pointer<Patch>::value, bool>::type overlap(const Patch p, double b_min, double b_max)
+    {
+        return overlap(p->getMin(), p->getMax(), b_min, b_max);
+    }
 }    
 }
