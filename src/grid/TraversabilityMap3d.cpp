@@ -123,6 +123,16 @@ float TraversabilityNodeBase::getHeight() const
     return height;
 }
 
+float TraversabilityNodeBase::getMin() const
+{
+    return height;
+}
+
+float TraversabilityNodeBase::getMax() const
+{
+    return height;
+}
+
 const Index& TraversabilityNodeBase::getIndex() const
 {
     return idx;
