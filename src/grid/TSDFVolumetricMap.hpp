@@ -59,6 +59,7 @@ public:
     virtual ~TSDFVolumetricMap() {}
 
     void mergePointCloud(const PointCloud& pc, const base::Transform3d& pc2grid, double measurement_variance = 0.01);
+    void mergePointCloud(const PointCloud& pc, const base::TransformWithCovariance& pc2grid, double measurement_variance = 0.01);
 
     template<int _MatrixOptions>
     void mergePointCloud(const std::vector< Eigen::Matrix<double, 3, 1, _MatrixOptions> >& pc, const base::TransformWithCovariance& pc2grid,

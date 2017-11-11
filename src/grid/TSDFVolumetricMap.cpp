@@ -36,14 +36,32 @@ void TSDFVolumetricMap::mergePointCloud(const TSDFVolumetricMap::PointCloud& pc,
     Eigen::Vector3d sensor_origin = pc.sensor_origin_.head<3>().cast<double>();
     Eigen::Vector3d sensor_origin_in_grid = pc2grid * sensor_origin;
 
-    // TODO add transformation uncertainty
-
     for(PointCloud::const_iterator it=pc.begin(); it != pc.end(); ++it)
     {
         try
         {
             Eigen::Vector3d measurement = it->getArray3fMap().cast<double>();
             mergePoint(sensor_origin_in_grid, pc2grid * measurement, measurement_variance);
+        }
+        catch(const std::runtime_error& e)
+        {
+            // TODO use glog or base log for all out prints of this library
+            std::cerr << e.what() << std::endl;
+        }
+    }
+}
+
+void TSDFVolumetricMap::mergePointCloud(const TSDFVolumetricMap::PointCloud& pc, const base::TransformWithCovariance& pc2grid, double measurement_variance)
+{
+    Eigen::Vector3d sensor_origin = pc.sensor_origin_.head<3>().cast<double>();
+    Eigen::Vector3d sensor_origin_in_grid = pc2grid.getTransform() * sensor_origin;
+
+    for(PointCloud::const_iterator it=pc.begin(); it != pc.end(); ++it)
+    {
+        std::pair<Eigen::Vector3d, Eigen::Matrix3d> measurement_in_map = pc2grid.composePointWithCovariance(it->getArray3fMap().cast<double>(), Eigen::Matrix3d::Zero());
+        try
+        {
+            mergePoint(sensor_origin_in_grid, measurement_in_map.first, measurement_variance + measurement_in_map.second(2,2));
         }
         catch(const std::runtime_error& e)
         {
