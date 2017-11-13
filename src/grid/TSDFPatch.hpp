@@ -24,39 +24,76 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-#pragma once
+#ifndef __MAPS_TSDF_PATCH_HPP_
+#define __MAPS_TSDF_PATCH_HPP_
 
-#include "OccupancyPatch.hpp"
+
+#include <base/Float.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 
+
 namespace maps { namespace grid
 {
 
-struct OccupancyConfiguration
+class TSDFPatch
 {
-    OccupancyConfiguration(double hit_probability = 0.7, double miss_probability = 0.4,
-                         double occupied_probability = 0.8, double free_space_probability = 0.3,
-                         double max_probability = 0.971, double min_probability = 0.1192,
-                         float uncertainty_threshold = 0.25) :
-                        hit_logodds(OccupancyPatch::logodds(hit_probability)),
-                        miss_logodds(OccupancyPatch::logodds(miss_probability)),
-                        occupied_logodds(OccupancyPatch::logodds(occupied_probability)),
-                        free_space_logodds(OccupancyPatch::logodds(free_space_probability)),
-                        max_logodds(OccupancyPatch::logodds(max_probability)) ,
-                        min_logodds(OccupancyPatch::logodds(min_probability)),
-                        uncertainty_threshold(uncertainty_threshold) {}
+    float distance;
+    float var;
 
-    float hit_logodds;
-    float miss_logodds;
-    float occupied_logodds;
-    float free_space_logodds;
-    float max_logodds;
-    float min_logodds;
-    float uncertainty_threshold;
+    template <class T> static inline void kalman_update( T& mean, T& var, T m_mean, T m_var )
+    {
+	float gain = var / (var + m_var);
+	if( gain != gain )
+	    gain = 0.5f; // this happens when both vars are 0.
+	mean = mean + gain * (m_mean - mean);
+	var = (1.0f - gain) * var;
+    }
+
+public:
+    TSDFPatch() : distance(base::NaN<float>()), var(1.f) {}
+    TSDFPatch(float distance, float var) : distance(distance), var(var) {}
+    virtual ~TSDFPatch() {}
+
+    void update(float distance, float var, float truncation = 1.f, float min_var = 0.001f)
+    {
+	if(base::isNaN<float>(this->distance))
+	    this->distance = distance;
+
+	kalman_update(this->distance, this->var, distance, var);
+
+	if(this->var < min_var)
+	    this->var = min_var;
+
+	if(distance > truncation)
+	    distance = truncation;
+	else if(distance < -truncation)
+	    distance = -truncation;
+    }
+
+    float getDistance() const
+    {
+	return distance;
+    }
+
+    float getVariance() const
+    {
+	return var;
+    }
+
+    float getStandardDeviation() const
+    {
+	return std::sqrt(var);
+    }
+
+    bool operator==(const TSDFPatch& other) const
+    {
+	return this == &other;
+    }
 
 protected:
+
     /** Grants access to boost serialization */
     friend class boost::serialization::access;
 
@@ -64,14 +101,12 @@ protected:
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int version)
     {
-        ar & BOOST_SERIALIZATION_NVP(hit_logodds);
-        ar & BOOST_SERIALIZATION_NVP(miss_logodds);
-        ar & BOOST_SERIALIZATION_NVP(occupied_logodds);
-        ar & BOOST_SERIALIZATION_NVP(free_space_logodds);
-        ar & BOOST_SERIALIZATION_NVP(max_logodds);
-        ar & BOOST_SERIALIZATION_NVP(min_logodds);
-        ar & BOOST_SERIALIZATION_NVP(uncertainty_threshold);
+	ar & BOOST_SERIALIZATION_NVP(distance);
+	ar & BOOST_SERIALIZATION_NVP(var);
     }
 };
 
-}}
+}  //namespace grid
+}  //namespace maps
+
+#endif  //__MAPS_TSDF_PATCH_HPP_
