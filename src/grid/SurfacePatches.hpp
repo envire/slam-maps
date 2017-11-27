@@ -31,7 +31,6 @@
 
 #include <base/Eigen.hpp>
 #include <base/Float.hpp>
-#include <base-logging/Logging.hpp>
 
 #include <Eigen/Core>
 
@@ -719,9 +718,9 @@ void getPolygon(std::vector<Eigen::Vector3f>& points, const SurfacePatch<S> &sp,
     {
         if( std::abs(mean[i]) > extents[i])
         {
-            LOG_DEBUG_S << "Mean of SurfacePatch is outside of its extents! {";
-            for(int j=0; j<3; ++j) LOG_DEBUG_S << mean[j] << (j==2? "}   {" : ", ");
-            for(int j=0; j<3; ++j) LOG_DEBUG_S << extents[j] << (j==2? "}\n" : ", ");
+            std::cerr << "Mean of SurfacePatch is outside of its extents! {";
+            for(int j=0; j<3; ++j) std::cerr << mean[j] << (j==2? "}   {" : ", ");
+            for(int j=0; j<3; ++j) std::cerr << extents[j] << (j==2? "}\n" : ", ");
             break;
         }
     }

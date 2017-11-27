@@ -45,7 +45,8 @@ void TSDFVolumetricMap::mergePointCloud(const TSDFVolumetricMap::PointCloud& pc,
         }
         catch(const std::runtime_error& e)
         {
-            LOG_ERROR_S << e.what();
+            // TODO use glog or base log for all out prints of this library
+            std::cerr << e.what() << std::endl;
         }
     }
 }
@@ -121,7 +122,7 @@ void TSDFVolumetricMap::mergePoint(const Eigen::Vector3d& sensor_origin, const E
                 }
                 else
                 {
-                    LOG_ERROR_S << "Failed to receive cell center of " << element.idx << " from grid.";
+                    std::cerr << "Failed to receive cell center of " << element.idx << " from grid." << std::endl;
                 }
             }
             catch(const std::runtime_error& e)

@@ -32,7 +32,7 @@
 #include <Eigen/Geometry>
 #include <Eigen/StdVector>
 
-#include <base-logging/Logging.hpp>
+#include <iostream>
 
 namespace vizkit3d {
 

@@ -27,6 +27,7 @@
 #pragma once
 
 #include <stdexcept>
+#include <iostream>
 
 namespace maps { namespace grid
 {

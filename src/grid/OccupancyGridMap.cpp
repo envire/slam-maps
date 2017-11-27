@@ -38,7 +38,7 @@ void OccupancyGridMap::mergePointCloud(const OccupancyGridMap::PointCloud& pc, c
     Eigen::Vector3i sensor_origin_idx;
     if(!VoxelGridBase::toVoxelGrid(sensor_origin_in_grid, sensor_origin_idx))
     {
-        LOG_ERROR_S << "Sensor origin (" << sensor_origin_in_grid.transpose() << ") is outside of the grid! Can't add corresponding point cloud to grid.";
+        std::cerr << "Sensor origin (" << sensor_origin_in_grid.transpose() << ") is outside of the grid! Can't add corresponding point cloud to grid." << std::endl;
         return;
     }
     for(PointCloud::const_iterator it=pc.begin(); it != pc.end(); ++it)
@@ -50,7 +50,8 @@ void OccupancyGridMap::mergePointCloud(const OccupancyGridMap::PointCloud& pc, c
         }
         catch(const std::runtime_error& e)
         {
-            LOG_ERROR_S << e.what();
+            // TODO use glog or base log for all out prints of this library
+            std::cerr << e.what() << std::endl;
         }
     }
 }

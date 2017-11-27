@@ -28,6 +28,7 @@
 #define __MAPS_LAYEREDGRIDMAP_HPP__
 
 #include <map>
+#include <iostream>
 #include <string>
 
 #include <boost/multi_array.hpp>

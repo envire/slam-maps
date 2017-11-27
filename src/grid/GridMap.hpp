@@ -27,10 +27,8 @@
 #pragma once
 
 /** std **/
+#include <iostream>
 #include <type_traits>
-
-/** Base logging **/
-#include <base-logging/Logging.hpp>
 
 /** Boost **/
 #include <boost/shared_ptr.hpp>
@@ -405,7 +403,7 @@ namespace maps { namespace grid
         {
             Vector2ui num_cells(getNumCells());
 
-            LOG_DEBUG_S << "Num Cells is " << num_cells.transpose();
+            std::cout << "Num Cells is " << num_cells.transpose() << std::endl;
             if(num_cells == Vector2ui(0,0))
                 throw std::runtime_error("Tried to compute max on empty map");
 
@@ -462,7 +460,7 @@ namespace maps { namespace grid
         {
             Vector2ui num_cells(getNumCells());
 
-            LOG_DEBUG_S << "Num Cells is " << num_cells.transpose();
+            std::cout << "Num Cells is " << num_cells.transpose() << std::endl;
             if(num_cells == Vector2ui(0,0))
                 throw std::runtime_error("Tried to compute min on empty map");
 

@@ -221,7 +221,7 @@ public:
                 return;
             }
         }
-        LOG_ERROR_S << "Couldn't set local transformation. The given osg::Node is not a osg::PositionAttitudeTransform";
+        std::cerr << "Couldn't set local transformation. The given osg::Node is not a osg::PositionAttitudeTransform" << std::endl;
     }
 
     void setLocalFrame(osg::PositionAttitudeTransform* local_frame)
