@@ -26,7 +26,7 @@
 //
 #pragma once
 
-#include "SurfacePatches.hpp"
+#include "OccupancyPatch.hpp"
 #include "VoxelGridMap.hpp"
 #include "OccupancyGridMapBase.hpp"
 #include "OccupancyConfiguration.hpp"

@@ -26,7 +26,7 @@
 //
 #pragma once
 
-#include "SurfacePatches.hpp"
+#include "TSDFPatch.hpp"
 #include "VoxelGridMap.hpp"
 #include "MLSMap.hpp"
 

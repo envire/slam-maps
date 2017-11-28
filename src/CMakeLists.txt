@@ -34,6 +34,8 @@ rock_library(maps
         grid/OccupancyGridMapBase.hpp
         grid/OccupancyGridMap.hpp
         grid/OccupancyConfiguration.hpp
+        grid/OccupancyPatch.hpp
+        grid/TSDFPatch.hpp
         grid/TSDFVolumetricMap.hpp
         geometric/Point.hpp
         geometric/LineSegment.hpp
