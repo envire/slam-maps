@@ -34,6 +34,7 @@
 #include <maps/grid/GridMap.hpp>
 #include <maps/grid/LevelList.hpp>
 #include <maps/grid/MultiLevelGridMap.hpp>
+#include <maps/grid/TraversabilityGrid.hpp>
 
 using namespace ::maps::grid;
 
@@ -229,6 +230,59 @@ BOOST_AUTO_TEST_CASE(test_mlgrid_serialization)
             BOOST_CHECK(it2 == end2);
 
         }
+}
+
+BOOST_AUTO_TEST_CASE(test_traversabilityGrid_serialization)
+{
+    Vector2ui size(4, 4);
+    Vector2d resolution(0.2, 0.6);
+    TraversabilityCell default_value = TraversabilityCell();
+    
+    TraversabilityGrid traversabilityGrid_out = TraversabilityGrid(size, resolution, default_value);
+    
+    for(int i = 0; i < 4; i++)
+    {
+	uint8_t returnId;
+	TraversabilityClass travClass = TraversabilityClass(0.1 * i);
+	BOOST_CHECK(traversabilityGrid_out.registerNewTraversabilityClass(returnId, travClass));
+    }
+    
+    for(unsigned i = 0; i < size.x(); i++)
+    {
+	for(unsigned j = 0; j < size.y(); j++)
+	{
+	    traversabilityGrid_out.setTraversabilityAndProbability(i % 4, 0.1 * j, i, j);
+	}
+    }
+    
+    std::stringstream stream;
+    boost::archive::binary_oarchive outarchive(stream);
+    outarchive << traversabilityGrid_out;
+    
+    boost::archive::binary_iarchive inarchchive(stream);
+    TraversabilityGrid traversabilityGrid_in = TraversabilityGrid();
+    inarchchive >> traversabilityGrid_in;
+    
+    BOOST_CHECK_EQUAL(traversabilityGrid_out.getSize(), traversabilityGrid_in.getSize());
+    
+    std::vector<TraversabilityClass> classes_out = traversabilityGrid_out.getTraversabilityClasses();
+    std::vector<TraversabilityClass> classes_in = traversabilityGrid_in.getTraversabilityClasses();
+    
+    BOOST_CHECK_EQUAL(classes_out.size(), classes_in.size());
+        
+    for(unsigned i = 0; i < 4; i++)
+    {    
+	BOOST_CHECK_EQUAL(classes_out[i].getDrivability(), classes_in[i].getDrivability());
+    }
+    
+    for(unsigned i = 0; i < size.x(); i++)
+    {
+	for(unsigned j = 0; j < size.y(); j++)
+	{
+	    BOOST_CHECK_EQUAL(traversabilityGrid_in.getTraversability(i, j).getDrivability(), traversabilityGrid_out.getTraversability(i, j).getDrivability());
+	    BOOST_CHECK_EQUAL(traversabilityGrid_in.getProbability(i, j), traversabilityGrid_out.getProbability(i, j)); 
+	}
+    }
 }
 
 /*BOOST_AUTO_TEST_CASE(test_grid_serialization)
