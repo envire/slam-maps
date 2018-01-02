@@ -192,6 +192,7 @@ TraversabilityNodeBase *TraversabilityNodeBase::getConnectedNode(const Index &to
 }
 
 
+template class TraversabilityMap3d<TraversabilityNodeBase *>;
 
 
 }}

@@ -20,6 +20,10 @@ rock_testsuite(test_mlgrid
    test_MLGrid.cpp
    DEPS maps)
 
+rock_testsuite(test_travMap3d
+   test_TravMap3d.cpp
+   DEPS maps)
+
 rock_testsuite(test_layeredgridmap
    test_LayeredGridMap.cpp
    DEPS maps)
