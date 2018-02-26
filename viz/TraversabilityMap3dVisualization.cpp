@@ -115,6 +115,7 @@ void TraversabilityMap3dVisualization::visualizeNode(const TraversabilityNodeBas
         case TraversabilityNodeBase::OBSTACLE:
             geode->setColor(osg::Vec4d(1,0,0,1));
             break;
+        case TraversabilityNodeBase::UNSET:
         case TraversabilityNodeBase::UNKNOWN:
             geode->setColor(osg::Vec4d(1,0,1,1));
             break;
@@ -127,9 +128,9 @@ void TraversabilityMap3dVisualization::visualizeNode(const TraversabilityNodeBas
         case TraversabilityNodeBase::HOLE:
             geode->setColor(osg::Vec4d(0, 1, 1, 1));
             break;
-        case TraversabilityNodeBase::UNSET:
+/*        case TraversabilityNodeBase::UNSET:
             geode->setColor(osg::Vec4d(1, 1, 0, 1));
-            break;            
+            break;  */          
         default:
             LOG_WARN_S << "Unknown node type!";
             geode->setColor(osg::Vec4d(0,0,1,1));
