@@ -15,6 +15,7 @@ rock_library(maps
         tools/VoxelTraversal.cpp
         tools/TSDFPolygonMeshReconstruction.cpp
         tools/TSDF_MLSMapReconstruction.cpp
+        tools/MLSToSlopes.cpp
     HEADERS
         LocalMap.hpp
         grid/Index.hpp
@@ -55,6 +56,7 @@ rock_library(maps
         tools/TSDF_MLSMapReconstruction.hpp
         tools/MarchingCubes.hpp
         tools/SurfaceIntersection.hpp
+        tools/MLSToSlopes.hpp
         operations/GridInterpolation.hpp
     DEPS_PKGCONFIG 
         base-types 
