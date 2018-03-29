@@ -50,9 +50,7 @@ bool TraversabilityClass::isTraversable() const
 float TraversabilityClass::getDrivability() const
 {
     if (drivability < 0)
-	return 0;
-  
+        return 0;
+
     return drivability;
 }
-
-
