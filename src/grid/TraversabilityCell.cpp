@@ -35,7 +35,7 @@ TraversabilityCell::TraversabilityCell(): traversabilityClassId(0), probability(
 
 TraversabilityCell::TraversabilityCell(uint8_t traversabilityClass, uint8_t probability): traversabilityClassId(traversabilityClass), probability(probability)
 {
-}    
+}
 
 TraversabilityCell::~TraversabilityCell()
 {
