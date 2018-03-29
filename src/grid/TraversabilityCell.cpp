@@ -41,9 +41,9 @@ TraversabilityCell::~TraversabilityCell()
 {
 }
 
-void TraversabilityCell::setTraversabilityClassId(uint8_t traversabilityClass)
+void TraversabilityCell::setTraversabilityClassId(uint8_t traversabilityClassId)
 {
-    this->traversabilityClassId = traversabilityClass;
+    this->traversabilityClassId = traversabilityClassId;
 }
 
 uint8_t TraversabilityCell::getTraversabilityClassId() const
