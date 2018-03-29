@@ -35,56 +35,56 @@
 
 namespace maps { namespace grid 
 {
-  
+
     /**
      * @brief Type holding the actual traversability value used in TraversabilityGrid.
      **/
     class TraversabilityClass
     {
     public:
-	
-	/**
-	* Default constructor.  
-	* Drivability must be given in the range of [0,1] (0 - 100%).
-	* */
-	TraversabilityClass(float drivability);
 
-	TraversabilityClass();
+    /**
+    * Default constructor.
+    * Drivability must be given in the range of [0,1] (0 - 100%).
+    * */
+    TraversabilityClass(float drivability);
 
-	/**
-	* Return whether this class is defined
-	* or if it is an empty placeholder.
-	* */
-	bool isSet() const;
-	
-	/**
-	* Returns whether the terrain is drivable.
-	* */
-	bool isTraversable() const;
+    TraversabilityClass();
 
-	/**
-	* Returns a value in the interval [0, 1].
-	* Zero means not drivable at all and
-	* one means perfect ground for driving.
-	* */
-	float getDrivability() const;
-	
+    /**
+    * Return whether this class is defined
+    * or if it is an empty placeholder.
+    * */
+    bool isSet() const;
+
+    /**
+    * Returns whether the terrain is drivable.
+    * */
+    bool isTraversable() const;
+
+    /**
+    * Returns a value in the interval [0, 1].
+    * Zero means not drivable at all and
+    * one means perfect ground for driving.
+    * */
+    float getDrivability() const;
+
     private:
-	float drivability;
-	
-    protected:
-	
-	/** Grants access to boost serialization */
-	friend class boost::serialization::access;
+    float drivability;
 
-	/** Serializes the members of this class*/
-	template <typename Archive>
-	void serialize(Archive &ar, const unsigned int version)
-	{;
-	    ar & BOOST_SERIALIZATION_NVP(drivability);
-	}
+    protected:
+
+    /** Grants access to boost serialization */
+    friend class boost::serialization::access;
+
+    /** Serializes the members of this class*/
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int version)
+    {;
+        ar & BOOST_SERIALIZATION_NVP(drivability);
+    }
     };
-    
+
 }  //end namespace grid
 }  //end namespace maps
 
