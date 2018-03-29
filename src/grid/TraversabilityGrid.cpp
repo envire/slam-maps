@@ -47,7 +47,7 @@ TraversabilityGrid::~TraversabilityGrid()
 {
 }
 
-void TraversabilityGrid::setTraversabilityAndProbability(uint8_t traversabilityClassId, float probability, std::size_t x, std::size_t y)
+void TraversabilityGrid::setTraversabilityAndProbability(uint8_t traversabilityClassId, float probability, size_t x, size_t y)
 {
     setTraversability(traversabilityClassId, x, y);
     setProbability(probability, x, y);
@@ -59,21 +59,21 @@ void TraversabilityGrid::setTraversability(uint8_t traversabilityClassId, size_t
     cell.setTraversabilityClassId(traversabilityClassId);
 }
 
-const TraversabilityClass& TraversabilityGrid::getTraversability(std::size_t x, std::size_t y) const
+const TraversabilityClass& TraversabilityGrid::getTraversability(size_t x, size_t y) const
 {
     TraversabilityCell cell = this->GridMap::at(x, y);
 
     return traversabilityClasses[cell.getTraversabilityClassId()];
 }
 
-void TraversabilityGrid::setProbability(float probability, std::size_t x, std::size_t y)
+void TraversabilityGrid::setProbability(float probability, size_t x, size_t y)
 {
     TraversabilityCell cell = this->GridMap::at(x, y);
     uint8_t ui8probability = probability * std::numeric_limits<uint8_t>::max();
     cell.setProbability(ui8probability);
 }
 
-float TraversabilityGrid::getProbability(std::size_t x, std::size_t y) const
+float TraversabilityGrid::getProbability(size_t x, size_t y) const
 {
     TraversabilityCell cell = this->GridMap::at(x, y);
     uint8_t ui8probability = cell.getProbability();
