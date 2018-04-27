@@ -35,15 +35,15 @@ TraversabilityCell::TraversabilityCell(): traversabilityClassId(0), probability(
 
 TraversabilityCell::TraversabilityCell(uint8_t traversabilityClass, uint8_t probability): traversabilityClassId(traversabilityClass), probability(probability)
 {
-}    
+}
 
 TraversabilityCell::~TraversabilityCell()
 {
 }
 
-void TraversabilityCell::setTraversabilityClassId(uint8_t traversabilityClass)
+void TraversabilityCell::setTraversabilityClassId(uint8_t traversabilityClassId)
 {
-    this->traversabilityClassId = traversabilityClass;
+    this->traversabilityClassId = traversabilityClassId;
 }
 
 uint8_t TraversabilityCell::getTraversabilityClassId() const
