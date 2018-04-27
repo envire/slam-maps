@@ -74,21 +74,24 @@ namespace maps { namespace grid
 
         // Set the traversabilityClassId and probability at the given coordinates.
         // Note that probability has to be in range [0,1].
-        void setTraversabilityAndProbability(uint8_t traversabilityClassId, float probability, size_t x, size_t y);
+        bool setTraversabilityAndProbability(uint8_t traversabilityClassId, float probability, size_t x, size_t y);
 
         void setTraversability(uint8_t traversabilityClassId, size_t x, size_t y);
         const TraversabilityClass& getTraversability(size_t x, size_t y) const;
 
+        // Returns the traversabilityClassId that is stored in the TraversabilityCell at the given coordinates.
+        uint8_t getTraversabilityClassId(size_t x, size_t y) const;
+
         // Note that probability has to be in range [0,1].
-        void setProbability(float probability, size_t x, size_t y);
+        bool setProbability(float probability, size_t x, size_t y);
         float getProbability(size_t x, size_t y) const;
 
-        // Set the traversabilityClass for an existing traversabilityClassId.
-        // Note that this can only be used for traversabilityClassIds that have been registered in traversabilityClasses using registerNewTraversabilityClass.
-        void setTraversabilityClass(uint8_t traversabilityClassId, const TraversabilityClass &traversabilityClass);
+        // Set the traversabilityClass for the given traversabilityClassId.
+        // Note that only IDs in the range [0,255] will be accepted.
+        void setTraversabilityClass(uint8_t traversabilityClassId, const maps::grid::TraversabilityClass& traversabilityClass);
 
         // Add a new TraversabilityClass to traversabilityClasses.
-        bool registerNewTraversabilityClass(uint8_t &retId, const TraversabilityClass &traversabilityClass);
+        bool registerNewTraversabilityClass(uint8_t& retId, const maps::grid::TraversabilityClass& traversabilityClass);
 
         const TraversabilityClass &getTraversabilityClass(uint8_t traversabilityClassId) const;
         const std::vector<TraversabilityClass> &getTraversabilityClasses() const;
