@@ -47,35 +47,49 @@ TraversabilityGrid::~TraversabilityGrid()
 {
 }
 
-void TraversabilityGrid::setTraversabilityAndProbability(uint8_t traversabilityClassId, float probability, size_t x, size_t y)
+bool TraversabilityGrid::setTraversabilityAndProbability(uint8_t traversabilityClassId, float probability, size_t x, size_t y)
 {
+    if (setProbability(probability, x, y) == false)
+        return false;
+
     setTraversability(traversabilityClassId, x, y);
-    setProbability(probability, x, y);
+    return true;
 }
 
 void TraversabilityGrid::setTraversability(uint8_t traversabilityClassId, size_t x, size_t y)
 {
-    TraversabilityCell cell = this->GridMap::at(x, y);
+    TraversabilityCell& cell = this->GridMap::at(x, y);
     cell.setTraversabilityClassId(traversabilityClassId);
 }
 
 const TraversabilityClass& TraversabilityGrid::getTraversability(size_t x, size_t y) const
 {
-    TraversabilityCell cell = this->GridMap::at(x, y);
+    const TraversabilityCell& cell = this->GridMap::at(x, y);
 
     return traversabilityClasses[cell.getTraversabilityClassId()];
 }
 
-void TraversabilityGrid::setProbability(float probability, size_t x, size_t y)
+uint8_t TraversabilityGrid::getTraversabilityClassId(std::size_t x, std::size_t y) const
 {
-    TraversabilityCell cell = this->GridMap::at(x, y);
+    const TraversabilityCell& cell = this->GridMap::at(x, y);
+
+    return cell.getTraversabilityClassId();
+}
+
+bool TraversabilityGrid::setProbability(float probability, size_t x, size_t y)
+{
+    if (probability < 0 || probability > 1.0)
+        return false;
+
+    TraversabilityCell& cell = this->GridMap::at(x, y);
     uint8_t ui8probability = probability * std::numeric_limits<uint8_t>::max();
     cell.setProbability(ui8probability);
+    return true;
 }
 
 float TraversabilityGrid::getProbability(size_t x, size_t y) const
 {
-    TraversabilityCell cell = this->GridMap::at(x, y);
+    const TraversabilityCell& cell = this->GridMap::at(x, y);
     uint8_t ui8probability = cell.getProbability();
     float probability = static_cast<float>(ui8probability) / std::numeric_limits<uint8_t>::max();
     return probability;
@@ -91,10 +105,9 @@ void TraversabilityGrid::setTraversabilityClass(uint8_t traversabilityClassId, c
 
 bool TraversabilityGrid::registerNewTraversabilityClass(uint8_t& retId, const TraversabilityClass& traversabilityClass)
 {
-    if(traversabilityClasses.size() >= std::numeric_limits<uint8_t>::max())
+    if (traversabilityClasses.size() > std::numeric_limits<uint8_t>::max())
         return false;
-
-    retId = traversabilityClasses.size() + 1;
+    retId = traversabilityClasses.size();
     setTraversabilityClass(retId, traversabilityClass);
     return true;
 }

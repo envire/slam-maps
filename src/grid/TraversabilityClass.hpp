@@ -55,7 +55,7 @@ namespace maps { namespace grid
     * Return whether this class is defined
     * or if it is an empty placeholder.
     * */
-    bool isSet() const;
+    bool isClassDefined() const;
 
     /**
     * Returns whether the terrain is drivable.
