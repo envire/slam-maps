@@ -34,49 +34,49 @@
 
 namespace maps { namespace grid
 {
-  /**
-   * Type used in TraversabilityGrid as a cell type to hold the values of traversabilityClassId and probability for the respective cell of the grid.
-   * @details: traversabilityClassId is cooresponds to a TraversabilityClass holding the actual traversability value,
-   * 		while probability is used as a measure of certainty for the traversability value.
-   * */
-  class TraversabilityCell 
-  {      
-  private:
-      uint8_t traversabilityClassId;
-      uint8_t probability;
-      
-  public:
-      // Default constructor, sets traversability and probability to zero.
-      TraversabilityCell();
-      
-      // Initializes the TraversabilityCell with the given values for traversabilityClassId and probability.
-      TraversabilityCell(uint8_t traversabilityClassId, uint8_t probability);
-      
-      ~TraversabilityCell();
-      
-      void setTraversabilityClassId(uint8_t traversabilityClassId);      
-      uint8_t getTraversabilityClassId() const;
-     
-      void setProbability(uint8_t probability);     
-      uint8_t getProbability() const;
-      
-      bool operator==(const maps::grid::TraversabilityCell& other) const;
-      bool operator!=(const TraversabilityCell& other) const;
-      
-  protected:
-    
-      /** Grants access to boost serialization */
-      friend class boost::serialization::access;
+    /**
+    * Type used in TraversabilityGrid as a cell type to hold the values of traversabilityClassId and probability for the respective cell of the grid.
+    * @details: traversabilityClassId is cooresponds to a TraversabilityClass holding the actual traversability value,
+    *           while probability is used as a measure of certainty for the traversability value.
+    * */
+    class TraversabilityCell
+    {
+    private:
+        uint8_t traversabilityClassId;
+        uint8_t probability;
 
-      /** Serializes the members of this class*/
-      template <typename Archive>
-      void serialize(Archive &ar, const unsigned int version)
-      {
-	  ar & BOOST_SERIALIZATION_NVP(traversabilityClassId);
-	  ar & BOOST_SERIALIZATION_NVP(probability);
-      }
-  };
-  
+    public:
+        // Default constructor, sets traversability and probability to zero.
+        TraversabilityCell();
+
+        // Initializes the TraversabilityCell with the given values for traversabilityClassId and probability.
+        TraversabilityCell(uint8_t traversabilityClassId, uint8_t probability);
+
+        ~TraversabilityCell();
+
+        void setTraversabilityClassId(uint8_t traversabilityClassId);
+        uint8_t getTraversabilityClassId() const;
+
+        void setProbability(uint8_t probability);
+        uint8_t getProbability() const;
+
+        bool operator==(const maps::grid::TraversabilityCell& other) const;
+        bool operator!=(const TraversabilityCell& other) const;
+
+    protected:
+
+        /** Grants access to boost serialization */
+        friend class boost::serialization::access;
+
+        /** Serializes the members of this class*/
+        template <typename Archive>
+        void serialize(Archive &ar, const unsigned int version)
+        {
+        ar & BOOST_SERIALIZATION_NVP(traversabilityClassId);
+        ar & BOOST_SERIALIZATION_NVP(probability);
+        }
+    };
+
 }  //end namespace grid
 }  //end namespace maps
 
