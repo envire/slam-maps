@@ -37,9 +37,9 @@ TraversabilityClass::TraversabilityClass(): drivability(-1)
 {
 }
 
-bool TraversabilityClass::isSet() const
+bool TraversabilityClass::isClassDefined() const
 {
-    return drivability < 0;
+    return drivability >= 0;
 }
 
 bool TraversabilityClass::isTraversable() const
