@@ -15,3 +15,7 @@ rock_testsuite(test_surface_intersection
 rock_testsuite(test_MLSToSlopes
    test_tools_MLSToSlopes.cpp
    DEPS maps)
+
+rock_testsuite(test_SimpleTraversability
+   test_tools_SimpleTraversability.cpp
+   DEPS maps)
