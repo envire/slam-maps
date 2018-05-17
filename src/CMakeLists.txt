@@ -16,6 +16,8 @@ rock_library(maps
         tools/TSDFPolygonMeshReconstruction.cpp
         tools/TSDF_MLSMapReconstruction.cpp
         tools/MLSToSlopes.cpp
+        tools/SimpleTraversability.cpp
+        tools/SimpleTraversabilityRadialLUT.cpp
     HEADERS
         LocalMap.hpp
         grid/Index.hpp
@@ -57,6 +59,8 @@ rock_library(maps
         tools/MarchingCubes.hpp
         tools/SurfaceIntersection.hpp
         tools/MLSToSlopes.hpp
+        tools/SimpleTraversability.hpp
+        tools/SimpleTraversabilityRadialLUT.hpp
         operations/GridInterpolation.hpp
     DEPS_PKGCONFIG 
         base-types 
