@@ -30,8 +30,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
 
-#include <vizkit3d/Vizkit3DPlugin.hpp>
-
+#include <vizkit3d/MapVisualization.hpp>
 
 #include <osg/Geode>
 #include <osg/Shape>
@@ -42,19 +41,18 @@
 namespace vizkit3d
 {
     class GridMapVisualization
-        : public vizkit3d::Vizkit3DPlugin<::maps::grid::GridMap<double>>
+        : public vizkit3d::MapVisualization<::maps::grid::GridMap<double>>
         , public vizkit3d::VizPluginAddType<::maps::grid::GridMap<float>>
         , public vizkit3d::VizPluginAddType<::maps::grid::GridMap<int>>
         , public vizkit3d::VizPluginAddType<::maps::grid::GridMap<char>>
-        , boost::noncopyable
     {
         Q_OBJECT
+
+        Q_PROPERTY(bool showMapExtents READ areMapExtentsShown WRITE setShowMapExtents)
 
         public:
             GridMapVisualization();
             ~GridMapVisualization();
-
-            Q_PROPERTY(bool show_map_extents READ areMapExtentsShown WRITE setShowMapExtents)
 
             Q_INVOKABLE void updateGridMapD(::maps::grid::GridMapD const &sample)
             {vizkit3d::Vizkit3DPlugin<::maps::grid::GridMap<double>>::updateData(sample);}   
@@ -73,14 +71,12 @@ namespace vizkit3d
             virtual void updateDataIntern(::maps::grid::GridMap<int> const& plan);
             virtual void updateDataIntern(::maps::grid::GridMap<char> const& plan);            
 
-            void setShowMapExtents(bool value);
-            bool areMapExtentsShown() const;             
-
         private:
             struct Data;
             boost::scoped_ptr<Data> p;            
 
-            bool showMapExtents;
+            osg::ref_ptr<osg::Geode> geode;
+
 
         public slots:
     };

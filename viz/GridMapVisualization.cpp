@@ -34,8 +34,6 @@
 #include <osg/ShapeDrawable>
 #include <osg/Material>
 
-#include "ExtentsRectangle.hpp"
-
 #include "ColorGradient.hpp"
 
 using namespace vizkit3d;
@@ -47,7 +45,9 @@ struct GridMapVisualization::Data {
     // Making a copy is required because of how OSG works
     virtual ~Data() { }
     virtual void visualize(osg::Geode& geode) const = 0;
-    virtual void visualizeExtents(osg::Group* group) const = 0;
+    virtual maps::grid::CellExtents getCellExtents() const = 0;
+    virtual maps::grid::Vector2d getResolution() const = 0;
+    virtual base::Affine3d getLocalFrame() const = 0;
 };
 
 template<typename GridT>
@@ -96,25 +96,20 @@ struct DataHold : public GridMapVisualization::Data
         state->setTextureAttributeAndModes(0, tex);          
     };
     
-    void visualizeExtents(osg::Group* group) const
+    maps::grid::CellExtents getCellExtents() const
     {
-        // get the color as a function of the group
-        float scale = ((long)group%1000)/1000.0;
-        osg::Vec4 col(0,0,0,1);
-        vizkit3d::hslToRgb( scale, 1.0, 0.6, col.x(), col.y(), col.z() );
-      
-        CellExtents extents = grid.calculateCellExtents();
+        return grid.calculateCellExtents();
+    }
 
-        Eigen::Vector2d min = extents.min().cast<double>().cwiseProduct(grid.getResolution());
-        Eigen::Vector2d max = extents.max().cast<double>().cwiseProduct(grid.getResolution());
+    maps::grid::Vector2d getResolution() const
+    {
+        return grid.getResolution();
+    }
 
-        Eigen::Vector3d min_d = grid.getLocalFrame().inverse() * Eigen::Vector3d(min.x(), min.y(), 0.);
-        Eigen::Vector3d max_d = grid.getLocalFrame().inverse() * Eigen::Vector3d(max.x(), max.y(), 0.);
-
-        group->addChild( 
-            new ExtentsRectangle( Eigen::Vector2d(min_d.x(), min_d.y()),
-                Eigen::Vector2d(max_d.x(), max_d.y())));
-    };
+    base::Affine3d getLocalFrame() const
+    {
+        return grid.getLocalFrame();
+    }
 
     osg::HeightField* createHeighField() const
     {
@@ -123,10 +118,6 @@ struct DataHold : public GridMapVisualization::Data
         heightField->allocate(grid.getNumCells().x(), grid.getNumCells().y());
         heightField->setXInterval(grid.getResolution().x());
         heightField->setYInterval(grid.getResolution().y());
-        double offset_x = grid.translation().x();
-        double offset_y = grid.translation().y();
-        double offset_z = grid.translation().z();
-        heightField->setOrigin(osg::Vec3d(offset_x, offset_y, offset_z));
         heightField->setSkirtHeight(0.0f); 
 
         double min = grid.getMin(false);
@@ -201,8 +192,8 @@ struct DataHold : public GridMapVisualization::Data
 };
 
 GridMapVisualization::GridMapVisualization()
-    : p(0),
-      showMapExtents(true)
+    : MapVisualization<maps::grid::GridMap<double>>()
+    , p(0)
 {}
 
 GridMapVisualization::~GridMapVisualization()
@@ -211,45 +202,25 @@ GridMapVisualization::~GridMapVisualization()
 
 osg::ref_ptr<osg::Node> GridMapVisualization::createMainNode()
 {
-    // Geode is a common node used for vizkit3d plugins. It allows to display
-    // "arbitrary" geometries
-    osg::ref_ptr<osg::Group> group = new osg::Group();
-    osg::ref_ptr<osg::Geode> geode = new osg::Geode();
-    group->addChild(geode.get());
+    osg::ref_ptr<osg::Group> mainNode = MapVisualization::createMainNode()->asGroup();
+    geode = new osg::Geode();
+    mainNode->addChild(geode.get());
 
-    return group.release();
+    return mainNode;
 }
 
 void GridMapVisualization::updateMainNode ( osg::Node* node )
 {
     if(!p) return;
 
-    osg::Group* group = static_cast<osg::Group*>(node);   
-
-    // DRAW MAP
-    osg::Geode* geode = new osg::Geode();    
-    group->setChild( 0, geode );
+    // Draw map.
     p->visualize(*geode);
 
-    // DRAW EXTENTS
-    // draw the extents of the mls
-    group->removeChild( 1 );
-    if( showMapExtents )
-    {
-        p->visualizeExtents(group);
-    }
-}
+    // Draw map extents.
+    visualizeMapExtents(p->getCellExtents(), p->getResolution());
 
-void GridMapVisualization::setShowMapExtents(bool value)
-{
-    showMapExtents = value;
-    emit propertyChanged("show_map_extents");
-    setDirty();
-}
-
-bool GridMapVisualization::areMapExtentsShown() const
-{
-    return showMapExtents;
+    // Set local frame.
+    setLocalFrame(p->getLocalFrame());
 }
 
 void GridMapVisualization::updateDataIntern(::maps::grid::GridMap<double> const& value)
