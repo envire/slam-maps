@@ -18,6 +18,7 @@ rock_library(maps
         tools/MLSToSlopes.cpp
         tools/SimpleTraversability.cpp
         tools/SimpleTraversabilityRadialLUT.cpp
+        tools/TraversabilityGrassfire.cpp
     HEADERS
         LocalMap.hpp
         grid/Index.hpp
@@ -61,6 +62,9 @@ rock_library(maps
         tools/MLSToSlopes.hpp
         tools/SimpleTraversability.hpp
         tools/SimpleTraversabilityRadialLUT.hpp
+        tools/TraversabilityGrassfire.hpp
+        tools/TraversabilityGrassfireConfig.hpp
+        tools/TraversabilityGrassFireSearchItem.hpp
         operations/GridInterpolation.hpp
     DEPS_PKGCONFIG 
         base-types 
