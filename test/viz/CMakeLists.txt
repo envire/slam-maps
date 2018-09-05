@@ -49,3 +49,8 @@ rock_testsuite(test_viz_occupancylidar
     test_viz_OccupancyLidar.cpp
     DEPS maps-viz
     DEPS_PKGCONFIG vizkit3d  vizkit3d-viz)
+
+rock_testsuite(test_viz_traversabilitygrid
+    test_viz_TraversabilityGrid.cpp
+    DEPS maps-viz
+    DEPS_PKGCONFIG vizkit3d vizkit3d-viz)
