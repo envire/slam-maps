@@ -30,6 +30,7 @@
 #include "MLSMapVisualization.hpp"
 #include <vizkit3d/GridVisualization.hpp>
 #include <vizkit3d/OccupancyGridMapVisualization.hpp>
+#include <vizkit3d/TraversabilityGridVisualization.hpp>
 #include "StandaloneVisualizer.hpp"
 
 
@@ -42,6 +43,7 @@ class StandaloneVisualizer::Impl
     QtThreadedWidget<vizkit3d::Vizkit3DWidget> app;
     vizkit3d::MLSMapVisualization *mls_viz;
     vizkit3d::OccupancyGridMapVisualization *occ_viz;
+    vizkit3d::TraversabilityGridVisualization *trav_viz;
 
     Impl()
     {
@@ -60,6 +62,9 @@ class StandaloneVisualizer::Impl
 
         occ_viz = new vizkit3d::OccupancyGridMapVisualization();
         widget->addPlugin(occ_viz);
+
+        trav_viz = new vizkit3d::TraversabilityGridVisualization();
+        widget->addPlugin(trav_viz);
     }
 };
 
@@ -96,6 +101,11 @@ void StandaloneVisualizer::updateData(const MLSMapBase& mls)
 void StandaloneVisualizer::updateData(const OccupancyGridMap& grid)
 {
     impl->occ_viz->updateData(grid);
+}
+
+void StandaloneVisualizer::updateData(const TraversabilityGrid& travGrid)
+{
+    impl->trav_viz->updateData(travGrid);
 }
 
 bool StandaloneVisualizer::wait(int usecs)
