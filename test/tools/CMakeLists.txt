@@ -19,3 +19,7 @@ rock_testsuite(test_MLSToSlopes
 rock_testsuite(test_SimpleTraversability
    test_tools_SimpleTraversability.cpp
    DEPS maps)
+
+rock_testsuite(test_traversability_grassfire
+   test_tools_TraversabilityGrassfire.cpp
+   DEPS maps)
