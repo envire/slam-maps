@@ -12,6 +12,7 @@ if (vizkit3d_FOUND AND OSGVIZ_PRIMITIVES_FOUND)
             TraversabilityMap3dVisualization.cpp
             ContourMapVisualization.cpp
             OccupancyGridMapVisualization.cpp
+            TraversabilityGridVisualization.cpp
         HEADERS
             ColorGradient.hpp
             ExtentsRectangle.hpp
@@ -24,6 +25,7 @@ if (vizkit3d_FOUND AND OSGVIZ_PRIMITIVES_FOUND)
             StandaloneVisualizer.hpp
             ContourMapVisualization.hpp
             OccupancyGridMapVisualization.hpp
+            TraversabilityGridVisualization.hpp
         DEPS 
             maps
         DEPS_PKGCONFIG 
