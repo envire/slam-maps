@@ -27,9 +27,7 @@
 #ifndef maps_MLSMapVisualization_H
 #define maps_MLSMapVisualization_H
 
-#include <vizkit3d/Vizkit3DPlugin.hpp>
-
-#include <boost/noncopyable.hpp>
+#include <vizkit3d/MapVisualization.hpp>
 
 #include <osg/Geode>
 #include <osg/Shape>
@@ -40,11 +38,10 @@
 namespace vizkit3d
 {
     class MLSMapVisualization
-        : public vizkit3d::Vizkit3DPlugin< ::maps::grid::MLSMapKalman >
+        : public vizkit3d::MapVisualization< ::maps::grid::MLSMapKalman >
         , public vizkit3d::VizPluginAddType< ::maps::grid::MLSMap<::maps::grid::MLSConfig::SLOPE> >
         , public vizkit3d::VizPluginAddType< ::maps::grid::MLSMap<::maps::grid::MLSConfig::PRECALCULATED> >
         , public vizkit3d::VizPluginAddType< ::maps::grid::MLSMap<::maps::grid::MLSConfig::BASE> >
-        , boost::noncopyable
     {
         Q_OBJECT
 
@@ -103,6 +100,8 @@ namespace vizkit3d
         private:
             struct Data;
             boost::scoped_ptr<Data> p;
+
+            osg::ref_ptr<osg::Group> localNode;
         
         public slots:
 
@@ -139,9 +138,6 @@ namespace vizkit3d
             void setShowPatchExtents( bool value );
             bool arePatchExtentsShown() const; 
 
-            void setShowMapExtents(bool value);
-            bool areMapExtentsShown() const;
-
             double getUncertaintyScale() const;
             void setUncertaintyScale(double scaling);
 
@@ -151,7 +147,6 @@ namespace vizkit3d
             osg::Vec4 negativeCellColor;
             osg::Vec4 uncertaintyColor;
 
-            bool showMapExtents;
             bool showUncertainty;
             bool showNegative;
             bool estimateNormals;

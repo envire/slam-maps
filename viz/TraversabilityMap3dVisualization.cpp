@@ -35,8 +35,9 @@ using namespace ::maps::grid;
 using namespace vizkit3d;
 
 vizkit3d::TraversabilityMap3dVisualization::TraversabilityMap3dVisualization()
-    : Vizkit3DPlugin< ::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase *> >()
-    , isoline_interval(16.0), show_connections(false)
+    : MapVisualization< maps::grid::TraversabilityMap3d< maps::grid::TraversabilityNodeBase* > >()
+    , isoline_interval(16.0)
+    , show_connections(false)
 {
 
 }
@@ -48,9 +49,12 @@ vizkit3d::TraversabilityMap3dVisualization::~TraversabilityMap3dVisualization()
 
 osg::ref_ptr< osg::Node > vizkit3d::TraversabilityMap3dVisualization::createMainNode()
 {
-    osg::ref_ptr<osg::Group> group = new osg::Group();
+    osg::ref_ptr<osg::Group> mainNode = MapVisualization::createMainNode()->asGroup();
+    localNode = new osg::Group();
 
-    return group.release();
+    mainNode->addChild(localNode.get());
+
+    return mainNode;
 }
 
 
@@ -178,15 +182,19 @@ void vizkit3d::TraversabilityMap3dVisualization::addNodeList(const maps::grid::L
 
 void vizkit3d::TraversabilityMap3dVisualization::updateMainNode(osg::Node* node)
 {
-    osg::Group* group = static_cast<osg::Group*>(node);    
+    // Apply local frame.
+    setLocalFrame(map.getLocalFrame());
+
+    // Draw map extents.
+    visualizeMapExtents(map.calculateCellExtents(), map.getResolution());
 
     //clear old data
-    group->removeChildren(0, group->getNumChildren());
+    localNode->removeChildren(0, localNode->getNumChildren());
 
     nodeGeode = new PatchesGeode(map.getResolution().x(), map.getResolution().y());
     linesNode = new osgviz::LinesNode(osg::Vec4(1, 1, 1, 1));
-    group->addChild(nodeGeode);
-    group->addChild(linesNode);
+    localNode->addChild(nodeGeode);
+    localNode->addChild(linesNode);
     
     PatchesGeode *geode = dynamic_cast<PatchesGeode *>(nodeGeode.get());
     geode->setColor(osg::Vec4d(1,0,0,1));
@@ -198,7 +206,7 @@ void vizkit3d::TraversabilityMap3dVisualization::updateMainNode(osg::Node* node)
         for(size_t x = 0; x < map.getNumCells().x(); x++)
         {
             const LevelList<TraversabilityNodeBase *> &l(map.at(x, y));
-            addNodeList(l, group);
+            addNodeList(l, localNode);
         }
     }
 }

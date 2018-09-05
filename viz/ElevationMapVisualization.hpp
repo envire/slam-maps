@@ -28,7 +28,7 @@
 #define maps_ElevationGridVisualization_H
 
 #include <boost/noncopyable.hpp>
-#include <vizkit3d/Vizkit3DPlugin.hpp>
+#include <vizkit3d/MapVisualization.hpp>
 
 #include "ColorGradient.hpp"
 
@@ -44,10 +44,11 @@
 namespace vizkit3d
 {
     class ElevationMapVisualization
-        : public vizkit3d::Vizkit3DPlugin<::maps::grid::ElevationMap>
-        , boost::noncopyable
+        : public vizkit3d::MapVisualization<::maps::grid::ElevationMap>
     {
         Q_OBJECT
+
+        Q_PROPERTY(bool showMapExtents READ areMapExtentsShown WRITE setShowMapExtents)
 
         public:
             ElevationMapVisualization();
@@ -64,6 +65,8 @@ namespace vizkit3d
         private:
             struct Data;
             Data* p;
+
+            osg::ref_ptr<osg::Geode> geode;
 
             osg::HeightField* createHeighField();
 

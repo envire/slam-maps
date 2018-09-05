@@ -15,6 +15,7 @@ if (vizkit3d_FOUND AND OSGVIZ_PRIMITIVES_FOUND)
         HEADERS
             ColorGradient.hpp
             ExtentsRectangle.hpp
+            MapVisualization.hpp
             GridMapVisualization.hpp
             ElevationMapVisualization.hpp
             MLSMapVisualization.hpp

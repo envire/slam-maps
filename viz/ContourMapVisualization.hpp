@@ -25,7 +25,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 #pragma once
-#include <vizkit3d/Vizkit3DPlugin.hpp>
+#include <vizkit3d/MapVisualization.hpp>
 
 /** Base types **/
 #include <base/Eigen.hpp>
@@ -48,8 +48,7 @@ namespace vizkit3d
 {
 
     class ContourMapVisualization
-    : public vizkit3d::Vizkit3DPlugin<::maps::geometric::ContourMap>
-    , boost::noncopyable
+        : public vizkit3d::MapVisualization<::maps::geometric::ContourMap>
     {
         Q_OBJECT
         Q_PROPERTY(double LineWidth READ getLineWidth WRITE setLineWidth)

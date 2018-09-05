@@ -45,7 +45,8 @@ struct ElevationMapVisualization::Data {
 
 
 ElevationMapVisualization::ElevationMapVisualization()
-    : p(new Data)
+    : MapVisualization< maps::grid::ElevationMap >()
+    , p(new Data)
 {
 
     this->heatMapGradient.createDefaultHeatMapGradient();
@@ -58,18 +59,28 @@ ElevationMapVisualization::~ElevationMapVisualization()
 
 osg::ref_ptr<osg::Node> ElevationMapVisualization::createMainNode()
 {
+    osg::ref_ptr<osg::Group> mainNode = MapVisualization::createMainNode()->asGroup();
+
     // Geode is a common node used for vizkit3d plugins. It allows to display
     // "arbitrary" geometries
-    return new osg::Geode();
+    geode = new osg::Geode();
+
+    mainNode->addChild(geode);
+    return mainNode;
 }
 
 void ElevationMapVisualization::updateMainNode ( osg::Node* node )
 {
+    // Apply local frame.
+    setLocalFrame(p->data.getLocalFrame());
+
+    // Draw map extents.
+    visualizeMapExtents(p->data.calculateCellExtents(), p->data.getResolution());
+
     // create height field
     osg::ref_ptr<osg::HeightField> heightField = createHeighField();
 
     // remove old drawables
-    osg::Geode* geode = static_cast<osg::Geode*>(node);    
     while(geode->removeDrawables(0));
     // add height field to geode
     osg::ShapeDrawable *drawable = new osg::ShapeDrawable(heightField);
@@ -109,10 +120,6 @@ osg::HeightField* ElevationMapVisualization::createHeighField()
     heightField->allocate(elev_map.getNumCells().x(), elev_map.getNumCells().y());
     heightField->setXInterval(elev_map.getResolution().x());
     heightField->setYInterval(elev_map.getResolution().y());
-    double offset_x = elev_map.translation().x();
-    double offset_y = elev_map.translation().y();
-    double offset_z = elev_map.translation().z();
-    heightField->setOrigin(osg::Vec3d(offset_x, offset_y, offset_z));
     heightField->setSkirtHeight(0.0f); 
 
     std::pair<double, double> elev_range = elev_map.getElevationRange();
