@@ -33,6 +33,7 @@
 #include <osg/Geode>
 #include <osg/ShapeDrawable>
 #include <osg/Material>
+#include <osg/TexMat>
 
 #include "ColorGradient.hpp"
 
@@ -44,7 +45,7 @@ struct GridMapVisualization::Data {
     //
     // Making a copy is required because of how OSG works
     virtual ~Data() { }
-    virtual void visualize(osg::Geode& geode) const = 0;
+    virtual void visualize(osg::Geode& geode, bool showHeightField, bool interpolateCellColors, bool useNPOTTextures) const = 0;
     virtual maps::grid::CellExtents getCellExtents() const = 0;
     virtual maps::grid::Vector2d getResolution() const = 0;
     virtual base::Affine3d getLocalFrame() const = 0;
@@ -63,17 +64,26 @@ struct DataHold : public GridMapVisualization::Data
         this->heatMapGradient.createDefaultHeatMapGradient();
     }
 
-    void visualize(osg::Geode& geode) const
+    void visualize(osg::Geode& geode, bool showHeightField ,bool interpolateCellColors, bool useNPOTTextures) const
     {
-        // create height field
-        osg::ref_ptr<osg::HeightField> heightField = createHeighField();
-
         while(geode.removeDrawables(0));
-        // add height field to geode
-        osg::ShapeDrawable *drawable = new osg::ShapeDrawable(heightField);
-        geode.addDrawable(drawable);    
 
-        // set material properties
+        // Create height field.
+        if (showHeightField)
+        {
+            osg::ref_ptr<osg::HeightField> heightField = createHeighField();
+
+            // Add height field to geode.
+            osg::ShapeDrawable *drawable = new osg::ShapeDrawable(heightField);
+            geode.addDrawable(drawable);
+        }
+        else
+        {
+            osg::ref_ptr<osg::Geometry> plane = createPlane();
+            geode.addDrawable(plane.get());
+        }
+
+        // Set material properties.
         osg::StateSet* state = geode.getOrCreateStateSet();
         osg::ref_ptr<osg::Material> mat = new osg::Material;
         mat->setColorMode( osg::Material::AMBIENT_AND_DIFFUSE );
@@ -89,11 +99,50 @@ struct DataHold : public GridMapVisualization::Data
 
         osg::ref_ptr<osg::Image> image = createTextureImage();   
         osg::Texture2D* tex = new osg::Texture2D(image);
-        tex->setFilter(osg::Texture2D::MIN_FILTER,osg::Texture2D::LINEAR_MIPMAP_LINEAR);
-        tex->setFilter(osg::Texture2D::MAG_FILTER,osg::Texture2D::LINEAR);
-        tex->setWrap(osg::Texture::WRAP_S, osg::Texture::REPEAT);
-        tex->setWrap(osg::Texture::WRAP_T, osg::Texture::REPEAT);
+
+        if (interpolateCellColors)
+        {
+            tex->setFilter(osg::Texture2D::MIN_FILTER,osg::Texture2D::LINEAR_MIPMAP_LINEAR);
+            tex->setFilter(osg::Texture2D::MAG_FILTER,osg::Texture2D::LINEAR);
+        }
+        else
+        {
+            tex->setFilter(osg::Texture::MIN_FILTER, osg::Texture::NEAREST_MIPMAP_NEAREST);
+            tex->setFilter(osg::Texture::MAG_FILTER, osg::Texture::NEAREST);
+        }
+
+        tex->setResizeNonPowerOfTwoHint(!useNPOTTextures);
         state->setTextureAttributeAndModes(0, tex);          
+
+        if (showHeightField)
+        {
+            // Use osg::TexMat to set the scale and positioning of the texture.
+            // NOTE: Necissary since the HeightField is drawn from cell center to cell center,
+            //       thus being smaller than the texture is supposed to be.
+            osg::Matrixd scaleMatrix, translationMatrix, scaleTranslationMatrix;
+            float xScale = (grid.getNumCells().x() - 1) / static_cast<float>(grid.getNumCells().x());
+            float yScale = (grid.getNumCells().y() - 1) / static_cast<float>(grid.getNumCells().y());
+            float xTranslation = (1. - xScale) / 2;
+            float yTranslation = (1. - yScale) / 2;
+
+            scaleMatrix.makeScale(osg::Vec3(xScale, yScale, 0.));
+            translationMatrix.makeTranslate(osg::Vec3(xTranslation, yTranslation, 0.));
+            scaleTranslationMatrix = scaleMatrix * translationMatrix;
+
+            osg::ref_ptr<osg::TexMat> textureMatrix = new osg::TexMat(scaleTranslationMatrix);
+
+            state->setTextureAttributeAndModes(0, textureMatrix.get(), osg::StateAttribute::ON);
+        }
+        else
+        {
+            // Set texture without scaling when using the plane.
+            osg::ref_ptr<osg::TexMat> textureMatrix = static_cast<osg::TexMat*>(state->getTextureAttribute(0, osg::StateAttribute::TEXMAT));
+            if (textureMatrix)
+            {
+                textureMatrix->setMatrix(osg::Matrixd());
+            }
+
+        }
     };
     
     maps::grid::CellExtents getCellExtents() const
@@ -111,6 +160,40 @@ struct DataHold : public GridMapVisualization::Data
         return grid.getLocalFrame();
     }
 
+    osg::ref_ptr<osg::Geometry> createPlane() const
+    {
+        maps::grid::Vector2d mapSize = grid.getSize();
+
+        osg::ref_ptr<osg::Geometry> plane = new osg::Geometry();
+
+        // Assign white as a color to the plane.
+        osg::ref_ptr<osg::Vec4Array> c = new osg::Vec4Array;
+        plane->setColorArray(c.get());
+        plane->setColorBinding(osg::Geometry::BIND_OVERALL);
+        c->push_back( osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+
+        // Set texture coordinates.
+        osg::ref_ptr<osg::Vec2dArray>  texture_coordinates = new osg::Vec2dArray;
+        texture_coordinates->push_back(osg::Vec2d(0,0));
+        texture_coordinates->push_back(osg::Vec2d(1,0));
+        texture_coordinates->push_back(osg::Vec2d(1,1));
+        texture_coordinates->push_back(osg::Vec2d(0,1));
+        plane->setTexCoordArray(0, texture_coordinates.get());
+
+        // Specify the vertices.
+        osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array;
+        vertices->push_back(osg::Vec3(0, 0, 0));
+        vertices->push_back(osg::Vec3(mapSize.x(), 0, 0));
+        vertices->push_back(osg::Vec3(mapSize.x(), mapSize.y(), 0));
+        vertices->push_back(osg::Vec3(0, mapSize.y(), 0));
+        plane->setVertexArray(vertices.get());
+
+        osg::ref_ptr<osg::DrawArrays> drawArrays = new osg::DrawArrays(osg::PrimitiveSet::POLYGON, 0, vertices->size());
+        plane->addPrimitiveSet(drawArrays.get());
+
+        return plane;
+    }
+
     osg::HeightField* createHeighField() const
     {
         // create height field
@@ -119,6 +202,8 @@ struct DataHold : public GridMapVisualization::Data
         heightField->setXInterval(grid.getResolution().x());
         heightField->setYInterval(grid.getResolution().y());
         heightField->setSkirtHeight(0.0f); 
+
+        heightField->setOrigin(osg::Vec3(grid.getResolution().x() / 2.0, grid.getResolution().y() / 2, 0.0));
 
         double min = grid.getMin(false);
         double default_value = grid.getDefaultValue();
@@ -194,6 +279,8 @@ struct DataHold : public GridMapVisualization::Data
 GridMapVisualization::GridMapVisualization()
     : MapVisualization<maps::grid::GridMap<double>>()
     , p(0)
+    , showHeightField(false)
+    , interpolateCellColors(true)
 {}
 
 GridMapVisualization::~GridMapVisualization()
@@ -214,13 +301,49 @@ void GridMapVisualization::updateMainNode ( osg::Node* node )
     if(!p) return;
 
     // Draw map.
-    p->visualize(*geode);
+    p->visualize(*geode, showHeightField, interpolateCellColors, useNPOTTextures);
 
     // Draw map extents.
     visualizeMapExtents(p->getCellExtents(), p->getResolution());
 
     // Set local frame.
     setLocalFrame(p->getLocalFrame());
+}
+
+void GridMapVisualization::setShowHeightField(bool enabled)
+{
+    showHeightField = enabled;
+    emit propertyChanged("showHeightField");
+    setDirty();
+}
+
+bool GridMapVisualization::isHeightFieldShown() const
+{
+    return showHeightField;
+}
+
+void GridMapVisualization::setInterpolateCellColors(bool enabled)
+{
+    interpolateCellColors = enabled;
+    emit propertyChanged("interpolateCellColors");
+    setDirty();
+}
+
+bool GridMapVisualization::areCellColorsInterpolated() const
+{
+    return interpolateCellColors;
+}
+
+void GridMapVisualization::setUseNPOTTextures(bool enabled)
+{
+    useNPOTTextures = enabled;
+    emit propertyChanged("useNPOTTextures");
+    setDirty();
+}
+
+bool GridMapVisualization::areNPOTTexturesUsed() const
+{
+    return useNPOTTextures;
 }
 
 void GridMapVisualization::updateDataIntern(::maps::grid::GridMap<double> const& value)

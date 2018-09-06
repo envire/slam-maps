@@ -58,6 +58,47 @@ static void showGridMap(const GridMap<CellT> &grid_map)
     }
 }
 
+BOOST_AUTO_TEST_CASE(gridviz_test_min)
+{
+    Vector2ui numCells(4, 4);
+    Vector2d resolution(0.05, 0.05);
+
+    GridMap<double> grid_map(numCells, resolution, -0.01);
+
+    for (unsigned int y = 0; y < grid_map.getNumCells().y(); ++y)
+    {
+        for (unsigned int x = 0; x < grid_map.getNumCells().x(); ++x)
+        {
+            if (x == 0 || y == 0 || x == numCells.x() - 1 || y  == numCells.y() - 1)
+                grid_map.at(x, y) = -0.01;
+            else
+                grid_map.at(x, y) = 0.001 * (x + y) - 0.01;
+        }
+    }
+
+    showGridMap(grid_map);
+}
+
+BOOST_AUTO_TEST_CASE(gridviz_test_min_full)
+{
+    Vector2ui numCells(8, 10);
+    Vector2d resolution(0.01, 0.02);
+
+    GridMap<double> grid_map(numCells, resolution, -0.01);
+
+    grid_map.getLocalFrame().translation() << 0.5 * grid_map.getSize(), 0;
+
+    for (unsigned int y = 0; y < grid_map.getNumCells().y(); ++y)
+    {
+        for (unsigned int x = 0; x < grid_map.getNumCells().x(); ++x)
+        {
+                grid_map.at(x, y) = 0.001 * (x + y) - 0.01;
+        }
+    }
+
+    showGridMap(grid_map);
+}
+
 BOOST_AUTO_TEST_CASE(gridviz_test)
 {
     GridMap<double> grid_map(Vector2ui(150, 250), Vector2d(0.1, 0.1), -10.);
