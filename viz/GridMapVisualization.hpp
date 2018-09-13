@@ -49,6 +49,9 @@ namespace vizkit3d
         Q_OBJECT
 
         Q_PROPERTY(bool showMapExtents READ areMapExtentsShown WRITE setShowMapExtents)
+        Q_PROPERTY(bool showHeightField READ isHeightFieldShown WRITE setShowHeightField)
+        Q_PROPERTY(bool interpolateCellColors READ areCellColorsInterpolated WRITE setInterpolateCellColors)
+        Q_PROPERTY(bool useNPOTTextures READ areNPOTTexturesUsed WRITE setUseNPOTTextures)
 
         public:
             GridMapVisualization();
@@ -77,8 +80,19 @@ namespace vizkit3d
 
             osg::ref_ptr<osg::Geode> geode;
 
+            bool showHeightField;
+            bool interpolateCellColors;
+            bool useNPOTTextures;
 
         public slots:
+            void setShowHeightField(bool enabled);
+            bool isHeightFieldShown() const;
+
+            void setInterpolateCellColors(bool enabled);
+            bool areCellColorsInterpolated() const;
+
+            void setUseNPOTTextures(bool enabled);
+            bool areNPOTTexturesUsed() const;
     };
 }
 #endif
