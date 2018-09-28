@@ -32,6 +32,8 @@
 
 #include <maps/grid/TraversabilityMap3d.hpp>
 
+#include <fstream>
+
 using namespace ::maps::grid;
 
 void checkEqual(TraversabilityNodeBase &node, TraversabilityNodeBase &node_out)
@@ -141,5 +143,109 @@ BOOST_AUTO_TEST_CASE(test_TraversabilityMap_serialization)
     //test that the out node points towards an new object
     BOOST_CHECK(parentNode != parentOut);
 
+    BOOST_CHECK(node_out == parentOut);
+}
+
+BOOST_AUTO_TEST_CASE(test_TraversabilityMap_serialization_file)
+{
+    // Create Map.
+    TraversabilityMap3d<TraversabilityNode<double> *> map;
+
+    map.resize(Vector2ui(20, 20));
+
+    TraversabilityNode<double> *child1 = new TraversabilityNode<double>(10.0, Index(1,2));
+    map.at(child1->getIndex()).insert(child1);
+    TraversabilityNode<double> *child2 = new TraversabilityNode<double>(11.0, Index(1,3));
+    map.at(child2->getIndex()).insert(child2);
+    TraversabilityNode<double> *child3 = new TraversabilityNode<double>(12.0, Index(1,4));
+    map.at(child3->getIndex()).insert(child3);
+
+    TraversabilityNode<double> *parentNode = new TraversabilityNode<double>(22.0, Index(1,10));
+    map.at(parentNode->getIndex()).insert(parentNode);
+
+    parentNode->getUserData() = 45;
+
+    child1->getUserData() = 85;
+    child2->getUserData() = 55;
+    child3->getUserData() = 65;
+
+    parentNode->addConnection(child1);
+    child1->addConnection(parentNode);
+
+    parentNode->addConnection(child2);
+    child2->addConnection(parentNode);
+
+    parentNode->addConnection(child3);
+    child3->addConnection(parentNode);
+
+    // Serialization.
+    std::string filename = "TravMap_v0.bin";
+
+    // Save.
+    std::ofstream output(filename, std::ios::binary);
+    if (output.is_open())
+    {
+        boost::archive::binary_oarchive oa(output);
+
+        oa << map;
+    }
+
+    // Load.
+    std::ifstream input(filename, std::ios::binary);
+    if (input.is_open())
+    {
+        boost::archive::binary_iarchive ia(input);
+
+        ia >> map;
+    }
+
+    // Check for errors.
+    BOOST_CHECK_EQUAL(map.at(parentNode->getIndex()).size(), 1);
+
+    TraversabilityNode<double> *node_out = *map.at(parentNode->getIndex()).begin();
+
+    checkEqual(*parentNode, *node_out);
+
+    BOOST_CHECK(parentNode->getConnections().size() == node_out->getConnections().size());
+
+    TraversabilityNodeBase *childOut1 = node_out->getConnections()[0];
+    BOOST_CHECK(childOut1->getConnections().size() == 1);
+    TraversabilityNodeBase *parentOut = childOut1->getConnections()[0];
+
+    //test that the out node points towards an new object
+    BOOST_CHECK(parentNode != parentOut);
+
+    BOOST_CHECK(node_out == parentOut);
+}
+
+// Tests backwards compatibility to version without forced pointers.
+BOOST_AUTO_TEST_CASE(test_TraversabilityMap_serialization_backwards_compatibility)
+{
+    std::string filename = "TravMap_v00.bin";
+
+    TraversabilityMap3d<TraversabilityNode<double>*> map;
+
+    // Load.
+    std::ifstream input(filename, std::ios::binary);
+    if (input.is_open())
+    {
+        boost::archive::binary_iarchive ia(input);
+
+        ia >> map;
+    }
+
+    // Check for errors.
+    BOOST_CHECK_EQUAL(map.getNumCells().x(), 20);
+    BOOST_CHECK_EQUAL(map.getNumCells().y(), 20);
+
+    BOOST_CHECK_EQUAL(map.at(Index(1, 10)).size(), 1);
+
+    TraversabilityNode<double> *node_out = *map.at(1, 10).begin();
+
+    BOOST_CHECK_EQUAL(node_out->getConnections().size(), 3);
+
+    TraversabilityNodeBase *childOut1 = node_out->getConnections()[0];
+    BOOST_CHECK(childOut1->getConnections().size() == 1);
+    TraversabilityNodeBase *parentOut = childOut1->getConnections()[0];
     BOOST_CHECK(node_out == parentOut);
 }
