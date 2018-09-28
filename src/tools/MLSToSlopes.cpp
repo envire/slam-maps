@@ -70,11 +70,11 @@ static void updateDiffs(grid::MLSMapKalman const& mlsIn,
         
         double step = max_z - min_z;
         
-        diffs[this_x][this_y][this_index] = step;
-        count[this_x][this_y]++;
+        diffs[this_y][this_x][this_index] = step;
+        count[this_y][this_x]++;
         
-        diffs[other_x][other_y][other_index] = step;
-        count[other_x][other_y]++;
+        diffs[other_y][other_x][other_index] = step;
+        count[other_y][other_x]++;
     }
     
     else
@@ -98,11 +98,11 @@ bool MLSToSlopes::computeMaxSteps(const grid::MLSMapKalman& mlsIn, grid::GridMap
     maxStepsOut = grid::GridMapF(mlsIn.getNumCells(), mlsIn.getResolution(), UNKNOWN);
     
     boost::multi_array<int,2> counts;
-    counts.resize(boost::extents[(size_t) mlsIn.getNumCells()[0]][(size_t) mlsIn.getNumCells()[1]]);
+    counts.resize(boost::extents[(size_t) mlsIn.getNumCells()[1]][(size_t) mlsIn.getNumCells()[0]]);
     std::fill(counts.data(), counts.data() + counts.num_elements(), 0);
     
     boost::multi_array<float,3> diffs;
-    diffs.resize(boost::extents[(size_t) mlsIn.getNumCells()[0]][(size_t) mlsIn.getNumCells()[1]][8]);
+    diffs.resize(boost::extents[(size_t) mlsIn.getNumCells()[1]][(size_t) mlsIn.getNumCells()[0]][8]);
     std::fill(diffs.data(), diffs.data() + diffs.num_elements(), 0);
     
     
@@ -145,7 +145,7 @@ bool MLSToSlopes::computeMaxSteps(const grid::MLSMapKalman& mlsIn, grid::GridMap
     {
         for (size_t x = 1; x < (width - 1); ++x)
         {
-            int count = counts[x][y];
+            int count = counts[y][x];
             if (count < 5)
             {
                 continue;
@@ -155,8 +155,8 @@ bool MLSToSlopes::computeMaxSteps(const grid::MLSMapKalman& mlsIn, grid::GridMap
             double corrected_max_step = UNKNOWN;
             for (int i = 0; i < 8; i += 2)
             {
-                double step0 = diffs[x][y][i];
-                double step1 = diffs[x][y][i + 1];
+                double step0 = diffs[y][x][i];
+                double step1 = diffs[y][x][i + 1];
                 max_step = std::max(max_step, step0);
                 max_step = std::max(max_step, step1);
                 corrected_max_step = std::max(corrected_max_step, step0 - (step0 + step1) / 4);
