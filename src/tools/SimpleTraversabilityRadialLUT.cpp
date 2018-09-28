@@ -39,16 +39,16 @@ void SimpleTraversabilityRadialLUT::precompute(double distance, double resolutio
     width  = 2 * ceil(distance / resolutionX) + 1;
     height = 2 * ceil(distance / resolutionY) + 1;
 
-    inDistance.resize(boost::extents[width][height]);
+    inDistance.resize(boost::extents[height][width]);
     std::fill(inDistance.data(), inDistance.data() + inDistance.num_elements(), false);
 
-    parents.resize(boost::extents[width][height]);
+    parents.resize(boost::extents[height][width]);
     std::fill(parents.data(), parents.data() + parents.num_elements(), std::make_pair(-1, -1));
 
     centerX = width  / 2;
     centerY = height / 2;
 
-    parents[centerX][centerY] = std::make_pair(-1, -1);
+    parents[centerY][centerX] = std::make_pair(-1, -1);
 
     for (unsigned int y = 0; y < height; ++y)
     {
@@ -61,19 +61,19 @@ void SimpleTraversabilityRadialLUT::precompute(double distance, double resolutio
                 continue;
 
             double d2 = dx * dx * resolutionX * resolutionX + dy * dy * resolutionY * resolutionY;
-            inDistance[x][y] = (d2 < radius2);
+            inDistance[y][x] = (d2 < radius2);
 
             if (abs(dx) > abs(dy))
             {
                 int parentx = x - dx / abs(dx);
                 int parenty = y - rint(static_cast<double>(dy) / abs(dx));
-                parents[x][y] = std::make_pair(parentx, parenty);
+                parents[y][x] = std::make_pair(parenty, parentx);
             }
             else
             {
                 int parentx = x - rint(static_cast<double>(dx) / abs(dy));
                 int parenty = y - dy / abs(dy);
-                parents[x][y] = std::make_pair(parentx, parenty);
+                parents[y][x] = std::make_pair(parenty, parentx);
             }
         }
     }
@@ -96,7 +96,7 @@ void SimpleTraversabilityRadialLUT::markAllRadius(grid::TraversabilityGrid& trav
             if (mapX < 0 || mapX >= static_cast<int>(traversabilityGrid.getNumCells()[0]))
                 continue;
 
-            if (inDistance[x][y] && traversabilityGrid.at(grid::Index(mapX, mapY)).getTraversabilityClassId() == targetedValue)
+            if (inDistance[y][x] && traversabilityGrid.at(grid::Index(mapX, mapY)).getTraversabilityClassId() == targetedValue)
             {
                 markSingleRadius(traversabilityGrid, centerX, centerY, x, y, targetedValue, targetedValue);
             }
@@ -106,7 +106,7 @@ void SimpleTraversabilityRadialLUT::markAllRadius(grid::TraversabilityGrid& trav
 
 void SimpleTraversabilityRadialLUT::markSingleRadius(grid::TraversabilityGrid& traversabilityGrid, int centerX, int centerY, int targetX, int targetY, int expectedValue, int markValue) const
 {
-    boost::tie(targetX, targetY) = parents[targetX][targetY];
+    boost::tie(targetY, targetX) = parents[targetY][targetX];
 
     while (targetX != -1 && targetY != -1)
     {
@@ -115,7 +115,7 @@ void SimpleTraversabilityRadialLUT::markSingleRadius(grid::TraversabilityGrid& t
 
         if (mapX < 0 || mapX >= static_cast<int>(traversabilityGrid.getNumCells()[0]) || mapY < 0 || mapY >= static_cast<int>(traversabilityGrid.getNumCells()[1]))
         {
-            boost::tie(targetX, targetY) = parents[targetX][targetY];
+            boost::tie(targetY, targetX) = parents[targetY][targetX];
             continue;
         }
 
@@ -124,6 +124,6 @@ void SimpleTraversabilityRadialLUT::markSingleRadius(grid::TraversabilityGrid& t
             traversabilityGrid.setTraversabilityAndProbability(markValue, 1, mapX, mapY);
         }
 
-        boost::tie(targetX, targetY) = parents[targetX][targetY];
+        boost::tie(targetY, targetX) = parents[targetY][targetX];
     }
 }
