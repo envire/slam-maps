@@ -1,0 +1,146 @@
+= EnviRe Maps Documentation
+:toc: macro
+:toclevels: 5
+
+toc::[]
+
+== Build and Test Status
+CI support is not implemented at the moment.
+//[link=https://circleci.com/gh/envire/envire-envire_core]
+//image::https://circleci.com/gh/envire/envire-envire_core.svg?style=svg[Build Status]
+
+== Installation
+=== Using Rock's build system
+The easiest way to build and install this package is to use Rock's build system.
+See http://rock-robotics.org/documentation/installation.html[this page]
+on how to install Rock.
+
+=== Standalone Installation
+Currently, installation outside ROCK is not supported.
+== Rock CMake Macros
+This package uses a set of CMake helper shipped as the Rock CMake macros.
+Documentations is available on http://rock-robotics.org/documentation/packages/cmake_macros.html[this page].
+
+== Rock Standard Layout
+This directory structure follows some simple rules, to allow for generic build
+processes and simplify reuse of this project. Following these rules ensures that
+the Rock CMake macros automatically handle the project's build process and
+install setup properly.
+
+STRUCTURE
+-- src/
+	Contains all header (*.h/*.hpp) and source files
+-- build/
+	The target directory for the build process, temporary content
+-- bindings/
+	Language bindings for this package, e.g. put into subfolders such as
+   |-- ruby/
+        Ruby language bindings
+-- viz/
+        Source files for a vizkit plugin / widget related to this library
+-- resources/
+	General resources such as images that are needed by the program
+-- configuration/
+	Configuration files for running the program
+-- external/
+	When including software that needs a non standard installation process, or one that can be
+	easily embedded include the external software directly here
+-- doc/
+	should contain the existing doxygen file: doxygen.conf
+
+
+== EnviRe Map library Documentation
+
+One of the common data for environment representation is maps.
+The EnviRe offers three possibilities to utilize the maps in the EnviRe core:
+
+* use already existing map library from EnviRe
+* integrate existing map type from the external library
+* implement own desire data type
+
+EnviRe comes with its own maps library, which contains several map types and offers a good basis for further extension and development of addition types. The general structure of the map library was based on the IEEE Std 1873-2015 for Robot Map Data Representation for Navigation.
+The library includes three main map types:
+
+* **Grid Map** is a rigid structure where the world data are discretized into cells. Each cell may contain some data or be free space.
+* **Geometric Map**
+* **Topological Map**
+
+image::https://raw.githubusercontent.com/envire/envire.github.io/master/images/docs/maps/envire_maps_standard.png[standard]
+
+
+=== Local Map
+
+``LocalMap`` is a basis class of all maps in EnviRe. It contains general informaion of the map, such as
+id, map type and local map frame. The local frame is used e.g. to find the correspondence between indexes of the grid map and coordinates of the world system. A local frame is represented by right-hand coordinate system, which origin is in bottom right corner initially. The ``offset`` attribute of Local Map allows to transform (tranlate and rotate) the local frame freely. All transformations applied later to the map will take into account the defined local frame of the map.
+
+(TODO: add image with local coordinate system)
+
+=== External types
+
+(TODO: write some text: Pointcloud, Octomap)
+
+=== Implement own types
+
+(TODO: write some text)
+
+=== Grid Map
+``GridMap`` represents the gridbased map structure, where each cell can be accessed by its index.
+The ``Index`` is defined as pair of unsigned integers, which represent the discrete cell position in x and y direction
+without relation to the grid local frame. The Indexes are oriented to the grid borders and stars at the bottom low corner.
+
+(TODO: add image of grid and local frame)
+
+The size of the Grid Map is specified by two parameters:
+
+* **number of cells** in x and y direction
+* **resolution of cells** in x and y direction, where the resolution is expressed in the world units
+
+**Note:** The world unit used in cell resolution should correspond to the world unit used in the transformation of local frame. (s. Local Map)
+
+Grid Map realizes the access to a grid cell by index or by position, where the position is some point in the world.
+The projection of the world position into Grid Map to estimate the corresponding cell is done by taking into account the local grid frame, which is specified by ``offset`` in ``LocalMap``.
+
+``GridMap`` allows to create any type of gridbased maps. The cell type stored
+in the map can be specified by the developer/user freely. Moreover, the default storage used in GridMap is ``std::vector``, due to its computational efficiency. However, the memory storage can be also extended.
+
+==== Elevation Map
+The Elevation Map (also named Height Map) is 2.5D grid-based map where the value of each cell is an estimated height.
+
+image::https://raw.githubusercontent.com/envire/envire.github.io/master/images/docs/maps/elevation_map.png[elevation map]
+
+In the Elevation Map the values are stored as ``doubles``. Additional to default grid functionality, e.g. access a grid cell, the Elevation Map offers follower functions:
+
+* calculate normal of the cell ``getNormal()``
+* calculate mean elevation of the cell ``getMeanElevation()``
+
+In both cases the calculation is down over 3x3 neighbourhood of the cell.
+
+(TODO: operation for the projection)
+
+==== Muilti-level Surface Map
+EnviRe's Multi-Level Surface Maps are based on
+http://elib.suub.uni-bremen.de/edocs/00103537-1.pdf[[Schwendner, 2013, §2.1.2]]
+which itself is based on work by http://dx.doi.org/10.1109/IROS.2006.282632[[Triebel et al., 2006]].
+The idea is to represent 3D structure by a grid where each grid cell contains a list of surface patches. This can be thought of as a generalization of an elevation map that allows representing multiple levels.
+
+`MLSMap` are a specialization of Multi-Level Grid Maps `MLGrid` which are `GridMap`s of `LevelList`s.
+In an `MLSMap` each `LevelList` contains `SurfacePatch`es of a specific type.
+At the moment we provide classical MLS maps where each patch is represented by a z-coordinate with uncertainty and an optional height, which we call `MLSMapKalman`. Furthermore, we provide an MLS map where each surface patch accumulates the momenta of all measured points in that cell which can be used to calculate a sloped plane fitting best to the given measurement. We call the latter `MLSMapSloped`.
+
+`MLGrid`s are also used to represent 3d traversability maps.
+
+==== Traversability Map
+
+(TODO: write some text about trav maps)
+
+=== Topological Map
+
+(TODO: write some text)
+
+=== Geo Map
+
+(TODO: write some text)
+
+=== External Types
+
+(TODO: write some text)
