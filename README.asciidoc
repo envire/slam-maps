@@ -17,6 +17,7 @@ on how to install Rock.
 
 === Standalone Installation
 Currently, installation outside ROCK is not supported.
+
 == Rock CMake Macros
 This package uses a set of CMake helper shipped as the Rock CMake macros.
 Documentations is available on http://rock-robotics.org/documentation/packages/cmake_macros.html[this page].
