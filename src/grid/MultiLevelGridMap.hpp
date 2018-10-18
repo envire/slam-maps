@@ -108,6 +108,7 @@ namespace maps { namespace grid
 
             Index minIdx = (box.min().head<2>().cwiseQuotient(this->getResolution())).template cast<int>();
             Index maxIdx = (box.max().head<2>().cwiseQuotient(this->getResolution())).template cast<int>();
+            maxIdx.array() += 1;
 
             minIdx = minIdx.cwiseMax(0);
             maxIdx = maxIdx.cwiseMin(this->getNumCells().template cast<int>());
@@ -119,7 +120,7 @@ namespace maps { namespace grid
                     const Index curIdx(x,y);
                     for(const P &p: this->at(curIdx))
                     {
-                        if(::maps::tools::overlap(p.getMin(), p.getMax(), minHeight, maxHeight))
+                        if(::maps::tools::overlap(p, minHeight, maxHeight))
                         {
                             if(cb(curIdx, p))
                                 return;
@@ -167,7 +168,7 @@ namespace maps { namespace grid
                     
                     for(const P &p: this->at(curIdx))
                     {
-                        if(::maps::tools::overlap(p.getMin(), p.getMax(), minHeight, maxHeight))
+                        if(::maps::tools::overlap(p, minHeight, maxHeight))
                         {
                             retList.insert(&p);
                             ++outNumIntersections;

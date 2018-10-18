@@ -19,3 +19,14 @@ rock_testsuite(test_serialization_mlsmap
 rock_testsuite(test_serialization_travmap
    test_serialization_TravMap.cpp
    DEPS maps)
+
+rock_testsuite(test_serialization_discreteTree
+    test_serialization_DiscreteTree.cpp
+    DEPS maps)
+
+# Testfiles.
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/DiscreteTree_v0.bin
+               ${CMAKE_CURRENT_BINARY_DIR}/DiscreteTree_v0.bin COPYONLY)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/TravMap_v00.bin
+               ${CMAKE_CURRENT_BINARY_DIR}/TravMap_v00.bin COPYONLY)

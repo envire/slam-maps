@@ -30,6 +30,7 @@
 #include "MultiLevelGridMap.hpp"
 #include "SurfacePatches.hpp"
 #include <map>
+#include <type_traits>
 
 namespace maps { namespace grid
 {
@@ -53,6 +54,8 @@ namespace maps { namespace grid
         TraversabilityNodeBase(float height, const Index &idx);
 
         float getHeight() const;
+        float getMin() const;
+        float getMax() const;
         void setHeight(float newHeight);
 
         //! Given a grid resolution, compute the 3d position of this node
@@ -71,8 +74,8 @@ namespace maps { namespace grid
         
         bool operator<(const TraversabilityNodeBase& other) const;
         
-        void eachConnectedNode(std::function<void (const TraversabilityNodeBase *n, bool &explandNode, bool &stop)> f) const;
-        void eachConnectedNode(std::function<void (TraversabilityNodeBase *n, bool &explandNode, bool &stop)> f);
+        void eachConnectedNode(std::function<void (const TraversabilityNodeBase *n, bool &expandNode, bool &stop)> f) const;
+        void eachConnectedNode(std::function<void (TraversabilityNodeBase *n, bool &expandNode, bool &stop)> f);
         
         template <class T>
         Eigen::Vector3d getPosition(const T &map) const
@@ -94,6 +97,9 @@ namespace maps { namespace grid
         
         /** Grants access to boost serialization */
         friend class boost::serialization::access;
+
+        template <class X>
+        friend class TraversabilityMap3d;
 
         template<class Archive>
         void serialize(Archive & ar, const unsigned int version)
@@ -162,14 +168,42 @@ namespace maps { namespace grid
     template <class T>
     class TraversabilityMap3d : public ::maps::grid::MultiLevelGridMap<T>
     {
+    private:
+        //This class is only meant to be uses with T*, not T
+        TraversabilityMap3d();
+    };
+
+    template <class T>
+    class TraversabilityMap3d<T *> : public ::maps::grid::MultiLevelGridMap<T *>
+    {
     public:
         TraversabilityMap3d() {};
         
+        TraversabilityMap3d(const TraversabilityMap3d<T *> &other) : 
+            MultiLevelGridMap<T *>(other.getNumCells(), other.getResolution(), other.getLocalMapData()) 
+        {
+            doDeepCopy(other, *this);
+        };
+
+        TraversabilityMap3d(TraversabilityMap3d<T *> &&other)
+        {
+            MultiLevelGridMap<T *> *oMLG = static_cast<MultiLevelGridMap<T *> *>(&other);
+            MultiLevelGridMap<T *> *thisMLG = static_cast<MultiLevelGridMap<T *> *>(this);
+            
+            *thisMLG = *oMLG;
+            oMLG->clear();
+        };
+        
         TraversabilityMap3d(const Vector2ui &num_cells,
                     const Eigen::Vector2d &resolution,
-                    const boost::shared_ptr<LocalMapData> &data) : MultiLevelGridMap<T>(num_cells, resolution, data)
+                    const boost::shared_ptr<LocalMapData> &data) : MultiLevelGridMap<T *>(num_cells, resolution, data)
         {}
 
+        ~TraversabilityMap3d()
+        {
+            clear();
+        }
+        
         Eigen::Vector3f getNodePosition(const TraversabilityNodeBase *node) const
         {
             Eigen::Vector3d pos;
@@ -180,13 +214,121 @@ namespace maps { namespace grid
             
             return pos.cast<float>();
         }
+        
+        TraversabilityMap3d<T *> &operator=(const TraversabilityMap3d<T *> &other)
+        {
+            clear();
+            this->setResolution(other.getResolution());
+            this->resize(other.getNumCells());
+            this->getLocalFrame() = other.getLocalFrame();
+
+            doDeepCopy(other, *this);
+            
+            return *this;
+        }
+
+        TraversabilityMap3d<T *> &operator=(TraversabilityMap3d<T *> &&other)
+        {
+            MultiLevelGridMap<T *> *oMLG = static_cast<MultiLevelGridMap<T *> *>(&other);
+            MultiLevelGridMap<T *> *thisMLG = static_cast<MultiLevelGridMap<T *> *>(this);
+            
+            *thisMLG = *oMLG;
+            oMLG->clear();
+
+            return *this;
+        }
+        
+        /**
+         * Cast the TravMap to a different pointer type.
+         * Note, this also creates a deep copy of the map.
+         * */
+        template <class X>
+        TraversabilityMap3d<X> copyCast() const
+        {
+            TraversabilityMap3d<X> out(this->getNumCells(), this->getResolution(), this->getLocalMapData());
+
+            doDeepCopy(*this, out);
+
+            return out;
+        }
+        
+        /** @return the node closest to pos.z() of all nodes at (pos.x(), pos.y()).
+         *          nullptr is returned if there are no nodes at (pos.x(), pos.y()).
+         * @param pos The position in world coordinates.*/
+        TraversabilityNodeBase* getClosestNode(const base::Vector3d& pos) const
+        {
+            Index idx;
+            if(::maps::grid::MultiLevelGridMap<T *>::toGrid(pos, idx))
+            {
+                double minDist = std::numeric_limits< double >::max();
+                TraversabilityNodeBase *node = nullptr;
+                for(TraversabilityNodeBase *currNode : ::maps::grid::MultiLevelGridMap<T *>::at(idx))
+                {
+                    double curDist = fabs(currNode->getHeight() - pos.z());
+                    if(curDist < minDist)
+                    {
+                        minDist = curDist;
+                        node = currNode;
+                    }
+                }
+                return node;
+            }
+
+            return nullptr;
+        }
+        
+        void clear()
+        {
+            for(LevelList<T *> &l : *this)
+            {
+                for(T *n : l)
+                {
+                    delete n;
+                }
+                
+                l.clear();
+            }
+            
+            ::maps::grid::MultiLevelGridMap<T *>::clear();
+        }
+
     protected:
         /** Grants access to boost serialization */
         friend class boost::serialization::access;
 
+        template <class X, class Y>
+        void doDeepCopy(const TraversabilityMap3d<X *> &in, TraversabilityMap3d<Y *> &out) const
+        {
+            std::map<const TraversabilityNodeBase *, Y *> inToOut;
+            for(const LevelList<X *> &l : in)
+            {
+                for(const X *n : l)
+                {
+                    Y *newNode = new typename std::remove_pointer<Y *>::type(* static_cast<const Y *>(n));
+                    newNode->connections.clear();
+                    out.at(n->getIndex()).insert(newNode);
+                    
+                    inToOut[n] = newNode;
+                }
+            }
+
+            for(const LevelList<X *> &l : in)
+            {
+                for(const X *n : l)
+                {
+                    Y *newNode = inToOut[n];
+
+                    for(const TraversabilityNodeBase *neighbour: n->getConnections())
+                    {
+                        newNode->connections.push_back(inToOut[neighbour]);
+                    }
+                }
+            }
+        }
+
         struct SerializationHelper
         {
-            T node;
+            T *node;
             std::vector<TraversabilityNodeBase *> connections;
             
             /** Serializes the members of this class*/
@@ -204,7 +346,7 @@ namespace maps { namespace grid
         void load(Archive &ar, const unsigned int version)
         {
             //load back all pointers
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(::maps::grid::MultiLevelGridMap<T>);
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(::maps::grid::MultiLevelGridMap<T *>);
 
             //load nr of contained values
             uint64_t count;
@@ -227,20 +369,20 @@ namespace maps { namespace grid
         void save(Archive& ar, const unsigned int version) const
         {
             //first save all pointers without connections
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(::maps::grid::MultiLevelGridMap<T>);
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(::maps::grid::MultiLevelGridMap<T *>);
 
             //determine nr of nodes
             uint64_t size = 0;
-            for(const maps::grid::LevelList<T> &ll : *this )
+            for(const maps::grid::LevelList<T *> &ll : *this )
             {
                 size += ll.size();
             }
             saveSizeValue(ar, size);
 
             //save all connections together with the coresponding pointer
-            for(const maps::grid::LevelList<T> &ll : *this )
+            for(const maps::grid::LevelList<T *> &ll : *this )
             {
-                for(const T &node: ll)
+                for(T *node: ll)
                 {
                     SerializationHelper helper;
                     helper.node = node;

@@ -29,19 +29,24 @@
 #include <map>
 #include <cmath>
 #include <limits>
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/map.hpp>
+
 #include <boost/format.hpp>
+#include <boost/container/flat_map.hpp>
+
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/split_member.hpp>
+
+#include <boost_serialization/BoostTypes.hpp>
+#include <boost_serialization/ClassVersion.hpp>
 
 namespace maps { namespace grid
 {
 
 template<class S>
-class DiscreteTree : public std::map<int32_t, S>
+class DiscreteTree : public boost::container::flat_map<int32_t, S>
 {
 protected:
-    typedef std::map<int32_t, S> TreeBase;
+    typedef boost::container::flat_map<int32_t, S> TreeBase;
 public:
     DiscreteTree(float resolution) : resolution(resolution) {}
     virtual ~DiscreteTree() {}
@@ -126,15 +131,39 @@ protected:
     /** Grants access to boost serialization */
     friend class boost::serialization::access;
 
-    /** Serializes the members of this class*/
+    /** Saves the members of this class. */
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int version)
+    void save(Archive &ar, const unsigned int version) const
     {
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(TreeBase);
         ar & BOOST_SERIALIZATION_NVP(resolution);
     }
 
+    /** Loads the members of this class. */
+    template <typename Archive>
+    void load(Archive &ar, const unsigned int version)
+    {
+
+        if (version >= 1)
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(TreeBase);
+        else
+        {
+            TreeBase_v0 treeBase_v0;
+            ar & BOOST_SERIALIZATION_NVP(treeBase_v0);
+            this->clear();
+            this->insert(treeBase_v0.begin(), treeBase_v0.end());
+        }
+        ar & BOOST_SERIALIZATION_NVP(resolution);
+    }
+
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
+
     float resolution;
+
+    /** Old version types. */
+    typedef std::map<int32_t, S> TreeBase_v0;
 };
 
 }}
+
+BOOST_TEMPLATED_CLASS_VERSION(maps::grid::DiscreteTree, 1)
