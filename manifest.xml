@@ -44,7 +44,12 @@
     <keywords>
         <keyword>Mapping</keyword>
         <keyword>Representation</keyword>
+        <keyword>Environment</keyword>
     </keywords>
+
+    <stage>1</stage>
+    <use>multi project</use>
+    <activity>active</activity>
 
    <tags>needs_opt</tags>
 </package>
