@@ -115,8 +115,10 @@ void TSDFVolumetricMap::mergePointCloud(const std::vector< Eigen::Matrix<double,
         std::pair<Eigen::Vector3d, Eigen::Matrix3d> measurement_in_map = pc2grid.composePointWithCovariance(*it, Eigen::Matrix3d::Zero());
         try
         {
-            // TODO use variance in the direction of the measurement
-            mergePoint(sensor_origin_in_grid, measurement_in_map.first, measurement_variance + measurement_in_map.second(2,2));
+            Eigen::Vector3d measurement_normal = (measurement_in_map.first - sensor_origin_in_grid).normalized();
+            double pose_variance = measurement_normal.transpose() * measurement_in_map.second * measurement_normal;
+
+            mergePoint(sensor_origin_in_grid, measurement_in_map.first, measurement_variance + (std::isfinite(pose_variance) ? pose_variance : 0.));
         }
         catch(const std::runtime_error& e)
         {
