@@ -35,18 +35,13 @@ void OccupancyGridMap::mergePointCloud(const OccupancyGridMap::PointCloud& pc, c
 {
     Eigen::Vector3d sensor_origin = pc.sensor_origin_.block(0,0,3,1).cast<double>();
     Eigen::Vector3d sensor_origin_in_grid = pc2grid * sensor_origin;
-    Eigen::Vector3i sensor_origin_idx;
-    if(!VoxelGridBase::toVoxelGrid(sensor_origin_in_grid, sensor_origin_idx))
-    {
-        LOG_ERROR_S << "Sensor origin (" << sensor_origin_in_grid.transpose() << ") is outside of the grid! Can't add corresponding point cloud to grid.";
-        return;
-    }
+    
     for(PointCloud::const_iterator it=pc.begin(); it != pc.end(); ++it)
     {
         try
         {
             Eigen::Vector3d measurement = it->getArray3fMap().cast<double>();
-            mergePoint(sensor_origin_in_grid, sensor_origin_idx, pc2grid * measurement);
+            mergePoint(sensor_origin_in_grid, pc2grid * measurement);
         }
         catch(const std::runtime_error& e)
         {
@@ -58,21 +53,18 @@ void OccupancyGridMap::mergePointCloud(const OccupancyGridMap::PointCloud& pc, c
 void OccupancyGridMap::mergePoint(const Eigen::Vector3d& sensor_origin, const Eigen::Vector3d& measurement)
 {
     Eigen::Vector3i sensor_origin_idx;
-    if(VoxelGridBase::toVoxelGrid(sensor_origin, sensor_origin_idx))
+    if(!VoxelGridBase::toVoxelGrid(sensor_origin, sensor_origin_idx))
     {
-        mergePoint(sensor_origin, sensor_origin_idx, measurement);
-    }
-    else
         throw std::runtime_error((boost::format("Sensor origin %1% is outside of the grid! Can't add to grid.") % sensor_origin.transpose()).str());
-}
+    }
 
-void OccupancyGridMap::mergePoint(const Eigen::Vector3d& sensor_origin, Eigen::Vector3i sensor_origin_idx, const Eigen::Vector3d& measurement)
-{
     Eigen::Vector3i measurement_idx;
     if(VoxelGridBase::toVoxelGrid(measurement, measurement_idx))
     {
         std::vector<VoxelTraversal::RayElement> ray;
-        VoxelTraversal::computeRay(VoxelGridBase::getVoxelResolution(), sensor_origin, sensor_origin_idx, measurement, ray);
+        VoxelTraversal::computeRay(VoxelGridBase::getVoxelResolution(), getLocalFrame() * sensor_origin, getLocalFrame() * measurement, ray);
+        // remove last cell containing the measurement
+        ray.pop_back();
 
         VoxelCellType& cell = getVoxelCell(measurement_idx);
         cell.updateLogOdds(config.hit_logodds, config.min_logodds, config.max_logodds);

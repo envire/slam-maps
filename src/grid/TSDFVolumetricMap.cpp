@@ -60,12 +60,14 @@ void TSDFVolumetricMap::mergePointCloud(const TSDFVolumetricMap::PointCloud& pc,
         std::pair<Eigen::Vector3d, Eigen::Matrix3d> measurement_in_map = pc2grid.composePointWithCovariance(it->getArray3fMap().cast<double>(), Eigen::Matrix3d::Zero());
         try
         {
-            mergePoint(sensor_origin_in_grid, measurement_in_map.first, measurement_variance + measurement_in_map.second(2,2));
+            Eigen::Vector3d measurement_normal = (measurement_in_map.first - sensor_origin_in_grid).normalized();
+            double pose_variance = measurement_normal.transpose() * measurement_in_map.second * measurement_normal;
+
+            mergePoint(sensor_origin_in_grid, measurement_in_map.first, measurement_variance + (std::isfinite(pose_variance) ? pose_variance : 0.));
         }
         catch(const std::runtime_error& e)
         {
-            // TODO use glog or base log for all out prints of this library
-            std::cerr << e.what() << std::endl;
+            LOG_ERROR_S << e.what();
         }
     }
 }
@@ -79,19 +81,13 @@ void TSDFVolumetricMap::mergePoint(const Eigen::Vector3d& sensor_origin, const E
     Eigen::Vector3d end_point = measurement + truncated_direction;
 
     Eigen::Vector3i start_point_idx;
-    Eigen::Vector3i end_point_idx;
-    Eigen::Vector3d start_point_cell_center;
-    if(VoxelGridBase::toVoxelGrid(start_point, start_point_idx) &&
-        VoxelGridBase::toVoxelGrid(end_point, end_point_idx, false))
+    if(VoxelGridBase::toVoxelGrid(start_point, start_point_idx))
     {
         std::vector<VoxelTraversal::RayElement> ray;
-        VoxelTraversal::computeRay(VoxelGridBase::getVoxelResolution(), start_point, start_point_idx, end_point, ray);
+        VoxelTraversal::computeRay(VoxelGridBase::getVoxelResolution(), getLocalFrame() * start_point, getLocalFrame() * end_point, ray);
 
         if(ray.empty())
             throw std::runtime_error("Ray is empty!");
-
-        // re-add last cell in ray
-        ray.push_back(VoxelTraversal::RayElement(end_point_idx, 1));
 
         const float res_sigma = 2.f * VoxelGridBase::getVoxelResolution().squaredNorm() / (5.2f*5.2f);
         const float res_sigma_inv = 1.f / res_sigma;
@@ -104,10 +100,9 @@ void TSDFVolumetricMap::mergePoint(const Eigen::Vector3d& sensor_origin, const E
                 Eigen::Vector3d cell_center;
                 if(GridMapBase::fromGrid(element.idx, cell_center))
                 {
-                    int32_t z_end = element.z_last + element.z_step;
-                    for(int32_t z_idx = element.z_first; z_idx != z_end; z_idx += element.z_step)
+                    if(element.z_first == element.z_last)
                     {
-                        cell_center.z() = tree.getCellCenter(z_idx);
+                        cell_center.z() = tree.getCellCenter(element.z_first);
 
                         // compute point on ray closest to the current cell center
                         Eigen::Hyperplane<double, 3> plane(measurement_normal, cell_center);
@@ -116,7 +111,24 @@ void TSDFVolumetricMap::mergePoint(const Eigen::Vector3d& sensor_origin, const E
                         // weight the current measurement according to the distance to the cell center with the inverse normal distribution
                         float phi = std::exp(-(point_on_ray - cell_center).squaredNorm() * res_sigma_inv);
                         if(phi > 0.f)
-                            tree.getCellAt(z_idx).update(ray_length - (point_on_ray - sensor_origin).norm(), (1.f/phi) * measurement_variance, truncation, min_variance);
+                            tree.getCellAt(element.z_first).update(ray_length - (point_on_ray - sensor_origin).norm(), (1.f/phi) * measurement_variance, truncation, min_variance);
+                    }
+                    else
+                    {
+                        int32_t z_end = element.z_last + element.z_step;
+                        for(int32_t z_idx = element.z_first; z_idx != z_end; z_idx += element.z_step)
+                        {
+                            cell_center.z() = tree.getCellCenter(z_idx);
+
+                            // compute point on ray closest to the current cell center
+                            Eigen::Hyperplane<double, 3> plane(measurement_normal, cell_center);
+                            Eigen::Vector3d point_on_ray = plane.projection(sensor_origin);
+
+                            // weight the current measurement according to the distance to the cell center with the inverse normal distribution
+                            float phi = std::exp(-(point_on_ray - cell_center).squaredNorm() * res_sigma_inv);
+                            if(phi > 0.f)
+                                tree.getCellAt(z_idx).update(ray_length - (point_on_ray - sensor_origin).norm(), (1.f/phi) * measurement_variance, truncation, min_variance);
+                        }
                     }
                 }
                 else

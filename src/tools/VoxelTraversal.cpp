@@ -26,86 +26,46 @@
 //
 #include "VoxelTraversal.hpp"
 
-#include <base/Timeout.hpp>
-
 using namespace maps::tools;
 
-void VoxelTraversal::computeRay(const Eigen::Vector3d& grid_res, const Eigen::Vector3d& origin, const Eigen::Vector3i& origin_idx, const Eigen::Vector3d& measurement, std::vector< RayElement >& ray)
+void VoxelTraversal::computeRay(const Eigen::Vector3d& grid_res, const Eigen::Vector3d& origin,
+                                const Eigen::Vector3d& measurement, std::vector<Eigen::Vector3i>& voxel_indices)
 {
-    // compute aligned measurement and origin indices
-    Eigen::DiagonalMatrix<double,3> scale = Eigen::DiagonalMatrix<double,3>(1.0/grid_res.x(), 1.0/grid_res.y(), 1.0/grid_res.z());
-    Eigen::Vector3d measurement_in_grid = scale * measurement;
-    Eigen::Vector3i local_measurement_idx(std::round(measurement_in_grid.x()), std::round(measurement_in_grid.y()), std::round(measurement_in_grid.z()));
+    voxel_indices.clear();
+    Eigen::Vector3i current_voxel, last_voxel, diff;
+    Eigen::Vector3d ray, step, voxel_border, t_max, t_delta;
+    diff = Eigen::Vector3i::Zero();
+    bool neg_ray = false;
 
-    Eigen::Vector3d origin_in_grid = scale * origin;
-    Eigen::Vector3i local_origin_idx(std::round(origin_in_grid.x()), std::round(origin_in_grid.y()), std::round(origin_in_grid.z()));
-
-    Eigen::Vector3d origin_cell_center = local_origin_idx.cast<double>().cwiseProduct(grid_res);
-    Eigen::Vector3i idx_diff = local_measurement_idx - local_origin_idx;
-
-    // perform ray tracing
-    computeRay(grid_res, origin, Eigen::Vector3i::Zero(), origin_cell_center, measurement, idx_diff, ray);
-
-    // add origin index offset
-    Eigen::Vector2i origin_idx_2d = origin_idx.block(0,0,2,1);
-    for(RayElement& element : ray)
-    {
-        element.idx = origin_idx_2d + element.idx;
-        element.z_first = origin_idx.z() + element.z_first;
-        element.z_last = origin_idx.z() + element.z_last;
-    }
-}
-
-void VoxelTraversal::computeRay(const Eigen::Vector3d& grid_res, const Eigen::Vector3d& origin, const Eigen::Vector3i& origin_idx, const Eigen::Vector3d& origin_cell_center, const Eigen::Vector3d& measurement, const Eigen::Vector3i& measurement_idx, std::vector< VoxelTraversal::RayElement >& ray)
-{
-    ray.clear();
-
-    Eigen::Vector3d direction = (measurement - origin).normalized();
-    double distance = (measurement - origin).norm();
-
-    Eigen::Vector3i step = Eigen::Vector3i::Zero();
-    Eigen::Vector3d t_max = Eigen::Vector3d::Ones() * std::numeric_limits<double>::max();
-    Eigen::Vector3d t_delta = Eigen::Vector3d::Zero();
-
-    // compute initial coefficients
     for(unsigned i = 0; i < 3; i++)
     {
-        if(direction(i) > 0.0)
-            step(i) = 1;
-        else if(direction(i) < 0.0)
-            step(i) = -1;
+        current_voxel(i) = std::floor(origin(i) / grid_res(i));
+        last_voxel(i) = std::floor(measurement(i) / grid_res(i));
+        ray(i) = measurement(i) - origin(i);
 
-        if(step(i) != 0)
+        // compute initial coefficients
+        step(i) = (ray(i) >= 0.) ? 1. : -1.;
+        voxel_border(i) = (current_voxel(i) + step(i)) * grid_res(i);
+        t_max(i) = (ray(i) != 0.) ? (voxel_border(i) - origin(i)) / ray(i) : std::numeric_limits< double >::max();
+        t_delta(i) = (ray(i) != 0.) ? grid_res(i) / ray(i) * step(i) : std::numeric_limits< double >::max();
+
+        if(current_voxel(i) != last_voxel(i) && ray(i) < 0.)
         {
-            double voxel_border = origin_cell_center(i);
-            voxel_border += double(step(i)) * grid_res(i) * 0.5;
-
-            t_max(i) = (voxel_border - origin(i)) / direction(i);
-            t_delta(i) = grid_res(i) / fabs(direction(i));
+            diff(i)--;
+            neg_ray = true;
         }
     }
 
-    if(step.x() == 0 && step.y() == 0 && step.z() == 0)
-        return;
-
-    Eigen::Vector3i ray_idx = origin_idx;
-    ray.push_back(RayElement(ray_idx, step.z()));
+    voxel_indices.push_back(current_voxel);
+    if (neg_ray)
+    {
+        current_voxel += diff;
+        voxel_indices.push_back(current_voxel);
+    }
 
     // traverse ray
-    while(true)
+    while(last_voxel != current_voxel)
     {
-        // check if we reached the final index
-        if(ray_idx == measurement_idx)
-            break;
-
-        // check for a potential miss of the last cell due to discretization errors
-        if(t_max.minCoeff() > distance)
-        {
-            // clear ray and return
-            ray.clear();
-            return;
-        }
-
         // identify axis to increase
         int axis = 0;
         if(t_max.x() < t_max.y())
@@ -114,22 +74,29 @@ void VoxelTraversal::computeRay(const Eigen::Vector3d& grid_res, const Eigen::Ve
             axis = t_max.y() < t_max.z() ? 1 : 2;
 
         // increase index
-        ray_idx[axis] += step[axis];
+        current_voxel[axis] += step[axis];
         t_max[axis] += t_delta[axis];
-        if(axis != 2)
-            ray.push_back(RayElement(ray_idx, step.z()));
-        else
-            ray.back().z_last = ray_idx[axis];
+        voxel_indices.push_back(current_voxel);
     }
+}
 
-    assert(ray_idx.block(0,0,2,1) == ray.back().idx && ray_idx.z() == ray.back().z_last);
+void VoxelTraversal::computeRay(const Eigen::Vector3d& grid_res, const Eigen::Vector3d& origin,
+                                const Eigen::Vector3d& measurement, std::vector< RayElement >& ray)
+{
+    std::vector<Eigen::Vector3i> visited_voxels;
+    computeRay(grid_res, origin, measurement, visited_voxels);
 
-    // remove last element from ray
-    if(!ray.empty())
+    ray.clear();
+    for(unsigned i = 0; i < visited_voxels.size(); i++)
     {
-        if(ray.back().z_last != ray.back().z_first)
-            ray.back().z_last -= step.z();
+        if(!ray.empty() && ray.back().idx == visited_voxels[i].head<2>())
+        {
+            ray.back().z_step = visited_voxels[i].z() - ray.back().z_last;
+            ray.back().z_last = visited_voxels[i].z();
+        }
         else
-            ray.pop_back();
+        {
+            ray.push_back(RayElement(visited_voxels[i], 0));
+        }
     }
 }
