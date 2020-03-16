@@ -45,6 +45,7 @@
 #include <cmath>
 #include <limits>
 #include <vector>
+#include <iostream>
 
 
 namespace maps { namespace grid
