@@ -11,3 +11,15 @@ rock_testsuite(test_voxel_traversal
 rock_testsuite(test_surface_intersection
    test_surface_intersection.cpp
    DEPS maps)
+   
+rock_testsuite(test_MLSToSlopes
+   test_tools_MLSToSlopes.cpp
+   DEPS maps)
+
+rock_testsuite(test_SimpleTraversability
+   test_tools_SimpleTraversability.cpp
+   DEPS maps)
+
+rock_testsuite(test_traversability_grassfire
+   test_tools_TraversabilityGrassfire.cpp
+   DEPS maps)

@@ -24,38 +24,51 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-#ifndef __MAPS_VIZ_STANDALONEVISUALIZER_HPP_
-#define __MAPS_VIZ_STANDALONEVISUALIZER_HPP_
+#include "TraversabilityCell.hpp"
 
-#include <boost/scoped_ptr.hpp>
 
-#include <maps/grid/MLSMap.hpp>
-#include <maps/grid/OccupancyGridMap.hpp>
-#include <maps/grid/TraversabilityGrid.hpp>
+using namespace maps::grid;
 
-namespace maps{ namespace grid
+TraversabilityCell::TraversabilityCell(): traversabilityClassId(0), probability(0)
 {
+}
 
-class StandaloneVisualizer
+TraversabilityCell::TraversabilityCell(uint8_t traversabilityClass, uint8_t probability): traversabilityClassId(traversabilityClass), probability(probability)
 {
-    class Impl;
-    boost::scoped_ptr<Impl> impl;
-public:
-    StandaloneVisualizer();
-    ~StandaloneVisualizer();
+}
 
-    bool wait(int usecs = 1000);
+TraversabilityCell::~TraversabilityCell()
+{
+}
 
-    void updateData(const ::maps::grid::MLSMapKalman& mls);
-    void updateData(const ::maps::grid::MLSMapSloped& mls);
-    void updateData(const ::maps::grid::MLSMapPrecalculated& mls);
-    void updateData(const ::maps::grid::MLSMapBase& mls);
-    void updateData(const ::maps::grid::OccupancyGridMap& grid);
-    void updateData(const ::maps::grid::TraversabilityGrid& travGrid);
+void TraversabilityCell::setTraversabilityClassId(uint8_t traversabilityClassId)
+{
+    this->traversabilityClassId = traversabilityClassId;
+}
 
-};
+uint8_t TraversabilityCell::getTraversabilityClassId() const
+{
+    return traversabilityClassId;
+}
 
-} /* namespace grid */
-} /* namespace maps */
+void TraversabilityCell::setProbability(uint8_t probability)
+{
+    this->probability = probability;
+}
 
-#endif /* __MAPS_VIZ_STANDALONEVISUALIZER_HPP_ */
+uint8_t TraversabilityCell::getProbability() const
+{
+    return probability;
+}
+
+bool TraversabilityCell::operator==(const TraversabilityCell& other) const
+{
+    bool isequal = traversabilityClassId == other.getTraversabilityClassId() && probability == other.getProbability();
+    return isequal;
+}
+
+bool TraversabilityCell::operator!=(const TraversabilityCell& other) const
+{
+    bool isinequal = traversabilityClassId != other.getTraversabilityClassId() || probability != other.getProbability();
+    return isinequal;
+}

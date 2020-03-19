@@ -24,38 +24,33 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-#ifndef __MAPS_VIZ_STANDALONEVISUALIZER_HPP_
-#define __MAPS_VIZ_STANDALONEVISUALIZER_HPP_
+#include "TraversabilityClass.hpp"
 
-#include <boost/scoped_ptr.hpp>
 
-#include <maps/grid/MLSMap.hpp>
-#include <maps/grid/OccupancyGridMap.hpp>
-#include <maps/grid/TraversabilityGrid.hpp>
+using namespace maps::grid;
 
-namespace maps{ namespace grid
+TraversabilityClass::TraversabilityClass(float drivability): drivability(drivability)
 {
+}
 
-class StandaloneVisualizer
+TraversabilityClass::TraversabilityClass(): drivability(-1)
 {
-    class Impl;
-    boost::scoped_ptr<Impl> impl;
-public:
-    StandaloneVisualizer();
-    ~StandaloneVisualizer();
+}
 
-    bool wait(int usecs = 1000);
+bool TraversabilityClass::isClassDefined() const
+{
+    return drivability >= 0;
+}
 
-    void updateData(const ::maps::grid::MLSMapKalman& mls);
-    void updateData(const ::maps::grid::MLSMapSloped& mls);
-    void updateData(const ::maps::grid::MLSMapPrecalculated& mls);
-    void updateData(const ::maps::grid::MLSMapBase& mls);
-    void updateData(const ::maps::grid::OccupancyGridMap& grid);
-    void updateData(const ::maps::grid::TraversabilityGrid& travGrid);
+bool TraversabilityClass::isTraversable() const
+{
+    return drivability > 0;
+}
 
-};
+float TraversabilityClass::getDrivability() const
+{
+    if (drivability < 0)
+        return 0;
 
-} /* namespace grid */
-} /* namespace maps */
-
-#endif /* __MAPS_VIZ_STANDALONEVISUALIZER_HPP_ */
+    return drivability;
+}
