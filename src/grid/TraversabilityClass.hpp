@@ -24,38 +24,68 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-#ifndef __MAPS_VIZ_STANDALONEVISUALIZER_HPP_
-#define __MAPS_VIZ_STANDALONEVISUALIZER_HPP_
+#ifndef __MAPS_TAVERSABILITY_CLASS_HPP_
+#define __MAPS_TAVERSABILITY_CLASS_HPP_
 
-#include <boost/scoped_ptr.hpp>
 
-#include <maps/grid/MLSMap.hpp>
-#include <maps/grid/OccupancyGridMap.hpp>
-#include <maps/grid/TraversabilityGrid.hpp>
 
-namespace maps{ namespace grid
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/export.hpp>
+
+namespace maps { namespace grid 
 {
 
-class StandaloneVisualizer
-{
-    class Impl;
-    boost::scoped_ptr<Impl> impl;
-public:
-    StandaloneVisualizer();
-    ~StandaloneVisualizer();
+    /**
+     * @brief Type holding the actual traversability value used in TraversabilityGrid.
+     **/
+    class TraversabilityClass
+    {
+    public:
 
-    bool wait(int usecs = 1000);
+    /**
+    * Default constructor.
+    * Drivability must be given in the range of [0,1] (0 - 100%).
+    * */
+    TraversabilityClass(float drivability);
 
-    void updateData(const ::maps::grid::MLSMapKalman& mls);
-    void updateData(const ::maps::grid::MLSMapSloped& mls);
-    void updateData(const ::maps::grid::MLSMapPrecalculated& mls);
-    void updateData(const ::maps::grid::MLSMapBase& mls);
-    void updateData(const ::maps::grid::OccupancyGridMap& grid);
-    void updateData(const ::maps::grid::TraversabilityGrid& travGrid);
+    TraversabilityClass();
 
-};
+    /**
+    * Return whether this class is defined
+    * or if it is an empty placeholder.
+    * */
+    bool isClassDefined() const;
 
-} /* namespace grid */
-} /* namespace maps */
+    /**
+    * Returns whether the terrain is drivable.
+    * */
+    bool isTraversable() const;
 
-#endif /* __MAPS_VIZ_STANDALONEVISUALIZER_HPP_ */
+    /**
+    * Returns a value in the interval [0, 1].
+    * Zero means not drivable at all and
+    * one means perfect ground for driving.
+    * */
+    float getDrivability() const;
+
+    private:
+    float drivability;
+
+    protected:
+
+    /** Grants access to boost serialization */
+    friend class boost::serialization::access;
+
+    /** Serializes the members of this class*/
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int version)
+    {;
+        ar & BOOST_SERIALIZATION_NVP(drivability);
+    }
+    };
+
+}  //end namespace grid
+}  //end namespace maps
+
+#endif  //__MAPS_TAVERSABILITY_CLASS_HPP_

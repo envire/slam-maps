@@ -7,12 +7,22 @@ rock_library(maps
         grid/ElevationMap.cpp
         grid/TraversabilityMap3d.cpp
         grid/OccupancyGridMap.cpp
+        grid/TraversabilityCell.cpp
+        grid/TraversabilityClass.cpp
+        grid/TraversabilityGrid.cpp
         grid/TSDFVolumetricMap.cpp
         tools/BresenhamLine.cpp
         tools/VoxelTraversal.cpp
         tools/TSDFPolygonMeshReconstruction.cpp
         tools/TSDF_MLSMapReconstruction.cpp
+<<<<<<< HEAD
         operations/CoverageMapGeneration.cpp
+=======
+        tools/MLSToSlopes.cpp
+        tools/SimpleTraversability.cpp
+        tools/SimpleTraversabilityRadialLUT.cpp
+        tools/TraversabilityGrassfire.cpp
+>>>>>>> master
     HEADERS
         LocalMap.hpp
         grid/Index.hpp
@@ -36,6 +46,9 @@ rock_library(maps
         grid/OccupancyGridMap.hpp
         grid/OccupancyConfiguration.hpp
         grid/OccupancyPatch.hpp
+        grid/TraversabilityCell.hpp
+        grid/TraversabilityClass.hpp
+        grid/TraversabilityGrid.hpp
         grid/TSDFPatch.hpp
         grid/TSDFVolumetricMap.hpp
         geometric/Point.hpp
@@ -50,6 +63,12 @@ rock_library(maps
         tools/TSDF_MLSMapReconstruction.hpp
         tools/MarchingCubes.hpp
         tools/SurfaceIntersection.hpp
+        tools/MLSToSlopes.hpp
+        tools/SimpleTraversability.hpp
+        tools/SimpleTraversabilityRadialLUT.hpp
+        tools/TraversabilityGrassfire.hpp
+        tools/TraversabilityGrassfireConfig.hpp
+        tools/TraversabilityGrassFireSearchItem.hpp
         operations/GridInterpolation.hpp
         operations/CoverageMapGeneration.hpp
     DEPS_PKGCONFIG 

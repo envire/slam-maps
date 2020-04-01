@@ -24,38 +24,31 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-#ifndef __MAPS_VIZ_STANDALONEVISUALIZER_HPP_
-#define __MAPS_VIZ_STANDALONEVISUALIZER_HPP_
+#ifndef __MAPS_TRAVERSABILITY_GRASSFIRE_SEARCHITEM_HPP_
+#define __MAPS_TRAVERSABILITY_GRASSFIRE_SEARCHITEM_HPP_
 
-#include <boost/scoped_ptr.hpp>
+#include <maps/grid/SurfacePatches.hpp>
 
-#include <maps/grid/MLSMap.hpp>
-#include <maps/grid/OccupancyGridMap.hpp>
-#include <maps/grid/TraversabilityGrid.hpp>
-
-namespace maps{ namespace grid
+namespace maps { namespace tools
 {
 
-class StandaloneVisualizer
-{
-    class Impl;
-    boost::scoped_ptr<Impl> impl;
-public:
-    StandaloneVisualizer();
-    ~StandaloneVisualizer();
+    class TraversabilityGrassfireSearchItem
+    {
+    public:
+        TraversabilityGrassfireSearchItem(size_t x, size_t y,
+                                          const grid::SurfacePatch<grid::MLSConfig::KALMAN>* origin)
+            : x(x)
+            , y(y)
+            , origin(origin)
+        {
+        };
 
-    bool wait(int usecs = 1000);
+        size_t x;
+        size_t y;
+        const grid::SurfacePatch<grid::MLSConfig::KALMAN>* origin;
+    };
 
-    void updateData(const ::maps::grid::MLSMapKalman& mls);
-    void updateData(const ::maps::grid::MLSMapSloped& mls);
-    void updateData(const ::maps::grid::MLSMapPrecalculated& mls);
-    void updateData(const ::maps::grid::MLSMapBase& mls);
-    void updateData(const ::maps::grid::OccupancyGridMap& grid);
-    void updateData(const ::maps::grid::TraversabilityGrid& travGrid);
+}  // End namespace tools.
+}  // End namespace maps.
 
-};
-
-} /* namespace grid */
-} /* namespace maps */
-
-#endif /* __MAPS_VIZ_STANDALONEVISUALIZER_HPP_ */
+#endif  // __MAPS_TRAVERSABILITY_GRASSFIRE_SEARCHITEM_HPP_

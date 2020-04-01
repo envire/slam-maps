@@ -24,50 +24,47 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-#ifndef __MAPS_POINT_HPP__
-#define __MAPS_POINT_HPP__
+#ifndef __MAPS_SIMPLE_TRAVERSABILITY_RADIAL_LUT_HPP_
+#define __MAPS_SIMPLE_TRAVERSABILITY_RADIAL_LUT_HPP_
 
-/** Boost serialization **/
-#include <boost/serialization/nvp.hpp>
+#include "maps/grid/TraversabilityGrid.hpp"
+#include "boost/multi_array.hpp"
 
-/** Eigen **/
-#include <Eigen/Core>
-#include <Eigen/Geometry>
-
-#include <utility>
-
-namespace maps { namespace geometric
+namespace maps { namespace tools
 {
-    /**@brief Point class IEEE 1873 standard
-     * adapted to point in D-space.
-     * T type (e.g. float or double)
-     * D int specification for the dimensional space
-     * **/
-    template <typename T, int D>
-    class Point: public Eigen::Matrix<T, D, 1, Eigen::DontAlign>
+
+    /**
+     * Radial lookup table used in SimpleTraversability::closeNarrowPassages.
+    **/
+    class SimpleTraversabilityRadialLUT
     {
+    private:
+        int centerX, centerY;
+        unsigned int width, height;
+        boost::multi_array<std::pair<int, int>, 2>  parents;
+        boost::multi_array<bool, 2> inDistance;
 
     public:
-        template <typename... Ts>
-        Point(Ts&&... args) : Eigen::Matrix<T, D, 1, Eigen::DontAlign> (std::forward<Ts>(args)...)
-        {
-        }
+        /**
+        * Sets up parents and inDistance so they cover a grid of
+        * (@a distance * 2) x (@a distance * 2) with an additional
+        * Cell as the center.
+        */
+        void precompute(double distance, double resolutionX, double resolutionY);
+
+        /**
+        * Checks for the targetedValue within the in distance around the given center and calls markSingleRadius on them.
+        */
+        void markAllRadius(grid::TraversabilityGrid& traversabilityGrid, int centerX, int centerY, int targetedValue) const;
+
+        /**
+         * Marks all cells between target and center with the @a markValue using the @a parents table.
+         */
+        void markSingleRadius(grid::TraversabilityGrid& traversabilityGrid, int centerX, int centerY, int targetX, int targetY, int expectedValue, int markValue) const;
+
     };
 
-    typedef Point<double, 2> Point2d;
-    typedef Point<double, 3> Point3d;
-    typedef Point<float, 2> Point2f;
-    typedef Point<float, 3> Point3f;
-}}
+}  // End namespace tools.
+}  // End namespace maps.
 
-namespace boost { namespace serialization
-{
-    template<class Archive, typename T, int D>
-    void serialize(Archive & ar, ::maps::geometric::Point<T, D> & t, const unsigned int version)
-    {
-        for(size_t i=0; i<t.size(); i++)
-            ar & BOOST_SERIALIZATION_NVP(t[i]);
-    }
-}}
-
-#endif /* __MAPS_POINT_HPP__ */
+#endif  // __MAPS_SIMPLE_TRAVERSABILITY_RADIAL_LUT_HPP_
