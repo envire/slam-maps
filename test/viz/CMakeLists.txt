@@ -50,14 +50,11 @@ rock_testsuite(test_viz_occupancylidar
     DEPS maps-viz
     DEPS_PKGCONFIG vizkit3d  vizkit3d-viz)
 
-<<<<<<< HEAD
 rock_testsuite(test_viz_coverage
     test_viz_Coverage.cpp
     DEPS maps-viz
     DEPS_PKGCONFIG vizkit3d  vizkit3d-viz)
-=======
 rock_testsuite(test_viz_traversabilitygrid
     test_viz_TraversabilityGrid.cpp
     DEPS maps-viz
     DEPS_PKGCONFIG vizkit3d vizkit3d-viz)
->>>>>>> master

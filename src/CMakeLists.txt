@@ -15,14 +15,11 @@ rock_library(maps
         tools/VoxelTraversal.cpp
         tools/TSDFPolygonMeshReconstruction.cpp
         tools/TSDF_MLSMapReconstruction.cpp
-<<<<<<< HEAD
         operations/CoverageMapGeneration.cpp
-=======
         tools/MLSToSlopes.cpp
         tools/SimpleTraversability.cpp
         tools/SimpleTraversabilityRadialLUT.cpp
         tools/TraversabilityGrassfire.cpp
->>>>>>> master
     HEADERS
         LocalMap.hpp
         grid/Index.hpp
