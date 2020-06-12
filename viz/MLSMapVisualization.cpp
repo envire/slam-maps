@@ -29,6 +29,7 @@
 #include <osg/Geode>
 #include <osg/ShapeDrawable>
 #include <osg/Material>
+#include <osgUtil/SmoothingVisitor>
 
 #include <base/TimeMark.hpp>
 
@@ -38,6 +39,7 @@
 #include "MLSMapVisualization.hpp"
 
 #include "PatchesGeode.hpp"
+#include "SurfaceGeode.hpp"
 
 #include "ExtentsRectangle.hpp"
 
@@ -106,7 +108,8 @@ struct MLSMapVisualization::Data {
     // Making a copy is required because of how OSG works
     virtual ~Data() { }
     virtual Eigen::Vector2d getResolution() const = 0;
-    virtual void visualize(vizkit3d::PatchesGeode& geode) const = 0;
+    virtual void visualize(vizkit3d::PatchesGeode& geode, int levelOffset) const = 0;
+    virtual void visualize(vizkit3d::SurfaceGeode& geode) const = 0;
     virtual void visualizeNegativeInformation(vizkit3d::PatchesGeode& geode) const = 0;
     virtual maps::grid::CellExtents getCellExtents() const = 0;
     virtual base::Transform3d getLocalFrame() const = 0;
@@ -123,27 +126,85 @@ public:
     }
 
     Eigen::Vector2d getResolution() const { return mls.getResolution(); }
-    void visualize(vizkit3d::PatchesGeode& geode) const
-    {
-        //const GridMap<SPListST> &mls = *this;
-        Vector2ui num_cell = mls.getNumCells();
-        for (size_t x = 0; x < num_cell.x(); x++)
-        {
-            for (size_t y = 0; y < num_cell.y(); y++)
-            {
-                typedef typename MLSMap<Type>::CellType Cell;
-                const Cell &list = mls.at(x, y);
+    
 
-                Vector2d pos(0.00, 0.00);
-                // Calculate the position of the cell center.
-                pos = (maps::grid::Index(x, y).cast<double>() + maps::grid::Vector2d(0.5, 0.5)).array() * mls.getResolution().array();
-                geode.setPosition(pos.x(), pos.y());
-                for (typename Cell::const_iterator it = list.begin(); it != list.end(); it++)
+void visualize(vizkit3d::SurfaceGeode& geode) const
+    {
+        Vector2ui num_cell = mls.getNumCells();
+        double lastheight = 0;
+
+            for (size_t y = 0; y < num_cell.y()-1; y++) {
+                for (size_t x = 0; x < num_cell.x(); x++) {
+
+                    typedef typename MLSMap<Type>::CellType Cell;
+                    const Cell &list = mls.at(x, y);
+                    const Cell &nextlist = mls.at(x, y+1);
+
+                    if (list.size() && nextlist.size()){
+                        //geode.drawBox(p.getMean(), p.getHeight(), Vec3(p.getNormal()));
+                        auto patch = list.begin();
+                        auto neighborpatch = nextlist.begin();
+
+                        Eigen::Vector2d xypos = (maps::grid::Index(x, y).cast<double>() + maps::grid::Vector2d(0.5, 0.5)).array() * mls.getResolution().array();
+                        Eigen::Vector2d nxypos = (maps::grid::Index(x, y+1).cast<double>() + maps::grid::Vector2d(0.5, 0.5)).array() * mls.getResolution().array();
+
+                        float height = patch->getMax();
+                        float nheight = neighborpatch->getMax();
+
+                        //geode.setColor( horizontalCellColor );
+                        Eigen::Vector3f pos (xypos.x(), xypos.y(), height);
+                        Eigen::Vector3f posnormal = patch->getNormal();
+                        Eigen::Vector3f npos (nxypos.x(), nxypos.y(), nheight);
+                        Eigen::Vector3f nposnormal = neighborpatch->getNormal();
+
+                        // adding the neighbot first to make the SmoothingVisitor work properly
+                        geode.addVertex( osg::Vec3f(pos.x(),npos.y(),npos.z()), osg::Vec3f(nposnormal.x(),nposnormal.y(),nposnormal.z()) );
+                        geode.addVertex( osg::Vec3f(pos.x(),pos.y(),pos.z()), osg::Vec3f(posnormal.x(),posnormal.y(),posnormal.z()) );
+
+                        lastheight = height;
+
+
+                    }else{
+                        geode.closeTriangleStrip();
+                    }
+                }
+                geode.closeTriangleStrip();
+            }
+            //compute normals
+            osgUtil::SmoothingVisitor smoothingVisitor;
+            smoothingVisitor.apply(geode);
+        }
+
+
+
+    void visualize(vizkit3d::PatchesGeode& geode, int levelOffset) const
+    {
+        Vector2ui num_cell = mls.getNumCells();
+
+            //const GridMap<SPListST> &mls = *this;
+            
+            for (size_t x = 0; x < num_cell.x(); x++)
+            {
+                for (size_t y = 0; y < num_cell.y(); y++)
                 {
-                    PatchVisualizer::visualize(geode, *it);
-                } // for(SPList ...)
-            } // for(y ...)
-        } // for(x ...)        
+                    typedef typename MLSMap<Type>::CellType Cell;
+                    const Cell &list = mls.at(x, y);
+
+                    Vector2d pos(0.00, 0.00);
+                    // Calculate the position of the cell center.
+                    pos = (maps::grid::Index(x, y).cast<double>() + maps::grid::Vector2d(0.5, 0.5)).array() * mls.getResolution().array();
+                    geode.setPosition(pos.x(), pos.y());
+                    if (list.size()){
+                        for (typename Cell::const_iterator it = list.begin()+levelOffset; it != list.end(); it++)
+                        {
+                            PatchVisualizer::visualize(geode, *it);
+                        } // for(SPList ...)
+                    }
+                } // for(y ...)
+            } // for(x ...)        
+
+
+
     };
 
     void visualizeNegativeInformation(vizkit3d::PatchesGeode& geode) const
@@ -210,7 +271,8 @@ MLSMapVisualization::MLSMapVisualization()
     cycleHeightColor(true),
     cycleColorInterval(1.0),
     showPatchExtents(false),
-    uncertaintyScale(1.0)
+    uncertaintyScale(1.0),
+    connectedSurface(false)
 {
 }
 
@@ -254,7 +316,31 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
     geode->setShowNormals(showNormals);
     geode->setUncertaintyScale(uncertaintyScale);
 
-    p->visualize(*geode);
+    if (connectedSurface) {
+        p->visualize(*geode, 1);
+    } else {
+        p->visualize(*geode, 0);
+    }
+    
+
+
+    osg::ref_ptr<SurfaceGeode> sgeode = new SurfaceGeode(res.x(), res.y());
+    localNode->addChild( sgeode );
+    if(cycleHeightColor)
+    {
+        sgeode->showCycleColor(true);
+        sgeode->setCycleColorInterval(cycleColorInterval);
+        sgeode->setColorHSVA(0, 1.0, 0.6, 1.0);
+    }
+    else
+        sgeode->setColor(horizontalCellColor);
+    sgeode->setShowPatchExtents(showPatchExtents);
+    sgeode->setShowNormals(showNormals);
+    sgeode->setUncertaintyScale(uncertaintyScale);
+
+    p->visualize(*sgeode);
+
+
 
     if( showUncertainty || showNormals || showPatchExtents)
     {
@@ -468,6 +554,19 @@ void MLSMapVisualization::setUncertaintyScale(double scaling)
     uncertaintyScale = std::abs(scaling);
 
     emit propertyChanged("uncertainty_scale");
+    setDirty();
+}
+
+bool MLSMapVisualization::isConnectedSurface() const
+{
+    return connectedSurface;
+}
+
+void MLSMapVisualization::setConnectedSurface(bool enabled)
+{
+    connectedSurface = enabled;
+
+    emit propertyChanged("connected_surface");
     setDirty();
 }
 

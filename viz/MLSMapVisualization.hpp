@@ -60,6 +60,7 @@ namespace vizkit3d
         Q_PROPERTY(QColor vertical_cell_color READ getVerticalCellColor WRITE setVerticalCellColor)
         Q_PROPERTY(QColor negative_cell_color READ getNegativeCellColor WRITE setNegativeCellColor)
         Q_PROPERTY(QColor uncertainty_color READ getUncertaintyColor WRITE setUncertaintyColor)
+        Q_PROPERTY(bool connected_surface READ isConnectedSurface WRITE setConnectedSurface)
 
         public:
             MLSMapVisualization();
@@ -143,6 +144,9 @@ namespace vizkit3d
             double getUncertaintyScale() const;
             void setUncertaintyScale(double scaling);
 
+            bool isConnectedSurface() const;
+            void setConnectedSurface(bool enabled);
+
         protected:
             osg::Vec4 horizontalCellColor;
             osg::Vec4 verticalCellColor;
@@ -157,6 +161,7 @@ namespace vizkit3d
             double cycleColorInterval;
             bool showPatchExtents;
             double uncertaintyScale;
+            bool connectedSurface;
 
 #if 0
             osg::Vec3 estimateNormal(

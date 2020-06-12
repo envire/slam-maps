@@ -4,6 +4,7 @@ if (vizkit3d_FOUND AND OSGVIZ_PRIMITIVES_FOUND)
     rock_vizkit_plugin(maps-viz
             PluginLoader.cpp
             PatchesGeode.cpp
+            SurfaceGeode.cpp
             StandaloneVisualizer.cpp
         MOC
             GridMapVisualization.cpp
@@ -22,6 +23,7 @@ if (vizkit3d_FOUND AND OSGVIZ_PRIMITIVES_FOUND)
             MLSMapVisualization.hpp
             TraversabilityMap3dVisualization.hpp
             PatchesGeode.hpp
+            SurfaceGeode.hpp
             StandaloneVisualizer.hpp
             ContourMapVisualization.hpp
             OccupancyGridMapVisualization.hpp
