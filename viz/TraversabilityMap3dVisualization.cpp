@@ -109,7 +109,7 @@ void addSphere(const Eigen::Vector3f &position, osg::ref_ptr<osg::Geode> geode)
 
 void TraversabilityMap3dVisualization::visualizeNode(const TraversabilityNodeBase* node)
 {
-    Eigen::Vector3f curNodePos = map.getNodePosition(node);
+    Eigen::Vector2f curNodePos = (node->getIndex().cast<float>() + Eigen::Vector2f(0.5, 0.5)).array() * map.getResolution().cast<float>().array();
 
     PatchesGeode *geode = dynamic_cast<PatchesGeode *>(nodeGeode.get());
     geode->setPosition(curNodePos.x(), curNodePos.y());
@@ -163,10 +163,10 @@ void TraversabilityMap3dVisualization::visualizeNode(const TraversabilityNodeBas
 
 void TraversabilityMap3dVisualization::visualizeConnection(const TraversabilityNodeBase* from, const TraversabilityNodeBase* to)
 {
-    Eigen::Vector3f toPos = map.getNodePosition(to);
-    Eigen::Vector3f fromPos = map.getNodePosition(from);
-    osg::Vec3 fromOsg(fromPos.x(), fromPos.y(), fromPos.z());
-    osg::Vec3 toOsg(toPos.x(), toPos.y(), toPos.z());
+    Eigen::Vector2f toPos = (to->getIndex().cast<float>() + Eigen::Vector2f(0.5, 0.5)).array() * map.getResolution().cast<float>().array();
+    Eigen::Vector2f fromPos = (from->getIndex().cast<float>() + Eigen::Vector2f(0.5, 0.5)).array() * map.getResolution().cast<float>().array();
+    osg::Vec3 fromOsg(fromPos.x(), fromPos.y(), from->getHeight());
+    osg::Vec3 toOsg(toPos.x(), toPos.y(), to->getHeight());
     
     linesNode->addLine(fromOsg, toOsg);
 }

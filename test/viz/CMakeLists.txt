@@ -54,3 +54,8 @@ rock_testsuite(test_viz_traversabilitygrid
     test_viz_TraversabilityGrid.cpp
     DEPS maps-viz
     DEPS_PKGCONFIG vizkit3d vizkit3d-viz)
+
+rock_testsuite(test_viz_traversability_map3d
+    test_viz_TraversabilityMap3d.cpp
+    DEPS maps-viz
+    DEPS_PKGCONFIG vizkit3d vizkit3d-viz)
