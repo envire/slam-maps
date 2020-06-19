@@ -32,6 +32,7 @@
 #include <maps/grid/MLSMap.hpp>
 #include <maps/grid/OccupancyGridMap.hpp>
 #include <maps/grid/TraversabilityGrid.hpp>
+#include <maps/grid/TraversabilityMap3d.hpp>
 
 namespace maps{ namespace grid
 {
@@ -52,6 +53,7 @@ public:
     void updateData(const ::maps::grid::MLSMapBase& mls);
     void updateData(const ::maps::grid::OccupancyGridMap& grid);
     void updateData(const ::maps::grid::TraversabilityGrid& travGrid);
+    void updateData(const ::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase*>& travGrid);
 
 };
 

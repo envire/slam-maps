@@ -31,6 +31,7 @@
 #include <vizkit3d/GridVisualization.hpp>
 #include <vizkit3d/OccupancyGridMapVisualization.hpp>
 #include <vizkit3d/TraversabilityGridVisualization.hpp>
+#include <vizkit3d/TraversabilityMap3dVisualization.hpp>
 #include "StandaloneVisualizer.hpp"
 
 
@@ -44,6 +45,7 @@ class StandaloneVisualizer::Impl
     vizkit3d::MLSMapVisualization *mls_viz;
     vizkit3d::OccupancyGridMapVisualization *occ_viz;
     vizkit3d::TraversabilityGridVisualization *trav_viz;
+    vizkit3d::TraversabilityMap3dVisualization *trav_3d_viz;
 
     Impl()
     {
@@ -65,6 +67,9 @@ class StandaloneVisualizer::Impl
 
         trav_viz = new vizkit3d::TraversabilityGridVisualization();
         widget->addPlugin(trav_viz);
+
+        trav_3d_viz = new vizkit3d::TraversabilityMap3dVisualization();
+        widget->addPlugin(trav_3d_viz);
     }
 };
 
@@ -106,6 +111,11 @@ void StandaloneVisualizer::updateData(const OccupancyGridMap& grid)
 void StandaloneVisualizer::updateData(const TraversabilityGrid& travGrid)
 {
     impl->trav_viz->updateData(travGrid);
+}
+
+void StandaloneVisualizer::updateData(const maps::grid::TraversabilityMap3d< maps::grid::TraversabilityNodeBase* >& travGrid)
+{
+    impl->trav_3d_viz->updateData(travGrid);
 }
 
 bool StandaloneVisualizer::wait(int usecs)
