@@ -50,17 +50,17 @@ namespace vizkit3d
         Q_PROPERTY(bool show_map_extents READ areMapExtentsShown WRITE setShowMapExtents)
         Q_PROPERTY(bool show_uncertainty READ isUncertaintyShown WRITE setShowUncertainty)
         Q_PROPERTY(bool show_negative READ isNegativeShown WRITE setShowNegative)
-        Q_PROPERTY(bool show_patch_extents READ arePatchExtentsShown WRITE setShowPatchExtents)        
+        Q_PROPERTY(bool show_patch_extents READ arePatchExtentsShown WRITE setShowPatchExtents)
         Q_PROPERTY(bool estimate_normals READ areNormalsEstimated WRITE setEstimateNormals)
         Q_PROPERTY(bool show_normals READ areNormalsShown WRITE setShowNormals)
         Q_PROPERTY(bool cycle_height_color READ isHeightColorCycled WRITE setCycleHeightColor)
         Q_PROPERTY(double cycle_color_interval READ getCycleColorInterval WRITE setCycleColorInterval)
         Q_PROPERTY(double uncertainty_scale READ getUncertaintyScale WRITE setUncertaintyScale)
+        Q_PROPERTY(bool connected_surface READ isConnectedSurface WRITE setConnectedSurface)
         Q_PROPERTY(QColor horizontal_cell_color READ getHorizontalCellColor WRITE setHorizontalCellColor)
         Q_PROPERTY(QColor vertical_cell_color READ getVerticalCellColor WRITE setVerticalCellColor)
         Q_PROPERTY(QColor negative_cell_color READ getNegativeCellColor WRITE setNegativeCellColor)
         Q_PROPERTY(QColor uncertainty_color READ getUncertaintyColor WRITE setUncertaintyColor)
-        Q_PROPERTY(bool connected_surface READ isConnectedSurface WRITE setConnectedSurface)
 
         public:
             MLSMapVisualization();

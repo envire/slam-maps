@@ -32,6 +32,7 @@
 #include <boost/math/special_functions/fpclassify.hpp>
 
 #include <chrono>
+#include <iostream>
 
 using namespace ::maps::grid;
 
