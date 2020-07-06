@@ -34,6 +34,8 @@
 #include <maps/grid/GridFacade.hpp>
 #include <maps/grid/LevelList.hpp>
 
+#include <iostream>
+
 using namespace ::maps::grid;
 class PatchBase
 {
