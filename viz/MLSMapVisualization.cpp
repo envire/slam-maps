@@ -316,31 +316,28 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
     geode->setShowNormals(showNormals);
     geode->setUncertaintyScale(uncertaintyScale);
 
-    if (connectedSurface) {
-        p->visualize(*geode, 1);
-    } else {
+    if (!connectedSurface) {
         p->visualize(*geode, 0);
+    } else {
+        p->visualize(*geode, 1);
+
+        osg::ref_ptr<SurfaceGeode> sgeode = new SurfaceGeode(res.x(), res.y());
+        localNode->addChild( sgeode );
+        if(cycleHeightColor)
+        {
+            sgeode->showCycleColor(true);
+            sgeode->setCycleColorInterval(cycleColorInterval);
+            sgeode->setColorHSVA(0, 1.0, 0.6, 1.0);
+        } else {
+            sgeode->setColor(horizontalCellColor);
+        }
+        sgeode->setShowPatchExtents(showPatchExtents);
+        sgeode->setShowNormals(showNormals);
+        sgeode->setUncertaintyScale(uncertaintyScale);
+
+        p->visualize(*sgeode);
+
     }
-    
-
-
-    osg::ref_ptr<SurfaceGeode> sgeode = new SurfaceGeode(res.x(), res.y());
-    localNode->addChild( sgeode );
-    if(cycleHeightColor)
-    {
-        sgeode->showCycleColor(true);
-        sgeode->setCycleColorInterval(cycleColorInterval);
-        sgeode->setColorHSVA(0, 1.0, 0.6, 1.0);
-    }
-    else
-        sgeode->setColor(horizontalCellColor);
-    sgeode->setShowPatchExtents(showPatchExtents);
-    sgeode->setShowNormals(showNormals);
-    sgeode->setUncertaintyScale(uncertaintyScale);
-
-    p->visualize(*sgeode);
-
-
 
     if( showUncertainty || showNormals || showPatchExtents)
     {
