@@ -15,6 +15,7 @@ rock_library(maps
         tools/VoxelTraversal.cpp
         tools/TSDFPolygonMeshReconstruction.cpp
         tools/TSDF_MLSMapReconstruction.cpp
+        operations/CoverageMapGeneration.cpp
         tools/MLSToSlopes.cpp
         tools/SimpleTraversability.cpp
         tools/SimpleTraversabilityRadialLUT.cpp
@@ -66,6 +67,7 @@ rock_library(maps
         tools/TraversabilityGrassfireConfig.hpp
         tools/TraversabilityGrassFireSearchItem.hpp
         operations/GridInterpolation.hpp
+        operations/CoverageMapGeneration.hpp
     DEPS_PKGCONFIG 
         base-types 
         base-logging
