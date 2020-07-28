@@ -57,6 +57,8 @@ namespace vizkit3d
         Q_PROPERTY(double cycle_color_interval READ getCycleColorInterval WRITE setCycleColorInterval)
         Q_PROPERTY(double uncertainty_scale READ getUncertaintyScale WRITE setUncertaintyScale)
         Q_PROPERTY(bool connected_surface READ isConnectedSurface WRITE setConnectedSurface)
+        Q_PROPERTY(bool simplify_surface READ getSimplifySurface WRITE setSimplifySurface)
+        Q_PROPERTY(bool connected_surface_lod READ getConnectedSurfaceLOD WRITE setConnectedSurfaceLOD)
         Q_PROPERTY(QColor horizontal_cell_color READ getHorizontalCellColor WRITE setHorizontalCellColor)
         Q_PROPERTY(QColor vertical_cell_color READ getVerticalCellColor WRITE setVerticalCellColor)
         Q_PROPERTY(QColor negative_cell_color READ getNegativeCellColor WRITE setNegativeCellColor)
@@ -147,6 +149,12 @@ namespace vizkit3d
             bool isConnectedSurface() const;
             void setConnectedSurface(bool enabled);
 
+            bool getSimplifySurface() const;
+            void setSimplifySurface(bool enabled);
+
+            bool getConnectedSurfaceLOD() const;
+            void setConnectedSurfaceLOD(bool enabled);
+
         protected:
             osg::Vec4 horizontalCellColor;
             osg::Vec4 verticalCellColor;
@@ -162,6 +170,8 @@ namespace vizkit3d
             bool showPatchExtents;
             double uncertaintyScale;
             bool connectedSurface;
+            bool simplifySurface;
+            bool connected_surface_lod;
 
 #if 0
             osg::Vec3 estimateNormal(
