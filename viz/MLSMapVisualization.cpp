@@ -29,7 +29,9 @@
 #include <osg/Geode>
 #include <osg/ShapeDrawable>
 #include <osg/Material>
+#include <osg/LOD>
 #include <osgUtil/SmoothingVisitor>
+#include <osgUtil/Simplifier>
 
 #include <base/TimeMark.hpp>
 
@@ -157,7 +159,7 @@ void visualize(vizkit3d::SurfaceGeode& geode) const
                         Eigen::Vector3f npos (nxypos.x(), nxypos.y(), nheight);
                         Eigen::Vector3f nposnormal = neighborpatch->getNormal();
 
-                        // adding the neighbot first to make the SmoothingVisitor work properly
+                        // adding the neighbor first to make the SmoothingVisitor work properly
                         geode.addVertex( osg::Vec3f(pos.x(),npos.y(),npos.z()), osg::Vec3f(nposnormal.x(),nposnormal.y(),nposnormal.z()) );
                         geode.addVertex( osg::Vec3f(pos.x(),pos.y(),pos.z()), osg::Vec3f(posnormal.x(),posnormal.y(),posnormal.z()) );
 
@@ -173,6 +175,7 @@ void visualize(vizkit3d::SurfaceGeode& geode) const
             //compute normals
             osgUtil::SmoothingVisitor smoothingVisitor;
             smoothingVisitor.apply(geode);
+            geode.setDataVariance(osg::Object::STATIC);
         }
 
 
@@ -272,7 +275,9 @@ MLSMapVisualization::MLSMapVisualization()
     cycleColorInterval(1.0),
     showPatchExtents(false),
     uncertaintyScale(1.0),
-    connectedSurface(false)
+    connectedSurface(false),
+    simplifySurface(true),
+    connected_surface_lod(false)
 {
 }
 
@@ -322,7 +327,6 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
         p->visualize(*geode, 1);
 
         osg::ref_ptr<SurfaceGeode> sgeode = new SurfaceGeode(res.x(), res.y());
-        localNode->addChild( sgeode );
         if(cycleHeightColor)
         {
             sgeode->showCycleColor(true);
@@ -335,8 +339,31 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
         sgeode->setShowNormals(showNormals);
         sgeode->setUncertaintyScale(uncertaintyScale);
 
+        // init LOD:
+        // high level
         p->visualize(*sgeode);
 
+        if (simplifySurface) {
+            osgUtil::Simplifier simplifer;
+            simplifer.setSampleRatio(1.0f);
+            sgeode->accept(simplifer);
+        }
+
+        osg::ref_ptr<osg::LOD> lodnode = new osg::LOD();
+        localNode->addChild(lodnode);
+
+        if (!connected_surface_lod) {
+            // only use one LOD level
+            lodnode->addChild(sgeode, 0, FLT_MAX);
+        } else {
+            lodnode->addChild(sgeode, 0, 75);
+            // downsample for 2nd LOD level
+            osg::ref_ptr<osg::Node> lowres = dynamic_cast<osg::Node*>(sgeode->clone(osg::CopyOp::DEEP_COPY_ALL));
+            osgUtil::Simplifier simplifer;
+            simplifer.setSampleRatio(0.5);
+            lowres->accept(simplifer);
+            lodnode->addChild(lowres, 75, FLT_MAX);
+        }
     }
 
     if( showUncertainty || showNormals || showPatchExtents)
@@ -566,6 +593,32 @@ void MLSMapVisualization::setConnectedSurface(bool enabled)
     emit propertyChanged("connected_surface");
     setDirty();
 }
+
+bool MLSMapVisualization::getConnectedSurfaceLOD() const
+{
+    return connected_surface_lod;
+}
+void MLSMapVisualization::setConnectedSurfaceLOD(bool enabled)
+{
+    connected_surface_lod = enabled;
+
+    emit propertyChanged("connected_surface_lod");
+    setDirty();
+}
+
+bool MLSMapVisualization::getSimplifySurface() const
+{
+    return simplifySurface;
+}
+void MLSMapVisualization::setSimplifySurface(bool enabled)
+{
+    simplifySurface = enabled;
+    emit propertyChanged("simplify_surface");
+    setDirty();
+}
+
+
+
 
 //Macro that makes this plugin loadable in ruby, this is optional.
 //VizkitQtPlugin(MLSMapVisualization)
