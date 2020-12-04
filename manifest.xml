@@ -26,6 +26,7 @@
     </description>
     <author> Autonomy Team/ric-team8@dfki.de</author>
     <maintainer>Anna Born/anna.born@dfki.de</maintainer>
+    <maintainer>Sascha Arnold/sascha.arnold@dfki.de</maintainer>
     <license>BSD</license>
     <url>http://rock-robotics.org/</url>
     <depend package="base/cmake"/>
