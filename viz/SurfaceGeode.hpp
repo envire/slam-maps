@@ -24,8 +24,8 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-#ifndef __VIZKIT_PATCHESGEODE_HPP__
-#define __VIZKIT_PATCHESGEODE_HPP__
+#ifndef __VIZKIT_SURFACEGEODE_HPP__
+#define __VIZKIT_SURFACEGEODE_HPP__
 
 #include <osg/Geometry>
 #include <osg/Geode>
@@ -36,54 +36,10 @@
 
 namespace vizkit3d {
 
-    class PatchesGeode : public osg::Geode
+    class SurfaceGeode : public osg::Geode
     {
     public:
-        PatchesGeode(float x_res, float y_res);
-
-        void setPosition(float x, float y)
-        {
-            xp = x; yp = y;
-        }
-
-        /** Draws a plane inside the box given by \c position and \c extends,
-         *  using \c normal and \c mean (relative to the origin of the box)
-         *  @deprecated please use drawPlane(plane, min, max, stdev)
-         */
-        void drawPlane(
-            const float& z,
-            const float& height,
-            const osg::Vec3& mean,
-            const osg::Vec3& normal,
-            const float & stdev = 0.f);
-
-        /**
-         * Draws a plane inside the box given by \c min, \c max and the known
-         * grid resolution using \c plane (relative to the origin of the box).
-         * Note: \c plane must be defined in the cell center.
-         */
-        void drawPlane(
-            const Eigen::Hyperplane<float, 3> & plane,
-            const float & min,
-            const float & max,
-            const float & stdev = 0.f);
-
-        /**
-         * Draws a plane inside the current cell at height \c z.
-         * The normal of this plane is always in the direction of the z-axis.
-         */
-        void drawHorizontalPlane(
-            const float & z,
-            const float & stdev = 0.f);
-
-        /**
-         * Draws a box with between \c top and (\c top - \c height).
-         */
-        void drawBox(
-            const float& top,
-            const float& height,
-            const osg::Vec3& c_normal,
-            const float & stdev = 0.f);
+        SurfaceGeode(float x_res, float y_res);
 
         void setColor(const osg::Vec4& color);
         void setColorHSVA(float hue, float sat, float lum, float alpha);
@@ -98,6 +54,12 @@ namespace vizkit3d {
         void drawLines();
 
 
+        void addVertex(const osg::Vec3& p, const osg::Vec3& n, const float & stdev = 0.f);
+
+        void closeTriangleStrip(){
+            geom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::TRIANGLE_STRIP,vertex_index,vertices->size()-vertex_index));
+            vertex_index = vertices->size();
+        }
 
     private:
         osg::ref_ptr<osg::Vec3Array> vertices;
@@ -125,11 +87,9 @@ namespace vizkit3d {
         float cycle_color_interval;
         double uncertaintyScale;
 
-        void addVertex(const osg::Vec3& p, const osg::Vec3& n, const float & stdev = 0.f);
-        void updateColor();
         
-        void closePolygon();
-        void closeQuads();
+        void updateColor();
+
     };
 
 }

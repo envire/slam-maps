@@ -35,8 +35,9 @@ using namespace ::maps::grid;
 using namespace vizkit3d;
 
 vizkit3d::TraversabilityMap3dVisualization::TraversabilityMap3dVisualization()
-    : Vizkit3DPlugin< ::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase *> >()
-    , isoline_interval(16.0), show_connections(false)
+    : MapVisualization< maps::grid::TraversabilityMap3d< maps::grid::TraversabilityNodeBase* > >()
+    , isoline_interval(16.0)
+    , show_connections(false)
 {
 
 }
@@ -48,9 +49,12 @@ vizkit3d::TraversabilityMap3dVisualization::~TraversabilityMap3dVisualization()
 
 osg::ref_ptr< osg::Node > vizkit3d::TraversabilityMap3dVisualization::createMainNode()
 {
-    osg::ref_ptr<osg::Group> group = new osg::Group();
+    osg::ref_ptr<osg::Group> mainNode = MapVisualization::createMainNode()->asGroup();
+    localNode = new osg::Group();
 
-    return group.release();
+    mainNode->addChild(localNode.get());
+
+    return mainNode;
 }
 
 
@@ -105,7 +109,7 @@ void addSphere(const Eigen::Vector3f &position, osg::ref_ptr<osg::Geode> geode)
 
 void TraversabilityMap3dVisualization::visualizeNode(const TraversabilityNodeBase* node)
 {
-    Eigen::Vector3f curNodePos = map.getNodePosition(node);
+    Eigen::Vector2f curNodePos = (node->getIndex().cast<float>() + Eigen::Vector2f(0.5, 0.5)).array() * map.getResolution().cast<float>().array();
 
     PatchesGeode *geode = dynamic_cast<PatchesGeode *>(nodeGeode.get());
     geode->setPosition(curNodePos.x(), curNodePos.y());
@@ -131,7 +135,7 @@ void TraversabilityMap3dVisualization::visualizeNode(const TraversabilityNodeBas
             geode->setColor(osg::Vec4d(1, 1, 0, 1));
             break;            
         default:
-            std::cout << "WARNING: unknown node type!\n";
+            LOG_WARN_S << "Unknown node type!";
             geode->setColor(osg::Vec4d(0,0,1,1));
     }
     
@@ -139,7 +143,7 @@ void TraversabilityMap3dVisualization::visualizeNode(const TraversabilityNodeBas
     {
         //FIXME if nodes are too far aways, the culling mechanism of osg breaks.
         // I.e. verticves disappear when zooming in on them.
-        std::cout << "TraversabilityMap3dVisualization:: Warning, ignoring node with height above +-30000 " << std::endl; 
+        LOG_WARN_S << "TraversabilityMap3dVisualization:: Ignoring node with height above +-30000 "; 
         return;
     }
     
@@ -159,10 +163,10 @@ void TraversabilityMap3dVisualization::visualizeNode(const TraversabilityNodeBas
 
 void TraversabilityMap3dVisualization::visualizeConnection(const TraversabilityNodeBase* from, const TraversabilityNodeBase* to)
 {
-    Eigen::Vector3f toPos = map.getNodePosition(to);
-    Eigen::Vector3f fromPos = map.getNodePosition(from);
-    osg::Vec3 fromOsg(fromPos.x(), fromPos.y(), fromPos.z());
-    osg::Vec3 toOsg(toPos.x(), toPos.y(), toPos.z());
+    Eigen::Vector2f toPos = (to->getIndex().cast<float>() + Eigen::Vector2f(0.5, 0.5)).array() * map.getResolution().cast<float>().array();
+    Eigen::Vector2f fromPos = (from->getIndex().cast<float>() + Eigen::Vector2f(0.5, 0.5)).array() * map.getResolution().cast<float>().array();
+    osg::Vec3 fromOsg(fromPos.x(), fromPos.y(), from->getHeight());
+    osg::Vec3 toOsg(toPos.x(), toPos.y(), to->getHeight());
     
     linesNode->addLine(fromOsg, toOsg);
 }
@@ -177,15 +181,19 @@ void vizkit3d::TraversabilityMap3dVisualization::addNodeList(const maps::grid::L
 
 void vizkit3d::TraversabilityMap3dVisualization::updateMainNode(osg::Node* node)
 {
-    osg::Group* group = static_cast<osg::Group*>(node);    
+    // Apply local frame.
+    setLocalFrame(map.getLocalFrame());
+
+    // Draw map extents.
+    visualizeMapExtents(map.calculateCellExtents(), map.getResolution());
 
     //clear old data
-    group->removeChildren(0, group->getNumChildren());
+    localNode->removeChildren(0, localNode->getNumChildren());
 
     nodeGeode = new PatchesGeode(map.getResolution().x(), map.getResolution().y());
     linesNode = new osgviz::LinesNode(osg::Vec4(1, 1, 1, 1));
-    group->addChild(nodeGeode);
-    group->addChild(linesNode);
+    localNode->addChild(nodeGeode);
+    localNode->addChild(linesNode);
     
     PatchesGeode *geode = dynamic_cast<PatchesGeode *>(nodeGeode.get());
     geode->setColor(osg::Vec4d(1,0,0,1));
@@ -197,7 +205,7 @@ void vizkit3d::TraversabilityMap3dVisualization::updateMainNode(osg::Node* node)
         for(size_t x = 0; x < map.getNumCells().x(); x++)
         {
             const LevelList<TraversabilityNodeBase *> &l(map.at(x, y));
-            addNodeList(l, group);
+            addNodeList(l, localNode);
         }
     }
 }

@@ -26,7 +26,7 @@
 //
 #pragma once
 
-#include <vizkit3d/Vizkit3DPlugin.hpp>
+#include <vizkit3d/MapVisualization.hpp>
 
 #include <osg/Geode>
 #include <osg/Shape>
@@ -37,11 +37,11 @@
 namespace vizkit3d
 {
 
-class OccupancyGridMapVisualization : public vizkit3d::Vizkit3DPlugin< ::maps::grid::OccupancyGridMap >
-    , boost::noncopyable
+class OccupancyGridMapVisualization : public vizkit3d::MapVisualization< ::maps::grid::OccupancyGridMap >
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool showMapExtents READ areMapExtentsShown WRITE setShowMapExtents)
     Q_PROPERTY(bool ShowOccupied READ getShowOccupied WRITE setShowOccupied)
     Q_PROPERTY(bool ShowFreespace READ getShowFreespace WRITE setShowFreespace)
     Q_PROPERTY(QColor OccupiedCellColor READ getOccupiedCellColor WRITE setOccupiedCellColor)
@@ -70,6 +70,8 @@ class OccupancyGridMapVisualization : public vizkit3d::Vizkit3DPlugin< ::maps::g
         virtual void updateDataIntern(::maps::grid::OccupancyGridMap const& grid);
 
     private:
+        osg::ref_ptr<osg::Group> localNode;
+
         maps::grid::OccupancyGridMap grid;
         bool show_occupied;
         bool show_freespace;
