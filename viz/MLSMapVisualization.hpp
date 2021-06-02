@@ -27,36 +27,38 @@
 #ifndef maps_MLSMapVisualization_H
 #define maps_MLSMapVisualization_H
 
-#include <vizkit3d/Vizkit3DPlugin.hpp>
-
-#include <boost/noncopyable.hpp>
+#include <vizkit3d/MapVisualization.hpp>
 
 #include <osg/Geode>
 #include <osg/Shape>
 #include <osg/Texture2D>
 
-#include <maps/grid/MLSMap.hpp>
+#if QT_VERSION >= 0x050000 || !defined(Q_MOC_RUN)
+    #include <maps/grid/MLSMap.hpp>
+#endif
 
 namespace vizkit3d
 {
     class MLSMapVisualization
-        : public vizkit3d::Vizkit3DPlugin< ::maps::grid::MLSMapKalman >
+        : public vizkit3d::MapVisualization< ::maps::grid::MLSMapKalman >
         , public vizkit3d::VizPluginAddType< ::maps::grid::MLSMap<::maps::grid::MLSConfig::SLOPE> >
         , public vizkit3d::VizPluginAddType< ::maps::grid::MLSMap<::maps::grid::MLSConfig::PRECALCULATED> >
         , public vizkit3d::VizPluginAddType< ::maps::grid::MLSMap<::maps::grid::MLSConfig::BASE> >
-        , boost::noncopyable
     {
         Q_OBJECT
 
         Q_PROPERTY(bool show_map_extents READ areMapExtentsShown WRITE setShowMapExtents)
         Q_PROPERTY(bool show_uncertainty READ isUncertaintyShown WRITE setShowUncertainty)
         Q_PROPERTY(bool show_negative READ isNegativeShown WRITE setShowNegative)
-        Q_PROPERTY(bool show_patch_extents READ arePatchExtentsShown WRITE setShowPatchExtents)        
+        Q_PROPERTY(bool show_patch_extents READ arePatchExtentsShown WRITE setShowPatchExtents)
         Q_PROPERTY(bool estimate_normals READ areNormalsEstimated WRITE setEstimateNormals)
         Q_PROPERTY(bool show_normals READ areNormalsShown WRITE setShowNormals)
         Q_PROPERTY(bool cycle_height_color READ isHeightColorCycled WRITE setCycleHeightColor)
         Q_PROPERTY(double cycle_color_interval READ getCycleColorInterval WRITE setCycleColorInterval)
         Q_PROPERTY(double uncertainty_scale READ getUncertaintyScale WRITE setUncertaintyScale)
+        Q_PROPERTY(bool connected_surface READ isConnectedSurface WRITE setConnectedSurface)
+        Q_PROPERTY(bool simplify_surface READ getSimplifySurface WRITE setSimplifySurface)
+        Q_PROPERTY(bool connected_surface_lod READ getConnectedSurfaceLOD WRITE setConnectedSurfaceLOD)
         Q_PROPERTY(QColor horizontal_cell_color READ getHorizontalCellColor WRITE setHorizontalCellColor)
         Q_PROPERTY(QColor vertical_cell_color READ getVerticalCellColor WRITE setVerticalCellColor)
         Q_PROPERTY(QColor negative_cell_color READ getNegativeCellColor WRITE setNegativeCellColor)
@@ -103,6 +105,8 @@ namespace vizkit3d
         private:
             struct Data;
             boost::scoped_ptr<Data> p;
+
+            osg::ref_ptr<osg::Group> localNode;
         
         public slots:
 
@@ -139,11 +143,17 @@ namespace vizkit3d
             void setShowPatchExtents( bool value );
             bool arePatchExtentsShown() const; 
 
-            void setShowMapExtents(bool value);
-            bool areMapExtentsShown() const;
-
             double getUncertaintyScale() const;
             void setUncertaintyScale(double scaling);
+
+            bool isConnectedSurface() const;
+            void setConnectedSurface(bool enabled);
+
+            bool getSimplifySurface() const;
+            void setSimplifySurface(bool enabled);
+
+            bool getConnectedSurfaceLOD() const;
+            void setConnectedSurfaceLOD(bool enabled);
 
         protected:
             osg::Vec4 horizontalCellColor;
@@ -151,7 +161,6 @@ namespace vizkit3d
             osg::Vec4 negativeCellColor;
             osg::Vec4 uncertaintyColor;
 
-            bool showMapExtents;
             bool showUncertainty;
             bool showNegative;
             bool estimateNormals;
@@ -160,6 +169,9 @@ namespace vizkit3d
             double cycleColorInterval;
             bool showPatchExtents;
             double uncertaintyScale;
+            bool connectedSurface;
+            bool simplifySurface;
+            bool connected_surface_lod;
 
 #if 0
             osg::Vec3 estimateNormal(
