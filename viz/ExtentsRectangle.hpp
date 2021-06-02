@@ -31,8 +31,6 @@
 #include <osg/Geometry>
 #include <osg/LineWidth>
 
-#include <Eigen/Core>
-
 
 class ExtentsRectangle : public osg::Geode
 {
@@ -41,7 +39,7 @@ class ExtentsRectangle : public osg::Geode
     osg::ref_ptr<osg::Vec3Array> vertices;
 
 public:
-    ExtentsRectangle( const Eigen::Vector2d& min, const Eigen::Vector2d& max,
+    ExtentsRectangle( Eigen::Vector2d min, Eigen::Vector2d max, 
         const osg::Vec4& col = osg::Vec4( 0.0f, 0.9f, 0.1f, 0.8f ) ) 
         : geom( new osg::Geometry() ),
           color( new osg::Vec4Array() ), 
@@ -66,16 +64,6 @@ public:
         osg::StateSet* ss = getOrCreateStateSet();
         ss->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
         ss->setAttribute( new osg::LineWidth( 3.0 ) );
-    }
-
-     void update(const Eigen::Vector2d& min, const Eigen::Vector2d& max)
-    {
-        vertices->at(0) = osg::Vec3( min.x(), min.y(), 0 );
-        vertices->at(1) = osg::Vec3( min.x(), max.y(), 0 );
-        vertices->at(2) = osg::Vec3( max.x(), max.y(), 0 );
-        vertices->at(3) = osg::Vec3( max.x(), min.y(), 0 );
-
-        geom->setVertexArray(vertices);
     }
 };
 

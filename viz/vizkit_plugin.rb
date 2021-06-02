@@ -62,10 +62,3 @@ Vizkit::UiLoader.register_3d_plugin_for('TraversabilityMap3dVisualization', "/en
     plugin.setVisualizationFrame(sample.frame_id)
     plugin.updateTrMap(sample.data)
 end
-
-Vizkit::UiLoader.register_3d_plugin('TraversabilityGridVisualization', "maps", 'TraversabilityGridVisualization')
-Vizkit::UiLoader.register_3d_plugin_for('TraversabilityGridVisualization', "/maps/grid/TraversabilityGrid", :updateData)
-Vizkit::UiLoader.register_3d_plugin_for('TraversabilityGridVisualization', "/envire/core/SpatioTemporal</maps/grid/TraversabilityGrid>") do |plugin,sample,_|
-    plugin.setVisualizationFrame(sample.frame_id)
-    plugin.updateData(sample.data)
-end

@@ -31,7 +31,6 @@
 #include "MLSMapVisualization.hpp"
 #include "TraversabilityMap3dVisualization.hpp"
 #include "OccupancyGridMapVisualization.hpp"
-#include "TraversabilityGridVisualization.hpp"
 
 namespace vizkit3d {
     class QtPluginVizkitMaps : public vizkit3d::VizkitPluginFactory
@@ -53,7 +52,6 @@ namespace vizkit3d {
             pluginNames->push_back("MLSMapVisualization");
             pluginNames->push_back("TraversabilityMap3dVisualization");
             pluginNames->push_back("OccupancyGridMapVisualization");
-            pluginNames->push_back("TraversabilityGridVisualization");
             return pluginNames;
         }
 
@@ -83,10 +81,6 @@ namespace vizkit3d {
             else if (pluginName == "OccupancyGridMapVisualization")
             {
                 plugin = new OccupancyGridMapVisualization();
-            }
-            else if (pluginName == "TraversabilityGridVisualization")
-            {
-                plugin = new TraversabilityGridVisualization();
             }
 
             if (plugin)

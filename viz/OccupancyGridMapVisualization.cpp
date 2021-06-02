@@ -29,8 +29,7 @@
 
 using namespace vizkit3d;
 
-OccupancyGridMapVisualization::OccupancyGridMapVisualization()
-    : MapVisualization< maps::grid::OccupancyGridMap >()
+OccupancyGridMapVisualization::OccupancyGridMapVisualization(): Vizkit3DPlugin< maps::grid::OccupancyGridMap >()
 {
     show_occupied = true;
     show_freespace = false;
@@ -45,32 +44,22 @@ OccupancyGridMapVisualization::~OccupancyGridMapVisualization()
 
 osg::ref_ptr< osg::Node > OccupancyGridMapVisualization::createMainNode()
 {
-    osg::ref_ptr<osg::Group> mainNode = MapVisualization::createMainNode()->asGroup();
-    localNode = new osg::Group();
-
-    mainNode->addChild(localNode.get());
-
-    return mainNode;
+    return vizkit3d::VizPluginBase::createMainNode();
 }
 
 void OccupancyGridMapVisualization::updateMainNode(osg::Node* node)
 {
-    // Apply local frame.
-    setLocalFrame(grid.getLocalFrame());
-
-    // Draw map extents.
-    visualizeMapExtents(grid.calculateCellExtents(), grid.getResolution());
-
-    localNode->removeChildren(0, localNode->getNumChildren());
+    osg::Group* group = static_cast<osg::Group*>(node);
+    group->removeChildren(0, group->getNumChildren());
 
     Eigen::Vector3d res = grid.getVoxelResolution();
 
     osg::ref_ptr<PatchesGeode> occupied_voxels = new PatchesGeode(res.x(), res.y());
     occupied_voxels->setColor(osg::Vec4f(occupied_color.redF(), occupied_color.greenF(), occupied_color.blueF(), occupied_color.alphaF()));
-    localNode->addChild( occupied_voxels );
+    group->addChild( occupied_voxels );
     osg::ref_ptr<PatchesGeode> free_space_voxels = new PatchesGeode(res.x(), res.y());
     free_space_voxels->setColor(osg::Vec4f(free_space_color.redF(), free_space_color.greenF(), free_space_color.blueF(), free_space_color.alphaF()));
-    localNode->addChild( free_space_voxels );
+    group->addChild( free_space_voxels );
 
     maps::grid::Vector2ui num_cell = grid.getNumCells();
     const maps::grid::OccupancyConfiguration& config = grid.getConfig();
@@ -79,11 +68,9 @@ void OccupancyGridMapVisualization::updateMainNode(osg::Node* node)
         for (size_t y = 0; y < num_cell.y(); y++)
         {
             const maps::grid::OccupancyGridMap::GridMapBase::CellType &tree = grid.at(x, y);
-            maps::grid::Index idx(x, y);
-            if(grid.inGrid(idx))
+            maps::grid::Vector3d pos;
+            if(grid.fromGrid(maps::grid::Index(x,y), pos))
             {
-                // Calculate the position of the cell center.
-                maps::grid::Vector2d pos = (idx.cast<double>() + maps::grid::Vector2d(0.5, 0.5)).array() * grid.getResolution().array();
                 occupied_voxels->setPosition(pos.x(), pos.y());
                 free_space_voxels->setPosition(pos.x(), pos.y());
                 std::vector< std::pair<int,int> > occ_cells;

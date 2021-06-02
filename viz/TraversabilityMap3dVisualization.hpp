@@ -25,26 +25,25 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 #pragma once
-#include <vizkit3d/MapVisualization.hpp>
+#include <vizkit3d/Vizkit3DPlugin.hpp>
+
+#include <boost/noncopyable.hpp>
 
 #include <osg/Geode>
 #include <osg/Shape>
 #include <osg/Texture2D>
 #include <osgViz/modules/viz/Primitives/Primitives/LinesNode.h>
 
-#if QT_VERSION >= 0x050000 || !defined(Q_MOC_RUN)
-    #include "maps/grid/TraversabilityMap3d.hpp"
-#endif
+#include "maps/grid/TraversabilityMap3d.hpp"
 
 namespace vizkit3d
 {
 
 class TraversabilityMap3dVisualization        
-    : public vizkit3d::MapVisualization<::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase *>>
+    : public vizkit3d::Vizkit3DPlugin<::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase *>>
+    , boost::noncopyable
 {
     Q_OBJECT
-
-    Q_PROPERTY(bool showMapExtents READ areMapExtentsShown WRITE setShowMapExtents)
     Q_PROPERTY(double isoline_interval READ getIsolineInterval WRITE setIsolineInterval)
     Q_PROPERTY(bool show_connections READ getShowConnections WRITE setShowConnections)
 
@@ -88,9 +87,6 @@ public:
     
     bool getShowConnections();
     void setShowConnections(bool val);
-
-private:
-    osg::ref_ptr<osg::Group> localNode;
 };
 
 }

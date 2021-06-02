@@ -40,7 +40,7 @@
 
 using namespace vizkit3d;
 
-ContourMapVisualization::ContourMapVisualization() : MapVisualization< maps::geometric::ContourMap >()
+ContourMapVisualization::ContourMapVisualization()
 {
     geom = new osg::Geometry;
     line_points = new osg::Vec3Array;
@@ -54,9 +54,6 @@ ContourMapVisualization::~ContourMapVisualization()
 
 osg::ref_ptr<osg::Node> ContourMapVisualization::createMainNode()
 {
-    /** Create main node. **/
-    osg::ref_ptr<osg::Group> mainNode = MapVisualization::createMainNode()->asGroup();
-
     /** Set the osg data **/
     geom->setVertexArray(line_points);
     draw_arrays = new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, line_points->size() );
@@ -69,10 +66,7 @@ osg::ref_ptr<osg::Node> ContourMapVisualization::createMainNode()
     osg::StateSet* stategeode = geode->getOrCreateStateSet();
     stategeode->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
 
-    /** Add geode to main node. **/
-    mainNode->addChild(geode.get());
-
-    return mainNode;
+    return geode;
 }
 
 void ContourMapVisualization::updateMainNode( osg::Node* node )
@@ -92,9 +86,6 @@ void ContourMapVisualization::updateMainNode( osg::Node* node )
 
     geom->setVertexArray(line_points);
     draw_arrays->setCount(line_points->size());
-
-    /** Apply local frame. **/
-    setLocalFrame(contour_lines.getLocalFrame());
 }
 
 void ContourMapVisualization::updateDataIntern(const ::maps::geometric::ContourMap & data)
