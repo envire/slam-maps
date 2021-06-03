@@ -60,50 +60,6 @@ osg::Quat Quat( const Eigen::Quaternion<T, options>& q )
     return osg::Quat( q.x(), q.y(), q.z(), q.w() );
 }
 
-namespace vizkit3d {
-struct PatchVisualizer
-{
-    static void visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::SLOPE>& p)
-    {
-        float minZ, maxZ;
-        p.getRange(minZ, maxZ);
-        minZ -= 5e-4f;
-        maxZ += 5e-4f;
-        Eigen::Vector3f normal = p.getNormal();
-        if(normal.allFinite())
-        {
-            geode.drawPlane(Eigen::Hyperplane<float, 3>(p.getNormal(), p.getCenter()), minZ, maxZ);
-        }
-        else
-        {
-            float height = (maxZ - minZ) + 1e-3f;
-            geode.drawBox(maxZ, height, osg::Vec3(0.f,0.f,1.f));
-        }
-    }
-    static void visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::PRECALCULATED>& p)
-    {
-        float minZ, maxZ;
-        p.getRange(minZ, maxZ);
-        minZ -= 5e-4f;
-        maxZ += 5e-4f;
-        geode.drawPlane(p.getPlane(), minZ, maxZ, 1e-4f);
-    }
-    static void visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::KALMAN>& p)
-    {
-        if(p.isHorizontal())
-            geode.drawHorizontalPlane(p.getMean(), p.getStandardDeviation());
-        else
-            geode.drawBox(p.getMean(), p.getHeight(), Vec3(p.getNormal()));
-    }
-    static void visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::BASE>& p)
-    {
-        geode.drawBox(p.getTop(), p.getTop()-p.getBottom(), Vec3(p.getNormal()));
-    }
-
-
-};
-}
-
 struct MLSMapVisualization::Data {
     // Copy of the value given to updateDataIntern.
     //
@@ -115,6 +71,7 @@ struct MLSMapVisualization::Data {
     virtual void visualizeNegativeInformation(vizkit3d::PatchesGeode& geode) const = 0;
     virtual maps::grid::CellExtents getCellExtents() const = 0;
     virtual base::Transform3d getLocalFrame() const = 0;
+    MLSMapVisualization* visualization;
 };
 
 template<enum MLSConfig::update_model Type>
@@ -200,7 +157,7 @@ void visualize(vizkit3d::SurfaceGeode& geode) const
                     if (list.size()){
                         for (typename Cell::const_iterator it = list.begin()+levelOffset; it != list.end(); it++)
                         {
-                            PatchVisualizer::visualize(geode, *it);
+                            visualization->visualize(geode, *it);
                         } // for(SPList ...)
                     }
                 } // for(y ...)
@@ -275,6 +232,7 @@ MLSMapVisualization::MLSMapVisualization()
     cycleColorInterval(1.0),
     showPatchExtents(false),
     uncertaintyScale(1.0),
+    minMeasurements(1),
     connectedSurface(false),
     simplifySurface(true),
     connected_surface_lod(false)
@@ -387,15 +345,18 @@ void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMapKalman const& val
 void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::SLOPE> const& value)
 {
     p.reset(new DataHold<MLSConfig::SLOPE>( value ));
+    p->visualization = this;
 }
 void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::PRECALCULATED> const& value)
 {
     p.reset(new DataHold<MLSConfig::PRECALCULATED>( value ));
+    p->visualization = this;
 }
 
 void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::BASE> const& value)
 {
     p.reset(new DataHold<MLSConfig::BASE>( value ));
+    p->visualization = this;
 }
 
 bool MLSMapVisualization::isUncertaintyShown() const
@@ -617,8 +578,59 @@ void MLSMapVisualization::setSimplifySurface(bool enabled)
     setDirty();
 }
 
+int MLSMapVisualization::getMinMeasurements() const
+{
+    return minMeasurements;
+}
+void MLSMapVisualization::setMinMeasurements(int measurements)
+{
+    minMeasurements = measurements;
+    emit propertyChanged("min_measurements");
+    setDirty();
+}
 
+void MLSMapVisualization::visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::SLOPE>& p)
+{
+    float minZ, maxZ;
+    p.getRange(minZ, maxZ);
+    minZ -= 5e-4f;
+    maxZ += 5e-4f;
+    Eigen::Vector3f normal = p.getNormal();
+    if(p.getNumerOfMeasurements() > minMeasurements)
+    {
+        if(normal.allFinite())
+        {
+            geode.drawPlane(Eigen::Hyperplane<float, 3>(p.getNormal(), p.getCenter()), minZ, maxZ);
+        }
+        else
+        {
+            float height = (maxZ - minZ) + 1e-3f;
+            geode.drawBox(maxZ, height, osg::Vec3(0.f,0.f,1.f));
+        }
+    }
+}
 
+void MLSMapVisualization::visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::PRECALCULATED>& p)
+{
+    float minZ, maxZ;
+    p.getRange(minZ, maxZ);
+    minZ -= 5e-4f;
+    maxZ += 5e-4f;
+    geode.drawPlane(p.getPlane(), minZ, maxZ, 1e-4f);
+}
+
+void MLSMapVisualization::visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::KALMAN>& p)
+{
+    if(p.isHorizontal())
+        geode.drawHorizontalPlane(p.getMean(), p.getStandardDeviation());
+    else
+        geode.drawBox(p.getMean(), p.getHeight(), Vec3(p.getNormal()));
+}
+
+void MLSMapVisualization::visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::BASE>& p)
+{
+    geode.drawBox(p.getTop(), p.getTop()-p.getBottom(), Vec3(p.getNormal()));
+}
 
 //Macro that makes this plugin loadable in ruby, this is optional.
 //VizkitQtPlugin(MLSMapVisualization)
