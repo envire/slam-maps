@@ -600,11 +600,13 @@ void MLSMapVisualization::visualize(vizkit3d::PatchesGeode& geode, const Surface
     minZ -= 5e-4f;
     maxZ += 5e-4f;
     Eigen::Vector3f normal = p.getNormal();
-    if(p.getNumerOfMeasurements() > minMeasurements)
+    if(normal.z() < 0)
+        normal *= -1.0;
+    if(p.getNumerOfMeasurements() >= minMeasurements)
     {
         if(normal.allFinite())
         {
-            geode.drawPlane(Eigen::Hyperplane<float, 3>(p.getNormal(), p.getCenter()), minZ, maxZ);
+            geode.drawPlane(Eigen::Hyperplane<float, 3>(normal, p.getCenter()), minZ, maxZ);
         }
         else
         {
