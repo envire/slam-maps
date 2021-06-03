@@ -64,6 +64,7 @@ struct MLSMapVisualization::Data {
     // Copy of the value given to updateDataIntern.
     //
     // Making a copy is required because of how OSG works
+    Data(MLSMapVisualization& vis):visualization(vis) {}
     virtual ~Data() { }
     virtual Eigen::Vector2d getResolution() const = 0;
     virtual void visualize(vizkit3d::PatchesGeode& geode, int levelOffset) const = 0;
@@ -71,7 +72,7 @@ struct MLSMapVisualization::Data {
     virtual void visualizeNegativeInformation(vizkit3d::PatchesGeode& geode) const = 0;
     virtual maps::grid::CellExtents getCellExtents() const = 0;
     virtual base::Transform3d getLocalFrame() const = 0;
-    MLSMapVisualization* visualization;
+    MLSMapVisualization& visualization;
 };
 
 template<enum MLSConfig::update_model Type>
@@ -80,7 +81,7 @@ struct DataHold : public MLSMapVisualization::Data
 private:
     MLSMap<Type> mls;
 public:
-    DataHold(const MLSMap<Type> mls_) : mls(mls_)
+    DataHold(const MLSMap<Type> mls_, MLSMapVisualization& vis) : Data(vis), mls(mls_)
     {
     }
 
@@ -161,7 +162,7 @@ void visualize(vizkit3d::SurfaceGeode& geode) const
                     if (list.size()){
                         for (typename Cell::const_iterator it = list.begin()+levelOffset; it != list.end(); it++)
                         {
-                            visualization->visualize(geode, *it);
+                            visualization.visualize(geode, *it);
                         } // for(SPList ...)
                     }
                 } // for(y ...)
@@ -344,23 +345,20 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
 
 void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMapKalman const& value)
 {
-    p.reset(new DataHold<MLSConfig::KALMAN>( value ));
+    p.reset(new DataHold<MLSConfig::KALMAN>( value, *this ));
 }
 void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::SLOPE> const& value)
 {
-    p.reset(new DataHold<MLSConfig::SLOPE>( value ));
-    p->visualization = this;
+    p.reset(new DataHold<MLSConfig::SLOPE>( value, *this ));
 }
 void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::PRECALCULATED> const& value)
 {
-    p.reset(new DataHold<MLSConfig::PRECALCULATED>( value ));
-    p->visualization = this;
+    p.reset(new DataHold<MLSConfig::PRECALCULATED>( value, *this ));
 }
 
 void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::BASE> const& value)
 {
-    p.reset(new DataHold<MLSConfig::BASE>( value ));
-    p->visualization = this;
+    p.reset(new DataHold<MLSConfig::BASE>( value, *this ));
 }
 
 bool MLSMapVisualization::isUncertaintyShown() const
