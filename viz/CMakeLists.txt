@@ -18,6 +18,7 @@ if (vizkit3d_FOUND AND OSGVIZ_PRIMITIVES_FOUND)
             ExtentsRectangle.hpp
             GridMapVisualization.hpp
             ElevationMapVisualization.hpp
+            MapVisualization.hpp
             MLSMapVisualization.hpp
             TraversabilityMap3dVisualization.hpp
             PatchesGeode.hpp
