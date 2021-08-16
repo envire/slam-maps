@@ -71,11 +71,12 @@ rock_library(maps
     DEPS_PKGCONFIG 
         base-types 
         base-logging
-        pcl_common-${PCL_VERSION_MAJOR}.${PCL_VERSION_MINOR}
-        pcl_io-${PCL_VERSION_MAJOR}.${PCL_VERSION_MINOR}
         boost_serialization
     DEPS_PLAIN
         Boost_SYSTEM 
         Boost_FILESYSTEM 
         Boost_SERIALIZATION
+        PCL_COMMON
+        PCL_IO
 )
+
