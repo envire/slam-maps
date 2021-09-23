@@ -1,4 +1,9 @@
 pkg_check_modules(OSGVIZ_PRIMITIVES PrimitivesFactory)
+pkg_check_modules(OSG REQUIRED openscenegraph)
+
+if(${OSG_VERSION} VERSION_GREATER_EQUAL 3.6.4)
+    add_compile_definitions(NEW_OSG)
+endif()
 
 if (vizkit3d_FOUND AND OSGVIZ_PRIMITIVES_FOUND)
     rock_vizkit_plugin(maps-viz
