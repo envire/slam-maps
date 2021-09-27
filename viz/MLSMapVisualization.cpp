@@ -91,7 +91,6 @@ public:
 void visualize(vizkit3d::SurfaceGeode& geode) const
     {
         Vector2ui num_cell = mls.getNumCells();
-        double lastheight = 0;
 
             for (size_t y = 0; y < num_cell.y()-1; y++) {
                 for (size_t x = 0; x < num_cell.x(); x++) {
@@ -120,9 +119,6 @@ void visualize(vizkit3d::SurfaceGeode& geode) const
                         // adding the neighbor first to make the SmoothingVisitor work properly
                         geode.addVertex( osg::Vec3f(pos.x(),npos.y(),npos.z()), osg::Vec3f(nposnormal.x(),nposnormal.y(),nposnormal.z()) );
                         geode.addVertex( osg::Vec3f(pos.x(),pos.y(),pos.z()), osg::Vec3f(posnormal.x(),posnormal.y(),posnormal.z()) );
-
-                        lastheight = height;
-
 
                     }else{
                         geode.closeTriangleStrip();
