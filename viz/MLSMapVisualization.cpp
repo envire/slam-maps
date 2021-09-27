@@ -174,7 +174,11 @@ void visualize(vizkit3d::SurfaceGeode& geode) const
             }
             //compute normals
             osgUtil::SmoothingVisitor smoothingVisitor;
+#ifdef NEW_OSG
+            smoothingVisitor.apply(*geode.getGeometry());
+#else
             smoothingVisitor.apply(geode);
+#endif
             geode.setDataVariance(osg::Object::STATIC);
         }
 
