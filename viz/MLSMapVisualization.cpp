@@ -593,6 +593,9 @@ void MLSMapVisualization::setMinMeasurements(int measurements)
 
 void MLSMapVisualization::visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::SLOPE>& p)
 {
+    if(p.getNumberOfMeasurements() < minMeasurements)
+    	return;
+
     float minZ, maxZ;
     p.getRange(minZ, maxZ);
     minZ -= 5e-4f;
@@ -600,17 +603,15 @@ void MLSMapVisualization::visualize(vizkit3d::PatchesGeode& geode, const Surface
     Eigen::Vector3f normal = p.getNormal();
     if(normal.z() < 0)
         normal *= -1.0;
-    if(p.getNumberOfMeasurements() >= minMeasurements)
+
+    if(normal.allFinite())
     {
-        if(normal.allFinite())
-        {
-            geode.drawPlane(Eigen::Hyperplane<float, 3>(normal, p.getCenter()), minZ, maxZ);
-        }
-        else
-        {
-            float height = (maxZ - minZ) + 1e-3f;
-            geode.drawBox(maxZ, height, osg::Vec3(0.f,0.f,1.f));
-        }
+        geode.drawPlane(Eigen::Hyperplane<float, 3>(normal, p.getCenter()), minZ, maxZ);
+    }
+    else
+    {
+        float height = (maxZ - minZ) + 1e-3f;
+        geode.drawBox(maxZ, height, osg::Vec3(0.f,0.f,1.f));
     }
 }
 
