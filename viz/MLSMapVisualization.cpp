@@ -600,7 +600,7 @@ void MLSMapVisualization::visualize(vizkit3d::PatchesGeode& geode, const Surface
     Eigen::Vector3f normal = p.getNormal();
     if(normal.z() < 0)
         normal *= -1.0;
-    if(p.getNumerOfMeasurements() >= minMeasurements)
+    if(p.getNumberOfMeasurements() >= minMeasurements)
     {
         if(normal.allFinite())
         {

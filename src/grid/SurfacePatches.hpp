@@ -268,7 +268,7 @@ public:
         return z_pos;
     }
 
-    int getNumerOfMeasurements() const
+    int getNumberOfMeasurements() const
     {
         return n;
     }
