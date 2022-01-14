@@ -24,7 +24,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-#include <vizkit3d/Vizkit3DPlugin.hpp>
+#include "PluginLoader.hpp"
 #include "ContourMapVisualization.hpp"
 #include "ElevationMapVisualization.hpp"
 #include "GridMapVisualization.hpp"
@@ -34,17 +34,13 @@
 #include "TraversabilityGridVisualization.hpp"
 
 namespace vizkit3d {
-    class QtPluginVizkitMaps : public vizkit3d::VizkitPluginFactory
-    {
-    public:
-
-        QtPluginVizkitMaps() {}
+        QtPluginVizkitMaps::QtPluginVizkitMaps() {}
 
         /**
         * Returns a list of all available visualization plugins.
         * @return list of plugin names
         */
-        virtual QStringList* getAvailablePlugins() const
+        QStringList* QtPluginVizkitMaps::getAvailablePlugins() const
         {
             QStringList *pluginNames = new QStringList();
             pluginNames->push_back("ContourMapVisualization");
@@ -57,7 +53,7 @@ namespace vizkit3d {
             return pluginNames;
         }
 
-        virtual QObject* createPlugin(QString const& pluginName)
+        QObject* QtPluginVizkitMaps::createPlugin(QString const& pluginName)
         {
             vizkit3d::VizPluginBase* plugin = 0;
             if (pluginName == "ContourMapVisualization")
@@ -94,7 +90,5 @@ namespace vizkit3d {
                     return plugin;
             }
             return NULL;
-        };
-    };
-    Q_EXPORT_PLUGIN2(QtPluginVizkitMaps, QtPluginVizkitMaps)
+        }
 }

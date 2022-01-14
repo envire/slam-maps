@@ -101,6 +101,7 @@ namespace vizkit3d
             Q_INVOKABLE void updateMLSKalmanFull(maps::grid::MLSMap<maps::grid::MLSConfig::KALMAN> const &sample)
             { vizkit3d::Vizkit3DPlugin<::maps::grid::MLSMapKalman>::updateData(sample); }
 
+            struct Data;
 
         protected:
             virtual osg::ref_ptr<osg::Node> createMainNode();
@@ -111,7 +112,6 @@ namespace vizkit3d
             virtual void updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::BASE> const& mls);
 
         private:
-            struct Data;
             boost::scoped_ptr<Data> p;
 
             osg::ref_ptr<osg::Group> localNode;
