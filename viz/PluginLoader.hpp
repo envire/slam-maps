@@ -6,8 +6,8 @@
 namespace vizkit3d {
     class QtPluginVizkitMaps : public vizkit3d::VizkitPluginFactory
     {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "de.dfki.rock.QtPluginVizkitMaps")
+      Q_OBJECT
+      Q_PLUGIN_METADATA(IID "rock.vizkit3d.VizkitPluginFactory")
     public:
         QtPluginVizkitMaps();
         virtual QStringList* getAvailablePlugins() const;
