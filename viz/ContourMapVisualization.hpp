@@ -37,9 +37,11 @@
 #include <boost/noncopyable.hpp>
 
 /** The type to visualize **/
-#include <maps/geometric/Point.hpp>
-#include <maps/geometric/LineSegment.hpp>
-#include <maps/geometric/ContourMap.hpp>
+#if QT_VERSION >= 0x050000 || !defined(Q_MOC_RUN)
+    #include <maps/geometric/Point.hpp>
+    #include <maps/geometric/LineSegment.hpp>
+    #include <maps/geometric/ContourMap.hpp>
+#endif
 
 /** Std **/
 #include <vector>
