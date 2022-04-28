@@ -36,7 +36,9 @@
 #include <osg/Shape>
 #include <osg/Texture2D>
 
-#include <maps/grid/ElevationMap.hpp>
+#if QT_VERSION >= 0x050000 || !defined(Q_MOC_RUN)
+    #include <maps/grid/ElevationMap.hpp>
+#endif
 
 // TODO: should be replace by GridMapVisualization,
 // since the ElevationMap is specification of GridMap

@@ -32,7 +32,9 @@
 #include <osg/Shape>
 #include <osg/Texture2D>
 
-#include <maps/grid/OccupancyGridMap.hpp>
+#if QT_VERSION >= 0x050000 || !defined(Q_MOC_RUN)
+    #include <maps/grid/OccupancyGridMap.hpp>
+#endif
 
 namespace vizkit3d
 {
