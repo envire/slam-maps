@@ -97,9 +97,19 @@ namespace vizkit3d
             Q_INVOKABLE void updateData(maps::grid::MLSMapKalman const &sample)
             {vizkit3d::Vizkit3DPlugin<maps::grid::MLSMapKalman>::updateData(sample);}
 
-            // this is dirty fix to resolve typedef problem
+            // Dirty hack to resolve correct type identification 
+            Q_INVOKABLE void updateMLSPrecalculatedFull(maps::grid::MLSMap<maps::grid::MLSConfig::PRECALCULATED> const &sample)
+            {vizkit3d::Vizkit3DPlugin<::maps::grid::MLSMapKalman>::updateData(sample); }            
+
+            Q_INVOKABLE void updateMLSSlopedFull(maps::grid::MLSMap<maps::grid::MLSConfig::SLOPE> const &sample)
+            {vizkit3d::Vizkit3DPlugin<::maps::grid::MLSMapKalman>::updateData(sample); }
+
             Q_INVOKABLE void updateMLSKalmanFull(maps::grid::MLSMap<maps::grid::MLSConfig::KALMAN> const &sample)
-            { vizkit3d::Vizkit3DPlugin<::maps::grid::MLSMapKalman>::updateData(sample); }
+            {vizkit3d::Vizkit3DPlugin<::maps::grid::MLSMapKalman>::updateData(sample); }
+
+            Q_INVOKABLE void updateMLSBaseFull(maps::grid::MLSMap<maps::grid::MLSConfig::BASE> const &sample)
+            {vizkit3d::Vizkit3DPlugin<::maps::grid::MLSMapKalman>::updateData(sample);}
+            //Hack ends here
 
 
         protected:
