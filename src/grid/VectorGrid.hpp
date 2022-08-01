@@ -121,6 +121,32 @@ namespace maps { namespace grid
             cells.resize(new_number_cells.prod(), default_value);
         };
 
+        void expandGrid(const Vector2ui &new_number_cells)
+        {
+            // Get all number of cells
+            const Vector2ui num_cells(this->num_cells);
+            // Create temporary vector of cells
+            std::vector<CellT> tmp;
+            tmp.resize(new_number_cells.prod(), default_value);
+
+            // Copy pointers to new grid at new position
+            for (unsigned int y = 0; y < num_cells.y(); ++y)
+            {
+                for (unsigned int x = 0; x < num_cells.x(); ++x)
+                {
+                    // If x and y value are inside the new grid
+                    if ((x < new_number_cells.x()) && (y < new_number_cells.y()))
+                    {
+                        std::swap(cells[toIdx(x,y)], tmp[toNewIdx(x, y, new_number_cells.x())]);
+                    }
+                }
+            }
+            // Change number of cells
+            this->num_cells = new_number_cells;
+            // Swap old cells to new
+            cells.swap(tmp);
+        };
+
         /**
          * @brief Move the content of the grid cells
          * @details by the offset described in the argument
@@ -201,6 +227,11 @@ namespace maps { namespace grid
         size_t toIdx(size_t x, size_t y) const
         {
             return x  +  y * num_cells.x();
+        }
+
+        size_t toNewIdx(size_t x, size_t y, size_t new_cells_x) const
+        {
+            return x  +  y * new_cells_x;
         }
 
         /**
