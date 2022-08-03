@@ -70,7 +70,7 @@ namespace maps { namespace grid
         : Base(num_cells, resolution)
         , config(config_)
         {
-            // TODO assert that config is compatible to SurfaceType ...
+            assert(config_.updateModel == SurfaceType);
         }
 
         MLSMap()
