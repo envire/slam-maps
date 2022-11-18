@@ -1,3 +1,6 @@
+
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 # TEST GRID MAPS
 #
 add_subdirectory(grid)

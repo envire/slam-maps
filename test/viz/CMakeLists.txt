@@ -1,13 +1,14 @@
 include_directories(BEFORE ${PROJECT_SOURCE_DIR}/viz)
 rock_find_qt4(QtCore QtGui)
 
+add_compile_options(-fPIC)
+
 rock_executable(heightmap_to_mls
     SOURCES
     mlsFromImageHeightmap.cpp
     HEADERS    
    DEPS_PKGCONFIG QtCore QtGui vizkit3d vizkit3d-viz
    DEPS maps-viz maps)
-
 
 rock_testsuite(test_viz_elevationmap 
     test_viz_ElevationMap.cpp
@@ -54,6 +55,7 @@ rock_testsuite(test_viz_coverage
     test_viz_Coverage.cpp
     DEPS maps-viz
     DEPS_PKGCONFIG vizkit3d  vizkit3d-viz)
+
 rock_testsuite(test_viz_traversabilitygrid
     test_viz_TraversabilityGrid.cpp
     DEPS maps-viz
