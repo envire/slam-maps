@@ -86,7 +86,7 @@ public:
     }
 
     Eigen::Vector2d getResolution() const { return mls.getResolution(); }
-    
+
 
 void visualize(vizkit3d::SurfaceGeode& geode) const
     {
@@ -143,7 +143,7 @@ void visualize(vizkit3d::SurfaceGeode& geode) const
         Vector2ui num_cell = mls.getNumCells();
 
             //const GridMap<SPListST> &mls = *this;
-            
+
             for (size_t x = 0; x < num_cell.x(); x++)
             {
                 for (size_t y = 0; y < num_cell.y(); y++)
@@ -162,7 +162,7 @@ void visualize(vizkit3d::SurfaceGeode& geode) const
                         } // for(SPList ...)
                     }
                 } // for(y ...)
-            } // for(x ...)        
+            } // for(x ...)
 
 
 
@@ -222,9 +222,9 @@ MLSMapVisualization::MLSMapVisualization()
     : MapVisualization< maps::grid::MLSMapKalman >(),
     p(0),
     horizontalCellColor(osg::Vec4(0.1,0.5,0.9,1.0)),
-    verticalCellColor(osg::Vec4(0.8,0.9,0.5,1.0)), 
-    negativeCellColor(osg::Vec4(0.1,0.5,0.9,0.2)), 
-    uncertaintyColor(osg::Vec4(0.5,0.1,0.1,0.3)), 
+    verticalCellColor(osg::Vec4(0.8,0.9,0.5,1.0)),
+    negativeCellColor(osg::Vec4(0.1,0.5,0.9,0.2)),
+    uncertaintyColor(osg::Vec4(0.5,0.1,0.1,0.3)),
     showUncertainty(false),
     showNegative(false),
     estimateNormals(false),
@@ -510,7 +510,7 @@ void MLSMapVisualization::setUncertaintyColor(QColor color)
     setDirty();
 }
 
-void MLSMapVisualization::setShowPatchExtents( bool value ) 
+void MLSMapVisualization::setShowPatchExtents( bool value )
 {
     showPatchExtents = value;
     if(value && (areNormalsShown() || isUncertaintyShown()))
@@ -600,6 +600,7 @@ void MLSMapVisualization::visualize(vizkit3d::PatchesGeode& geode, const Surface
     if(normal.z() < 0)
         normal *= -1.0;
 
+
     if(normal.allFinite())
     {
         geode.drawPlane(Eigen::Hyperplane<float, 3>(normal, p.getCenter()), minZ, maxZ);
@@ -609,6 +610,7 @@ void MLSMapVisualization::visualize(vizkit3d::PatchesGeode& geode, const Surface
         float height = (maxZ - minZ) + 1e-3f;
         geode.drawBox(maxZ, height, osg::Vec3(0.f,0.f,1.f));
     }
+
 }
 
 void MLSMapVisualization::visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::PRECALCULATED>& p)
