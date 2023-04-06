@@ -236,7 +236,8 @@ MLSMapVisualization::MLSMapVisualization()
     minMeasurements(1),
     connectedSurface(false),
     simplifySurface(true),
-    connected_surface_lod(false)
+    connected_surface_lod(false),
+    updateDataFramePosition(false)
 {
 }
 
@@ -341,19 +342,23 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
 
 void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMapKalman const& value)
 {
+    if (updateDataFramePosition) {updateManualVizPose();}
     p.reset(new DataHold<MLSConfig::KALMAN>( value, *this ));
 }
 void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::SLOPE> const& value)
 {
+    if (updateDataFramePosition) {updateManualVizPose();}
     p.reset(new DataHold<MLSConfig::SLOPE>( value, *this ));
 }
 void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::PRECALCULATED> const& value)
 {
+    if (updateDataFramePosition) {updateManualVizPose();}
     p.reset(new DataHold<MLSConfig::PRECALCULATED>( value, *this ));
 }
 
 void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMap<::maps::grid::MLSConfig::BASE> const& value)
 {
+    if (updateDataFramePosition) {updateManualVizPose();}
     p.reset(new DataHold<MLSConfig::BASE>( value, *this ));
 }
 
@@ -631,6 +636,17 @@ void MLSMapVisualization::visualize(vizkit3d::PatchesGeode& geode, const Surface
 void MLSMapVisualization::visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::BASE>& p)
 {
     geode.drawBox(p.getTop(), p.getTop()-p.getBottom(), Vec3(p.getNormal()));
+}
+
+bool MLSMapVisualization::getUpdateFramePositionOnlyOnNewData()
+{
+    return updateDataFramePosition;
+}
+
+void MLSMapVisualization::setUpdateFramePositionOnlyOnNewData(const bool &newvalue)
+{
+    updateDataFramePosition = newvalue;
+    setManualVizPoseUpdateEnabled(updateDataFramePosition);
 }
 
 //Macro that makes this plugin loadable in ruby, this is optional.
