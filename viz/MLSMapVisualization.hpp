@@ -66,6 +66,7 @@ namespace vizkit3d
         Q_PROPERTY(QColor negative_cell_color READ getNegativeCellColor WRITE setNegativeCellColor)
         Q_PROPERTY(QColor uncertainty_color READ getUncertaintyColor WRITE setUncertaintyColor)
         Q_PROPERTY(int min_measurements READ getMinMeasurements WRITE setMinMeasurements)
+        Q_PROPERTY(bool updateFrameOnlyOnNewData READ getUpdateFramePositionOnlyOnNewData WRITE setUpdateFramePositionOnlyOnNewData)
 
         public:
             MLSMapVisualization();
@@ -176,6 +177,10 @@ namespace vizkit3d
             int getMinMeasurements() const;
             void setMinMeasurements(int measurements);
 
+            bool getUpdateFramePositionOnlyOnNewData();
+
+            void setUpdateFramePositionOnlyOnNewData(const bool &newvalue);
+
         protected:
             osg::Vec4 horizontalCellColor;
             osg::Vec4 verticalCellColor;
@@ -194,6 +199,7 @@ namespace vizkit3d
             bool connectedSurface;
             bool simplifySurface;
             bool connected_surface_lod;
+            bool updateDataFramePosition;
 
 #if 0
             osg::Vec3 estimateNormal(
