@@ -45,6 +45,7 @@
 #include <cmath>
 #include <limits>
 #include <vector>
+#include <iostream>
 
 
 namespace maps { namespace grid
@@ -172,6 +173,7 @@ public:
 };
 
 
+
 /**
  * SurfacePatch type for SLOPE update model.
  */
@@ -180,16 +182,28 @@ class SurfacePatch<MLSConfig::SLOPE> : public SurfacePatchBase
 {
     typedef SurfacePatchBase Base;
     numeric::PlaneFitting<float> plane;
+    Eigen::Vector3f meanViewPoint;
     float n;
 
 public:
 
-    SurfacePatch() : n(0)
-    {}
+    SurfacePatch()
+        : meanViewPoint(Eigen::Vector3f::Constant(std::nan("")))
+        , n(0)
+    {
+    }
 
     SurfacePatch(const Eigen::Vector3f& point, const float& cov)
         : Base(point.z())
         , plane(point, 1.0f/cov)
+        , meanViewPoint(Eigen::Vector3f::Constant(std::nan("")))
+        , n(1)
+    {}
+
+    SurfacePatch(const Eigen::Vector3f& point, const float& cov, const Eigen::Vector3f& viewPoint)
+        : Base(point.z())
+        , plane(point, 1.0f/cov)
+        , meanViewPoint(viewPoint)
         , n(1)
     {}
 
@@ -235,8 +249,29 @@ public:
 
     Eigen::Vector3f getNormal() const
     {
-        if(n<=1.0f) return Eigen::Vector3f::UnitZ();
-        return plane.getNormal();
+        // no measurement
+        if(n<1.0f) {
+            return Eigen::Vector3f::UnitZ();
+        }
+
+        // single measurement
+        if (n == 1.0f)
+        {
+            if (meanViewPoint.hasNaN()) {
+                return Eigen::Vector3f::UnitZ();
+            }
+            else {
+                Eigen::Vector3f normal = (meanViewPoint - getCenter()).normalized();
+                return normal;
+            }
+        }
+
+        // multiple measurements
+        Eigen::Vector3f normal = plane.getNormal();
+        if (!meanViewPoint.hasNaN() && normal.dot(meanViewPoint / n - getCenter()) < 0.0) {
+            return -normal;
+        }
+        return normal;
     }
 
     bool merge(const SurfacePatch& other, const MLSConfig& config)
@@ -244,7 +279,16 @@ public:
         if(Base::merge(other, config.gapSize))
         {
             plane.update(other.plane);
+            if (!other.meanViewPoint.hasNaN()) {
+                if (meanViewPoint.hasNaN()) {
+                    meanViewPoint = other.meanViewPoint;
+                }
+                else {
+                    meanViewPoint += other.meanViewPoint;
+                }
+            }
             n+= other.n;
+            // what about normals ?
             return true;
         }
 
@@ -263,7 +307,7 @@ public:
     {
         Eigen::Hyperplane<float, 3> plane(getNormal(), getCenter());
         float z_pos = (-plane.coeffs()(0) * pos_in_cell(0) - plane.coeffs()(1) * pos_in_cell(1) - plane.coeffs()(3)) / plane.coeffs()(2);
-        if(z_pos > max) 
+        if(z_pos > max)
             z_pos = max;
         return z_pos;
     }
@@ -291,13 +335,18 @@ protected:
     {
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(SurfacePatchBase);
         ar & BOOST_SERIALIZATION_NVP(plane);
+        if(version == 2) {
+            ar & BOOST_SERIALIZATION_NVP(meanViewPoint);
+        } else {
+            meanViewPoint.setZero();
+        }
         ar & BOOST_SERIALIZATION_NVP(n);
         if(version == 0)
         {
             TYPE type;
             ar & BOOST_SERIALIZATION_NVP(type);
         }
-    }    
+    }
 }; // SurfacePatch<MLSConfig::SLOPE>
 
 template<>
@@ -328,6 +377,11 @@ public:
     SurfacePatch(const float& mean, const float& variance, const float& height = 0)
         : Base(mean, height)
         , mean(mean), var(variance), height(height)
+    {}
+
+    SurfacePatch(const Eigen::Vector3f& point, const float& variance, const Eigen::Vector3f& viewPoint)
+        : Base(point.z())
+        , mean(point.z()), var(variance), height(0)
     {}
 
     bool merge(const SurfacePatch& other, const MLSConfig& config)
@@ -464,7 +518,7 @@ class SurfacePatch<MLSConfig::PRECALCULATED> : public SurfacePatchBase
     typedef SurfacePatchBase Base;
     Eigen::Hyperplane<float, 3> plane;
 public:
-    
+
     SurfacePatch() : SurfacePatchBase()
     {
         // empty
@@ -476,7 +530,7 @@ public:
         this->min = min;
         this->max = max;
     }
-    
+
     template<MLSConfig::update_model model>
     SurfacePatch(const SurfacePatch<model>& other) : SurfacePatchBase(other), plane(other.getNormal(), other.getCenter())
     {
@@ -676,7 +730,7 @@ void getPolygon(std::vector<Eigen::Vector3f>& points, const SurfacePatch<S> &sp,
 }  // namespace maps
 
 
-BOOST_CLASS_VERSION(maps::grid::SurfacePatch<maps::grid::MLSConfig::SLOPE>, 1);
+BOOST_CLASS_VERSION(maps::grid::SurfacePatch<maps::grid::MLSConfig::SLOPE>, 2);
 BOOST_CLASS_VERSION(maps::grid::SurfacePatch<maps::grid::MLSConfig::PRECALCULATED>, 1);
 
 #endif /* __MAPS_SURFACEPATCHES_HPP_ */
