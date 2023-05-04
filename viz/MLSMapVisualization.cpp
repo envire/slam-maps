@@ -142,8 +142,6 @@ void visualize(vizkit3d::SurfaceGeode& geode) const
     {
         Vector2ui num_cell = mls.getNumCells();
 
-            //const GridMap<SPListST> &mls = *this;
-
             for (size_t x = 0; x < num_cell.x(); x++)
             {
                 for (size_t y = 0; y < num_cell.y(); y++)
