@@ -189,6 +189,32 @@ namespace vizkit3d
         std::vector< Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f> > intersections;
         maps::tools::SurfaceIntersection::computeIntersections(plane, box, intersections);
 
+        // ------ fix the order of vertex in the intersection -------
+        // the vertexes in the intersections are not stored in counter clockwise order accroding to the plane normal
+        // in default opegl settings the front face is defined as counter-clockwise vertex order
+
+        // calculate in which order the vertexes are stored in the intersections: CW or CCW
+        // define two edges of polygon with a common vertex
+        Eigen::Vector3f edge1 = intersections[0] - intersections[1];
+        Eigen::Vector3f edge2 = intersections[1] - intersections[2];
+        // cross product gives the information about the order of vertexes
+        // if we look at the face side of polygon, so the normal of polygon points to us:
+        //      the cross vector points towards => the vertexes are in CCW order
+        //      the cross vector points away => the vertexes are in CW order
+        Eigen::Vector3f cross_vector = edge1.cross(edge2);
+
+        // find the relation btw normal and cross vector
+        // to make front face of polygon visible by back culling
+        // the normal of plane should points roughly in the same direction as a cross vector
+        // otherwise the points of intersection should be reverted to place them in CCW order
+        float dot_product = cross_vector.dot(plane.normal());
+
+        // revert the vertexes for CCW order
+        if (dot_product < 0) {
+            std::reverse(intersections.begin(), intersections.end());
+        }
+        // ---------------------------------------------------------
+
         // apply cell pos and compute surface mean
         Eigen::Vector3f mean = Eigen::Vector3f::Zero();
         for(unsigned i = 0; i < intersections.size(); ++i)
@@ -346,7 +372,7 @@ namespace vizkit3d
     {
         vizkit3d::hslToRgb(hue, sat, lum , color.x(), color.y(), color.z());
         color.w() = alpha;
-    }	
+    }
 
     void PatchesGeode::closePolygon()
     {
@@ -372,7 +398,7 @@ namespace vizkit3d
         );
 
         vertex_index = vertices->size();
-    }    
+    }
 
     void PatchesGeode::setColor(const osg::Vec4& color)
     {

@@ -61,7 +61,7 @@ namespace maps { namespace grid
         public:
             typedef SurfacePatch<SurfaceType> Patch;
             typedef MultiLevelGridMap<Patch> Base;
-            typedef LevelList<Patch> CellType; 
+            typedef LevelList<Patch> CellType;
 
         MLSMap(
                 const Vector2ui &num_cells,
@@ -349,11 +349,12 @@ namespace maps { namespace grid
          */
         void mergePoint(const Eigen::Vector3d& point, const base::Transform3d& pc2gridframe, double measurement_variance = 0.01)
         {
-            Eigen::Vector3d pos_diff;
+            Eigen::Vector3d point_in_cell;
+            Eigen::Vector3d viewPoint_in_cell;
             Index idx;
-            if(Base::toGridOptimized(point, idx, pos_diff, pc2gridframe))
+            if(Base::toGridOptimized(point, idx, point_in_cell, pc2gridframe, viewPoint_in_cell))
             {
-                mergePatch(idx, Patch(pos_diff.cast<float>(), measurement_variance));
+                mergePatch(idx, Patch(point_in_cell.cast<float>(), measurement_variance, viewPoint_in_cell.cast<float>()));
             }
             else
                 throw std::runtime_error((boost::format("Point %1% is outside of the grid! Can't add to grid.") % point.transpose()).str());
