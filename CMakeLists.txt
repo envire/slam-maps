@@ -32,6 +32,8 @@ endif()
 add_definitions(-DNUMERIC_DEPRECATE=1 )
 
 rock_init()
-rock_find_qt5(Core)
+rock_feature(NOCURDIR)
+rock_find_qt4(OPTIONAL)
+rock_find_qt5(OPTIONAL)
 rock_standard_layout()
 

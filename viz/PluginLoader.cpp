@@ -91,4 +91,8 @@ namespace vizkit3d {
             }
             return NULL;
         }
+
+#if QT_VERSION < 0x050000
+        Q_EXPORT_PLUGIN2(QtPluginVizkitMaps, QtPluginVizkitMaps)
+#endif
 }

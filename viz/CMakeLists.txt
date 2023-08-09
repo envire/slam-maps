@@ -6,12 +6,51 @@ if(${OSG_VERSION} VERSION_GREATER_EQUAL 3.6.4)
 endif()
 
 if (vizkit3d_FOUND AND OSGVIZ_PRIMITIVES_FOUND)
+    if (ROCK_QT_VERSION_4)
     rock_vizkit_plugin(maps-viz
             PluginLoader.cpp
             PatchesGeode.cpp
             SurfaceGeode.cpp
             StandaloneVisualizer.cpp
         MOC
+            PluginLoader.hpp
+            GridMapVisualization.cpp
+            ElevationMapVisualization.cpp
+            MLSMapVisualization.cpp
+            TraversabilityMap3dVisualization.cpp
+            ContourMapVisualization.cpp
+            OccupancyGridMapVisualization.cpp
+            TraversabilityGridVisualization.cpp
+        HEADERS
+            ColorGradient.hpp
+            ExtentsRectangle.hpp
+            MapVisualization.hpp
+            GridMapVisualization.hpp
+            ElevationMapVisualization.hpp
+            MLSMapVisualization.hpp
+            TraversabilityMap3dVisualization.hpp
+            PatchesGeode.hpp
+            SurfaceGeode.hpp
+            StandaloneVisualizer.hpp
+            ContourMapVisualization.hpp
+            OccupancyGridMapVisualization.hpp
+            TraversabilityGridVisualization.hpp
+        DEPS
+            maps
+        DEPS_PKGCONFIG
+	    base-logging
+            base-viz vizkit3d-viz
+            PrimitivesFactory
+    )
+    endif()
+    if (ROCK_QT_VERSION_5)
+    rock_vizkit_plugin_qt5(maps-viz-qt5
+            PluginLoader.cpp
+            PatchesGeode.cpp
+            SurfaceGeode.cpp
+            StandaloneVisualizer.cpp
+        MOC5
+            PluginLoader.hpp
             GridMapVisualization.cpp
             ElevationMapVisualization.cpp
             MLSMapVisualization.cpp
@@ -37,9 +76,10 @@ if (vizkit3d_FOUND AND OSGVIZ_PRIMITIVES_FOUND)
             maps
         DEPS_PKGCONFIG 
 	    base-logging
-            base-viz vizkit3d  vizkit3d-viz
+            base-viz-qt5 vizkit3d-viz-qt5
             PrimitivesFactory
     )
+    endif()
 else()
     message(STATUS "osgviz not found ... NOT building the maps-viz plugins")
 endif()
