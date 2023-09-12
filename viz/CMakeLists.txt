@@ -6,6 +6,7 @@ if(${OSG_VERSION} VERSION_GREATER_EQUAL 3.6.4)
 endif()
 
 if (vizkit3d_FOUND AND OSGVIZ_PRIMITIVES_FOUND)
+    rock_find_qt4()
     rock_vizkit_plugin(maps-viz
             PluginLoader.cpp
             PatchesGeode.cpp
