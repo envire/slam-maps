@@ -1,3 +1,4 @@
+rock_find_qt5(Core)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 

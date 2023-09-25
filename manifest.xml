@@ -40,7 +40,6 @@
     <rosdep package="cgal"/>
     <rosdep package="gdal" optional="1"/>
     <depend package="gui/vizkit3d" optional="1" />
-    <depend package="gui/osgviz" optional="1" />
 
     <keywords>
         <keyword>Mapping</keyword>

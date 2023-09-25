@@ -32,6 +32,5 @@ endif()
 add_definitions(-DNUMERIC_DEPRECATE=1 )
 
 rock_init()
-rock_find_qt5(Core)
 rock_standard_layout()
 

@@ -1,3 +1,4 @@
+rock_find_qt5(Core)
 pkg_check_modules(OSGVIZ_PRIMITIVES PrimitivesFactory)
 pkg_check_modules(OSG REQUIRED openscenegraph)
 
