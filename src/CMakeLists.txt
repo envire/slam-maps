@@ -1,9 +1,10 @@
 find_package(Boost REQUIRED COMPONENTS system filesystem serialization)
 find_package(CGAL REQUIRED COMPONENTS Core)
 find_package(PCL 1.7 REQUIRED COMPONENTS io)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(DEPS REQUIRED IMPORTED_TARGET base-types base-logging boost_serialization)
 
-rock_library(maps
-    SOURCES
+set(SOURCES
         grid/ElevationMap.cpp
         grid/TraversabilityMap3d.cpp
         grid/OccupancyGridMap.cpp
@@ -20,62 +21,51 @@ rock_library(maps
         tools/SimpleTraversability.cpp
         tools/SimpleTraversabilityRadialLUT.cpp
         tools/TraversabilityGrassfire.cpp
-    HEADERS
-        LocalMap.hpp
-        grid/Index.hpp
-        grid/GridMap.hpp
-        grid/LevelList.hpp        
-        grid/LayeredGridMap.hpp
-        grid/MultiLevelGridMap.hpp        
-        grid/ElevationMap.hpp
-        grid/SurfacePatches.hpp
-        grid/MLSConfig.hpp
-        grid/MLSMap.hpp
-        grid/TraversabilityMap3d.hpp
-        grid/AccessIterator.hpp
-        grid/GridAccessInterface.hpp
-        grid/GridFacade.hpp        
-        grid/VectorGrid.hpp        
-        grid/VectorGridAccess.hpp
-        grid/DiscreteTree.hpp
-        grid/VoxelGridMap.hpp
-        grid/OccupancyGridMapBase.hpp
-        grid/OccupancyGridMap.hpp
-        grid/OccupancyConfiguration.hpp
-        grid/OccupancyPatch.hpp
-        grid/TraversabilityCell.hpp
-        grid/TraversabilityClass.hpp
-        grid/TraversabilityGrid.hpp
-        grid/TSDFPatch.hpp
-        grid/TSDFVolumetricMap.hpp
-        geometric/Point.hpp
-        geometric/LineSegment.hpp
-        geometric/GeometricMap.hpp
-        geometric/ContourMap.hpp
-        tools/BresenhamLine.hpp
-        tools/Overlap.hpp
-        tools/VoxelTraversal.hpp
-        tools/TSDFSurfaceReconstruction.hpp
-        tools/TSDFPolygonMeshReconstruction.hpp
-        tools/TSDF_MLSMapReconstruction.hpp
-        tools/MarchingCubes.hpp
-        tools/SurfaceIntersection.hpp
-        tools/MLSToSlopes.hpp
-        tools/SimpleTraversability.hpp
-        tools/SimpleTraversabilityRadialLUT.hpp
-        tools/TraversabilityGrassfire.hpp
-        tools/TraversabilityGrassfireConfig.hpp
-        tools/TraversabilityGrassFireSearchItem.hpp
-        operations/GridInterpolation.hpp
-        operations/CoverageMapGeneration.hpp
-    DEPS_PKGCONFIG 
-        base-types 
-        base-logging
-        boost_serialization
-        pcl_io-${PCL_VERSION_MAJOR}.${PCL_VERSION_MINOR}
-    DEPS_PLAIN
-        Boost_SYSTEM 
-        Boost_FILESYSTEM 
-        Boost_SERIALIZATION
 )
 
+add_library(${PROJECT_NAME} ${SOURCES})
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
+    PkgConfig::DEPS
+    Boost::system
+    Boost::filesystem 
+    Boost::serialization
+    ${PCL_IO_LIBRARIES}
+)
+
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+    ${PCL_INCLUDE_DIRS}
+)
+
+target_compile_definitions(${PROJECT_NAME}
+  PUBLIC
+    NUMERIC_DEPRECATE=1
+)
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
+	FILES_MATCHING PATTERN "*.hpp"
+)
+
+install (TARGETS
+	${PROJECT_NAME}
+	EXPORT ${PROJECT_NAME}-targets
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+set(PKGCONFIG_CFLAGS)
+set(PKGCONFIG_REQUIRES
+    base-types
+    base-logging
+    boost_serialization
+    pcl_io-${PCL_VERSION_MAJOR}.${PCL_VERSION_MINOR}
+)
+configure_file(${PROJECT_NAME}.pc.in ${PROJECT_NAME}.pc @ONLY)
+install(FILES
+	${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc
+	DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+)

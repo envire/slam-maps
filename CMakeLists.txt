@@ -1,10 +1,11 @@
 # CMakeLists.txt has to be located in the project folder and cmake has to be
 # executed from 'project/build' with 'cmake ../'.
-cmake_minimum_required(VERSION 3.0)
-project(maps VERSION 0.1)
+cmake_minimum_required(VERSION 3.1)
+project(maps VERSION 0.1 DESCRIPTION "Standard Maps library")
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-find_package(Rock)
+set(BUILD_SHARED_LIBS ON)
+include(GNUInstallDirs)
 
 if(COVERAGE)
     if(CMAKE_BUILD_TYPE MATCHES Debug)
@@ -29,8 +30,32 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
     add_definitions(-O1) # without any optimization, code is extreamly slow
 endif()
 
-add_definitions(-DNUMERIC_DEPRECATE=1 )
 
-rock_init()
-rock_standard_layout()
+add_subdirectory(src)
 
+# Export the library interface
+install(EXPORT ${PROJECT_NAME}-targets
+        NAMESPACE ${PROJECT_NAME}::
+	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+)
+
+# Create and install the version file
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file("${PROJECT_NAME}-config-version.cmake"
+	VERSION ${MAPS_VERSION}
+        COMPATIBILITY SameMajorVersion
+)
+
+install(
+        FILES
+                ${PROJECT_NAME}-config.cmake
+                ${PROJECT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
+        DESTINATION
+		${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+)
+
+# Install package-manifest
+#install(
+#        FILES package.xml
+#        DESTINATION ${CMAKE_INSTALL_DIR}/share/${PROJECT_NAME}
+#)

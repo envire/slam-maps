@@ -20,37 +20,27 @@
     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
-<package>
-    <description brief="Standard Maps library">
-    Standard Maps library following the IEEE 1873 standard for mapa data representation with extensions (i.e: MLS, 3D, Operators, etc..)
-    </description>
-    <author> Autonomy Team/ric-team8@dfki.de</author>
-    <maintainer>Anna Born/anna.born@dfki.de</maintainer>
-    <maintainer>Sascha Arnold/sascha.arnold@dfki.de</maintainer>
-    <license>BSD-2Clause</license>
-    <url>http://rock-robotics.org/</url>
-    <depend package="base/cmake"/>
-    <depend package="base/types"/>
-    <depend package="base/numeric"/>
-    <depend package="base/boost_serialization" />
-    <depend package="slam/pcl"/>
+<?xml version="1.0"?>
+<package format="2">
+  <name>maps</name>
+  <version>0.0.0</version>
+  <description>Standard Maps library following the IEEE 1873 standard for mapa data representation with extensions (i.e: MLS, 3D, Operators, etc..)</description>
+  <author email="ric-team8@dfki.de">Autonomy Team</author>
+  <license>BSD 2-Clause "Simplified" License</license>
 
-    <rosdep package="boost"/>
-    <rosdep package="boost-serialization"/>
-    <rosdep package="cgal"/>
-    <rosdep package="gdal" optional="1"/>
-    <depend package="gui/vizkit3d" optional="1" />
-    <depend package="gui/osgviz" optional="1" />
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-    <keywords>
-        <keyword>Mapping</keyword>
-        <keyword>Representation</keyword>
-        <keyword>Environment</keyword>
-    </keywords>
+  <depend>base-types</depend>
+  <depend>base-numeric</depend>
+  <depend>base-boost_serialization</depend>
+  <depend>"cgal"</depend>
+  <depend>"gdal"</depend>
+  <depend>slam/pcl</depend>
+  <!--depend>"gui-vizkit3d"</depend-->
 
-    <stage>1</stage>
-    <use>multi project</use>
-    <activity>active</activity>
-
-   <tags>needs_opt</tags>
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+  
 </package>
+
