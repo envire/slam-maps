@@ -23,7 +23,7 @@ set(SOURCES
         tools/TraversabilityGrassfire.cpp
 )
 
-add_library(${PROJECT_NAME} ${SOURCES})
+add_library(${PROJECT_NAME} SHARED ${SOURCES})
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
     PkgConfig::DEPS
@@ -33,8 +33,7 @@ target_link_libraries(${PROJECT_NAME}
     ${PCL_IO_LIBRARIES}
 )
 
-target_include_directories(${PROJECT_NAME}
-  PUBLIC
+target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     ${PCL_INCLUDE_DIRS}
@@ -57,13 +56,22 @@ install (TARGETS
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-set(PKGCONFIG_CFLAGS)
-set(PKGCONFIG_REQUIRES
-    base-types
-    base-logging
-    boost_serialization
-    pcl_io-${PCL_VERSION_MAJOR}.${PCL_VERSION_MINOR}
+set(PKG_CONFIG_DEPS
+  base-types
+  base-logging
+  boost_serialization
+  pcl_io-${PCL_VERSION_MAJOR}.${PCL_VERSION_MINOR}
 )
+
+set(pkg_config_dependencies "")
+
+foreach(value ${PKG_CONFIG_DEPS})
+    set(pkg_config_dependencies "${pkg_config_dependencies} ${value}")
+endforeach()
+
+set(PKGCONFIG_REQUIRES ${pkg_config_dependencies})
+set(PKGCONFIG_CFLAGS)
+
 configure_file(${PROJECT_NAME}.pc.in ${PROJECT_NAME}.pc @ONLY)
 install(FILES
 	${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc
