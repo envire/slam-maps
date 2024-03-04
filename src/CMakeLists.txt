@@ -63,14 +63,8 @@ set(PKG_CONFIG_DEPS
   pcl_io-${PCL_VERSION_MAJOR}.${PCL_VERSION_MINOR}
 )
 
-set(pkg_config_dependencies "")
-
-foreach(value ${PKG_CONFIG_DEPS})
-    set(pkg_config_dependencies "${pkg_config_dependencies} ${value}")
-endforeach()
-
-set(PKGCONFIG_REQUIRES ${pkg_config_dependencies})
 set(PKGCONFIG_CFLAGS)
+list(JOIN PKG_CONFIG_DEPS " " PKGCONFIG_REQUIRES)
 
 configure_file(${PROJECT_NAME}.pc.in ${PROJECT_NAME}.pc @ONLY)
 install(FILES
