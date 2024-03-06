@@ -20,6 +20,7 @@ if (vizkit3d_FOUND AND OSGVIZ_PRIMITIVES_FOUND)
             ContourMapVisualization.cpp
             OccupancyGridMapVisualization.cpp
             TraversabilityGridVisualization.cpp
+            PluginLoader.hpp
         HEADERS
             ColorGradient.hpp
             ExtentsRectangle.hpp
