@@ -12,6 +12,7 @@ if (vizkit3d_FOUND AND OSGVIZ_PRIMITIVES_FOUND)
             SurfaceGeode.cpp
             StandaloneVisualizer.cpp
         MOC
+            PluginLoader.cpp
             GridMapVisualization.cpp
             ElevationMapVisualization.cpp
             MLSMapVisualization.cpp
