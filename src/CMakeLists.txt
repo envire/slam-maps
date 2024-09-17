@@ -1,6 +1,9 @@
 find_package(Boost REQUIRED COMPONENTS system filesystem serialization)
 find_package(CGAL REQUIRED COMPONENTS Core)
 find_package(PCL 1.7 REQUIRED COMPONENTS common)
+IF("${PCL_VERSION_MAJOR}.${PCL_VERSION_MINOR}" VERSION_LESS 1.14)
+    SET(PCL_VERSION_SUFFIX "-${PCL_VERSION_MAJOR}.${PCL_VERSION_MINOR}")
+ENDIF()
 
 rock_library(maps
     SOURCES
@@ -74,8 +77,8 @@ rock_library(maps
         boost_serialization
         #pcl_io is used by the orogen task, which cannot tell what version
         #to look for.
-        pcl_io-${PCL_VERSION_MAJOR}.${PCL_VERSION_MINOR}
-        pcl_common-${PCL_VERSION_MAJOR}.${PCL_VERSION_MINOR}
+        pcl_io${PCL_VERSION_SUFFIX}
+        pcl_common${PCL_VERSION_SUFFIX}
     DEPS Boost::system
          Boost::filesystem
          Boost::serialization
