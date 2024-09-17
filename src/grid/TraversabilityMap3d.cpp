@@ -26,6 +26,7 @@
 //
 #include "TraversabilityMap3d.hpp"
 #include <unordered_set>
+#include <deque>
 
 namespace maps { namespace grid
 {
