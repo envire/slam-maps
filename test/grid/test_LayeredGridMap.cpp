@@ -105,11 +105,12 @@ BOOST_AUTO_TEST_CASE(test_gridmap_has)
     BOOST_CHECK_EQUAL(grid_map->hasLayer("double_grid"), true);
 
     GridMap<double> &grid = grid_map->getLayer<double>("double_grid");
+    BOOST_CHECK_EQUAL(grid.getId(),  maps::UNKNOWN_MAP_ID);
 
     // check if the existence of the grid after it was removed
     grid_map->removeLayer("double_grid"); 
     BOOST_CHECK_EQUAL(grid_map->hasLayer("double_grid"), false);
-    BOOST_CHECK_EQUAL(grid.getId(),  maps::UNKNOWN_MAP_ID);
+    BOOST_CHECK_THROW(grid_map->getLayer<double>("double_grid"), std::exception);
 
     delete grid_map;
 }

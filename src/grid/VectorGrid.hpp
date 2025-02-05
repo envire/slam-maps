@@ -205,20 +205,20 @@ namespace maps { namespace grid
 
         /**
          * Returns iterators to the first and one element after the last element
-         * containing values unequal to the defaut value.
+         * containing values unequal to the default value.
          */
         std::pair<const_iterator, const_iterator> getRange() const
         {
-            const_iterator start_range = std::find_if(cells.begin(), cells.end(), 
-                std::bind1st(std::not_equal_to<CellT>(), default_value));
+            auto const find_non_default = [&](const CellT& x){return x!=default_value;};
+
+            const_iterator start_range = std::find_if(cells.begin(), cells.end(), find_non_default);
 
             // cells are all default
             if(start_range == cells.end())
                 return std::make_pair(start_range, cells.end());
 
             typename std::vector<CellT>::const_reverse_iterator r_end_range = 
-                std::find_if(cells.crbegin(), cells.crend(),
-                    std::bind1st(std::not_equal_to<CellT>(), default_value));
+                std::find_if(cells.crbegin(), cells.crend(), find_non_default);
 
             const_iterator end_range(r_end_range.base());
             return std::pair<const_iterator, const_iterator>(start_range, end_range);
@@ -245,7 +245,7 @@ namespace maps { namespace grid
                 // identify the next block of occupied or non-occupied cells
                 nextBlock(block_start_cell, block_size, block_occupied, block_end_cell);
 
-                // save bock header
+                // save block header
                 ar << block_occupied;
                 saveSizeValue(ar, block_size);
 
@@ -327,12 +327,9 @@ namespace maps { namespace grid
             // check if the start cell is occupied
             block_occupied = *start_cell != default_value;
             // find next either occupied or non-occupied cell
-            if (block_occupied)
-                end_cell = std::find_if_not(start_cell+1, cells.end(),
-                                                     std::bind1st(std::not_equal_to<CellT>(), default_value));
-            else
-                end_cell = std::find_if_not(start_cell+1, cells.end(),
-                                                     std::bind1st(std::equal_to<CellT>(), default_value));
+            end_cell = std::find_if(start_cell+1, cells.end(),
+                        [&](const CellT& x) { return (x==default_value) == block_occupied;}
+            );
             // compute block size
             block_size = std::distance(start_cell, end_cell);
         }

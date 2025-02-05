@@ -294,7 +294,7 @@ protected:
         ar & BOOST_SERIALIZATION_NVP(n);
         if(version == 0)
         {
-            TYPE type;
+            TYPE type{};
             ar & BOOST_SERIALIZATION_NVP(type);
         }
     }    
