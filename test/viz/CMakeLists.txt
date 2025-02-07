@@ -1,6 +1,6 @@
 include_directories(BEFORE ${PROJECT_SOURCE_DIR}/viz)
-rock_find_qt4(QtCore QtGui OPTIONAL)
-rock_find_qt5(Qt5Core Qt5Gui OPTIONAL)
+rock_find_qt4(OPTIONAL)
+rock_find_qt5(OPTIONAL)
 
 add_compile_options(-fPIC)
 
@@ -8,13 +8,11 @@ if (ROCK_QT_VERSION_4)
   rock_executable(heightmap_to_mls
     SOURCES
     mlsFromImageHeightmap.cpp
-    DEPS_PKGCONFIG QtCore QtGui vizkit3d-viz
     DEPS maps-viz maps)
 
   macro(mapviz_test_qt4 name sourcefile)
     rock_testsuite(${name}
         ${sourcefile}
-        DEPS_PKGCONFIG vizkit3d-viz
         DEPS maps-viz)
   endmacro()
 else()
@@ -26,13 +24,11 @@ if (ROCK_QT_VERSION_5)
   rock_executable(heightmap_to_mls-qt5
     SOURCES
     mlsFromImageHeightmap.cpp
-    DEPS_PKGCONFIG Qt5Core Qt5Gui vizkit3d-viz-qt5
     DEPS maps-viz-qt5 maps)
 
   macro(mapviz_test_qt5 name sourcefile)
     rock_testsuite(${name}-qt5
         ${sourcefile}
-        DEPS_PKGCONFIG vizkit3d-viz-qt5
         DEPS maps-viz-qt5)
   endmacro()
 else()
