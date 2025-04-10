@@ -125,7 +125,8 @@ namespace vizkit3d {
         float cycle_color_interval;
         double uncertaintyScale;
 
-        void addVertex(const osg::Vec3& p, const osg::Vec3& n, const float & stdev = 0.f);
+        void addVertex(const osg::Vec3& p, const osg::Vec3& n, const float & stdev);
+        void addVertex(const osg::Vec3& p, const osg::Vec3& n, const float & stdev, const float& zpos);
         void updateColor();
         
         void closePolygon();
