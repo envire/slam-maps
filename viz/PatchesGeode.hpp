@@ -125,6 +125,10 @@ namespace vizkit3d {
         float cycle_color_interval;
         double uncertaintyScale;
 
+        osg::ref_ptr<osg::Program> program;
+        osg::ref_ptr<osg::Shader> fShader;
+        osg::ref_ptr<osg::Shader> vShader;
+
         void addVertex(const osg::Vec3& p, const osg::Vec3& n, const float & stdev);
         void addVertex(const osg::Vec3& p, const osg::Vec3& n, const float & stdev, const float& zpos);
         void updateColor();
