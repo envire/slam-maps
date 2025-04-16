@@ -38,6 +38,8 @@
 #include <vizkit3d/ColorConversionHelper.hpp>
 #include <maps/grid/OccupancyGridMap.hpp>
 
+#include <osg/Uniform>
+
 #include "MLSMapVisualization.hpp"
 
 #include "PatchesGeode.hpp"
@@ -47,6 +49,77 @@
 
 using namespace vizkit3d;
 using namespace ::maps::grid;
+
+
+// https://forum.playcanvas.com/t/world-coordinate-in-fragment-shader/22996/8
+// https://learnopengl.com/Getting-started/Shaders
+// https://gist.github.com/vicrucann/497fd5839bccba45e58b5ca48feca12f
+
+const char *vertexShaderSource = "#version 330 core\n"
+    "layout (location = 0) in vec3 position;\n"
+    "out vec4 fragPos;\n"
+    "uniform mat4 modelMatrix;\n"
+    "uniform mat4 modelViewProjectionMatrix;\n"
+    "void main()\n"
+    "{\n"
+    "    fragPos = modelMatrix * vec4(position, 1.0);\n"
+    "    gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);\n"
+    "}\0";
+
+const char *fragmentShaderSource = "#version 330 core\n"
+    "layout (location = 0) out vec4 color;\n"
+    "in vec4 fragPos;\n"
+    "uniform float cycleColorInterval;\n"
+    "// from: http://lolengine.net/blog/2013/07/27/rgb-to-hsv-in-glsl\n"
+    "vec3 hsv2rgb(vec3 c) {\n"
+        "c = vec3(c.x, clamp(c.yz, 0.0, 1.0));\n"
+        "vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);\n"
+        "vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);\n"
+        "return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);\n"
+    "}\n"
+    "void main()\n"
+    "{\n"
+    "   float z = fragPos.z;\n"
+    "   float int_part;\n"
+    "   if ( abs( modf(z, int_part) ) < 0.01) {\n"
+    "       color = vec4(0,0,0,1);"
+    "   }else{"
+    "      float hue = (z - floor(z / cycleColorInterval) * cycleColorInterval) / cycleColorInterval;\n"
+    "      vec3 hsv = vec3(hue, 1, 1);\n"
+    "      color = vec4(hsv2rgb(hsv),1);\n"
+    "   }"
+    "}\n\0";
+
+
+
+struct ModelViewProjectionMatrixCallback: public osg::Uniform::Callback
+{
+    ModelViewProjectionMatrixCallback(osg::Camera* camera) :
+            _camera(camera) {
+    }
+
+    virtual void operator()(osg::Uniform* uniform, osg::NodeVisitor* nv) {
+        osg::Matrixd viewMatrix = _camera->getViewMatrix();
+        osg::Matrixd modelMatrix = osg::computeLocalToWorld(nv->getNodePath());
+        osg::Matrixd modelViewProjectionMatrix = modelMatrix * viewMatrix * _camera->getProjectionMatrix();
+        uniform->set(modelViewProjectionMatrix);
+    }
+
+    osg::Camera* _camera;
+};
+
+struct ModelMatrixCallback: public osg::Uniform::Callback
+{
+    ModelMatrixCallback(){
+    }
+
+    virtual void operator()(osg::Uniform* uniform, osg::NodeVisitor* nv) {
+        osg::Matrixd modelMatrix = osg::computeLocalToWorld(nv->getNodePath());
+        uniform->set(modelMatrix);
+    }
+
+};
+
 
 template <class T, int options>
 osg::Vec3 Vec3( const Eigen::Matrix<T,3,1, options>& v )
@@ -239,6 +312,11 @@ MLSMapVisualization::MLSMapVisualization()
     connected_surface_lod(false),
     updateDataFramePosition(false)
 {
+    program = new osg::Program;
+    vShader = new osg::Shader(osg::Shader::VERTEX, vertexShaderSource);
+    fShader = new osg::Shader(osg::Shader::FRAGMENT, fragmentShaderSource);
+    program->addShader(vShader);
+    program->addShader(fShader);
 }
 
 MLSMapVisualization::~MLSMapVisualization()
@@ -274,6 +352,29 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
         geode->showCycleColor(true);
         geode->setCycleColorInterval(cycleColorInterval);
         geode->setColorHSVA(0, 1.0, 0.6, 1.0);
+
+        // enable shader-based height coloring
+        osg::ref_ptr<osg::Geometry> geom = geode->getGeom();
+
+        geom->getOrCreateStateSet()->setAttributeAndModes(program.get(), osg::StateAttribute::ON);
+
+        osg::ref_ptr<osg::Uniform> mvp = new osg::Uniform(osg::Uniform::FLOAT_MAT4, "modelViewProjectionMatrix");
+        geom->getOrCreateStateSet()->addUniform(mvp);
+        osg::Camera* cam = getCamera();
+        mvp->setUpdateCallback(new ModelViewProjectionMatrixCallback(cam));
+
+
+        osg::ref_ptr<osg::Uniform> model = new osg::Uniform(osg::Uniform::FLOAT_MAT4, "modelMatrix");
+        geom->getOrCreateStateSet()->addUniform(model);
+        model->setUpdateCallback(new ModelMatrixCallback);
+
+        
+        cycleColorIntervalUniform = new osg::Uniform(osg::Uniform::FLOAT, "cycleColorInterval");
+        geom->getOrCreateStateSet()->addUniform(cycleColorIntervalUniform);
+        cycleColorIntervalUniform->set((float)cycleColorInterval);
+
+
+
     }
     else
         geode->setColor(horizontalCellColor);
@@ -429,6 +530,8 @@ void MLSMapVisualization::setCycleHeightColor(bool enabled)
 {
     cycleHeightColor = enabled;
     emit propertyChanged("cycle_height_color");
+
+    cycleColorIntervalUniform->set((float)cycleColorInterval);
     setDirty();
 }
 

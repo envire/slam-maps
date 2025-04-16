@@ -126,6 +126,11 @@ namespace vizkit3d
             boost::scoped_ptr<Data> p;
 
             osg::ref_ptr<osg::Group> localNode;
+
+            osg::ref_ptr<osg::Program> program;
+            osg::ref_ptr<osg::Shader> fShader;
+            osg::ref_ptr<osg::Shader> vShader;
+            osg::ref_ptr<osg::Uniform> cycleColorIntervalUniform;
         
         public slots:
 

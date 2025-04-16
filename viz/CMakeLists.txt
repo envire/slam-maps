@@ -5,6 +5,8 @@ if(${OSG_VERSION} VERSION_GREATER_EQUAL 3.6.4)
     add_compile_definitions(NEW_OSG)
 endif()
 
+rock_executable(shadertest ShaderTestMain.cpp DEPS_PKGCONFIG osgViz PrimitivesFactory LIBS glfw GLESv2 )
+
 if (ROCK_QT_VERSION_4)
 	if (vizkit3d_FOUND AND OSGVIZ_PRIMITIVES_FOUND)
 		rock_vizkit_plugin(maps-viz
