@@ -54,21 +54,26 @@ using namespace ::maps::grid;
 // https://forum.playcanvas.com/t/world-coordinate-in-fragment-shader/22996/8
 // https://learnopengl.com/Getting-started/Shaders
 // https://gist.github.com/vicrucann/497fd5839bccba45e58b5ca48feca12f
+// https://learnopengl.com/Lighting/Basic-Lighting
 
 const char *vertexShaderSource = "#version 330 core\n"
     "layout (location = 0) in vec3 position;\n"
-    "out vec4 fragPos;\n"
+    "layout (location = 1) in vec3 normal;"
+    "out vec3 fragPos;\n"
+    "out vec3 Normal;\n"
     "uniform mat4 modelMatrix;\n"
     "uniform mat4 modelViewProjectionMatrix;\n"
     "void main()\n"
     "{\n"
-    "    fragPos = modelMatrix * vec4(position, 1.0);\n"
+    "    fragPos = vec3(modelMatrix * vec4(position, 1.0));\n"
     "    gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);\n"
+    "    Normal=normal;\n"
     "}\0";
 
 const char *fragmentShaderSource = "#version 330 core\n"
     "layout (location = 0) out vec4 color;\n"
-    "in vec4 fragPos;\n"
+    "in vec3 fragPos;\n"
+    "in vec3 Normal;\n"
     "uniform float cycleColorInterval;\n"
     "// from: http://lolengine.net/blog/2013/07/27/rgb-to-hsv-in-glsl\n"
     "vec3 hsv2rgb(vec3 c) {\n"
@@ -81,12 +86,23 @@ const char *fragmentShaderSource = "#version 330 core\n"
     "{\n"
     "   float z = fragPos.z;\n"
     "   float int_part;\n"
-    "   if ( abs( modf(z, int_part) ) < 0.01) {\n"
-    "       color = vec4(0,0,0,1);"
-    "   }else{"
+    "   if ( abs( modf(z, int_part) ) < 0.02) {\n"
+    "      color = vec4(0,0,0,1);"
+    "   } else {"
     "      float hue = (z - floor(z / cycleColorInterval) * cycleColorInterval) / cycleColorInterval;\n"
     "      vec3 hsv = vec3(hue, 1, 1);\n"
-    "      color = vec4(hsv2rgb(hsv),1);\n"
+    "      vec3 rgbcolor = hsv2rgb(hsv);\n"
+    "      vec3 lightColor = vec3(1,1,1);\n"
+    "      float ambientStrength = 0.5;\n"
+    "      vec3 ambient = ambientStrength * lightColor;\n"
+    "      vec3 norm = normalize(Normal);\n"
+    "      vec3 lightPos = vec3(0.0 , 0.0, 100.0);\n"
+    "      vec3 lightDir = normalize(lightPos - fragPos);\n"
+    "      float diff = abs(dot(norm, lightDir));\n"
+    "      vec3 diffuse = diff*lightColor;\n"
+    "      vec3 result = (ambient + diffuse) * rgbcolor;"
+    "      //color = vec4(result,1);\n"
+    "      color = vec4(rgbcolor,1);\n"
     "   }"
     "}\n\0";
 
@@ -354,23 +370,23 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
         geode->setColorHSVA(0, 1.0, 0.6, 1.0);
 
         // enable shader-based height coloring
-        osg::ref_ptr<osg::Geometry> geom = geode->getGeom();
+        // osg::ref_ptr<osg::Geometry> geom = geode->getGeom();
 
-        geom->getOrCreateStateSet()->setAttributeAndModes(program.get(), osg::StateAttribute::ON);
+        geode->getOrCreateStateSet()->setAttributeAndModes(program.get(), osg::StateAttribute::ON);
 
         osg::ref_ptr<osg::Uniform> mvp = new osg::Uniform(osg::Uniform::FLOAT_MAT4, "modelViewProjectionMatrix");
-        geom->getOrCreateStateSet()->addUniform(mvp);
+        geode->getOrCreateStateSet()->addUniform(mvp);
         osg::Camera* cam = getCamera();
         mvp->setUpdateCallback(new ModelViewProjectionMatrixCallback(cam));
 
 
         osg::ref_ptr<osg::Uniform> model = new osg::Uniform(osg::Uniform::FLOAT_MAT4, "modelMatrix");
-        geom->getOrCreateStateSet()->addUniform(model);
+        geode->getOrCreateStateSet()->addUniform(model);
         model->setUpdateCallback(new ModelMatrixCallback);
 
         
         cycleColorIntervalUniform = new osg::Uniform(osg::Uniform::FLOAT, "cycleColorInterval");
-        geom->getOrCreateStateSet()->addUniform(cycleColorIntervalUniform);
+        geode->getOrCreateStateSet()->addUniform(cycleColorIntervalUniform);
         cycleColorIntervalUniform->set((float)cycleColorInterval);
 
 

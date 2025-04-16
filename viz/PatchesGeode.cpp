@@ -313,17 +313,17 @@ namespace vizkit3d
         closeQuads();
 
         //draw lines
-        var_vertices->push_back(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[0]+zs*0.5));
-        var_vertices->push_back(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[0]-zs*0.5));
+        // var_vertices->push_back(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[0]+zs*0.5));
+        // var_vertices->push_back(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[0]-zs*0.5));
 
-        var_vertices->push_back(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[1]+zs*0.5));
-        var_vertices->push_back(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[1]-zs*0.5));
+        // var_vertices->push_back(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[1]+zs*0.5));
+        // var_vertices->push_back(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[1]-zs*0.5));
     
-        var_vertices->push_back(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[2]+zs*0.5));
-        var_vertices->push_back(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[2]-zs*0.5));
+        // var_vertices->push_back(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[2]+zs*0.5));
+        // var_vertices->push_back(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[2]-zs*0.5));
 
-        var_vertices->push_back(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[3]+zs*0.5));
-        var_vertices->push_back(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[3]-zs*0.5));
+        // var_vertices->push_back(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[3]+zs*0.5));
+        // var_vertices->push_back(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[3]-zs*0.5));
 
 
         const osg::Vec3 min(xp,yp,top-height);
