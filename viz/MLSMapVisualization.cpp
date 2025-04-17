@@ -55,24 +55,31 @@ using namespace ::maps::grid;
 // https://learnopengl.com/Getting-started/Shaders
 // https://gist.github.com/vicrucann/497fd5839bccba45e58b5ca48feca12f
 // https://learnopengl.com/Lighting/Basic-Lighting
+// https://www.khronos.org/opengl/wiki/Fragment_Shader
+// https://osg-users.openscenegraph.narkive.com/8nXnCbaY/using-modern-shaders-with-osg-setting-vertex-attribute-layout
+//https://github.com/openscenegraph/OpenSceneGraph/blob/master/examples/osgsimplegl3/osgsimplegl3.cpp
 
 const char *vertexShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec3 position;\n"
-    "layout (location = 1) in vec3 normal;"
-    "out vec3 fragPos;\n"
+    "layout (location = 0) in vec3 osg_Vertex;\n"
+    "layout (location = 1) in vec3 osg_Normal;\n"
+    "out vec3 FragPos;\n"
     "out vec3 Normal;\n"
+    "uniform mat4 osg_ModelViewProjectionMatrix;\n"
+    "uniform mat4 osg_ModelViewMatrix;\n"
+    "uniform mat4 osg_ViewMatrixInverse;\n"
+    "uniform mat3 osg_NormalMatrix;\n"
+    "uniform mat4 osg_ViewMatrix;\n"
     "uniform mat4 modelMatrix;\n"
     "uniform mat4 modelViewProjectionMatrix;\n"
     "void main()\n"
     "{\n"
-    "    fragPos = vec3(modelMatrix * vec4(position, 1.0));\n"
-    "    gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);\n"
-    "    Normal=normal;\n"
+    "    gl_Position = osg_ModelViewProjectionMatrix * vec4(osg_Vertex, 1.0);\n"
+    "    FragPos = vec3(modelMatrix * vec4(osg_Vertex, 1.0));\n"
+    "    Normal = osg_NormalMatrix * osg_Normal;\n"
     "}\0";
 
 const char *fragmentShaderSource = "#version 330 core\n"
-    "layout (location = 0) out vec4 color;\n"
-    "in vec3 fragPos;\n"
+    "in vec3 FragPos;\n"
     "in vec3 Normal;\n"
     "uniform float cycleColorInterval;\n"
     "// from: http://lolengine.net/blog/2013/07/27/rgb-to-hsv-in-glsl\n"
@@ -84,25 +91,24 @@ const char *fragmentShaderSource = "#version 330 core\n"
     "}\n"
     "void main()\n"
     "{\n"
-    "   float z = fragPos.z;\n"
+    "   float z = FragPos.z;\n"
     "   float int_part;\n"
     "   if ( abs( modf(z, int_part) ) < 0.02) {\n"
-    "      color = vec4(0,0,0,1);"
+    "      gl_FragColor = vec4(0,0,0,1);"
     "   } else {"
     "      float hue = (z - floor(z / cycleColorInterval) * cycleColorInterval) / cycleColorInterval;\n"
     "      vec3 hsv = vec3(hue, 1, 1);\n"
     "      vec3 rgbcolor = hsv2rgb(hsv);\n"
     "      vec3 lightColor = vec3(1,1,1);\n"
-    "      float ambientStrength = 0.5;\n"
+    "      float ambientStrength = 0.2;\n"
     "      vec3 ambient = ambientStrength * lightColor;\n"
     "      vec3 norm = normalize(Normal);\n"
     "      vec3 lightPos = vec3(0.0 , 0.0, 100.0);\n"
-    "      vec3 lightDir = normalize(lightPos - fragPos);\n"
+    "      vec3 lightDir = normalize(lightPos - FragPos);\n"
     "      float diff = abs(dot(norm, lightDir));\n"
     "      vec3 diffuse = diff*lightColor;\n"
     "      vec3 result = (ambient + diffuse) * rgbcolor;"
-    "      //color = vec4(result,1);\n"
-    "      color = vec4(rgbcolor,1);\n"
+    "      gl_FragColor = vec4(result,1);\n"
     "   }"
     "}\n\0";
 
@@ -372,11 +378,18 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
         // enable shader-based height coloring
         // osg::ref_ptr<osg::Geometry> geom = geode->getGeom();
 
+        osg::Camera* cam = getCamera();
+        // if (cam) {
+        //     osg::ref_ptr<osg::GraphicsContext> gc = 
+        //      cam->getGraphicsContext()->getState()->setUseModelViewAndProjectionUniforms(true);
+        //      cam->getGraphicsContext()->getState()->setUseVertexAttributeAliasing(true);
+        // }
         geode->getOrCreateStateSet()->setAttributeAndModes(program.get(), osg::StateAttribute::ON);
 
         osg::ref_ptr<osg::Uniform> mvp = new osg::Uniform(osg::Uniform::FLOAT_MAT4, "modelViewProjectionMatrix");
         geode->getOrCreateStateSet()->addUniform(mvp);
-        osg::Camera* cam = getCamera();
+
+
         mvp->setUpdateCallback(new ModelViewProjectionMatrixCallback(cam));
 
 
