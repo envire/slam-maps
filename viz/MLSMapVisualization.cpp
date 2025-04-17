@@ -100,10 +100,10 @@ const char *fragmentShaderSource = "#version 330 core\n"
     "      vec3 hsv = vec3(hue, 1, 1);\n"
     "      vec3 rgbcolor = hsv2rgb(hsv);\n"
     "      vec3 lightColor = vec3(1,1,1);\n"
-    "      float ambientStrength = 0.2;\n"
+    "      float ambientStrength = 0.1;\n"
     "      vec3 ambient = ambientStrength * lightColor;\n"
     "      vec3 norm = normalize(Normal);\n"
-    "      vec3 lightPos = vec3(0.0 , 0.0, 100.0);\n"
+    "      vec3 lightPos = vec3(0.0 , 0.0, 10.0);\n"
     "      vec3 lightDir = normalize(lightPos - FragPos);\n"
     "      float diff = abs(dot(norm, lightDir));\n"
     "      vec3 diffuse = diff*lightColor;\n"
@@ -114,21 +114,21 @@ const char *fragmentShaderSource = "#version 330 core\n"
 
 
 
-struct ModelViewProjectionMatrixCallback: public osg::Uniform::Callback
-{
-    ModelViewProjectionMatrixCallback(osg::Camera* camera) :
-            _camera(camera) {
-    }
+// struct ModelViewProjectionMatrixCallback: public osg::Uniform::Callback
+// {
+//     ModelViewProjectionMatrixCallback(osg::Camera* camera) :
+//             _camera(camera) {
+//     }
 
-    virtual void operator()(osg::Uniform* uniform, osg::NodeVisitor* nv) {
-        osg::Matrixd viewMatrix = _camera->getViewMatrix();
-        osg::Matrixd modelMatrix = osg::computeLocalToWorld(nv->getNodePath());
-        osg::Matrixd modelViewProjectionMatrix = modelMatrix * viewMatrix * _camera->getProjectionMatrix();
-        uniform->set(modelViewProjectionMatrix);
-    }
+//     virtual void operator()(osg::Uniform* uniform, osg::NodeVisitor* nv) {
+//         osg::Matrixd viewMatrix = _camera->getViewMatrix();
+//         osg::Matrixd modelMatrix = osg::computeLocalToWorld(nv->getNodePath());
+//         osg::Matrixd modelViewProjectionMatrix = modelMatrix * viewMatrix * _camera->getProjectionMatrix();
+//         uniform->set(modelViewProjectionMatrix);
+//     }
 
-    osg::Camera* _camera;
-};
+//     osg::Camera* _camera;
+// };
 
 struct ModelMatrixCallback: public osg::Uniform::Callback
 {
@@ -378,19 +378,13 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
         // enable shader-based height coloring
         // osg::ref_ptr<osg::Geometry> geom = geode->getGeom();
 
-        osg::Camera* cam = getCamera();
-        // if (cam) {
-        //     osg::ref_ptr<osg::GraphicsContext> gc = 
-        //      cam->getGraphicsContext()->getState()->setUseModelViewAndProjectionUniforms(true);
-        //      cam->getGraphicsContext()->getState()->setUseVertexAttributeAliasing(true);
-        // }
+        
         geode->getOrCreateStateSet()->setAttributeAndModes(program.get(), osg::StateAttribute::ON);
 
-        osg::ref_ptr<osg::Uniform> mvp = new osg::Uniform(osg::Uniform::FLOAT_MAT4, "modelViewProjectionMatrix");
-        geode->getOrCreateStateSet()->addUniform(mvp);
-
-
-        mvp->setUpdateCallback(new ModelViewProjectionMatrixCallback(cam));
+        // osg::ref_ptr<osg::Uniform> mvp = new osg::Uniform(osg::Uniform::FLOAT_MAT4, "modelViewProjectionMatrix");
+        // geode->getOrCreateStateSet()->addUniform(mvp);
+        // osg::Camera* cam = getCamera();
+        // mvp->setUpdateCallback(new ModelViewProjectionMatrixCallback(cam));
 
 
         osg::ref_ptr<osg::Uniform> model = new osg::Uniform(osg::Uniform::FLOAT_MAT4, "modelMatrix");
@@ -454,6 +448,10 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
             lowres->accept(simplifer);
             lodnode->addChild(lowres, 75, FLT_MAX);
         }
+        if (cycleHeightColor) {
+            sgeode->getOrCreateStateSet()->setAttributeAndModes(program.get(), osg::StateAttribute::ON);
+        }
+
     }
 
     if( showUncertainty || showNormals || showPatchExtents)
