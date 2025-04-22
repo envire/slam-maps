@@ -230,16 +230,19 @@ void visualize(vizkit3d::SurfaceGeode& geode) const
                         float height = patch->getMax();
                         float nheight = neighborpatch->getMax();
 
-                        //geode.setColor( horizontalCellColor );
-                        Eigen::Vector3f pos (xypos.x(), xypos.y(), height);
-                        Eigen::Vector3f posnormal = patch->getNormal();
-                        Eigen::Vector3f npos (nxypos.x(), nxypos.y(), nheight);
-                        Eigen::Vector3f nposnormal = neighborpatch->getNormal();
+                        if (fabs(height - nheight) < mls.getConfig().gapSize) {
+                            //geode.setColor( horizontalCellColor );
+                            Eigen::Vector3f pos (xypos.x(), xypos.y(), height);
+                            Eigen::Vector3f posnormal = patch->getNormal();
+                            Eigen::Vector3f npos (nxypos.x(), nxypos.y(), nheight);
+                            Eigen::Vector3f nposnormal = neighborpatch->getNormal();
 
-                        // adding the neighbor first to make the SmoothingVisitor work properly
-                        geode.addVertex( osg::Vec3f(pos.x(),npos.y(),npos.z()), osg::Vec3f(nposnormal.x(),nposnormal.y(),nposnormal.z()) );
-                        geode.addVertex( osg::Vec3f(pos.x(),pos.y(),pos.z()), osg::Vec3f(posnormal.x(),posnormal.y(),posnormal.z()) );
-
+                            // adding the neighbor first to make the SmoothingVisitor work properly
+                            geode.addVertex( osg::Vec3f(pos.x(),npos.y(),npos.z()), osg::Vec3f(nposnormal.x(),nposnormal.y(),nposnormal.z()) );
+                            geode.addVertex( osg::Vec3f(pos.x(),pos.y(),pos.z()), osg::Vec3f(posnormal.x(),posnormal.y(),posnormal.z()) );
+                        }else{
+                            geode.closeTriangleStrip();
+                        }
                     }else{
                         geode.closeTriangleStrip();
                     }
