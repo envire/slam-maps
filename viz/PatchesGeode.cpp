@@ -58,10 +58,15 @@ namespace vizkit3d
         showPatchExtents = false;
 
         geom->setUseVertexBufferObjects(true);
-
         geom->setVertexArray(vertices);
+
         geom->setNormalArray(normals);
         geom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
+
+        // set vertex shader location 1 to have the normals
+        geom->setVertexAttribArray(1,normals);
+        geom->setVertexAttribBinding(1, osg::Geometry::BIND_PER_VERTEX);
+
         geom->setColorArray(colors);
         geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
 
