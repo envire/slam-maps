@@ -67,6 +67,8 @@ namespace vizkit3d
         Q_PROPERTY(QColor uncertainty_color READ getUncertaintyColor WRITE setUncertaintyColor)
         Q_PROPERTY(int min_measurements READ getMinMeasurements WRITE setMinMeasurements)
         Q_PROPERTY(bool updateFrameOnlyOnNewData READ getUpdateFramePositionOnlyOnNewData WRITE setUpdateFramePositionOnlyOnNewData)
+        Q_PROPERTY(double contour_line_interval READ getContourLineInterval WRITE setContourLineInterval)
+        Q_PROPERTY(double contour_line_Thickness READ getContourLineThickness WRITE setContourLineThickness)
 
         public:
             MLSMapVisualization();
@@ -131,6 +133,8 @@ namespace vizkit3d
             osg::ref_ptr<osg::Shader> fShader;
             osg::ref_ptr<osg::Shader> vShader;
             osg::ref_ptr<osg::Uniform> cycleColorIntervalUniform;
+            osg::ref_ptr<osg::Uniform> contourLineIntervalUniform;
+            osg::ref_ptr<osg::Uniform> contourLineThicknessUniform;
         
         public slots:
 
@@ -183,8 +187,13 @@ namespace vizkit3d
             void setMinMeasurements(int measurements);
 
             bool getUpdateFramePositionOnlyOnNewData();
-
             void setUpdateFramePositionOnlyOnNewData(const bool &newvalue);
+
+            double getContourLineInterval() const;
+            void setContourLineInterval(double interval);
+
+            double getContourLineThickness() const;
+            void setContourLineThickness(double thickness);
 
         protected:
             osg::Vec4 horizontalCellColor;
@@ -205,6 +214,8 @@ namespace vizkit3d
             bool simplifySurface;
             bool connected_surface_lod;
             bool updateDataFramePosition;
+            double contour_line_interval;
+            double contour_line_thickness;
 
 #if 0
             osg::Vec3 estimateNormal(

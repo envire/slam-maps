@@ -81,6 +81,8 @@ const char *fragmentShaderSource = "#version 330 core\n"
     "in vec3 FragPos;\n"
     "in vec3 Normal;\n"
     "uniform float cycleColorInterval;\n"
+    "uniform float contourLineInterval;\n"
+    "uniform float contourLineThickness;\n"
     "// from: http://lolengine.net/blog/2013/07/27/rgb-to-hsv-in-glsl\n"
     "vec3 hsv2rgb(vec3 c) {\n"
         "c = vec3(c.x, clamp(c.yz, 0.0, 1.0));\n"
@@ -92,7 +94,7 @@ const char *fragmentShaderSource = "#version 330 core\n"
     "{\n"
     "   float z = FragPos.z;\n"
     "   float int_part;\n"
-    "   if ( abs( modf(z, int_part) ) < 0.02) {\n" // black line every 1m 
+    "   if ( contourLineInterval != 0.0 && abs( mod(z, contourLineInterval) ) < contourLineThickness) {\n" // black line every 1m 
     "      gl_FragColor = vec4(0,0,0,1);"
     "   } else {"
     "      float hue = (z - floor(z / cycleColorInterval) * cycleColorInterval) / cycleColorInterval;\n"
@@ -102,7 +104,7 @@ const char *fragmentShaderSource = "#version 330 core\n"
     "      float ambientStrength = 0.7;\n"
     "      vec3 ambient = ambientStrength * lightColor;\n"
     "      vec3 norm = normalize(Normal);\n"
-    "      vec3 lightPos = vec3(0.0 , 0.0, 10.0);\n"
+    "      vec3 lightPos = vec3(0.0 , 0.0, 100.0);\n"
     "      vec3 lightDir = normalize(lightPos - FragPos);\n"
     "      float diff = abs(dot(norm, lightDir));\n"
     "      vec3 diffuse = diff*lightColor;\n"
@@ -360,13 +362,22 @@ MLSMapVisualization::MLSMapVisualization()
     connectedSurface(false),
     simplifySurface(true),
     connected_surface_lod(false),
-    updateDataFramePosition(false)
+    updateDataFramePosition(false),
+    contour_line_interval(1),
+    contour_line_thickness(0.02)
 {
     program = new osg::Program;
     vShader = new osg::Shader(osg::Shader::VERTEX, vertexShaderSource);
     fShader = new osg::Shader(osg::Shader::FRAGMENT, fragmentShaderSource);
     program->addShader(vShader);
     program->addShader(fShader);
+
+    cycleColorIntervalUniform = new osg::Uniform(osg::Uniform::FLOAT, "cycleColorInterval");
+    cycleColorIntervalUniform->set((float)cycleColorInterval);
+    contourLineIntervalUniform = new osg::Uniform(osg::Uniform::FLOAT, "contourLineInterval");
+    contourLineIntervalUniform->set((float)contour_line_interval);
+    contourLineThicknessUniform = new osg::Uniform(osg::Uniform::FLOAT, "contourLineThickness");
+    contourLineThicknessUniform->set((float)contour_line_thickness);
 }
 
 MLSMapVisualization::~MLSMapVisualization()
@@ -416,7 +427,6 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
         osg::Camera* cam = getCamera();
         mvp->setUpdateCallback(new ModelViewProjectionMatrixCallback(cam));
 
-
         osg::ref_ptr<osg::Uniform> model = new osg::Uniform(osg::Uniform::FLOAT_MAT4, "modelMatrix");
         geode->getOrCreateStateSet()->addUniform(model);
         model->setUpdateCallback(new ModelMatrixCallback);
@@ -425,9 +435,9 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
         geode->getOrCreateStateSet()->addUniform(normal);
         normal->setUpdateCallback(new NormalMatrixCallback(cam));
         
-        cycleColorIntervalUniform = new osg::Uniform(osg::Uniform::FLOAT, "cycleColorInterval");
         geode->getOrCreateStateSet()->addUniform(cycleColorIntervalUniform);
-        cycleColorIntervalUniform->set((float)cycleColorInterval);
+        geode->getOrCreateStateSet()->addUniform(contourLineIntervalUniform);
+        geode->getOrCreateStateSet()->addUniform(contourLineThicknessUniform);
 
     }
     else
@@ -589,7 +599,6 @@ void MLSMapVisualization::setCycleHeightColor(bool enabled)
     cycleHeightColor = enabled;
     emit propertyChanged("cycle_height_color");
 
-    cycleColorIntervalUniform->set((float)cycleColorInterval);
     setDirty();
 }
 
@@ -604,6 +613,8 @@ void MLSMapVisualization::setCycleColorInterval(double interval)
         cycleColorInterval = 1.0;
     else
         cycleColorInterval = interval;
+
+    cycleColorIntervalUniform->set((float)cycleColorInterval);
     emit propertyChanged("cycle_color_interval");
     setDirty();
 }
@@ -808,6 +819,28 @@ void MLSMapVisualization::setUpdateFramePositionOnlyOnNewData(const bool &newval
 {
     updateDataFramePosition = newvalue;
     setManualVizPoseUpdateEnabled(updateDataFramePosition);
+}
+
+double MLSMapVisualization::getContourLineInterval() const
+{
+    return contour_line_interval;
+}
+
+void MLSMapVisualization::setContourLineInterval(double interval)
+{
+    contour_line_interval = interval;
+    contourLineIntervalUniform->set((float)contour_line_interval);
+    emit propertyChanged("contour_line_interval");
+}
+
+double MLSMapVisualization::getContourLineThickness() const {
+    return contour_line_thickness;
+}
+
+void MLSMapVisualization::setContourLineThickness(double thickness) {
+    contour_line_thickness = thickness;
+    contourLineThicknessUniform->set((float)contour_line_thickness);
+    emit propertyChanged("contour_line_thickness");
 }
 
 //Macro that makes this plugin loadable in ruby, this is optional.
