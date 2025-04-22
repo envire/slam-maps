@@ -73,7 +73,7 @@ const char *vertexShaderSource = "#version 330 core\n"
     "    gl_Position = modelViewProjectionMatrix * vec4(osg_Vertex, 1.0);\n"
     "    FragPos = vec3(modelMatrix * vec4(osg_Vertex, 1.0));\n"
     "    //Normal = osg_NormalMatrix * osg_Normal;\n"
-    "    Normal = normalMatrix * osg_Normal;\n" // no care about about actual light location (mult by transposed interveted model matrix)
+    "    Normal = normalize(normalMatrix * osg_Normal);\n" // no care about about actual light location (mult by transposed interveted model matrix)
     "    //Normal = osg_Normal;\n"
     "}\0";
 
@@ -363,7 +363,7 @@ MLSMapVisualization::MLSMapVisualization()
     simplifySurface(true),
     connected_surface_lod(false),
     updateDataFramePosition(false),
-    contour_line_interval(1),
+    contour_line_interval(0.0),
     contour_line_thickness(0.02)
 {
     program = new osg::Program;
