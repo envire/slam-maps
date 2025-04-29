@@ -458,7 +458,6 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
 
         if (use_shader_color) {
             // enable shader-based height coloring
-            osg::ref_ptr<osg::Geometry> geom = geode->getGeom();
             geode->getOrCreateStateSet()->setAttributeAndModes(program.get(), osg::StateAttribute::ON);
 
             osg::ref_ptr<osg::Uniform> mvp = new osg::Uniform(osg::Uniform::FLOAT_MAT4, "modelViewProjectionMatrix");
