@@ -273,63 +273,50 @@ namespace vizkit3d
 
         const float zp = top - height*0.5f;
         const float zs = height;
+        float zpos = top;
 
         const osg::Vec4 h( osg::Vec4(zp,zp,zp,zp) );
         osg::Vec3 normal( c_normal );
 
-        addVertex(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[0]+zs*0.5), normal, stdev);
-        addVertex(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[1]+zs*0.5), normal, stdev);
-        addVertex(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[2]+zs*0.5), normal, stdev);
-        addVertex(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[3]+zs*0.5), normal, stdev);
+        addVertex(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[0]+zs*0.5), normal, stdev, zpos);
+        addVertex(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[1]+zs*0.5), normal, stdev, zpos);
+        addVertex(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[2]+zs*0.5), normal, stdev, zpos);
+        addVertex(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[3]+zs*0.5), normal, stdev, zpos);
 
         if( zs > 0.0 )
         {
             normal = osg::Vec3(0,-1.0,0);
-            addVertex(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[0]+zs*0.5), normal, stdev);
-            addVertex(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[1]+zs*0.5), normal, stdev);
-            addVertex(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[2]-zs*0.5), normal, stdev);
-            addVertex(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[3]-zs*0.5), normal, stdev);
+            addVertex(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[0]+zs*0.5), normal, stdev, zpos);
+            addVertex(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[1]+zs*0.5), normal, stdev, zpos);
+            addVertex(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[2]-zs*0.5), normal, stdev, zpos);
+            addVertex(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[3]-zs*0.5), normal, stdev, zpos);
 
             normal = osg::Vec3(1.0,0,0);
-            addVertex(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[0]+zs*0.5), normal, stdev);
-            addVertex(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[1]+zs*0.5), normal, stdev);
-            addVertex(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[2]-zs*0.5), normal, stdev);
-            addVertex(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[3]-zs*0.5), normal, stdev);
+            addVertex(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[0]+zs*0.5), normal, stdev, zpos);
+            addVertex(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[1]+zs*0.5), normal, stdev, zpos);
+            addVertex(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[2]-zs*0.5), normal, stdev, zpos);
+            addVertex(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[3]-zs*0.5), normal, stdev, zpos);
 
             normal = osg::Vec3(0,1.0,0);
-            addVertex(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[0]+zs*0.5), normal, stdev);
-            addVertex(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[1]+zs*0.5), normal, stdev);
-            addVertex(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[2]-zs*0.5), normal, stdev);
-            addVertex(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[3]-zs*0.5), normal, stdev);
+            addVertex(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[0]+zs*0.5), normal, stdev, zpos);
+            addVertex(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[1]+zs*0.5), normal, stdev, zpos);
+            addVertex(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[2]-zs*0.5), normal, stdev, zpos);
+            addVertex(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[3]-zs*0.5), normal, stdev, zpos);
 
             normal = osg::Vec3(-1.0,0,0);
-            addVertex(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[0]+zs*0.5), normal, stdev);
-            addVertex(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[1]+zs*0.5), normal, stdev);
-            addVertex(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[2]-zs*0.5), normal, stdev);
-            addVertex(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[3]-zs*0.5), normal, stdev);
+            addVertex(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[0]+zs*0.5), normal, stdev, zpos);
+            addVertex(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[1]+zs*0.5), normal, stdev, zpos);
+            addVertex(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[2]-zs*0.5), normal, stdev, zpos);
+            addVertex(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[3]-zs*0.5), normal, stdev, zpos);
 
             normal = osg::Vec3(0,0,-1.0);
-            addVertex(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[0]-zs*0.5), normal, stdev);
-            addVertex(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[1]-zs*0.5), normal, stdev);
-            addVertex(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[2]-zs*0.5), normal, stdev);
-            addVertex(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[3]-zs*0.5), normal, stdev);
+            addVertex(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[0]-zs*0.5), normal, stdev, zpos);
+            addVertex(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[1]-zs*0.5), normal, stdev, zpos);
+            addVertex(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[2]-zs*0.5), normal, stdev, zpos);
+            addVertex(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[3]-zs*0.5), normal, stdev, zpos);
         }
 
         closeQuads();
-
-        //draw lines
-        // var_vertices->push_back(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[0]+zs*0.5));
-        // var_vertices->push_back(osg::Vec3(xp-xs*0.5, yp-ys*0.5, h[0]-zs*0.5));
-
-        // var_vertices->push_back(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[1]+zs*0.5));
-        // var_vertices->push_back(osg::Vec3(xp+xs*0.5, yp-ys*0.5, h[1]-zs*0.5));
-    
-        // var_vertices->push_back(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[2]+zs*0.5));
-        // var_vertices->push_back(osg::Vec3(xp+xs*0.5, yp+ys*0.5, h[2]-zs*0.5));
-
-        // var_vertices->push_back(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[3]+zs*0.5));
-        // var_vertices->push_back(osg::Vec3(xp-xs*0.5, yp+ys*0.5, h[3]-zs*0.5));
-
 
         const osg::Vec3 min(xp,yp,top-height);
         const osg::Vec3 max(xp,yp,top);
@@ -365,6 +352,27 @@ namespace vizkit3d
 
         colors->push_back( color );
     }
+
+    void PatchesGeode::addVertex(const osg::Vec3& p, const osg::Vec3& n, const float & stdev, const float& zpos)
+    {
+        vertices->push_back( p );
+        normals->push_back( n );
+
+        float height = p.z();
+        if (use_vertical_top_color) {
+            height = zpos;
+        }
+
+        if( cycle_color )
+        {
+            hue = (height - std::floor(height / cycle_color_interval) * cycle_color_interval) / cycle_color_interval;
+            alpha = std::max( 0.0, (uncertaintyScale - stdev) / uncertaintyScale);
+            updateColor();
+        }
+
+        colors->push_back( color );
+    }
+
 
     void PatchesGeode::updateColor()
     {

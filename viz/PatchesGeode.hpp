@@ -87,6 +87,9 @@ namespace vizkit3d {
 
         void setColor(const osg::Vec4& color);
         void setColorHSVA(float hue, float sat, float lum, float alpha);
+        void setUseVerticalTopColor(const bool& value) {
+            use_vertical_top_color = value;
+        }
 
         void showCycleColor(bool cycle_color);
         void setCycleColorInterval(float cycle_color_interval);
@@ -126,6 +129,7 @@ namespace vizkit3d {
         bool cycle_color;
         float cycle_color_interval;
         double uncertaintyScale;
+        bool use_vertical_top_color;
 
         void addVertex(const osg::Vec3& p, const osg::Vec3& n, const float & stdev);
         void addVertex(const osg::Vec3& p, const osg::Vec3& n, const float & stdev, const float& zpos);
