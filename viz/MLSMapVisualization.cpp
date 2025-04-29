@@ -221,6 +221,8 @@ struct MLSMapVisualization::Data {
     virtual void visualizeNegativeInformation(vizkit3d::PatchesGeode& geode) const = 0;
     virtual maps::grid::CellExtents getCellExtents() const = 0;
     virtual base::Transform3d getLocalFrame() const = 0;
+    virtual float getMax() const = 0;
+    virtual float getMin() const = 0;
     MLSMapVisualization& visualization;
 };
 
@@ -236,8 +238,11 @@ public:
 
     Eigen::Vector2d getResolution() const { return mls.getResolution(); }
     
+    float getMin() const { return mls.getMin(); }
 
-void visualize(vizkit3d::SurfaceGeode& geode) const
+    float getMax() const { return mls.getMax(); }
+
+    void visualize(vizkit3d::SurfaceGeode& geode) const
     {
         Vector2ui num_cell = mls.getNumCells();
 
@@ -390,8 +395,11 @@ MLSMapVisualization::MLSMapVisualization()
     simplifySurface(true),
     connected_surface_lod(false),
     updateDataFramePosition(false),
+    use_vertical_top_color(true),
+    use_shader_color(true),
     contour_line_interval(0.0),
-    contour_line_thickness(0.02)
+    contour_line_thickness(0.02),
+    auto_color_cycle_interval(true)
 {
     program = new osg::Program;
     vShader = new osg::Shader(osg::Shader::VERTEX, vertexShaderSource);
@@ -436,36 +444,40 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
     // draw the extents of the mls
     visualizeMapExtents(p->getCellExtents(), p->getResolution());
 
+    geode->setUseVerticalTopColor(use_vertical_top_color);
+
     if(cycleHeightColor)
     {
+        if (auto_color_cycle_interval) {
+            cycleColorInterval = p->getMax() - p->getMin();
+            cycleColorIntervalUniform->set((float)cycleColorInterval);
+        }
         geode->showCycleColor(true);
         geode->setCycleColorInterval(cycleColorInterval);
         geode->setColorHSVA(0, 1.0, 0.6, 1.0);
 
-        // enable shader-based height coloring
-        osg::ref_ptr<osg::Geometry> geom = geode->getGeom();
+        if (use_shader_color) {
+            // enable shader-based height coloring
+            osg::ref_ptr<osg::Geometry> geom = geode->getGeom();
+            geode->getOrCreateStateSet()->setAttributeAndModes(program.get(), osg::StateAttribute::ON);
 
+            osg::ref_ptr<osg::Uniform> mvp = new osg::Uniform(osg::Uniform::FLOAT_MAT4, "modelViewProjectionMatrix");
+            geode->getOrCreateStateSet()->addUniform(mvp);
+            osg::Camera* cam = getCamera();
+            mvp->setUpdateCallback(new ModelViewProjectionMatrixCallback(cam));
 
-        
-        geode->getOrCreateStateSet()->setAttributeAndModes(program.get(), osg::StateAttribute::ON);
+            osg::ref_ptr<osg::Uniform> model = new osg::Uniform(osg::Uniform::FLOAT_MAT4, "modelMatrix");
+            geode->getOrCreateStateSet()->addUniform(model);
+            model->setUpdateCallback(new ModelMatrixCallback);
 
-        osg::ref_ptr<osg::Uniform> mvp = new osg::Uniform(osg::Uniform::FLOAT_MAT4, "modelViewProjectionMatrix");
-        geode->getOrCreateStateSet()->addUniform(mvp);
-        osg::Camera* cam = getCamera();
-        mvp->setUpdateCallback(new ModelViewProjectionMatrixCallback(cam));
+            osg::ref_ptr<osg::Uniform> normal = new osg::Uniform(osg::Uniform::FLOAT_MAT3, "normalMatrix");
+            geode->getOrCreateStateSet()->addUniform(normal);
+            normal->setUpdateCallback(new NormalMatrixCallback(cam));
 
-        osg::ref_ptr<osg::Uniform> model = new osg::Uniform(osg::Uniform::FLOAT_MAT4, "modelMatrix");
-        geode->getOrCreateStateSet()->addUniform(model);
-        model->setUpdateCallback(new ModelMatrixCallback);
-
-        osg::ref_ptr<osg::Uniform> normal = new osg::Uniform(osg::Uniform::FLOAT_MAT3, "normalMatrix");
-        geode->getOrCreateStateSet()->addUniform(normal);
-        normal->setUpdateCallback(new NormalMatrixCallback(cam));
-        
-        geode->getOrCreateStateSet()->addUniform(cycleColorIntervalUniform);
-        geode->getOrCreateStateSet()->addUniform(contourLineIntervalUniform);
-        geode->getOrCreateStateSet()->addUniform(contourLineThicknessUniform);
-
+            geode->getOrCreateStateSet()->addUniform(cycleColorIntervalUniform);
+            geode->getOrCreateStateSet()->addUniform(contourLineIntervalUniform);
+            geode->getOrCreateStateSet()->addUniform(contourLineThicknessUniform);
+        }
     }
     else
         geode->setColor(horizontalCellColor);
@@ -869,6 +881,37 @@ void MLSMapVisualization::setContourLineThickness(double thickness) {
     contourLineThicknessUniform->set((float)contour_line_thickness);
     emit propertyChanged("contour_line_thickness");
 }
+
+bool MLSMapVisualization::getUseShaderColor() const {
+    return use_shader_color;
+}
+
+void MLSMapVisualization::setUseShaderColor(bool enabled){
+    use_shader_color = enabled;
+    setDirty();
+    emit propertyChanged("use_shader_color");
+}
+
+bool MLSMapVisualization::getUseVerticalTopColor() const {
+    return use_vertical_top_color;
+}
+
+void MLSMapVisualization::setUseVerticalTopColor(bool enabled){
+    use_vertical_top_color = enabled;
+    setDirty();
+    emit propertyChanged("use_vertical_top_color");
+}
+
+bool MLSMapVisualization::getAutoColorCycleInterval() const {
+    return auto_color_cycle_interval;
+}
+
+void MLSMapVisualization::setAutoColorCycleInterval(bool enabled){
+    auto_color_cycle_interval = enabled;
+    setDirty();
+    emit propertyChanged("auto_color_cycle_interval");
+}
+
 
 //Macro that makes this plugin loadable in ruby, this is optional.
 //VizkitQtPlugin(MLSMapVisualization)

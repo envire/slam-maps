@@ -57,6 +57,7 @@ namespace vizkit3d
         Q_PROPERTY(bool show_normals READ areNormalsShown WRITE setShowNormals)
         Q_PROPERTY(bool cycle_height_color READ isHeightColorCycled WRITE setCycleHeightColor)
         Q_PROPERTY(double cycle_color_interval READ getCycleColorInterval WRITE setCycleColorInterval)
+        Q_PROPERTY(bool auto_color_cycle_interval READ getAutoColorCycleInterval WRITE setAutoColorCycleInterval)
         Q_PROPERTY(double uncertainty_scale READ getUncertaintyScale WRITE setUncertaintyScale)
         Q_PROPERTY(bool connected_surface READ isConnectedSurface WRITE setConnectedSurface)
         Q_PROPERTY(bool simplify_surface READ getSimplifySurface WRITE setSimplifySurface)
@@ -67,6 +68,8 @@ namespace vizkit3d
         Q_PROPERTY(QColor uncertainty_color READ getUncertaintyColor WRITE setUncertaintyColor)
         Q_PROPERTY(int min_measurements READ getMinMeasurements WRITE setMinMeasurements)
         Q_PROPERTY(bool updateFrameOnlyOnNewData READ getUpdateFramePositionOnlyOnNewData WRITE setUpdateFramePositionOnlyOnNewData)
+        Q_PROPERTY(bool use_vertical_top_color READ getUseVerticalTopColor WRITE setUseVerticalTopColor)
+        Q_PROPERTY(bool use_shader_color READ getUseShaderColor WRITE setUseShaderColor)
         Q_PROPERTY(double contour_line_interval READ getContourLineInterval WRITE setContourLineInterval)
         Q_PROPERTY(double contour_line_Thickness READ getContourLineThickness WRITE setContourLineThickness)
 
@@ -195,6 +198,16 @@ namespace vizkit3d
             double getContourLineThickness() const;
             void setContourLineThickness(double thickness);
 
+            bool getUseShaderColor() const;
+            void setUseShaderColor(bool enabled);
+
+            bool getUseVerticalTopColor() const;
+            void setUseVerticalTopColor(bool enabled);
+
+            bool getAutoColorCycleInterval() const;
+            void setAutoColorCycleInterval(bool enabled);
+
+
         protected:
             osg::Vec4 horizontalCellColor;
             osg::Vec4 verticalCellColor;
@@ -214,8 +227,11 @@ namespace vizkit3d
             bool simplifySurface;
             bool connected_surface_lod;
             bool updateDataFramePosition;
+            bool use_vertical_top_color;
+            bool use_shader_color;
             double contour_line_interval;
             double contour_line_thickness;
+            bool auto_color_cycle_interval;
 
 #if 0
             osg::Vec3 estimateNormal(
