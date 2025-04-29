@@ -70,6 +70,10 @@ namespace vizkit3d
         geom->setColorArray(colors);
         geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
 
+        // set vertex shader location 2 to have the normals
+        geom->setVertexAttribArray(2,colors);
+        geom->setVertexAttribBinding(2, osg::Geometry::BIND_PER_VERTEX);
+
         addDrawable(geom);
     }
     void PatchesGeode::drawPlane(
