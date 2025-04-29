@@ -359,6 +359,32 @@ namespace maps { namespace grid
                 throw std::runtime_error((boost::format("Point %1% is outside of the grid! Can't add to grid.") % point.transpose()).str());
         }
 
+        float getMin() const {
+            float min = std::numeric_limits<double>::max();
+            for (const auto& patches : *this) {
+                for (const auto& entry : patches) {
+                    float entrymin = entry.getMin();
+                    if (entrymin < min) {
+                        min=entrymin;
+                    }
+                }
+            }
+            return min;
+        }
+
+        float getMax() const {
+            float max = std::numeric_limits<double>::min();
+            for (const auto& patches : *this) {
+                for (const auto& entry : patches) {
+                    float entrymax = entry.getMax();
+                    if (entrymax > max) {
+                        max=entrymax;
+                    }
+                }
+            }
+            return max;
+        }
+
     private:
         MLSConfig config;
         boost::shared_ptr<OccupancyGridMapBase> free_space_map;
