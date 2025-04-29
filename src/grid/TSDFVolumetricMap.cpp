@@ -31,7 +31,7 @@
 using namespace maps::grid;
 using namespace maps::tools;
 
-void TSDFVolumetricMap::mergePointCloud(const TSDFVolumetricMap::PointCloud& pc, const base::Transform3d& pc2grid, double measurement_variance)
+void TSDFVolumetricMap::mergePointCloud(const TSDFVolumetricMap::PointCloud& pc, const Eigen::Affine3d& pc2grid, double measurement_variance)
 {
     Eigen::Vector3d sensor_origin = pc.sensor_origin_.head<3>().cast<double>();
     Eigen::Vector3d sensor_origin_in_grid = pc2grid * sensor_origin;
@@ -42,28 +42,6 @@ void TSDFVolumetricMap::mergePointCloud(const TSDFVolumetricMap::PointCloud& pc,
         {
             Eigen::Vector3d measurement = it->getArray3fMap().cast<double>();
             mergePoint(sensor_origin_in_grid, pc2grid * measurement, measurement_variance);
-        }
-        catch(const std::runtime_error& e)
-        {
-            LOG_ERROR_S << e.what();
-        }
-    }
-}
-
-void TSDFVolumetricMap::mergePointCloud(const TSDFVolumetricMap::PointCloud& pc, const base::TransformWithCovariance& pc2grid, double measurement_variance)
-{
-    Eigen::Vector3d sensor_origin = pc.sensor_origin_.head<3>().cast<double>();
-    Eigen::Vector3d sensor_origin_in_grid = pc2grid.getTransform() * sensor_origin;
-
-    for(PointCloud::const_iterator it=pc.begin(); it != pc.end(); ++it)
-    {
-        std::pair<Eigen::Vector3d, Eigen::Matrix3d> measurement_in_map = pc2grid.composePointWithCovariance(it->getArray3fMap().cast<double>(), Eigen::Matrix3d::Zero());
-        try
-        {
-            Eigen::Vector3d measurement_normal = (measurement_in_map.first - sensor_origin_in_grid).normalized();
-            double pose_variance = measurement_normal.transpose() * measurement_in_map.second * measurement_normal;
-
-            mergePoint(sensor_origin_in_grid, measurement_in_map.first, measurement_variance + (std::isfinite(pose_variance) ? pose_variance : 0.));
         }
         catch(const std::runtime_error& e)
         {
@@ -147,7 +125,7 @@ void TSDFVolumetricMap::mergePoint(const Eigen::Vector3d& sensor_origin, const E
         throw std::runtime_error((boost::format("Sensor origin %1% is outside of the grid! Can't add measurement to grid.") % start_point.transpose()).str());
 }
 
-bool TSDFVolumetricMap::hasSameFrame(const base::Transform3d& local_frame, const Vector2ui& num_cells, const Vector2d& resolution) const
+bool TSDFVolumetricMap::hasSameFrame(const Eigen::Affine3d& local_frame, const Vector2ui& num_cells, const Vector2d& resolution) const
 {
      if(getResolution() == resolution && getNumCells() == num_cells && getLocalFrame().isApprox(local_frame))
          return true;

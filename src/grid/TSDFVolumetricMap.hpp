@@ -36,7 +36,6 @@
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/export.hpp>
 #include <cmath>
-#include <base/TransformWithCovariance.hpp>
 
 namespace maps { namespace grid
 {
@@ -58,22 +57,17 @@ public:
                     VoxelGridMap<VoxelCellType>(num_cells, resolution), truncation(truncation), min_variance(min_varaince) {}
     virtual ~TSDFVolumetricMap() {}
 
-    void mergePointCloud(const PointCloud& pc, const base::Transform3d& pc2grid, double measurement_variance = 0.01);
-    void mergePointCloud(const PointCloud& pc, const base::TransformWithCovariance& pc2grid, double measurement_variance = 0.01);
-
-    template<int _MatrixOptions>
-    void mergePointCloud(const std::vector< Eigen::Matrix<double, 3, 1, _MatrixOptions> >& pc, const base::TransformWithCovariance& pc2grid,
-                         const base::Vector3d& sensor_origin_in_pc = base::Vector3d::Zero(), double measurement_variance = 0.01);
+    void mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& pc2grid, double measurement_variance = 0.01);
 
     template<enum MLSConfig::update_model SurfaceType>
-    void projectMLSMap(const maps::grid::MLSMap<SurfaceType>& mls, const base::Transform3d& mls2grid,
+    void projectMLSMap(const maps::grid::MLSMap<SurfaceType>& mls, const Eigen::Affine3d& mls2grid,
                        const Eigen::Vector2i& start_idx = Eigen::Vector2i(0,0),
                        const Eigen::Vector2i& end_idx = Eigen::Vector2i(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()),
                        float z_min = -50.f, float z_max = 50.f, float truncation = 1.f, float variance = 0.01f);
 
     void mergePoint(const Eigen::Vector3d& sensor_origin, const Eigen::Vector3d& measurement, double measurement_variance = 0.01);
 
-    bool hasSameFrame(const base::Transform3d& local_frame, const Vector2ui &num_cells, const Vector2d &resolution) const;
+    bool hasSameFrame(const Eigen::Affine3d& local_frame, const Vector2ui &num_cells, const Vector2d &resolution) const;
 
     void setTruncation(float truncation);
 
@@ -104,35 +98,12 @@ protected:
     }
 };
 
-template<int _MatrixOptions>
-void TSDFVolumetricMap::mergePointCloud(const std::vector< Eigen::Matrix<double, 3, 1, _MatrixOptions> >& pc, const base::TransformWithCovariance& pc2grid,
-                                        const base::Vector3d& sensor_origin_in_pc, double measurement_variance)
-{
-    Eigen::Vector3d sensor_origin_in_grid = pc2grid.getTransform() * sensor_origin_in_pc;
-
-    for(typename std::vector< Eigen::Matrix<double, 3, 1, _MatrixOptions> >::const_iterator it = pc.begin(); it != pc.end(); ++it)
-    {
-        std::pair<Eigen::Vector3d, Eigen::Matrix3d> measurement_in_map = pc2grid.composePointWithCovariance(*it, Eigen::Matrix3d::Zero());
-        try
-        {
-            Eigen::Vector3d measurement_normal = (measurement_in_map.first - sensor_origin_in_grid).normalized();
-            double pose_variance = measurement_normal.transpose() * measurement_in_map.second * measurement_normal;
-
-            mergePoint(sensor_origin_in_grid, measurement_in_map.first, measurement_variance + (std::isfinite(pose_variance) ? pose_variance : 0.));
-        }
-        catch(const std::runtime_error& e)
-        {
-            LOG_ERROR_S << e.what();
-        }
-    }
-}
-
 template<enum MLSConfig::update_model SurfaceType>
-void TSDFVolumetricMap::projectMLSMap(const maps::grid::MLSMap<SurfaceType>& mls, const base::Transform3d& mls2grid,
+void TSDFVolumetricMap::projectMLSMap(const maps::grid::MLSMap<SurfaceType>& mls, const Eigen::Affine3d& mls2grid,
                                       const Eigen::Vector2i& start_idx, const Eigen::Vector2i& end_idx,
                                       float z_min, float z_max, float truncation, float variance)
 {
-    base::Transform3d grid2mls = mls2grid.inverse();
+    Eigen::Affine3d grid2mls = mls2grid.inverse();
     Eigen::Vector3d res = getVoxelResolution();
     Eigen::Vector3i max_idx;
     max_idx << end_idx.array().min(getNumCells().array().cast<int>()), (int)std::floor(z_max / res.z());

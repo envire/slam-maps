@@ -31,7 +31,7 @@
 using namespace maps::grid;
 using namespace maps::tools;
 
-void OccupancyGridMap::mergePointCloud(const OccupancyGridMap::PointCloud& pc, const base::Transform3d& pc2grid)
+void OccupancyGridMap::mergePointCloud(const OccupancyGridMap::PointCloud& pc, const Eigen::Affine3d& pc2grid)
 {
     Eigen::Vector3d sensor_origin = pc.sensor_origin_.block(0,0,3,1).cast<double>();
     Eigen::Vector3d sensor_origin_in_grid = pc2grid * sensor_origin;
@@ -113,7 +113,7 @@ bool OccupancyGridMap::isFreeSpace(Index idx, float z) const
     return it != cell_tree.end() && it->second.getLogOdds() <= config.free_space_logodds;
 }
 
-bool OccupancyGridMap::hasSameFrame(const base::Transform3d& local_frame, const Vector2ui& num_cells, const Vector2d& resolution) const
+bool OccupancyGridMap::hasSameFrame(const Eigen::Affine3d& local_frame, const Vector2ui& num_cells, const Vector2d& resolution) const
 {
      if(getResolution() == resolution && getNumCells() == num_cells && getLocalFrame().isApprox(local_frame))
          return true;

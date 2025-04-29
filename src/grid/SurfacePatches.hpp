@@ -29,7 +29,6 @@
 
 #include <numeric/PlaneFitting.hpp>
 
-#include <base/Eigen.hpp>
 #include <base-logging/Logging.hpp>
 
 #include <Eigen/Core>

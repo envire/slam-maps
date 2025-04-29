@@ -92,7 +92,7 @@ bool TraversabilityGrassfire::calculateTraversability(grid::TraversabilityGrid& 
     return true;
 }
 
-bool TraversabilityGrassfire::determineDrivePlane(const grid::MLSMapKalman& mlsIn, const base::Vector3d& startPos, bool searchSurrounding)
+bool TraversabilityGrassfire::determineDrivePlane(const grid::MLSMapKalman& mlsIn, const Eigen::Vector3d& startPos, bool searchSurrounding)
 {
     grid::Index startIdx;
 

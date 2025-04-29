@@ -255,7 +255,7 @@ namespace maps { namespace grid
         /** @return the node closest to pos.z() of all nodes at (pos.x(), pos.y()).
          *          nullptr is returned if there are no nodes at (pos.x(), pos.y()).
          * @param pos The position in world coordinates.*/
-        TraversabilityNodeBase* getClosestNode(const base::Vector3d& pos) const
+        TraversabilityNodeBase* getClosestNode(const Eigen::Vector3d& pos) const
         {
             Index idx;
             if(::maps::grid::MultiLevelGridMap<T *>::toGrid(pos, idx))

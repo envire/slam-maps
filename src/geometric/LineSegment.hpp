@@ -35,9 +35,6 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-/** Base types **/
-#include <base/Float.hpp>
-
 /** Std **/
 #include <math.h>
 #include <utility>
@@ -148,7 +145,7 @@ namespace maps { namespace geometric
                 /** Convert between [0, 2*pi] **/
                 return (alpha > 2.0*M_PI ? alpha - (2.0*M_PI): alpha);
             }
-            return base::NaN<T>();
+            return std::numeric_limits<T>::quiet_NaN();
         }
 
     protected:

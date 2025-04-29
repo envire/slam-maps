@@ -28,7 +28,7 @@ void CoverageTracker::updateMLS(const grid::MLSMapKalman& mls_) {
     }
 }
 
-void CoverageTracker::addCoverage(const double &radius, const base::AngleSegment& range /* ignored */, const base::Pose& pose_in_map)
+void CoverageTracker::addCoverage(const double &radius, const Eigen::Affine3d& pose_in_map)
 {
     if(false && frameChanged(*mls) ) // FIXME temporarily disabled (MLS frame is irrelevant at the moment)
     {
@@ -38,7 +38,7 @@ void CoverageTracker::addCoverage(const double &radius, const base::AngleSegment
     }
 
     const Eigen::Array2d &res = coverage.getResolution();
-    const Eigen::Affine3d pose_in_grid = coverage.getLocalFrame() * pose_in_map.toTransform();
+    const Eigen::Affine3d pose_in_grid = coverage.getLocalFrame() * pose_in_map;
     const Eigen::Array2d pos2d = pose_in_grid.translation().head<2>().array();
     const double z = pose_in_grid.translation().z();
 

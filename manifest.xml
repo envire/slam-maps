@@ -30,7 +30,6 @@
     <license>BSD</license>
     <url>http://rock-robotics.org/</url>
     <depend package="base/cmake"/>
-    <depend package="base/types"/>
     <depend package="base/numeric"/>
     <depend package="base/boost_serialization" />
     <depend package="slam/pcl"/>

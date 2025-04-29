@@ -35,7 +35,7 @@ public:
         coverage.getLocalFrame() = map.getLocalFrame();
     }
 
-    void addCoverage(const double &radius, const base::AngleSegment& range /* ignored */, const base::Pose& pose_in_map);
+    void addCoverage(const double &radius, const Eigen::Affine3d& pose_in_map);
     const CoverageMap3d& getCoverage() const { return coverage; }
 };
 

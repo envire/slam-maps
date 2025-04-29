@@ -47,7 +47,7 @@ public:
     virtual bool isOccupied(Index idx, float z) const = 0;
     virtual bool isFreeSpace(const Eigen::Vector3d& point) const = 0;
     virtual bool isFreeSpace(Index idx, float z) const = 0;
-    virtual bool hasSameFrame(const base::Transform3d& local_frame, const Vector2ui &num_cells, const Vector2d &resolution) const = 0;
+    virtual bool hasSameFrame(const Eigen::Affine3d& local_frame, const Vector2ui &num_cells, const Vector2d &resolution) const = 0;
 
     const OccupancyConfiguration& getConfig() const {return config;}
 

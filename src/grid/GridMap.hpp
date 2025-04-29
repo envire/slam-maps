@@ -258,7 +258,7 @@ namespace maps { namespace grid
          * map_frame is the local_frame in case there is an offset or grid_map
          * in case there is not offset
          * */
-        bool fromGrid(const Index& idx, Vector3d& pos_in_frame, const base::Transform3d &frame_in_map) const
+        bool fromGrid(const Index& idx, Vector3d& pos_in_frame, const Eigen::Affine3d &frame_in_map) const
         {
             Vector3d pos_in_map;
 
@@ -313,7 +313,7 @@ namespace maps { namespace grid
          *
          * @note Prefer using \c prepareToGridOptimized and \c toGridOptimized
          * */
-        bool toGrid(const Vector3d& pos_in_frame, Index& idx, const base::Transform3d &frame_in_map) const
+        bool toGrid(const Vector3d& pos_in_frame, Index& idx, const Eigen::Affine3d &frame_in_map) const
         {
             /** Transform the position by the offset form the argument **/
             /** pos_in_map = Tmap_frame * pos_in_frame **/
@@ -343,12 +343,12 @@ namespace maps { namespace grid
             return true;
         }
         /**
-         * Returns a Transform3d object which transform from a local frame to the grid frame and scales to the grid resolution.
+         * Returns a Affine3d object which transform from a local frame to the grid frame and scales to the grid resolution.
          * The return value of this shall be passed to \c toGridOptimized.
          */
-        base::Transform3d prepareToGridOptimized(const base::Transform3d& frame2world)
+        Eigen::Affine3d prepareToGridOptimized(const Eigen::Affine3d& frame2world)
         {
-            base::Transform3d trafo = Eigen::DiagonalMatrix<double,3>(1.0/resolution.x(), 1.0/resolution.y(), 1.0) * this->getLocalFrame() * frame2world;
+            Eigen::Affine3d trafo = Eigen::DiagonalMatrix<double,3>(1.0/resolution.x(), 1.0/resolution.y(), 1.0) * this->getLocalFrame() * frame2world;
             trafo.translation().head<2>().array()-=0.5; // x and y coordinates shall be rounded down
 
             return trafo;
@@ -357,7 +357,7 @@ namespace maps { namespace grid
 
         /** @brief optimized variant of toGrid(const Vector3d& pos, Index& idx, Vector3d &pos_in_cell)
          */
-        bool toGridOptimized(const Vector3d& pos, Index& idx, Vector3d& pos_in_cell, const base::Transform3d& trafo, Vector3d& viewPoint_in_cell)
+        bool toGridOptimized(const Vector3d& pos, Index& idx, Vector3d& pos_in_cell, const Eigen::Affine3d& trafo, Vector3d& viewPoint_in_cell)
         {
             Vector3d pos_in_grid = trafo * pos;
             Vector3d viewPoint_in_grid = trafo.translation();

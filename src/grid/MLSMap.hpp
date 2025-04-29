@@ -48,9 +48,6 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 
-#include <base/TransformWithCovariance.hpp>
-
-
 namespace maps { namespace grid
 {
     typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
@@ -134,7 +131,7 @@ namespace maps { namespace grid
                         contact_point_in_cell = contact_point_f.cast<double>();
                     }
                 }
-                if(found_patch && !base::isInfinity<float>(min_dist))
+                if(found_patch && std::isfinite(min_dist))
                 {
                     Base::fromGrid(idx, contact_point, contact_point_in_cell, false);
                     return true;
@@ -151,8 +148,8 @@ namespace maps { namespace grid
             {
                 const CellType& cell = Base::at(idx);
                 Vector3 pos_in_cell_f = pos_in_cell.cast<float>();
-                float min_dist = base::infinity<float>();
-                float cell_surface_pos = base::NaN<float>();
+                float min_dist = std::numeric_limits<float>::infinity();
+                float cell_surface_pos = std::numeric_limits<float>::quiet_NaN();;
                 for(const Patch& patch : cell)
                 {
                     float surface_pos_f = patch.getSurfacePos(pos_in_cell_f);
@@ -165,7 +162,7 @@ namespace maps { namespace grid
                         cell_surface_pos = surface_pos_f;
                     }
                 }
-                if(!base::isInfinity<float>(min_dist))
+                if(std::isfinite(min_dist))
                 {
                     // transform from grid to map frame
                     pos_in_cell.z() = cell_surface_pos;
@@ -184,9 +181,9 @@ namespace maps { namespace grid
             throw std::runtime_error("mergeMLS is not yet implemented!");
         }
 
-        void mergePointCloud(const PointCloud& pc, const base::Transform3d& pc2mls, double measurement_variance = 0.01)
+        void mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& pc2mls, double measurement_variance = 0.01)
         {
-            base::Transform3d pc2grid = Base::prepareToGridOptimized(pc2mls);
+            Eigen::Affine3d pc2grid = Base::prepareToGridOptimized(pc2mls);
             if(hasFreeSpaceMap())
             {
                 Eigen::Vector3d sensor_origin = pc.sensor_origin_.block(0,0,3,1).cast<double>();
@@ -216,93 +213,6 @@ namespace maps { namespace grid
                     try
                     {
                         mergePoint(it->getArray3fMap().cast<double>(), pc2grid, measurement_variance);
-                    }
-                    catch(const std::runtime_error& e)
-                    {
-                        LOG_ERROR_S << e.what();
-                    }
-                }
-            }
-        }
-
-        void mergePointCloud(const PointCloud& pc, const base::TransformWithCovariance& pc2mls, double measurement_variance = 0.01)
-        {
-            base::Transform3d pc2grid = Base::prepareToGridOptimized(pc2mls.getTransform());
-            if(hasFreeSpaceMap())
-            {
-                Eigen::Vector3d sensor_origin = pc.sensor_origin_.block(0,0,3,1).cast<double>();
-                Eigen::Vector3d sensor_origin_in_mls = pc2mls.getTransform() * sensor_origin;
-                for(PointCloud::const_iterator it=pc.begin(); it != pc.end(); ++it)
-                {
-                    Eigen::Vector3d measurement = it->getArray3fMap().cast<double>();
-                    std::pair<Eigen::Vector3d, Eigen::Matrix3d> measurement_in_map = pc2mls.composePointWithCovariance(measurement, Eigen::Matrix3d::Zero());
-
-                    try
-                    {
-                        if(!free_space_map->isFreeSpace(measurement_in_map.first))
-                            mergePoint(measurement, pc2grid, measurement_variance + measurement_in_map.second(2,2));
-
-                        if(measurement_in_map.second(2,2) <= free_space_map->getConfig().uncertainty_threshold)
-                            free_space_map->mergePoint(sensor_origin_in_mls, measurement_in_map.first);
-                    }
-                    catch(const std::runtime_error& e)
-                    {
-                        LOG_ERROR_S << e.what();
-                    }
-                }
-            }
-            else
-            {
-                for(PointCloud::const_iterator it=pc.begin(); it != pc.end(); ++it)
-                {
-                    Eigen::Vector3d point = it->getArray3fMap().cast<double>();
-                    std::pair<Eigen::Vector3d, Eigen::Matrix3d> point_with_cov = pc2mls.composePointWithCovariance(point, Eigen::Matrix3d::Zero());
-                    try
-                    {
-                        mergePoint(point, pc2grid, measurement_variance + point_with_cov.second(2,2));
-                    }
-                    catch(const std::runtime_error& e)
-                    {
-                        LOG_ERROR_S << e.what();
-                    }
-                }
-            }
-        }
-
-        template<int _MatrixOptions>
-        void mergePointCloud(const std::vector< Eigen::Matrix<double, 3, 1, _MatrixOptions> >& pc, const base::TransformWithCovariance& pc2mls,
-                             const base::Vector3d& sensor_origin_in_pc = base::Vector3d::Zero(), double measurement_variance = 0.01)
-        {
-            base::Transform3d pc2grid = Base::prepareToGridOptimized(pc2mls.getTransform());
-            if(hasFreeSpaceMap())
-            {
-                base::Vector3d sensor_origin_in_mls = pc2mls.getTransform() * sensor_origin_in_pc;
-                for(typename std::vector< Eigen::Matrix<double, 3, 1, _MatrixOptions> >::const_iterator it = pc.begin(); it != pc.end(); ++it)
-                {
-                    std::pair<Eigen::Vector3d, Eigen::Matrix3d> measurement_in_map = pc2mls.composePointWithCovariance(*it, Eigen::Matrix3d::Zero());
-
-                    try
-                    {
-                        if(!free_space_map->isFreeSpace(measurement_in_map.first))
-                            mergePoint(*it, pc2grid, measurement_variance + measurement_in_map.second(2,2));
-
-                        if(measurement_in_map.second(2,2) <= free_space_map->getConfig().uncertainty_threshold)
-                            free_space_map->mergePoint(sensor_origin_in_mls, measurement_in_map.first);
-                    }
-                    catch(const std::runtime_error& e)
-                    {
-                        LOG_ERROR_S << e.what();
-                    }
-                }
-            }
-            else
-            {
-                for(typename std::vector< Eigen::Matrix<double, 3, 1, _MatrixOptions> >::const_iterator it = pc.begin(); it != pc.end(); ++it)
-                {
-                    std::pair<Eigen::Vector3d, Eigen::Matrix3d> point_with_cov = pc2mls.composePointWithCovariance(*it, Eigen::Matrix3d::Zero());
-                    try
-                    {
-                        mergePoint(*it, pc2grid, measurement_variance + point_with_cov.second(2,2));
                     }
                     catch(const std::runtime_error& e)
                     {
@@ -347,7 +257,7 @@ namespace maps { namespace grid
          * Note: Use \c prepareToGridOptimized to prepare the pc2gridframe transformation.
          * The measurement variance is the uncertainty on the z axis of the point.
          */
-        void mergePoint(const Eigen::Vector3d& point, const base::Transform3d& pc2gridframe, double measurement_variance = 0.01)
+        void mergePoint(const Eigen::Vector3d& point, const Eigen::Affine3d& pc2gridframe, double measurement_variance = 0.01)
         {
             Eigen::Vector3d point_in_cell;
             Eigen::Vector3d viewPoint_in_cell;

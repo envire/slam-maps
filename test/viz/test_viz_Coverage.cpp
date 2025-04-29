@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE(mls_coverage)
         Eigen::Quaterniond q; q.coeffs().setRandom(); q.normalize();
         trafo.orientation = q;
 
-        coverage.addCoverage(2.0, base::AngleSegment(), trafo);
+        coverage.addCoverage(2.0, trafo.fromTransform());
 
         app.updateData(coverage.getCoverage());
     }

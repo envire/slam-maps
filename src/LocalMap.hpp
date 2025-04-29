@@ -27,7 +27,8 @@
 #ifndef __MAPS_LOCAL_MAP_HPP__
 #define __MAPS_LOCAL_MAP_HPP__
 
-#include <base/Eigen.hpp>
+#include <Eigen/Core>
+#include <Eigen/Geometry>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/serialization/access.hpp>
@@ -59,7 +60,7 @@ namespace maps
             /** @brief Default constructor */
             LocalMapData()
                 :id(UNKNOWN_MAP_ID),
-                offset(base::Transform3d::Identity()),
+                offset(Eigen::Affine3d::Identity()),
                 map_type(UNKNOWN_MAP),
                 EPSG_code(UNKNOWN_EPSG_CODE)
             {};
@@ -67,14 +68,14 @@ namespace maps
             /** @brief Default constructor with only map type as argument */
             LocalMapData(const LocalMapType map_type)
                 :id(UNKNOWN_MAP_ID),
-                offset(base::Transform3d::Identity()),
+                offset(Eigen::Affine3d::Identity()),
                 map_type(map_type),
                 EPSG_code(UNKNOWN_EPSG_CODE)
             {};
 
 
             /** @brief Constructor with parameters */
-            LocalMapData(const std::string &id, const base::Transform3d &offset,
+            LocalMapData(const std::string &id, const Eigen::Affine3d &offset,
                         const LocalMapType map_type, const std::string &EPSG_code)
                 :id(id), offset(offset), map_type(map_type), EPSG_code(EPSG_code) 
             {};
@@ -102,7 +103,7 @@ namespace maps
              *
              * The offset can also be reference as local frame
              */
-            base::Transform3d offset;
+            Eigen::Affine3d offset;
 
             /** @brief Type of the local map (s. #LocalMapType) */
             LocalMapType map_type;
@@ -227,12 +228,12 @@ namespace maps
                 return data_ptr->id;
             }
 
-            const base::Transform3d& getLocalFrame() const
+            const Eigen::Affine3d& getLocalFrame() const
             {
                 return data_ptr->offset;
             }
 
-            base::Transform3d& getLocalFrame()
+            Eigen::Affine3d& getLocalFrame()
             {
                 return data_ptr->offset;
             }

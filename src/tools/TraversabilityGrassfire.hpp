@@ -27,8 +27,6 @@
 #ifndef __MAPS_TRAVERSABILITY_GRASSFIRE_HPP_
 #define __MAPS_TRAVERSABILITY_GRASSFIRE_HPP_
 
-#include <base/Eigen.hpp>
-
 #include <Eigen/Core>
 
 #include <maps/grid/MLSConfig.hpp>
@@ -64,7 +62,7 @@ public:
     bool calculateTraversability(grid::TraversabilityGrid& traversabilityGridOut, const grid::MLSMapKalman& mlsIn, const Eigen::Vector3d& startPos);
 
 private:
-    bool determineDrivePlane(const grid::MLSMapKalman& mlsIn, const base::Vector3d& startPos, bool searchSurrounding = true);
+    bool determineDrivePlane(const grid::MLSMapKalman& mlsIn, const Eigen::Vector3d& startPos, bool searchSurrounding = true);
     const SurfacePatchKalman* getNearestPatchWhereRobotFits(const grid::MLSMapKalman& mlsIn, size_t x, size_t y, double height, bool& isObstacle);
     void addNeighboursToSearchList(const grid::MLSMapKalman& mlsIn, std::size_t x, std::size_t y, const SurfacePatchKalman* patch);
     void checkRecursive(const grid::MLSMapKalman& mlsIn, size_t x, size_t y, const SurfacePatchKalman* origin);

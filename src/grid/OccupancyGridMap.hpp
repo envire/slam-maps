@@ -57,11 +57,11 @@ public:
                     VoxelGridMap<OccupancyPatch>(num_cells, resolution) {}
     virtual ~OccupancyGridMap() {}
 
-    void mergePointCloud(const PointCloud& pc, const base::Transform3d& pc2mls);
+    void mergePointCloud(const PointCloud& pc, const Eigen::Affine3d& pc2mls);
 
     template<int _MatrixOptions>
-    void mergePointCloud(const std::vector< Eigen::Matrix<double, 3, 1, _MatrixOptions> >& pc, const base::Transform3d& pc2grid,
-                            const base::Vector3d& sensor_origin_in_pc = base::Vector3d::Zero())
+    void mergePointCloud(const std::vector< Eigen::Matrix<double, 3, 1, _MatrixOptions> >& pc, const Eigen::Affine3d& pc2grid,
+                            const Eigen::Vector3d& sensor_origin_in_pc = Eigen::Vector3d::Zero())
     {
         Eigen::Vector3d sensor_origin_in_grid = pc2grid * sensor_origin_in_pc;
         
@@ -88,7 +88,7 @@ public:
 
     bool isFreeSpace(Index idx, float z) const;
 
-    bool hasSameFrame(const base::Transform3d& local_frame, const Vector2ui &num_cells, const Vector2d &resolution) const;
+    bool hasSameFrame(const Eigen::Affine3d& local_frame, const Vector2ui &num_cells, const Vector2d &resolution) const;
 
 protected:
 

@@ -27,12 +27,11 @@
 #ifndef __MAPS_TSDF_PATCH_HPP_
 #define __MAPS_TSDF_PATCH_HPP_
 
-
-#include <base/Float.hpp>
-
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 
+#include <limits>
+#include <cmath>
 
 namespace maps { namespace grid
 {
@@ -52,13 +51,13 @@ class TSDFPatch
     }
 
 public:
-    TSDFPatch() : distance(base::NaN<float>()), var(1.f) {}
+    TSDFPatch() : distance(std::numeric_limits<float>::quiet_NaN()), var(1.f) {}
     TSDFPatch(float distance, float var) : distance(distance), var(var) {}
     virtual ~TSDFPatch() {}
 
     void update(float distance, float var, float truncation = 1.f, float min_var = 0.001f)
     {
-	if(base::isNaN<float>(this->distance))
+	if(std::isnan(this->distance))
 	    this->distance = distance;
 
 	kalman_update(this->distance, this->var, distance, var);
