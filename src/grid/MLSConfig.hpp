@@ -42,6 +42,7 @@ namespace maps { namespace grid
         MLSConfig()
         : gapSize( 1.0 )
         , thickness( 0.05 )
+        , maxz(std::numeric_limits<double>::max())
         , useColor( false )
         , updateModel( KALMAN )
         , useNegativeInformation( false )
@@ -55,8 +56,9 @@ namespace maps { namespace grid
             , BASE
         };
 
-        float gapSize;
-        float thickness;
+        float gapSize;  // how much gap in z is treated as same patch
+        float thickness; // how "thick" is a surface (add point to surface or create new one)
+        double maxz; // do not add points higher than this value (per cloud), e.g. cut at robot max height to remove roofs
         bool useColor;
         update_model updateModel;
         bool useNegativeInformation;
