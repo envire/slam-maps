@@ -194,18 +194,21 @@ namespace maps { namespace grid
                 for(PointCloud::const_iterator it=pc.begin(); it != pc.end(); ++it)
                 {
                     Eigen::Vector3d measurement = it->getArray3fMap().cast<double>();
-                    Eigen::Vector3d measurement_in_map = pc2mls * measurement;
-
-                    try
+                    if (measurement.z() < config.maxz)
                     {
-                        if(!free_space_map->isFreeSpace(measurement_in_map))
-                            mergePoint(measurement, pc2grid, measurement_variance);
+                        Eigen::Vector3d measurement_in_map = pc2mls * measurement;
 
-                        free_space_map->mergePoint(sensor_origin_in_mls, measurement_in_map);
-                    }
-                    catch(const std::runtime_error& e)
-                    {
-                        LOG_ERROR_S << e.what();
+                        try
+                        {
+                            if(!free_space_map->isFreeSpace(measurement_in_map))
+                                mergePoint(measurement, pc2grid, measurement_variance);
+
+                            free_space_map->mergePoint(sensor_origin_in_mls, measurement_in_map);
+                        }
+                        catch(const std::runtime_error& e)
+                        {
+                            LOG_ERROR_S << e.what();
+                        }
                     }
                 }
             }
@@ -213,13 +216,17 @@ namespace maps { namespace grid
             {
                 for(PointCloud::const_iterator it=pc.begin(); it != pc.end(); ++it)
                 {
-                    try
+                    Eigen::Vector3d measurement = it->getArray3fMap().cast<double>();
+                    if (measurement.z() < config.maxz)
                     {
-                        mergePoint(it->getArray3fMap().cast<double>(), pc2grid, measurement_variance);
-                    }
-                    catch(const std::runtime_error& e)
-                    {
-                        LOG_ERROR_S << e.what();
+                        try
+                        {
+                            mergePoint(measurement, pc2grid, measurement_variance);
+                        }
+                        catch(const std::runtime_error& e)
+                        {
+                            LOG_ERROR_S << e.what();
+                        }
                     }
                 }
             }
@@ -235,19 +242,21 @@ namespace maps { namespace grid
                 for(PointCloud::const_iterator it=pc.begin(); it != pc.end(); ++it)
                 {
                     Eigen::Vector3d measurement = it->getArray3fMap().cast<double>();
-                    std::pair<Eigen::Vector3d, Eigen::Matrix3d> measurement_in_map = pc2mls.composePointWithCovariance(measurement, Eigen::Matrix3d::Zero());
+                    if (measurement.z() < config.maxz) {
+                        std::pair<Eigen::Vector3d, Eigen::Matrix3d> measurement_in_map = pc2mls.composePointWithCovariance(measurement, Eigen::Matrix3d::Zero());
 
-                    try
-                    {
-                        if(!free_space_map->isFreeSpace(measurement_in_map.first))
-                            mergePoint(measurement, pc2grid, measurement_variance + measurement_in_map.second(2,2));
+                        try
+                        {
+                            if(!free_space_map->isFreeSpace(measurement_in_map.first))
+                                mergePoint(measurement, pc2grid, measurement_variance + measurement_in_map.second(2,2));
 
-                        if(measurement_in_map.second(2,2) <= free_space_map->getConfig().uncertainty_threshold)
-                            free_space_map->mergePoint(sensor_origin_in_mls, measurement_in_map.first);
-                    }
-                    catch(const std::runtime_error& e)
-                    {
-                        LOG_ERROR_S << e.what();
+                            if(measurement_in_map.second(2,2) <= free_space_map->getConfig().uncertainty_threshold)
+                                free_space_map->mergePoint(sensor_origin_in_mls, measurement_in_map.first);
+                        }
+                        catch(const std::runtime_error& e)
+                        {
+                            LOG_ERROR_S << e.what();
+                        }
                     }
                 }
             }
@@ -256,14 +265,17 @@ namespace maps { namespace grid
                 for(PointCloud::const_iterator it=pc.begin(); it != pc.end(); ++it)
                 {
                     Eigen::Vector3d point = it->getArray3fMap().cast<double>();
-                    std::pair<Eigen::Vector3d, Eigen::Matrix3d> point_with_cov = pc2mls.composePointWithCovariance(point, Eigen::Matrix3d::Zero());
-                    try
+                    if (point.z() < config.maxz)
                     {
-                        mergePoint(point, pc2grid, measurement_variance + point_with_cov.second(2,2));
-                    }
-                    catch(const std::runtime_error& e)
-                    {
-                        LOG_ERROR_S << e.what();
+                        std::pair<Eigen::Vector3d, Eigen::Matrix3d> point_with_cov = pc2mls.composePointWithCovariance(point, Eigen::Matrix3d::Zero());
+                        try
+                        {
+                            mergePoint(point, pc2grid, measurement_variance + point_with_cov.second(2,2));
+                        }
+                        catch(const std::runtime_error& e)
+                        {
+                            LOG_ERROR_S << e.what();
+                        }
                     }
                 }
             }
@@ -279,19 +291,23 @@ namespace maps { namespace grid
                 base::Vector3d sensor_origin_in_mls = pc2mls.getTransform() * sensor_origin_in_pc;
                 for(typename std::vector< Eigen::Matrix<double, 3, 1, _MatrixOptions> >::const_iterator it = pc.begin(); it != pc.end(); ++it)
                 {
-                    std::pair<Eigen::Vector3d, Eigen::Matrix3d> measurement_in_map = pc2mls.composePointWithCovariance(*it, Eigen::Matrix3d::Zero());
-
-                    try
+                    if (it->z() < config.maxz)
                     {
-                        if(!free_space_map->isFreeSpace(measurement_in_map.first))
-                            mergePoint(*it, pc2grid, measurement_variance + measurement_in_map.second(2,2));
 
-                        if(measurement_in_map.second(2,2) <= free_space_map->getConfig().uncertainty_threshold)
-                            free_space_map->mergePoint(sensor_origin_in_mls, measurement_in_map.first);
-                    }
-                    catch(const std::runtime_error& e)
-                    {
-                        LOG_ERROR_S << e.what();
+                        std::pair<Eigen::Vector3d, Eigen::Matrix3d> measurement_in_map = pc2mls.composePointWithCovariance(*it, Eigen::Matrix3d::Zero());
+
+                        try
+                        {
+                            if(!free_space_map->isFreeSpace(measurement_in_map.first))
+                                mergePoint(*it, pc2grid, measurement_variance + measurement_in_map.second(2,2));
+
+                            if(measurement_in_map.second(2,2) <= free_space_map->getConfig().uncertainty_threshold)
+                                free_space_map->mergePoint(sensor_origin_in_mls, measurement_in_map.first);
+                        }
+                        catch(const std::runtime_error& e)
+                        {
+                            LOG_ERROR_S << e.what();
+                        }
                     }
                 }
             }
@@ -299,14 +315,17 @@ namespace maps { namespace grid
             {
                 for(typename std::vector< Eigen::Matrix<double, 3, 1, _MatrixOptions> >::const_iterator it = pc.begin(); it != pc.end(); ++it)
                 {
-                    std::pair<Eigen::Vector3d, Eigen::Matrix3d> point_with_cov = pc2mls.composePointWithCovariance(*it, Eigen::Matrix3d::Zero());
-                    try
+                    if (it->z() < config.maxz)
                     {
-                        mergePoint(*it, pc2grid, measurement_variance + point_with_cov.second(2,2));
-                    }
-                    catch(const std::runtime_error& e)
-                    {
-                        LOG_ERROR_S << e.what();
+                        std::pair<Eigen::Vector3d, Eigen::Matrix3d> point_with_cov = pc2mls.composePointWithCovariance(*it, Eigen::Matrix3d::Zero());
+                        try
+                        {
+                            mergePoint(*it, pc2grid, measurement_variance + point_with_cov.second(2,2));
+                        }
+                        catch(const std::runtime_error& e)
+                        {
+                            LOG_ERROR_S << e.what();
+                        }
                     }
                 }
             }
