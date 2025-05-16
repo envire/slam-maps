@@ -80,6 +80,7 @@ const char *vertexShaderSource = "#version 330 core\n"
     "}\n\0";
 
 const char *fragmentShaderSource = "#version 330 core\n"
+    "out vec4 out_Color;\n" 
     "in vec3 FragPos;\n"
     "in vec3 Normal;\n"
     "in vec4 Color;\n"
