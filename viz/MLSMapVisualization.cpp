@@ -457,6 +457,11 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
         geode->setCycleColorInterval(cycleColorInterval);
         geode->setColorHSVA(0, 1.0, 0.6, 1.0);
 
+        osg::Camera* cam = getCamera();
+        if (!cam) {
+            setUseShaderColor(false);
+        }
+
         if (use_shader_color) {
             // enable shader-based height coloring
             geode->getOrCreateStateSet()->setAttributeAndModes(program.get(), osg::StateAttribute::ON);
@@ -465,6 +470,7 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
             geode->getOrCreateStateSet()->addUniform(mvp);
             osg::Camera* cam = getCamera();
             mvp->setUpdateCallback(new ModelViewProjectionMatrixCallback(cam));
+
 
             osg::ref_ptr<osg::Uniform> model = new osg::Uniform(osg::Uniform::FLOAT_MAT4, "modelMatrix");
             geode->getOrCreateStateSet()->addUniform(model);
