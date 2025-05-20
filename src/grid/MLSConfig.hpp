@@ -27,6 +27,7 @@
 #ifndef __MAPS_MLS_CONFIG_HPP__
 #define __MAPS_MLS_CONFIG_HPP__
 
+#include <limits>
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 
