@@ -38,6 +38,8 @@
 #include <vizkit3d/ColorConversionHelper.hpp>
 #include <maps/grid/OccupancyGridMap.hpp>
 
+#include <osg/Uniform>
+
 #include "MLSMapVisualization.hpp"
 
 #include "PatchesGeode.hpp"
@@ -47,6 +49,154 @@
 
 using namespace vizkit3d;
 using namespace ::maps::grid;
+
+
+// https://forum.playcanvas.com/t/world-coordinate-in-fragment-shader/22996/8
+// https://learnopengl.com/Getting-started/Shaders
+// https://gist.github.com/vicrucann/497fd5839bccba45e58b5ca48feca12f
+// https://learnopengl.com/Lighting/Basic-Lighting
+// https://www.khronos.org/opengl/wiki/Fragment_Shader
+// https://osg-users.openscenegraph.narkive.com/8nXnCbaY/using-modern-shaders-with-osg-setting-vertex-attribute-layout
+// https://github.com/openscenegraph/OpenSceneGraph/blob/master/examples/osgsimplegl3/osgsimplegl3.cpp
+// https://gist.github.com/bkmeneguello/6047028
+
+const char *vertexShaderSource = "#version 330 core\n"
+    "layout (location = 0) in vec3 osg_Vertex;\n"
+    "layout (location = 1) in vec3 osg_Normal;\n"
+    "layout (location = 2) in vec4 osg_Color;\n"
+    "out vec3 FragPos;\n"
+    "out vec3 Normal;\n"
+    "out vec4 Color;\n"
+    "uniform mat4 modelMatrix;\n"
+    "uniform mat3 normalMatrix;\n"
+    "uniform mat4 modelViewProjectionMatrix;\n"
+    "void main()\n"
+    "{\n"
+    "    gl_Position = modelViewProjectionMatrix * vec4(osg_Vertex, 1.0);\n"
+    "    FragPos = vec3(modelMatrix * vec4(osg_Vertex, 1.0));\n"
+    "    //Normal = osg_NormalMatrix * osg_Normal;\n"
+    "    Normal = normalize(normalMatrix * osg_Normal);\n" // no care about about actual light location (mult by transposed interveted model matrix)
+    "    Color = osg_Color;\n"
+    "}\n\0";
+
+const char *fragmentShaderSource = "#version 330 core\n"
+    "out vec4 out_Color;\n" 
+    "in vec3 FragPos;\n"
+    "in vec3 Normal;\n"
+    "in vec4 Color;\n"
+    "uniform float cycleColorInterval;\n"
+    "uniform float contourLineInterval;\n"
+    "uniform float contourLineThickness;\n"
+    "// from: http://lolengine.net/blog/2013/07/27/rgb-to-hsv-in-glsl\n"
+    "vec3 hsv2rgb(vec3 c) {\n"
+        "c = vec3(c.x, clamp(c.yz, 0.0, 1.0));\n"
+        "vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);\n"
+        "vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);\n"
+        "return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);\n"
+    "}\n"
+    "float hue2rgb(float p, float q, float t) {\n"
+        "if(t < 0.0) t += 1.0;\n"
+        "if(t > 1.0) t -= 1.0;\n"
+        "if(t < 1.0/6.0) { return p + (q - p) * 6.0 * t; }\n"
+        "if(t < 1.0/2.0) { return q; }\n"
+        "if(t < 2.0/3.0) { return p + (q - p) * (2.0/3.0 - t) * 6.0; }\n"
+        "return p;"
+    "}\n"
+    "vec3 hsl2rgb(vec3 c) {\n"
+        "float h = c.x;\n"
+        "float s = c.y;\n"
+        "float l = c.z;\n"
+        "vec3 color;\n"
+        "if (s == 0){\n"
+            "color.r=color.g=color.b=l;\n"
+        "}else{\n"
+            "float q = l < 0.5 ? l * (1.0 + s) : l + s - l * s;\n"
+            "float p = 2.0 * l - q;\n"
+            "color.r = hue2rgb(p, q, h + 1.0/3.0);\n"
+            "color.g = hue2rgb(p, q, h);\n"
+            "color.b = hue2rgb(p, q, h - 1.0/3.0);\n"
+        "}\n"
+        "return color;\n"
+    "}\n"
+    "void main()\n"
+    "{\n"
+    "   float z = FragPos.z;\n"
+    "   float int_part;\n"
+    "   if ( contourLineInterval != 0.0 && abs( mod(z, contourLineInterval) ) < contourLineThickness) {\n" // black line every 1m 
+    "      out_Color = vec4(0,0,0,1);"
+    "   } else {"
+    "      float hue = (z - floor(z / cycleColorInterval) * cycleColorInterval) / cycleColorInterval;\n"
+    "      vec3 hsv = vec3(hue, 1, 0.6);\n"
+    "      vec3 rgbcolor = hsl2rgb(hsv);\n"
+    "      vec3 lightColor = vec3(1,1,1);\n"
+    "      float ambientStrength = 0.7;\n"
+    "      vec3 ambient = ambientStrength * lightColor;\n"
+    "      vec3 norm = normalize(Normal);\n"
+    "      vec3 lightPos = vec3(0.0 , 0.0, 100.0);\n"
+    "      vec3 lightDir = normalize(FragPos - lightPos);\n"
+    "      float diff = abs(dot(norm, lightDir));\n"
+    "      vec3 diffuse = diff*lightColor;\n"
+    "      vec3 result = (ambient + diffuse) * rgbcolor;\n"
+    "      out_Color = vec4(result,Color.a);\n"
+    "   }"
+    "}\n\0";
+
+
+
+struct ModelViewProjectionMatrixCallback: public osg::Uniform::Callback
+{
+    ModelViewProjectionMatrixCallback(osg::Camera* camera) :
+            _camera(camera) {
+    }
+
+    virtual void operator()(osg::Uniform* uniform, osg::NodeVisitor* nv) {
+        osg::Matrixd viewMatrix = _camera->getViewMatrix();
+        osg::Matrixd modelMatrix = osg::computeLocalToWorld(nv->getNodePath());
+        osg::Matrixd modelViewProjectionMatrix = modelMatrix * viewMatrix * _camera->getProjectionMatrix();
+        uniform->set(modelViewProjectionMatrix);
+    }
+
+    osg::Camera* _camera;
+};
+
+struct NormalMatrixCallback: public osg::Uniform::Callback {
+	NormalMatrixCallback(osg::Camera* camera) :
+			_camera(camera) {
+	}
+
+	virtual void operator()(osg::Uniform* uniform, osg::NodeVisitor* nv) {
+		osg::Matrixd viewMatrix = _camera->getViewMatrix();
+		osg::Matrixd modelMatrix = osg::computeLocalToWorld(nv->getNodePath());
+		osg::Matrixd modelViewMatrix = modelMatrix * viewMatrix;
+
+		modelViewMatrix.setTrans(0.0, 0.0, 0.0);
+
+		osg::Matrixd inverse;
+		inverse.invert(modelViewMatrix);
+
+		osg::Matrix3 normalMatrix(
+				inverse(0,0), inverse(1,0), inverse(2,0),
+				inverse(0,1), inverse(1,1), inverse(2,1),
+				inverse(0,2), inverse(1,2), inverse(2,2));
+
+		uniform->set(normalMatrix);
+	}
+
+	osg::Camera* _camera;
+};
+
+struct ModelMatrixCallback: public osg::Uniform::Callback
+{
+    ModelMatrixCallback(){
+    }
+
+    virtual void operator()(osg::Uniform* uniform, osg::NodeVisitor* nv) {
+        osg::Matrixd modelMatrix = osg::computeLocalToWorld(nv->getNodePath());
+        uniform->set(modelMatrix);
+    }
+
+};
+
 
 template <class T, int options>
 osg::Vec3 Vec3( const Eigen::Matrix<T,3,1, options>& v )
@@ -72,6 +222,8 @@ struct MLSMapVisualization::Data {
     virtual void visualizeNegativeInformation(vizkit3d::PatchesGeode& geode) const = 0;
     virtual maps::grid::CellExtents getCellExtents() const = 0;
     virtual base::Transform3d getLocalFrame() const = 0;
+    virtual float getMax() const = 0;
+    virtual float getMin() const = 0;
     MLSMapVisualization& visualization;
 };
 
@@ -87,8 +239,11 @@ public:
 
     Eigen::Vector2d getResolution() const { return mls.getResolution(); }
     
+    float getMin() const { return mls.getMin(); }
 
-void visualize(vizkit3d::SurfaceGeode& geode) const
+    float getMax() const { return mls.getMax(); }
+
+    void visualize(vizkit3d::SurfaceGeode& geode) const
     {
         Vector2ui num_cell = mls.getNumCells();
 
@@ -110,16 +265,19 @@ void visualize(vizkit3d::SurfaceGeode& geode) const
                         float height = patch->getMax();
                         float nheight = neighborpatch->getMax();
 
-                        //geode.setColor( horizontalCellColor );
-                        Eigen::Vector3f pos (xypos.x(), xypos.y(), height);
-                        Eigen::Vector3f posnormal = patch->getNormal();
-                        Eigen::Vector3f npos (nxypos.x(), nxypos.y(), nheight);
-                        Eigen::Vector3f nposnormal = neighborpatch->getNormal();
+                        if (fabs(height - nheight) < mls.getConfig().gapSize) {
+                            //geode.setColor( horizontalCellColor );
+                            Eigen::Vector3f pos (xypos.x(), xypos.y(), height);
+                            Eigen::Vector3f posnormal = patch->getNormal();
+                            Eigen::Vector3f npos (nxypos.x(), nxypos.y(), nheight);
+                            Eigen::Vector3f nposnormal = neighborpatch->getNormal();
 
-                        // adding the neighbor first to make the SmoothingVisitor work properly
-                        geode.addVertex( osg::Vec3f(pos.x(),npos.y(),npos.z()), osg::Vec3f(nposnormal.x(),nposnormal.y(),nposnormal.z()) );
-                        geode.addVertex( osg::Vec3f(pos.x(),pos.y(),pos.z()), osg::Vec3f(posnormal.x(),posnormal.y(),posnormal.z()) );
-
+                            // adding the neighbor first to make the SmoothingVisitor work properly
+                            geode.addVertex( osg::Vec3f(pos.x(),npos.y(),npos.z()), osg::Vec3f(nposnormal.x(),nposnormal.y(),nposnormal.z()) );
+                            geode.addVertex( osg::Vec3f(pos.x(),pos.y(),pos.z()), osg::Vec3f(posnormal.x(),posnormal.y(),posnormal.z()) );
+                        }else{
+                            geode.closeTriangleStrip();
+                        }
                     }else{
                         geode.closeTriangleStrip();
                     }
@@ -237,8 +395,25 @@ MLSMapVisualization::MLSMapVisualization()
     connectedSurface(false),
     simplifySurface(true),
     connected_surface_lod(false),
-    updateDataFramePosition(false)
+    updateDataFramePosition(false),
+    use_vertical_top_color(true),
+    use_shader_color(true),
+    contour_line_interval(0.0),
+    contour_line_thickness(0.02),
+    auto_color_cycle_interval(true)
 {
+    program = new osg::Program;
+    vShader = new osg::Shader(osg::Shader::VERTEX, vertexShaderSource);
+    fShader = new osg::Shader(osg::Shader::FRAGMENT, fragmentShaderSource);
+    program->addShader(vShader);
+    program->addShader(fShader);
+
+    cycleColorIntervalUniform = new osg::Uniform(osg::Uniform::FLOAT, "cycleColorInterval");
+    cycleColorIntervalUniform->set((float)cycleColorInterval);
+    contourLineIntervalUniform = new osg::Uniform(osg::Uniform::FLOAT, "contourLineInterval");
+    contourLineIntervalUniform->set((float)contour_line_interval);
+    contourLineThicknessUniform = new osg::Uniform(osg::Uniform::FLOAT, "contourLineThickness");
+    contourLineThicknessUniform->set((float)contour_line_thickness);
 }
 
 MLSMapVisualization::~MLSMapVisualization()
@@ -249,6 +424,7 @@ osg::ref_ptr<osg::Node> MLSMapVisualization::createMainNode()
 {
     osg::ref_ptr<osg::Group> mainNode = MapVisualization::createMainNode()->asGroup();
     localNode = new osg::Group();
+
     mainNode->addChild(localNode.get());
 
     return mainNode;
@@ -269,11 +445,45 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
     // draw the extents of the mls
     visualizeMapExtents(p->getCellExtents(), p->getResolution());
 
+    geode->setUseVerticalTopColor(use_vertical_top_color);
+
     if(cycleHeightColor)
     {
+        if (auto_color_cycle_interval) {
+            cycleColorInterval = p->getMax() - p->getMin();
+            cycleColorIntervalUniform->set((float)cycleColorInterval);
+        }
         geode->showCycleColor(true);
         geode->setCycleColorInterval(cycleColorInterval);
         geode->setColorHSVA(0, 1.0, 0.6, 1.0);
+
+        osg::Camera* cam = getCamera();
+        if (!cam) {
+            setUseShaderColor(false);
+        }
+
+        if (use_shader_color) {
+            // enable shader-based height coloring
+            geode->getOrCreateStateSet()->setAttributeAndModes(program.get(), osg::StateAttribute::ON);
+
+            osg::ref_ptr<osg::Uniform> mvp = new osg::Uniform(osg::Uniform::FLOAT_MAT4, "modelViewProjectionMatrix");
+            geode->getOrCreateStateSet()->addUniform(mvp);
+            osg::Camera* cam = getCamera();
+            mvp->setUpdateCallback(new ModelViewProjectionMatrixCallback(cam));
+
+
+            osg::ref_ptr<osg::Uniform> model = new osg::Uniform(osg::Uniform::FLOAT_MAT4, "modelMatrix");
+            geode->getOrCreateStateSet()->addUniform(model);
+            model->setUpdateCallback(new ModelMatrixCallback);
+
+            osg::ref_ptr<osg::Uniform> normal = new osg::Uniform(osg::Uniform::FLOAT_MAT3, "normalMatrix");
+            geode->getOrCreateStateSet()->addUniform(normal);
+            normal->setUpdateCallback(new NormalMatrixCallback(cam));
+
+            geode->getOrCreateStateSet()->addUniform(cycleColorIntervalUniform);
+            geode->getOrCreateStateSet()->addUniform(contourLineIntervalUniform);
+            geode->getOrCreateStateSet()->addUniform(contourLineThicknessUniform);
+        }
     }
     else
         geode->setColor(horizontalCellColor);
@@ -324,6 +534,10 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
             lowres->accept(simplifer);
             lodnode->addChild(lowres, 75, FLT_MAX);
         }
+        if (cycleHeightColor) {
+            sgeode->getOrCreateStateSet()->setAttributeAndModes(program.get(), osg::StateAttribute::ON);
+        }
+
     }
 
     if( showUncertainty || showNormals || showPatchExtents)
@@ -429,6 +643,7 @@ void MLSMapVisualization::setCycleHeightColor(bool enabled)
 {
     cycleHeightColor = enabled;
     emit propertyChanged("cycle_height_color");
+
     setDirty();
 }
 
@@ -443,6 +658,8 @@ void MLSMapVisualization::setCycleColorInterval(double interval)
         cycleColorInterval = 1.0;
     else
         cycleColorInterval = interval;
+
+    cycleColorIntervalUniform->set((float)cycleColorInterval);
     emit propertyChanged("cycle_color_interval");
     setDirty();
 }
@@ -648,6 +865,59 @@ void MLSMapVisualization::setUpdateFramePositionOnlyOnNewData(const bool &newval
     updateDataFramePosition = newvalue;
     setManualVizPoseUpdateEnabled(updateDataFramePosition);
 }
+
+double MLSMapVisualization::getContourLineInterval() const
+{
+    return contour_line_interval;
+}
+
+void MLSMapVisualization::setContourLineInterval(double interval)
+{
+    contour_line_interval = interval;
+    contourLineIntervalUniform->set((float)contour_line_interval);
+    emit propertyChanged("contour_line_interval");
+}
+
+double MLSMapVisualization::getContourLineThickness() const {
+    return contour_line_thickness;
+}
+
+void MLSMapVisualization::setContourLineThickness(double thickness) {
+    contour_line_thickness = thickness;
+    contourLineThicknessUniform->set((float)contour_line_thickness);
+    emit propertyChanged("contour_line_thickness");
+}
+
+bool MLSMapVisualization::getUseShaderColor() const {
+    return use_shader_color;
+}
+
+void MLSMapVisualization::setUseShaderColor(bool enabled){
+    use_shader_color = enabled;
+    setDirty();
+    emit propertyChanged("use_shader_color");
+}
+
+bool MLSMapVisualization::getUseVerticalTopColor() const {
+    return use_vertical_top_color;
+}
+
+void MLSMapVisualization::setUseVerticalTopColor(bool enabled){
+    use_vertical_top_color = enabled;
+    setDirty();
+    emit propertyChanged("use_vertical_top_color");
+}
+
+bool MLSMapVisualization::getAutoColorCycleInterval() const {
+    return auto_color_cycle_interval;
+}
+
+void MLSMapVisualization::setAutoColorCycleInterval(bool enabled){
+    auto_color_cycle_interval = enabled;
+    setDirty();
+    emit propertyChanged("auto_color_cycle_interval");
+}
+
 
 //Macro that makes this plugin loadable in ruby, this is optional.
 //VizkitQtPlugin(MLSMapVisualization)
