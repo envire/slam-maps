@@ -126,5 +126,5 @@ BOOST_AUTO_TEST_CASE(test_TraversabilityGridVisualisation_update)
     Vector2d resolution(0.186, 0.1258);
 
     TraversabilityGrid traversabilityGrid = sinesMlsToTravGrid(numCells, resolution);
-    showTraversabilityGrid(traversabilityGrid, true);
+    showTraversabilityGrid(traversabilityGrid, false);
 }
