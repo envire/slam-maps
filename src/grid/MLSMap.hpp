@@ -184,7 +184,7 @@ namespace maps { namespace grid
             throw std::runtime_error("mergeMLS is not yet implemented!");
         }
 
-        void mergePointCloud(const PointCloud& pc, const base::Transform3d& pc2mls, double measurement_variance = 0.01)
+        void mergePointCloud(const PointCloud& pc, const base::Transform3d& pc2mls, double measurement_variance = 0.01, double maxz = std::numeric_limits<double>::max())
         {
             base::Transform3d pc2grid = Base::prepareToGridOptimized(pc2mls);
             if(hasFreeSpaceMap())
@@ -194,7 +194,7 @@ namespace maps { namespace grid
                 for(PointCloud::const_iterator it=pc.begin(); it != pc.end(); ++it)
                 {
                     Eigen::Vector3d measurement = it->getArray3fMap().cast<double>();
-                    if (measurement.z() < config.maxz)
+                    if (measurement.z() < maxz)
                     {
                         Eigen::Vector3d measurement_in_map = pc2mls * measurement;
 
@@ -217,7 +217,7 @@ namespace maps { namespace grid
                 for(PointCloud::const_iterator it=pc.begin(); it != pc.end(); ++it)
                 {
                     Eigen::Vector3d measurement = it->getArray3fMap().cast<double>();
-                    if (measurement.z() < config.maxz)
+                    if (measurement.z() < maxz)
                     {
                         try
                         {
@@ -232,7 +232,7 @@ namespace maps { namespace grid
             }
         }
 
-        void mergePointCloud(const PointCloud& pc, const base::TransformWithCovariance& pc2mls, double measurement_variance = 0.01)
+        void mergePointCloud(const PointCloud& pc, const base::TransformWithCovariance& pc2mls, double measurement_variance = 0.01, double maxz = std::numeric_limits<double>::max())
         {
             base::Transform3d pc2grid = Base::prepareToGridOptimized(pc2mls.getTransform());
             if(hasFreeSpaceMap())
@@ -242,7 +242,7 @@ namespace maps { namespace grid
                 for(PointCloud::const_iterator it=pc.begin(); it != pc.end(); ++it)
                 {
                     Eigen::Vector3d measurement = it->getArray3fMap().cast<double>();
-                    if (measurement.z() < config.maxz) {
+                    if (measurement.z() < maxz) {
                         std::pair<Eigen::Vector3d, Eigen::Matrix3d> measurement_in_map = pc2mls.composePointWithCovariance(measurement, Eigen::Matrix3d::Zero());
 
                         try
@@ -265,7 +265,7 @@ namespace maps { namespace grid
                 for(PointCloud::const_iterator it=pc.begin(); it != pc.end(); ++it)
                 {
                     Eigen::Vector3d point = it->getArray3fMap().cast<double>();
-                    if (point.z() < config.maxz)
+                    if (point.z() < maxz)
                     {
                         std::pair<Eigen::Vector3d, Eigen::Matrix3d> point_with_cov = pc2mls.composePointWithCovariance(point, Eigen::Matrix3d::Zero());
                         try
@@ -283,7 +283,7 @@ namespace maps { namespace grid
 
         template<int _MatrixOptions>
         void mergePointCloud(const std::vector< Eigen::Matrix<double, 3, 1, _MatrixOptions> >& pc, const base::TransformWithCovariance& pc2mls,
-                             const base::Vector3d& sensor_origin_in_pc = base::Vector3d::Zero(), double measurement_variance = 0.01)
+                             const base::Vector3d& sensor_origin_in_pc = base::Vector3d::Zero(), double measurement_variance = 0.01, double maxz = std::numeric_limits<double>::max())
         {
             base::Transform3d pc2grid = Base::prepareToGridOptimized(pc2mls.getTransform());
             if(hasFreeSpaceMap())
@@ -291,7 +291,7 @@ namespace maps { namespace grid
                 base::Vector3d sensor_origin_in_mls = pc2mls.getTransform() * sensor_origin_in_pc;
                 for(typename std::vector< Eigen::Matrix<double, 3, 1, _MatrixOptions> >::const_iterator it = pc.begin(); it != pc.end(); ++it)
                 {
-                    if (it->z() < config.maxz)
+                    if (it->z() < maxz)
                     {
 
                         std::pair<Eigen::Vector3d, Eigen::Matrix3d> measurement_in_map = pc2mls.composePointWithCovariance(*it, Eigen::Matrix3d::Zero());
@@ -315,7 +315,7 @@ namespace maps { namespace grid
             {
                 for(typename std::vector< Eigen::Matrix<double, 3, 1, _MatrixOptions> >::const_iterator it = pc.begin(); it != pc.end(); ++it)
                 {
-                    if (it->z() < config.maxz)
+                    if (it->z() < maxz)
                     {
                         std::pair<Eigen::Vector3d, Eigen::Matrix3d> point_with_cov = pc2mls.composePointWithCovariance(*it, Eigen::Matrix3d::Zero());
                         try
