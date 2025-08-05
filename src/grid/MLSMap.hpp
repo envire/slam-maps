@@ -207,7 +207,7 @@ namespace maps { namespace grid
                         }
                         catch(const std::runtime_error& e)
                         {
-                            LOG_ERROR_S << e.what();
+                            LOG_WARN_S << e.what();
                         }
                     }
                 }
@@ -225,7 +225,7 @@ namespace maps { namespace grid
                         }
                         catch(const std::runtime_error& e)
                         {
-                            LOG_ERROR_S << e.what();
+                            LOG_WARN_S << e.what();
                         }
                     }
                 }
@@ -255,7 +255,7 @@ namespace maps { namespace grid
                         }
                         catch(const std::runtime_error& e)
                         {
-                            LOG_ERROR_S << e.what();
+                            LOG_WARN_S << e.what();
                         }
                     }
                 }
@@ -274,7 +274,7 @@ namespace maps { namespace grid
                         }
                         catch(const std::runtime_error& e)
                         {
-                            LOG_ERROR_S << e.what();
+                            LOG_WARN_S << e.what();
                         }
                     }
                 }
@@ -306,7 +306,7 @@ namespace maps { namespace grid
                         }
                         catch(const std::runtime_error& e)
                         {
-                            LOG_ERROR_S << e.what();
+                            LOG_WARN_S << e.what();
                         }
                     }
                 }
@@ -324,7 +324,7 @@ namespace maps { namespace grid
                         }
                         catch(const std::runtime_error& e)
                         {
-                            LOG_ERROR_S << e.what();
+                            LOG_WARN_S << e.what();
                         }
                     }
                 }

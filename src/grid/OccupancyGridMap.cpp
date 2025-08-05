@@ -45,7 +45,7 @@ void OccupancyGridMap::mergePointCloud(const OccupancyGridMap::PointCloud& pc, c
         }
         catch(const std::runtime_error& e)
         {
-            LOG_ERROR_S << e.what();
+            LOG_WARN_S << e.what();
         }
     }
 }
