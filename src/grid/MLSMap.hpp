@@ -189,8 +189,8 @@ namespace maps { namespace grid
             base::Transform3d pc2grid = Base::prepareToGridOptimized(pc2mls);
             if(hasFreeSpaceMap())
             {
-                Eigen::Vector3d sensor_origin = pc.sensor_origin_.block(0,0,3,1).cast<double>();
-                Eigen::Vector3d sensor_origin_in_mls = pc2mls * sensor_origin;
+                // Eigen::Vector3d sensor_origin = pc.sensor_origin_.block(0,0,3,1).cast<double>();
+                // Eigen::Vector3d sensor_origin_in_mls = pc2mls * sensor_origin;
                 for(PointCloud::const_iterator it=pc.begin(); it != pc.end(); ++it)
                 {
                     Eigen::Vector3d measurement = it->getArray3fMap().cast<double>();
@@ -203,7 +203,7 @@ namespace maps { namespace grid
                             if(!free_space_map->isFreeSpace(measurement_in_map))
                                 mergePoint(measurement, pc2grid, measurement_variance);
 
-                            free_space_map->mergePoint(sensor_origin_in_mls, measurement_in_map);
+                            // free_space_map->mergePoint(sensor_origin_in_mls, measurement_in_map);
                         }
                         catch(const std::runtime_error& e)
                         {
@@ -237,8 +237,8 @@ namespace maps { namespace grid
             base::Transform3d pc2grid = Base::prepareToGridOptimized(pc2mls.getTransform());
             if(hasFreeSpaceMap())
             {
-                Eigen::Vector3d sensor_origin = pc.sensor_origin_.block(0,0,3,1).cast<double>();
-                Eigen::Vector3d sensor_origin_in_mls = pc2mls.getTransform() * sensor_origin;
+                // Eigen::Vector3d sensor_origin = pc.sensor_origin_.block(0,0,3,1).cast<double>();
+                // Eigen::Vector3d sensor_origin_in_mls = pc2mls.getTransform() * sensor_origin;
                 for(PointCloud::const_iterator it=pc.begin(); it != pc.end(); ++it)
                 {
                     Eigen::Vector3d measurement = it->getArray3fMap().cast<double>();
@@ -250,8 +250,8 @@ namespace maps { namespace grid
                             if(!free_space_map->isFreeSpace(measurement_in_map.first))
                                 mergePoint(measurement, pc2grid, measurement_variance + measurement_in_map.second(2,2));
 
-                            if(measurement_in_map.second(2,2) <= free_space_map->getConfig().uncertainty_threshold)
-                                free_space_map->mergePoint(sensor_origin_in_mls, measurement_in_map.first);
+                            // if(measurement_in_map.second(2,2) <= free_space_map->getConfig().uncertainty_threshold)
+                            //     free_space_map->mergePoint(sensor_origin_in_mls, measurement_in_map.first);
                         }
                         catch(const std::runtime_error& e)
                         {
@@ -288,7 +288,7 @@ namespace maps { namespace grid
             base::Transform3d pc2grid = Base::prepareToGridOptimized(pc2mls.getTransform());
             if(hasFreeSpaceMap())
             {
-                base::Vector3d sensor_origin_in_mls = pc2mls.getTransform() * sensor_origin_in_pc;
+                // base::Vector3d sensor_origin_in_mls = pc2mls.getTransform() * sensor_origin_in_pc;
                 for(typename std::vector< Eigen::Matrix<double, 3, 1, _MatrixOptions> >::const_iterator it = pc.begin(); it != pc.end(); ++it)
                 {
                     if (it->z() < maxz)
@@ -301,8 +301,8 @@ namespace maps { namespace grid
                             if(!free_space_map->isFreeSpace(measurement_in_map.first))
                                 mergePoint(*it, pc2grid, measurement_variance + measurement_in_map.second(2,2));
 
-                            if(measurement_in_map.second(2,2) <= free_space_map->getConfig().uncertainty_threshold)
-                                free_space_map->mergePoint(sensor_origin_in_mls, measurement_in_map.first);
+                            // if(measurement_in_map.second(2,2) <= free_space_map->getConfig().uncertainty_threshold)
+                            //     free_space_map->mergePoint(sensor_origin_in_mls, measurement_in_map.first);
                         }
                         catch(const std::runtime_error& e)
                         {
