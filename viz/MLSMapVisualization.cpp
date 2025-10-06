@@ -32,6 +32,7 @@
 #include <osg/LOD>
 #include <osgUtil/SmoothingVisitor>
 #include <osgUtil/Simplifier>
+#include <osgUtil/Optimizer>
 
 #include <base/TimeMark.hpp>
 
@@ -552,6 +553,10 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
         localNode->addChild( neg_geode );
         p->visualizeNegativeInformation(*neg_geode);
     }
+
+    osgUtil::Optimizer optimizer;
+    optimizer.optimize(geode);
+
 }
 
 void MLSMapVisualization::updateDataIntern(::maps::grid::MLSMapKalman const& value)
