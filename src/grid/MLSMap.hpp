@@ -69,6 +69,7 @@ namespace maps { namespace grid
                 const MLSConfig &config_)
         : Base(num_cells, resolution)
         , config(config_)
+        , doThrow(true)
         {
             // TODO assert that config is compatible to SurfaceType ...
         }
@@ -108,6 +109,10 @@ namespace maps { namespace grid
         bool hasFreeSpaceMap() const
         {
             return free_space_map.get() != NULL;
+        }
+
+        void setNoThrow() {
+            doThrow = false;
         }
 
         bool getClosestContactPoint(const Vector3d& point, Vector3d& contact_point) const
@@ -356,9 +361,16 @@ namespace maps { namespace grid
             Eigen::Vector3d pos_diff;
             Index idx;
             if(Base::toGrid(point, idx, pos_diff))
+            {
                 mergePatch(idx, Patch(pos_diff.cast<float>(), measurement_variance));
+            }
             else
-                throw std::runtime_error((boost::format("Point %1% is outside of the grid! Can't add to grid.") % point.transpose()).str());
+            {
+                if (doThrow)
+                {
+                    throw std::runtime_error((boost::format("Point %1% is outside of the grid! Can't add to grid.") % point.transpose()).str());
+                }
+            }
         }
 
         /**
@@ -375,7 +387,13 @@ namespace maps { namespace grid
                 mergePatch(idx, Patch(pos_diff.cast<float>(), measurement_variance));
             }
             else
-                throw std::runtime_error((boost::format("Point %1% is outside of the grid! Can't add to grid.") % point.transpose()).str());
+            {
+                if (doThrow)
+                {
+                    throw std::runtime_error((boost::format("Point %1% is outside of the grid! Can't add to grid.") % point.transpose()).str());
+                }
+            }
+                
         }
 
         float getMin() const {
@@ -406,6 +424,7 @@ namespace maps { namespace grid
 
     private:
         MLSConfig config;
+        bool doThrow;
         boost::shared_ptr<OccupancyGridMapBase> free_space_map;
 
         bool merge(Patch& a, const Patch& b)
