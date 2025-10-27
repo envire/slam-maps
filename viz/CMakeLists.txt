@@ -8,46 +8,47 @@ if(${OSG_VERSION} VERSION_GREATER_EQUAL 3.6.4)
 endif()
 
 if (OSGVIZ_PRIMITIVES_FOUND)
-	rock_qt_vizkit_plugin(
-	TARGETPREFIX maps-viz
-	QT4_SUFFIX ""
-	MISSINGQTDEPS_NOBUILD
-	SOURCES
-		PluginLoader.cpp
-		PatchesGeode.cpp
-		SurfaceGeode.cpp
-		StandaloneVisualizer.cpp
-	MOC
-		PluginLoader.hpp
-		GridMapVisualization.cpp
-		ElevationMapVisualization.cpp
-		MLSMapVisualization.cpp
-		TraversabilityMap3dVisualization.cpp
-		ContourMapVisualization.cpp
-		OccupancyGridMapVisualization.cpp
-		TraversabilityGridVisualization.cpp
-	HEADERS
-		ColorGradient.hpp
-		ExtentsRectangle.hpp
-		MapVisualization.hpp
-		GridMapVisualization.hpp
-		ElevationMapVisualization.hpp
-		MLSMapVisualization.hpp
-		TraversabilityMap3dVisualization.hpp
-		PatchesGeode.hpp
-		SurfaceGeode.hpp
-		StandaloneVisualizer.hpp
-		ContourMapVisualization.hpp
-		OccupancyGridMapVisualization.hpp
-		TraversabilityGridVisualization.hpp
-	DEPS
-		maps
-	DEPS_PKGCONFIG
-		base-logging
-		PrimitivesFactory
-	DEPS_PKGCONFIG_QT
-		base-viz vizkit3d-viz
-	)
+    rock_qt_vizkit_plugin(
+        TARGETPREFIX maps-viz
+        QT4_SUFFIX ""
+        MISSINGQTDEPS_NOBUILD
+        SOURCES
+            PluginLoader.cpp
+            PatchesGeode.cpp
+            SurfaceGeode.cpp
+            StandaloneVisualizer.cpp
+        MOC
+            PluginLoader.hpp
+            GridMapVisualization.cpp
+            ElevationMapVisualization.cpp
+            MLSMapVisualization.cpp
+            TraversabilityMap3dVisualization.cpp
+            ContourMapVisualization.cpp
+            OccupancyGridMapVisualization.cpp
+            TraversabilityGridVisualization.cpp
+        HEADERS
+            ColorGradient.hpp
+            ExtentsRectangle.hpp
+            MapVisualization.hpp
+            GridMapVisualization.hpp
+            ElevationMapVisualization.hpp
+            MLSMapVisualization.hpp
+            TraversabilityMap3dVisualization.hpp
+            PatchesGeode.hpp
+            SurfaceGeode.hpp
+            StandaloneVisualizer.hpp
+            ContourMapVisualization.hpp
+            OccupancyGridMapVisualization.hpp
+            TraversabilityGridVisualization.hpp
+        DEPS
+            maps
+        DEPS_PKGCONFIG
+            base-logging
+            PrimitivesFactory
+        DEPS_PKGCONFIG_QT
+            base-viz vizkit3d-viz
+    )
 else()
-	message(STATUS "osgviz not found ... NOT building the maps-viz plugins")
+    message(STATUS "osgviz not found ... NOT building the maps-viz plugins")
 endif()
+
