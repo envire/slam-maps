@@ -1481,7 +1481,8 @@ BOOST_AUTO_TEST_CASE(test_to_from_grid)
                 std::cout << "test_to_from_grid " << i << ' ' << j << ' ' << k << '\n';
                 std::cout << "p: " << p.transpose() << ", trafo*p: " << trafo_p.transpose() << '\n';
                 BOOST_CHECK(map.toGrid(trafo_p, idx1, pos_diff1));
-                BOOST_CHECK(map.toGridOptimized(p, idx2, pos_diff2, trafo_prep));
+                Eigen::Vector3d viewPoint_in_cell_result;
+                BOOST_CHECK(map.toGridOptimized(p, idx2, pos_diff2, trafo_prep, viewPoint_in_cell_result));
                 BOOST_CHECK(map.toGridLocal(map.getLocalFrame() * trafo_p, idx3, pos_diff3));
 
                 std::cout << pos_diff1.transpose() << '\t' << pos_diff2.transpose() << '\t' << pos_diff3.transpose() << '\n';
