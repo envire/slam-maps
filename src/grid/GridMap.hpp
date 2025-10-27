@@ -52,10 +52,10 @@ namespace maps { namespace grid
     {
 
     protected:
-        /** 
+        /**
          * @brief Resolution of the cell in local x-axis and y-axis
          * @details
-         * Size of the cell in local x- und y-axis in some distance/length unit 
+         * Size of the cell in local x- und y-axis in some distance/length unit
          * (e.g. meter or inch)
          * The unit used in the resolution should be the same as the unit used for
          * the translation part of the local frame. (s. LocalMapData::offset)
@@ -67,7 +67,7 @@ namespace maps { namespace grid
         typedef boost::shared_ptr<GridMap<CellT, GridT> > Ptr;
         typedef const boost::shared_ptr<GridMap<CellT, GridT> > ConstPtr;
 
-        GridMap() 
+        GridMap()
             : LocalMap(maps::LocalMapType::GRID_MAP),
               GridT(),
               resolution(0,0)
@@ -75,7 +75,7 @@ namespace maps { namespace grid
         }
 
         GridMap(const GridMap& other)
-            : LocalMap(other), 
+            : LocalMap(other),
               GridT(other),
               resolution(other.resolution)
         {
@@ -147,7 +147,7 @@ namespace maps { namespace grid
             return getNumCells().prod();
         }
 
-        const Vector2d& getResolution() const 
+        const Vector2d& getResolution() const
         {
             return resolution;
         }
@@ -156,11 +156,11 @@ namespace maps { namespace grid
         {
             if(newRes.isApprox(resolution, 0.00001))
                 return;
-            
+
             resolution = newRes;
             this->clear();
         }
-        
+
         Vector2d getSize() const
         {
             return resolution.array() * getNumCells().template cast<double>().array();
@@ -174,10 +174,10 @@ namespace maps { namespace grid
         }
 
         /** @brief get a position of an index from the Grid
-         * 
+         *
          *  By default this function checks, if the index is within the grid,
          *  and returns false if the index is out of the grid.
-         * 
+         *
          *  If the index is inside the grid, or checkIndex is set to false,
          *  this function will convert the given position into frame coordinates.
          * */
@@ -322,7 +322,7 @@ namespace maps { namespace grid
             return toGrid(pos_in_map, idx);
         }
 
-        bool toGrid(const Vector3d& pos, Index& idx, bool checkIndex = true) const 
+        bool toGrid(const Vector3d& pos, Index& idx, bool checkIndex = true) const
         {
             // Get the 2D position without the offset (in grid_frame)
             // pos_grid = Tgrid_local pos_local
@@ -330,16 +330,16 @@ namespace maps { namespace grid
 
             // Get the index for the pos_grid
             Eigen::Vector2d idx_double = pos_grid.array() / resolution.array();
-            
+
             Index idx_temp(std::floor(idx_double.x()), std::floor(idx_double.y()));
 
             if(checkIndex && !inGrid(idx_temp))
             {
                 return false;
             }
-            
+
             idx = idx_temp;
-            
+
             return true;
         }
         /**
@@ -357,9 +357,10 @@ namespace maps { namespace grid
 
         /** @brief optimized variant of toGrid(const Vector3d& pos, Index& idx, Vector3d &pos_in_cell)
          */
-        bool toGridOptimized(const Vector3d& pos, Index& idx, Vector3d& pos_in_cell, const base::Transform3d& trafo)
+        bool toGridOptimized(const Vector3d& pos, Index& idx, Vector3d& pos_in_cell, const base::Transform3d& trafo, Vector3d& viewPoint_in_cell)
         {
             Vector3d pos_in_grid = trafo * pos;
+            Vector3d viewPoint_in_grid = trafo.translation();
 
             Index idx_temp(std::round(pos_in_grid.x()), std::round(pos_in_grid.y()));
 
@@ -367,6 +368,7 @@ namespace maps { namespace grid
             {
                 idx = idx_temp;
                 pos_in_cell << (pos_in_grid.head<2>() - idx.cast<double>()).cwiseProduct(resolution), pos_in_grid.z();
+                viewPoint_in_cell << (viewPoint_in_grid.head<2>() - idx.cast<double>()).cwiseProduct(resolution), viewPoint_in_grid.z();
                 return true;
             }
             return false;
@@ -552,7 +554,7 @@ namespace maps { namespace grid
 
             // ---------- Upper border
             // y: from 0 until first value is found
-            // x : from x_min to getNumCells().x() 
+            // x : from x_min to getNumCells().x()
             has_value = false;
             int y_min = -1;
             while (has_value == false)
@@ -562,10 +564,10 @@ namespace maps { namespace grid
                 if (addCellForY(cell_extents, y_min, x_min, num_cells.x() - 1) == true)
                 {
                     has_value = true;
-                }                
+                }
             }
 
-            // ------------ Right border 
+            // ------------ Right border
             // x: from getNumCells().x() - 1 until first value is found
             // y: from y_min until getNumCells().y()
             has_value = false;
@@ -592,8 +594,8 @@ namespace maps { namespace grid
                 if (addCellForY(cell_extents, y_max, x_min, x_max) == true)
                 {
                     has_value = true;
-                }               
-            }          
+                }
+            }
 
             return cell_extents;
         }
@@ -619,9 +621,9 @@ namespace maps { namespace grid
             {
                 if (isDefault(at(x, y)) == false)
                 {
-                    cell_extents.extend(Vector2ui(x, y));                  
+                    cell_extents.extend(Vector2ui(x, y));
                     return true;
-                }                      
+                }
                 y++;
             }
             return false;
@@ -636,7 +638,7 @@ namespace maps { namespace grid
                 {
                     cell_extents.extend(Vector2ui(x, y));
                     return true;
-                }                      
+                }
                 x++;
             }
             return false;

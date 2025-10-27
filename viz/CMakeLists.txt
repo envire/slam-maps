@@ -8,6 +8,8 @@ if(${OSG_VERSION} VERSION_GREATER_EQUAL 3.6.4)
 endif()
 
 if (OSGVIZ_PRIMITIVES_FOUND)
+    rock_find_qt4(OPTIONAL)
+    rock_find_qt5(OPTIONAL)
     rock_qt_vizkit_plugin(
         TARGETPREFIX maps-viz
         QT4_SUFFIX ""

@@ -39,7 +39,7 @@
 namespace vizkit3d
 {
 
-class TraversabilityMap3dVisualization        
+class TraversabilityMap3dVisualization
     : public vizkit3d::MapVisualization<::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase *>>
 {
     Q_OBJECT
@@ -51,29 +51,29 @@ class TraversabilityMap3dVisualization
 protected:
     virtual void updateDataIntern(const ::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase *>& data);
     virtual void updateMainNode(osg::Node* node);
-    
+
     virtual osg::ref_ptr< osg::Node > createMainNode();
-    
+
     ::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase *> map;
 
     void addNodeList(const ::maps::grid::LevelList<::maps::grid::TraversabilityNodeBase *> &l, osg::Group* group);
-    
+
     void visualizeNode(const ::maps::grid::TraversabilityNodeBase *node);
     void visualizeConnection(const ::maps::grid::TraversabilityNodeBase *from, const ::maps::grid::TraversabilityNodeBase *to);
-    
+
     osg::ref_ptr<osg::Geode> nodeGeode;
     osg::ref_ptr<osgviz::LinesNode> linesNode;
-    
+
     osg::Group* connectionGroup;
-    
+
     double isoline_interval;
     bool show_connections;
 
 public:
     TraversabilityMap3dVisualization();
     virtual ~TraversabilityMap3dVisualization();
-    
-    Q_INVOKABLE void updateData(::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase *> const &sample)
+
+    Q_INVOKABLE void updateData(::maps::grid::TraversabilityBaseMap3d const &sample)
     {
         vizkit3d::Vizkit3DPlugin<::maps::grid::TraversabilityMap3d<maps::grid::TraversabilityNodeBase *>>::updateData(sample);
     }
@@ -85,7 +85,7 @@ public:
 
     double getIsolineInterval() const { return isoline_interval; }
     void setIsolineInterval(const double& val);
-    
+
     bool getShowConnections();
     void setShowConnections(bool val);
 

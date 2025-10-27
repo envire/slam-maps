@@ -79,8 +79,9 @@ rock_library(maps
         #to look for.
         pcl_io${PCL_VERSION_SUFFIX}
         pcl_common${PCL_VERSION_SUFFIX}
-    DEPS Boost::system
-         Boost::filesystem
-         Boost::serialization
+    DEPS
+        Boost::system
+        Boost::filesystem
+        Boost::serialization
 )
 
