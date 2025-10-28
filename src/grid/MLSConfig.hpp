@@ -27,6 +27,7 @@
 #ifndef __MAPS_MLS_CONFIG_HPP__
 #define __MAPS_MLS_CONFIG_HPP__
 
+#include <limits>
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 
@@ -55,8 +56,8 @@ namespace maps { namespace grid
             , BASE
         };
 
-        float gapSize;
-        float thickness;
+        float gapSize;  // how much gap in z is treated as same patch
+        float thickness; // how "thick" is a surface (add point to surface or create new one)
         bool useColor;
         update_model updateModel;
         bool useNegativeInformation;

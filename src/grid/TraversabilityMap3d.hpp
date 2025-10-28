@@ -379,7 +379,7 @@ namespace maps { namespace grid
             }
             saveSizeValue(ar, size);
 
-            //save all connections together with the coresponding pointer
+            //save all connections together with the corresponding pointer
             for(const maps::grid::LevelList<T *> &ll : *this )
             {
                 for(T *node: ll)

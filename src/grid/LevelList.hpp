@@ -37,7 +37,7 @@ namespace maps { namespace grid
 struct MLSConfig;
 
 template <class _Tp>
-struct myCmp : public std::binary_function<_Tp, _Tp, bool>
+struct myCmp
 {
     bool
     operator()(const _Tp& __x, const _Tp& __y) const

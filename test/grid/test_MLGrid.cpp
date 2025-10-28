@@ -76,13 +76,13 @@ class PatchBase
 class Patch : public PatchBase
 {
 public:
-    Patch() : PatchBase(0,0)
+    Patch() : PatchBase(0,0), someValue(0)
     {
     };
 
     virtual ~Patch(){};
 
-    Patch(double m, double ma) : PatchBase(m, ma)
+    Patch(double m, double ma, double someValue_ = 0.0) : PatchBase(m, ma), someValue(someValue_)
     {
     };
 

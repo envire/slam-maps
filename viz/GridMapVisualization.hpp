@@ -68,6 +68,7 @@ namespace vizkit3d
             Q_INVOKABLE void updateGridMapC(::maps::grid::GridMapC const &sample)
             {vizkit3d::Vizkit3DPlugin<::maps::grid::GridMap<double>>::updateData(sample);}
 
+            struct Data;
         protected:
             virtual osg::ref_ptr<osg::Node> createMainNode();
             virtual void updateMainNode(osg::Node* node);
@@ -77,7 +78,6 @@ namespace vizkit3d
             virtual void updateDataIntern(::maps::grid::GridMap<char> const& plan);            
 
         private:
-            struct Data;
             boost::scoped_ptr<Data> p;            
 
             osg::ref_ptr<osg::Geode> geode;

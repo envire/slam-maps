@@ -27,7 +27,6 @@
 #include "TSDFPolygonMeshReconstruction.hpp"
 
 #include <pcl/common/transforms.h>
-#include <pcl/common/io.h>
 
 using namespace maps::tools;
 using namespace maps::grid;

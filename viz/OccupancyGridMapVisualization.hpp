@@ -53,7 +53,7 @@ class OccupancyGridMapVisualization : public vizkit3d::MapVisualization< ::maps:
         OccupancyGridMapVisualization();
         ~OccupancyGridMapVisualization();
 
-        Q_INVOKABLE void updateData(::maps::grid::OccupancyGridMap const &sample)
+        Q_INVOKABLE void updateData(maps::grid::OccupancyGridMap const &sample)
         {vizkit3d::Vizkit3DPlugin<::maps::grid::OccupancyGridMap>::updateData(sample);}
 
     public slots:
