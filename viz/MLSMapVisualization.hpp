@@ -62,6 +62,7 @@ namespace vizkit3d
         Q_PROPERTY(bool connected_surface READ isConnectedSurface WRITE setConnectedSurface)
         Q_PROPERTY(bool simplify_surface READ getSimplifySurface WRITE setSimplifySurface)
         Q_PROPERTY(bool connected_surface_lod READ getConnectedSurfaceLOD WRITE setConnectedSurfaceLOD)
+        Q_PROPERTY(bool surface_only READ getSurfaceOnly WRITE setSurfaceOnly)
         Q_PROPERTY(QColor horizontal_cell_color READ getHorizontalCellColor WRITE setHorizontalCellColor)
         Q_PROPERTY(QColor vertical_cell_color READ getVerticalCellColor WRITE setVerticalCellColor)
         Q_PROPERTY(QColor negative_cell_color READ getNegativeCellColor WRITE setNegativeCellColor)
@@ -186,6 +187,9 @@ namespace vizkit3d
             bool getConnectedSurfaceLOD() const;
             void setConnectedSurfaceLOD(bool enabled);
 
+            bool getSurfaceOnly() const;
+            void setSurfaceOnly(bool enabled);
+
             int getMinMeasurements() const;
             void setMinMeasurements(int measurements);
 
@@ -226,6 +230,7 @@ namespace vizkit3d
             bool connectedSurface;
             bool simplifySurface;
             bool connected_surface_lod;
+            bool surfaceOnly;
             bool updateDataFramePosition;
             bool use_vertical_top_color;
             bool use_shader_color;

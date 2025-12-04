@@ -218,7 +218,7 @@ struct MLSMapVisualization::Data {
     Data(MLSMapVisualization& vis):visualization(vis) {}
     virtual ~Data() { }
     virtual Eigen::Vector2d getResolution() const = 0;
-    virtual void visualize(vizkit3d::PatchesGeode& geode, int levelOffset) const = 0;
+    virtual void visualize(vizkit3d::PatchesGeode& geode, int levelOffset, bool surface_only) const = 0;
     virtual void visualize(vizkit3d::SurfaceGeode& geode) const = 0;
     virtual void visualizeNegativeInformation(vizkit3d::PatchesGeode& geode) const = 0;
     virtual maps::grid::CellExtents getCellExtents() const = 0;
@@ -297,7 +297,7 @@ public:
 
 
 
-    void visualize(vizkit3d::PatchesGeode& geode, int levelOffset) const
+    void visualize(vizkit3d::PatchesGeode& geode, int levelOffset, bool surface_only) const
     {
         Vector2ui num_cell = mls.getNumCells();
 
@@ -316,6 +316,9 @@ public:
                         for (typename Cell::const_iterator it = list.begin()+levelOffset; it != list.end(); it++)
                         {
                             visualization.visualize(geode, *it);
+                            if (surface_only) {
+                                break;
+                            }
                         } // for(SPList ...)
                     }
                 } // for(y ...)
@@ -392,6 +395,7 @@ MLSMapVisualization::MLSMapVisualization()
     uncertaintyScale(1.0),
     minMeasurements(1),
     connectedSurface(false),
+    surfaceOnly(false),
     simplifySurface(true),
     connected_surface_lod(false),
     updateDataFramePosition(false),
@@ -491,9 +495,9 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
     geode->setUncertaintyScale(uncertaintyScale);
 
     if (!connectedSurface) {
-        p->visualize(*geode, 0);
+        p->visualize(*geode, 0, surfaceOnly);
     } else {
-        p->visualize(*geode, 1);
+        p->visualize(*geode, 1, surfaceOnly);
 
         osg::ref_ptr<SurfaceGeode> sgeode = new SurfaceGeode(res.x(), res.y());
         if(cycleHeightColor)
@@ -798,6 +802,17 @@ void MLSMapVisualization::setSimplifySurface(bool enabled)
 {
     simplifySurface = enabled;
     emit propertyChanged("simplify_surface");
+    setDirty();
+}
+
+bool MLSMapVisualization::getSurfaceOnly() const
+{
+    return surfaceOnly;
+}
+void MLSMapVisualization::setSurfaceOnly(bool enabled)
+{
+    surfaceOnly = enabled;
+    emit propertyChanged("surface_only");
     setDirty();
 }
 
