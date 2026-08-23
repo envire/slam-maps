@@ -61,6 +61,11 @@ using namespace ::maps::grid;
 // https://github.com/openscenegraph/OpenSceneGraph/blob/master/examples/osgsimplegl3/osgsimplegl3.cpp
 // https://gist.github.com/bkmeneguello/6047028
 
+// osg_ModelViewProjectionMatrix and osg_NormalMatrix are supplied by osg itself
+// (osg::State::setUseModelViewAndProjectionUniforms). Unlike a manually updated camera-based
+// uniform they contain the actual rendering matrices, including the near/far planes fitted to
+// the scene bounds each frame - otherwise the map gets clipped at the cameras default
+// far plane when zooming out.
 const char *vertexShaderSource = "#version 330 core\n"
     "layout (location = 0) in vec3 osg_Vertex;\n"
     "layout (location = 1) in vec3 osg_Normal;\n"
@@ -69,14 +74,13 @@ const char *vertexShaderSource = "#version 330 core\n"
     "out vec3 Normal;\n"
     "out vec4 Color;\n"
     "uniform mat4 modelMatrix;\n"
-    "uniform mat3 normalMatrix;\n"
-    "uniform mat4 modelViewProjectionMatrix;\n"
+    "uniform mat3 osg_NormalMatrix;\n"
+    "uniform mat4 osg_ModelViewProjectionMatrix;\n"
     "void main()\n"
     "{\n"
-    "    gl_Position = modelViewProjectionMatrix * vec4(osg_Vertex, 1.0);\n"
+    "    gl_Position = osg_ModelViewProjectionMatrix * vec4(osg_Vertex, 1.0);\n"
     "    FragPos = vec3(modelMatrix * vec4(osg_Vertex, 1.0));\n"
-    "    //Normal = osg_NormalMatrix * osg_Normal;\n"
-    "    Normal = normalize(normalMatrix * osg_Normal);\n" // no care about about actual light location (mult by transposed interveted model matrix)
+    "    Normal = normalize(osg_NormalMatrix * osg_Normal);\n" // no care about about actual light location (mult by transposed interveted model matrix)
     "    Color = osg_Color;\n"
     "}\n\0";
 
@@ -143,48 +147,6 @@ const char *fragmentShaderSource = "#version 330 core\n"
     "}\n\0";
 
 
-
-struct ModelViewProjectionMatrixCallback: public osg::Uniform::Callback
-{
-    ModelViewProjectionMatrixCallback(osg::Camera* camera) :
-            _camera(camera) {
-    }
-
-    virtual void operator()(osg::Uniform* uniform, osg::NodeVisitor* nv) {
-        osg::Matrixd viewMatrix = _camera->getViewMatrix();
-        osg::Matrixd modelMatrix = osg::computeLocalToWorld(nv->getNodePath());
-        osg::Matrixd modelViewProjectionMatrix = modelMatrix * viewMatrix * _camera->getProjectionMatrix();
-        uniform->set(modelViewProjectionMatrix);
-    }
-
-    osg::Camera* _camera;
-};
-
-struct NormalMatrixCallback: public osg::Uniform::Callback {
-	NormalMatrixCallback(osg::Camera* camera) :
-			_camera(camera) {
-	}
-
-	virtual void operator()(osg::Uniform* uniform, osg::NodeVisitor* nv) {
-		osg::Matrixd viewMatrix = _camera->getViewMatrix();
-		osg::Matrixd modelMatrix = osg::computeLocalToWorld(nv->getNodePath());
-		osg::Matrixd modelViewMatrix = modelMatrix * viewMatrix;
-
-		modelViewMatrix.setTrans(0.0, 0.0, 0.0);
-
-		osg::Matrixd inverse;
-		inverse.invert(modelViewMatrix);
-
-		osg::Matrix3 normalMatrix(
-				inverse(0,0), inverse(1,0), inverse(2,0),
-				inverse(0,1), inverse(1,1), inverse(2,1),
-				inverse(0,2), inverse(1,2), inverse(2,2));
-
-		uniform->set(normalMatrix);
-	}
-
-	osg::Camera* _camera;
-};
 
 struct ModelMatrixCallback: public osg::Uniform::Callback
 {
@@ -469,19 +431,16 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
             // enable shader-based height coloring
             geode->getOrCreateStateSet()->setAttributeAndModes(program.get(), osg::StateAttribute::ON);
 
-            osg::ref_ptr<osg::Uniform> mvp = new osg::Uniform(osg::Uniform::FLOAT_MAT4, "modelViewProjectionMatrix");
-            geode->getOrCreateStateSet()->addUniform(mvp);
+            // have osg provide osg_ModelViewProjectionMatrix and osg_NormalMatrix to the shader,
+            // using the actual rendering matrices (including the per-frame computed near/far planes)
             osg::Camera* cam = getCamera();
-            mvp->setUpdateCallback(new ModelViewProjectionMatrixCallback(cam));
-
+            if (cam && cam->getGraphicsContext() && cam->getGraphicsContext()->getState()) {
+                cam->getGraphicsContext()->getState()->setUseModelViewAndProjectionUniforms(true);
+            }
 
             osg::ref_ptr<osg::Uniform> model = new osg::Uniform(osg::Uniform::FLOAT_MAT4, "modelMatrix");
             geode->getOrCreateStateSet()->addUniform(model);
             model->setUpdateCallback(new ModelMatrixCallback);
-
-            osg::ref_ptr<osg::Uniform> normal = new osg::Uniform(osg::Uniform::FLOAT_MAT3, "normalMatrix");
-            geode->getOrCreateStateSet()->addUniform(normal);
-            normal->setUpdateCallback(new NormalMatrixCallback(cam));
 
             geode->getOrCreateStateSet()->addUniform(cycleColorIntervalUniform);
             geode->getOrCreateStateSet()->addUniform(contourLineIntervalUniform);
@@ -539,6 +498,14 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
         }
         if (cycleHeightColor) {
             sgeode->getOrCreateStateSet()->setAttributeAndModes(program.get(), osg::StateAttribute::ON);
+
+            osg::ref_ptr<osg::Uniform> model = new osg::Uniform(osg::Uniform::FLOAT_MAT4, "modelMatrix");
+            sgeode->getOrCreateStateSet()->addUniform(model);
+            model->setUpdateCallback(new ModelMatrixCallback);
+
+            sgeode->getOrCreateStateSet()->addUniform(cycleColorIntervalUniform);
+            sgeode->getOrCreateStateSet()->addUniform(contourLineIntervalUniform);
+            sgeode->getOrCreateStateSet()->addUniform(contourLineThicknessUniform);
         }
 
     }
