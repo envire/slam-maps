@@ -85,3 +85,5 @@ rock_library(maps
         Boost::serialization
 )
 
+target_compile_features(maps PUBLIC cxx_std_14)
+
