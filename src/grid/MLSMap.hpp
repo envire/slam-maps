@@ -71,7 +71,8 @@ namespace maps { namespace grid
         , config(config_)
         , doThrow(true)
         {
-            // TODO assert that config is compatible to SurfaceType ...
+            LOG_FATAL_S << "Internal Error: Update model in MLS Config is not same as the MLSMap SurfaceType";
+            throw std::runtime_error("Internal Error: Update model in MLS Config is not same as the MLSMap SurfaceType"); 
         }
 
         MLSMap()
