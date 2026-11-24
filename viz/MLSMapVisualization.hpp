@@ -63,6 +63,7 @@ namespace vizkit3d
         Q_PROPERTY(bool simplify_surface READ getSimplifySurface WRITE setSimplifySurface)
         Q_PROPERTY(bool connected_surface_lod READ getConnectedSurfaceLOD WRITE setConnectedSurfaceLOD)
         Q_PROPERTY(bool surface_only READ getSurfaceOnly WRITE setSurfaceOnly)
+        Q_PROPERTY(bool patch_color READ getPatchColor WRITE setPatchColor)
         Q_PROPERTY(QColor horizontal_cell_color READ getHorizontalCellColor WRITE setHorizontalCellColor)
         Q_PROPERTY(QColor vertical_cell_color READ getVerticalCellColor WRITE setVerticalCellColor)
         Q_PROPERTY(QColor negative_cell_color READ getNegativeCellColor WRITE setNegativeCellColor)
@@ -139,6 +140,7 @@ namespace vizkit3d
             osg::ref_ptr<osg::Uniform> cycleColorIntervalUniform;
             osg::ref_ptr<osg::Uniform> contourLineIntervalUniform;
             osg::ref_ptr<osg::Uniform> contourLineThicknessUniform;
+            osg::ref_ptr<osg::Uniform> useVertexColorUniform;
         
         public slots:
 
@@ -190,6 +192,10 @@ namespace vizkit3d
             bool getSurfaceOnly() const;
             void setSurfaceOnly(bool enabled);
 
+            /** whether patches with a color (precalculated patches, e.g. reconstructed from a colored TSDF) are shown in it */
+            bool getPatchColor() const;
+            void setPatchColor(bool enabled);
+
             int getMinMeasurements() const;
             void setMinMeasurements(int measurements);
 
@@ -237,6 +243,9 @@ namespace vizkit3d
             double contour_line_interval;
             double contour_line_thickness;
             bool auto_color_cycle_interval;
+            bool patchColor;
+            /** a patch was drawn with its own color in the current update (the shader then takes the vertex colors) */
+            bool patchColorDrawn;
 
 #if 0
             osg::Vec3 estimateNormal(

@@ -46,7 +46,8 @@ namespace vizkit3d
           alpha(1.0),
           lum(1.0),
           cycle_color(false),
-          uncertaintyScale(1.0)
+          uncertaintyScale(1.0),
+          use_patch_color(false)
     {
         colors = new osg::Vec4Array;
         vertices = new osg::Vec3Array;
@@ -380,7 +381,7 @@ namespace vizkit3d
             updateColor();
         }
 
-        colors->push_back( color );
+        colors->push_back( use_patch_color ? patch_color : color );
     }
 
     void PatchesGeode::addVertex(const osg::Vec3& p, const osg::Vec3& n, const float & stdev, const float& zpos)
@@ -400,7 +401,7 @@ namespace vizkit3d
             updateColor();
         }
 
-        colors->push_back( color );
+        colors->push_back( use_patch_color ? patch_color : color );
     }
 
 

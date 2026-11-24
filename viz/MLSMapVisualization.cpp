@@ -92,6 +92,7 @@ const char *fragmentShaderSource = "#version 330 core\n"
     "uniform float cycleColorInterval;\n"
     "uniform float contourLineInterval;\n"
     "uniform float contourLineThickness;\n"
+    "uniform bool useVertexColor;\n"
     "// from: http://lolengine.net/blog/2013/07/27/rgb-to-hsv-in-glsl\n"
     "vec3 hsv2rgb(vec3 c) {\n"
         "c = vec3(c.x, clamp(c.yz, 0.0, 1.0));\n"
@@ -132,7 +133,7 @@ const char *fragmentShaderSource = "#version 330 core\n"
     "   } else {"
     "      float hue = (z - floor(z / cycleColorInterval) * cycleColorInterval) / cycleColorInterval;\n"
     "      vec3 hsv = vec3(hue, 1, 0.6);\n"
-    "      vec3 rgbcolor = hsl2rgb(hsv);\n"
+    "      vec3 rgbcolor = useVertexColor ? Color.rgb : hsl2rgb(hsv);\n"
     "      vec3 lightColor = vec3(1,1,1);\n"
     "      float ambientStrength = 0.7;\n"
     "      vec3 ambient = ambientStrength * lightColor;\n"
@@ -365,7 +366,9 @@ MLSMapVisualization::MLSMapVisualization()
     use_shader_color(true),
     contour_line_interval(0.0),
     contour_line_thickness(0.02),
-    auto_color_cycle_interval(true)
+    auto_color_cycle_interval(true),
+    patchColor(true),
+    patchColorDrawn(false)
 {
     program = new osg::Program;
     vShader = new osg::Shader(osg::Shader::VERTEX, vertexShaderSource);
@@ -379,6 +382,8 @@ MLSMapVisualization::MLSMapVisualization()
     contourLineIntervalUniform->set((float)contour_line_interval);
     contourLineThicknessUniform = new osg::Uniform(osg::Uniform::FLOAT, "contourLineThickness");
     contourLineThicknessUniform->set((float)contour_line_thickness);
+    useVertexColorUniform = new osg::Uniform(osg::Uniform::BOOL, "useVertexColor");
+    useVertexColorUniform->set(false);
 }
 
 MLSMapVisualization::~MLSMapVisualization()
@@ -445,6 +450,7 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
             geode->getOrCreateStateSet()->addUniform(cycleColorIntervalUniform);
             geode->getOrCreateStateSet()->addUniform(contourLineIntervalUniform);
             geode->getOrCreateStateSet()->addUniform(contourLineThicknessUniform);
+            geode->getOrCreateStateSet()->addUniform(useVertexColorUniform);
         }
     }
     else
@@ -453,6 +459,7 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
     geode->setShowNormals(showNormals);
     geode->setUncertaintyScale(uncertaintyScale);
 
+    patchColorDrawn = false;
     if (!connectedSurface) {
         p->visualize(*geode, 0, surfaceOnly);
     } else {
@@ -509,6 +516,9 @@ void MLSMapVisualization::updateMainNode ( osg::Node* node )
         }
 
     }
+
+    // the vertex colors carry the patch colors, the others are cycled height colors computed on the cpu
+    useVertexColorUniform->set(patchColorDrawn);
 
     if( showUncertainty || showNormals || showPatchExtents)
     {
@@ -783,6 +793,17 @@ void MLSMapVisualization::setSurfaceOnly(bool enabled)
     setDirty();
 }
 
+bool MLSMapVisualization::getPatchColor() const
+{
+    return patchColor;
+}
+void MLSMapVisualization::setPatchColor(bool enabled)
+{
+    patchColor = enabled;
+    emit propertyChanged("patch_color");
+    setDirty();
+}
+
 int MLSMapVisualization::getMinMeasurements() const
 {
     return minMeasurements;
@@ -823,7 +844,14 @@ void MLSMapVisualization::visualize(vizkit3d::PatchesGeode& geode, const Surface
     p.getRange(minZ, maxZ);
     minZ -= 5e-4f;
     maxZ += 5e-4f;
+    if(patchColor && p.hasColor())
+    {
+        const Eigen::Vector3f& color = p.getColor();
+        geode.setPatchColor(osg::Vec4(color.x(), color.y(), color.z(), 1.f));
+        patchColorDrawn = true;
+    }
     geode.drawPlane(p.getPlane(), minZ, maxZ, 1e-4f);
+    geode.clearPatchColor();
 }
 
 void MLSMapVisualization::visualize(vizkit3d::PatchesGeode& geode, const SurfacePatch<MLSConfig::KALMAN>& p)

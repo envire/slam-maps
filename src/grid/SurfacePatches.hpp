@@ -517,22 +517,32 @@ class SurfacePatch<MLSConfig::PRECALCULATED> : public SurfacePatchBase
 {
     typedef SurfacePatchBase Base;
     Eigen::Hyperplane<float, 3> plane;
+    /** rgb in [0,1], NaN without color (see hasColor()) */
+    Eigen::Vector3f color;
 public:
 
-    SurfacePatch() : SurfacePatchBase()
+    SurfacePatch() : SurfacePatchBase(), color(Eigen::Vector3f::Constant(std::nanf("")))
     {
         // empty
     }
 
     SurfacePatch(const Eigen::Vector3f& center, const Eigen::Vector3f& normal, const float &min, const float &max) :
-                SurfacePatchBase(), plane(normal, center)
+                SurfacePatchBase(), plane(normal, center), color(Eigen::Vector3f::Constant(std::nanf("")))
+    {
+        this->min = min;
+        this->max = max;
+    }
+
+    SurfacePatch(const Eigen::Vector3f& center, const Eigen::Vector3f& normal, const float &min, const float &max, const Eigen::Vector3f& color) :
+                SurfacePatchBase(), plane(normal, center), color(color)
     {
         this->min = min;
         this->max = max;
     }
 
     template<MLSConfig::update_model model>
-    SurfacePatch(const SurfacePatch<model>& other) : SurfacePatchBase(other), plane(other.getNormal(), other.getCenter())
+    SurfacePatch(const SurfacePatch<model>& other) : SurfacePatchBase(other), plane(other.getNormal(), other.getCenter()),
+                                                     color(Eigen::Vector3f::Constant(std::nanf("")))
     {
         // empty
     }
@@ -549,6 +559,11 @@ public:
     Eigen::Vector4f& getCoeffs() { return plane.coeffs(); }
     const Eigen::Hyperplane<float, 3>& getPlane() const { return plane; }
     Eigen::Hyperplane<float, 3>& getPlane() { return plane; }
+
+    bool hasColor() const { return color.allFinite(); }
+    /** rgb in [0,1], NaN without color */
+    const Eigen::Vector3f& getColor() const { return color; }
+    void setColor(const Eigen::Vector3f& rgb) { color = rgb; }
 
     bool operator<(const SurfacePatch& other) const
     {
@@ -585,6 +600,7 @@ protected:
     {
         ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(SurfacePatchBase);
         ar << boost::serialization::make_nvp("plane_coeffs", plane.coeffs());
+        ar << boost::serialization::make_nvp("color", color);
     }
 
     template<class Archive>
@@ -601,6 +617,14 @@ protected:
         else
         {
             ar >> boost::serialization::make_nvp("plane_coeffs", plane.coeffs());
+        }
+        if(version >= 2)
+        {
+            ar >> boost::serialization::make_nvp("color", color);
+        }
+        else
+        {
+            color = Eigen::Vector3f::Constant(std::nanf(""));
         }
 
     }
@@ -731,6 +755,6 @@ void getPolygon(std::vector<Eigen::Vector3f>& points, const SurfacePatch<S> &sp,
 
 
 BOOST_CLASS_VERSION(maps::grid::SurfacePatch<maps::grid::MLSConfig::SLOPE>, 2);
-BOOST_CLASS_VERSION(maps::grid::SurfacePatch<maps::grid::MLSConfig::PRECALCULATED>, 1);
+BOOST_CLASS_VERSION(maps::grid::SurfacePatch<maps::grid::MLSConfig::PRECALCULATED>, 2);
 
 #endif /* __MAPS_SURFACEPATCHES_HPP_ */

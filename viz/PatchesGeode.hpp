@@ -91,6 +91,17 @@ namespace vizkit3d {
             use_vertical_top_color = value;
         }
 
+        /**
+         * The color of the following patches, instead of the one set or the cycled height color,
+         * until clearPatchColor()
+         */
+        void setPatchColor(const osg::Vec4& color)
+        {
+            patch_color = color;
+            use_patch_color = true;
+        }
+        void clearPatchColor() { use_patch_color = false; }
+
         void showCycleColor(bool cycle_color);
         void setCycleColorInterval(float cycle_color_interval);
         void setUncertaintyScale(double uncertainty_scale);
@@ -130,6 +141,8 @@ namespace vizkit3d {
         float cycle_color_interval;
         double uncertaintyScale;
         bool use_vertical_top_color;
+        osg::Vec4 patch_color;
+        bool use_patch_color;
 
         void addVertex(const osg::Vec3& p, const osg::Vec3& n, const float & stdev);
         void addVertex(const osg::Vec3& p, const osg::Vec3& n, const float & stdev, const float& zpos);

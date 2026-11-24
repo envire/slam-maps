@@ -72,7 +72,12 @@ public:
     virtual void reconstruct(T &output) = 0;
 
 protected:
-    void reconstructSurfaces(std::vector< Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f> >& surfaces, std::vector<float>& intensities, bool surfaces_in_global_frame = true)
+    /**
+     * @param colors receives the color of each point of surfaces (rgb in [0,1], NaN if none of the voxels it was
+     * reconstructed from has one), may be NULL
+     */
+    void reconstructSurfaces(std::vector< Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f> >& surfaces, std::vector<float>& intensities, bool surfaces_in_global_frame = true,
+                             std::vector< Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f> >* colors = nullptr)
     {
         if(!tsdf_map)
             throw std::runtime_error("TSDF map is not set!");
@@ -88,7 +93,7 @@ protected:
                     if(cell->first > z_idx_min && cell->first < z_idx_max)
                     {
                         Eigen::Vector3i idx(x,y,cell->first);
-                        reconstructVoxel(cell->second, idx, surfaces, intensities);
+                        reconstructVoxel(cell->second, idx, surfaces, intensities, colors);
                     }
                 }
             }
@@ -104,7 +109,8 @@ protected:
     }
 
     void reconstructVoxel(const grid::TSDFVolumetricMap::VoxelCellType& voxel, Eigen::Vector3i& idx,
-                          std::vector< Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f> >& surfaces, std::vector<float>& intensities)
+                          std::vector< Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f> >& surfaces, std::vector<float>& intensities,
+                          std::vector< Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f> >* colors = nullptr)
     {
         if(std::abs(voxel.getDistance()) < tsdf_map->getTruncation() && voxel.getStandardDeviation() < std_threshold)
         {
@@ -128,11 +134,42 @@ protected:
                 {
                     intensities.push_back(intensity);
                 }
+
+                if(colors)
+                {
+                    Eigen::Vector3f color = getCellColor(idx);
+                    for(size_t i = 0; i < new_points; i++)
+                    {
+                        colors->push_back(color);
+                    }
+                }
             }
         }
     }
 
 private:
+    /** the color of the cube of the voxel idx: the mean of the colors of its eight corners, weighted by their number of samples */
+    Eigen::Vector3f getCellColor(const Eigen::Vector3i& idx)
+    {
+        Eigen::Vector3f color = Eigen::Vector3f::Zero();
+        float weight = 0.f;
+        for(unsigned i = 0; i < 8; ++i)
+        {
+            Eigen::Vector3i corner = idx + Eigen::Vector3i(i & 0x1, (i >> 1) & 0x1, (i >> 2) & 0x1);
+            if(!tsdf_map->hasVoxelCell(corner))
+                continue;
+            const maps::grid::TSDFPatch& cell = tsdf_map->getVoxelCell(corner);
+            if(cell.hasColor())
+            {
+                color += cell.getColorWeight() * cell.getColor();
+                weight += cell.getColorWeight();
+            }
+        }
+        if(weight <= 0.f)
+            return Eigen::Vector3f::Constant(std::nanf(""));
+        return color / weight;
+    }
+
     bool getGridValue(Eigen::Vector3i pos, float &distance)
     {
         if(!tsdf_map->hasVoxelCell(pos))

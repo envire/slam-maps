@@ -29,9 +29,11 @@
 
 
 #include <base/Float.hpp>
+#include <Eigen/Core>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
+#include <boost/serialization/version.hpp>
 
 
 namespace maps { namespace grid
@@ -41,6 +43,9 @@ class TSDFPatch
 {
     float distance;
     float var;
+    /** mean color (rgb in [0,1]) of the samples added with addColor(), and their summed weight */
+    Eigen::Vector3f color;
+    float color_weight;
 
     template <class T> static inline void kalman_update( T& mean, T& var, T m_mean, T m_var )
     {
@@ -52,8 +57,8 @@ class TSDFPatch
     }
 
 public:
-    TSDFPatch() : distance(base::NaN<float>()), var(1.f) {}
-    TSDFPatch(float distance, float var) : distance(distance), var(var) {}
+    TSDFPatch() : distance(base::NaN<float>()), var(1.f), color(Eigen::Vector3f::Zero()), color_weight(0.f) {}
+    TSDFPatch(float distance, float var) : distance(distance), var(var), color(Eigen::Vector3f::Zero()), color_weight(0.f) {}
     virtual ~TSDFPatch() {}
 
     void update(float distance, float var, float truncation = 1.f, float min_var = 0.001f)
@@ -87,6 +92,37 @@ public:
 	return std::sqrt(var);
     }
 
+    /** adds a color sample (rgb in [0,1]) to the running mean of the patch color */
+    void addColor(const Eigen::Vector3f& rgb, float weight = 1.f)
+    {
+	if(weight <= 0.f)
+	    return;
+	color_weight += weight;
+	color += (weight / color_weight) * (rgb - color);
+    }
+
+    bool hasColor() const
+    {
+	return color_weight > 0.f;
+    }
+
+    /** mean color of the samples added, black without any (see hasColor()) */
+    const Eigen::Vector3f& getColor() const
+    {
+	return color;
+    }
+
+    float getColorWeight() const
+    {
+	return color_weight;
+    }
+
+    void clearColor()
+    {
+	color.setZero();
+	color_weight = 0.f;
+    }
+
     bool operator==(const TSDFPatch& other) const
     {
 	return this == &other;
@@ -103,10 +139,24 @@ protected:
     {
 	ar & BOOST_SERIALIZATION_NVP(distance);
 	ar & BOOST_SERIALIZATION_NVP(var);
+	if(version >= 1)
+	{
+	    ar & boost::serialization::make_nvp("color_r", color.x());
+	    ar & boost::serialization::make_nvp("color_g", color.y());
+	    ar & boost::serialization::make_nvp("color_b", color.z());
+	    ar & BOOST_SERIALIZATION_NVP(color_weight);
+	}
+	else
+	{
+	    color.setZero();
+	    color_weight = 0.f;
+	}
     }
 };
 
 }  //namespace grid
 }  //namespace maps
+
+BOOST_CLASS_VERSION(maps::grid::TSDFPatch, 1);
 
 #endif  //__MAPS_TSDF_PATCH_HPP_

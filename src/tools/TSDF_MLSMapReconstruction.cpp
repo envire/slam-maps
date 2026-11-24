@@ -33,7 +33,8 @@ void TSDF_MLSMapReconstruction::reconstruct(MLSMapPrecalculated& output)
 {
     std::vector< Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f> > surfaces;
     std::vector<float> intensities;
-    reconstructSurfaces(surfaces, intensities, false);
+    std::vector< Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f> > colors;
+    reconstructSurfaces(surfaces, intensities, false, &colors);
 
     output = MLSMapPrecalculated(tsdf_map->getNumCells() + maps::grid::Vector2ui(1,1), tsdf_map->getResolution(), MLSConfig());
     output.getLocalFrame().translation() << 0.5*tsdf_map->getResolution(), 0;
@@ -65,7 +66,7 @@ void TSDF_MLSMapReconstruction::reconstruct(MLSMapPrecalculated& output)
         Eigen::Vector3d pos_diff;
         if(output.toGrid(center.cast<double>(), idx, pos_diff))
         {
-            SurfacePatch< MLSConfig::PRECALCULATED > patch(pos_diff.cast<float>(), normal, min_z, max_z);
+            SurfacePatch< MLSConfig::PRECALCULATED > patch(pos_diff.cast<float>(), normal, min_z, max_z, colors[i]);
             // insert as new patch
             output.at(idx).insert(patch);
         }
