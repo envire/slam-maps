@@ -1,4 +1,4 @@
-find_package(Boost REQUIRED COMPONENTS system filesystem serialization)
+find_package(Boost REQUIRED COMPONENTS filesystem serialization)
 find_package(CGAL REQUIRED COMPONENTS Core)
 find_package(PCL 1.7 REQUIRED COMPONENTS common)
 IF("${PCL_VERSION_MAJOR}.${PCL_VERSION_MINOR}" VERSION_LESS 1.14)
@@ -80,7 +80,6 @@ rock_library(maps
         pcl_io${PCL_VERSION_SUFFIX}
         pcl_common${PCL_VERSION_SUFFIX}
     DEPS
-        Boost::system
         Boost::filesystem
         Boost::serialization
 )
