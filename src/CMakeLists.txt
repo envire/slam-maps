@@ -1,6 +1,6 @@
 find_package(Boost REQUIRED COMPONENTS filesystem serialization)
 find_package(CGAL REQUIRED COMPONENTS Core)
-find_package(PCL 1.7 REQUIRED COMPONENTS common)
+find_package(PCL 1.10 REQUIRED COMPONENTS common)
 IF("${PCL_VERSION_MAJOR}.${PCL_VERSION_MINOR}" VERSION_LESS 1.14)
     SET(PCL_VERSION_SUFFIX "-${PCL_VERSION_MAJOR}.${PCL_VERSION_MINOR}")
 ENDIF()
@@ -82,5 +82,8 @@ rock_library(maps
     DEPS
         Boost::filesystem
         Boost::serialization
+        # for its usage requirements, e.g. the C++ standard (C++17 from PCL 1.15 on)
+        pcl_common
 )
+target_compile_features(maps PUBLIC cxx_std_14)
 
